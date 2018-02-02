@@ -1,5 +1,7 @@
 package com.easyworks;
 
+import com.easyworks.function.*;
+
 /**
  * Helper functions to throw RuntimeException when any Exceptions are encountered.
  */

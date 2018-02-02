@@ -1,5 +1,7 @@
 package com.easyworks;
 
+import com.easyworks.function.BiPredicateThrows;
+import com.easyworks.function.PredicateThrows;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -16,7 +18,7 @@ public class ReThrowsTest extends TestCase {
 
     @Test(expected = RuntimeException.class)
     public void testTest2() {
-        BiPredicateThrows<String, Integer> p = (s,i) -> s.length() > i;
+        BiPredicateThrows<String, Integer> p = (s, i) -> s.length() > i;
         ReThrows.test(p, null, 5);
     }
 

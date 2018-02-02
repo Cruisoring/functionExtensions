@@ -1,4 +1,4 @@
-package com.easyworks;
+package com.easyworks.utilities;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

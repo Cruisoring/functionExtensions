@@ -1,4 +1,4 @@
-package com.easyworks;
+package com.easyworks.function;
 
 @FunctionalInterface
 public interface RunnableThrows {

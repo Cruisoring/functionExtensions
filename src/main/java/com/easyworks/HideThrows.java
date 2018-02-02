@@ -1,9 +1,13 @@
 package com.easyworks;
 
+import com.easyworks.function.*;
+
 /**
  * Helper functions to hide Exceptions and return the default values instead.
+ *
  * Note: Calling FunctionalInterface returning values, like SupplierThrows/FunctionThrows/BiFuntionThrows
- * shall append the defaultValue argument.
+ * shall append the defaultValue argument. Generally, it is awkward way to execute and evaluate.
+ * {@code ToResult} is preferred.
  */
 public class HideThrows {
 
