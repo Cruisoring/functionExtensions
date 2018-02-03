@@ -10,20 +10,23 @@ import java.io.IOException;
 
 public class ReThrowsTest extends TestCase {
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = NullPointerException.class)
     public void testTest1() {
         PredicateThrows<File> p = file -> file.getCanonicalPath().length() > 100;
-        ReThrows.test(p, null);
+        //Test would fail with NullPointException
+        ReThrows.test(null, p);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = NullPointerException.class)
     public void testTest2() {
         BiPredicateThrows<String, Integer> p = (s, i) -> s.length() > i;
-        ReThrows.test(p, null, 5);
+        //Test would fail with NullPointException
+        ReThrows.test(null, 5, p);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = IOException.class)
     public void testRun() {
+        //Test would fail with IOException
         ReThrows.run(() -> {throw new IOException();});
     }
 

@@ -1,10 +1,13 @@
 package com.easyworks.utilities;
 
+import com.easyworks.ResultFunction;
+
 /**
- * Generic wrapper of the returned value, success or not and optional message from the Exception caught.
+ * Generic wrapper of the returned Value, success or not and optional message from the Exception caught.
  * @param <T>   Type of the embedded result.
  */
-public class Result<T> {
+public class Result<T>{
+
     //Predefined Value indicating success operations returning void
     public static final Result Success = new Result(true, null, null);
 
@@ -28,10 +31,10 @@ public class Result<T> {
     }
 
     /**
-     * Construct a Result when expected value is returned.
+     * Construct a Result when expected Value is returned.
      * Notice: Due to the potential confliction when T is boolean, keep using the static variable {@code Success}
      * and {@code Failure} to indicate normal boolean results.
-     * @param value the returned value.
+     * @param value the returned Value.
      */
     public Result(T value){
         this(true, null, value);
@@ -44,4 +47,52 @@ public class Result<T> {
     public Result(Exception exception){
         this(false, exception.getMessage(), null);
     }
+
+    public Result and(Result other){
+        return this.isSuccess ? other : this;
+    }
+
+    public Result or(Result other){
+        return this.isSuccess ? this : other;
+    }
+
+    public Result and(ResultFunction other){
+        return !this.isSuccess ? this : other.perform();
+    }
+
+    public Result or(ResultFunction other){
+        return this.isSuccess ? this : other.perform();
+    }
+
+
+    public Result and(Result... others){
+        if(!this.isSuccess)
+            return this;
+
+        //others shall not be empty
+        int len = others.length;
+        if(len == 0)
+            return new Result(new Exception("others shall not be empty"));
+        for(int i=0; i<len-1; i++) {
+            if (!others[i].isSuccess)
+                return others[i];
+        }
+        return others[len-1];
+    }
+
+    public Result or(Result... others){
+        if(this.isSuccess)
+            return this;
+
+        //others shall not be empty
+        int len = others.length;
+        if(len == 0)
+            return new Result(new Exception("others shall not be empty"));
+        for(int i=0; i<len-1; i++) {
+            if (others[i].isSuccess)
+                return others[i];
+        }
+        return others[len-1];
+    }
+
 }

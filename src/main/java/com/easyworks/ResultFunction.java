@@ -1,7 +1,6 @@
 package com.easyworks;
 
 import com.easyworks.utilities.Result;
-import io.reactivex.Observable;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -10,15 +9,43 @@ import java.util.stream.Stream;
 @FunctionalInterface
 public interface ResultFunction<T> {
     /**
-     *
+     * Execute the embedded logic to get the Result.
      * @return
      */
-    Result execute();
+    Result perform();
 
-//    default ResultFunction combine(ResultFunction... others){
-//        final Observable observable = Observable.concat(Observable.just(this), Observable.fromArray(others))
-//                .map(f -> f.execute());
-//
-//        return () -> observable.map(rf -> rf.execute()).reduce()
-//    }
+    default ResultFunction next(ResultFunction other){
+        return () -> {
+            Result thisResult = perform();
+            if(!thisResult.isSuccess)
+                return thisResult;
+            return other.perform();
+        };
+    }
+
+    default ResultFunction nextAny(ResultFunction... others){
+        return () -> {
+            Result thisResult = perform();
+            if(!thisResult.isSuccess || others.length == 0)
+                return thisResult;
+            return Arrays.stream(others).parallel()
+                    .map(fun->fun.perform())
+                    .filter(result -> result.isSuccess)
+                    .findAny()
+                    .orElse(Result.Failure);
+        };
+    }
+
+    default ResultFunction nextAll(ResultFunction... others){
+        return () -> {
+            Result thisResult = perform();
+            if(!thisResult.isSuccess || others.length == 0)
+                return thisResult;
+            return Arrays.stream(others).parallel()
+                    .map(fun->fun.perform())
+                    .filter(result -> !result.isSuccess)
+                    .findAny()
+                    .orElse(thisResult);
+        };
+    }
 }
