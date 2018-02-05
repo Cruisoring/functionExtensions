@@ -9,24 +9,21 @@ import com.easyworks.function.*;
  * shall append the defaultValue argument. Generally, it is awkward way to perform and evaluate.
  * {@code ToResult} is preferred.
  */
-public class HideThrows {
+public class NoThrows {
 
     public static void run(RunnableThrows runnable){
         try {
             runnable.run();
         } catch (Exception ex){
-
         }
     }
 
     public static void run(RunnableThrows... runnables){
         try {
-            //Make it throw Exception when runnables is empty
             for (int i=0; i<runnables.length; i++) {
                 runnables[i].run();
             }
         } catch (Exception ex){
-
         }
     }
 
@@ -34,18 +31,15 @@ public class HideThrows {
         try {
             consumer.accept(t);
         } catch (Exception ex){
-
         }
     }
 
     public static <T> void accept(T t, ConsumerThrows<T>... consumers){
         try {
-            //Make it throw Exception when consumers is empty
             for (int i=0; i<consumers.length; i++) {
                 consumers[i].accept(t);
             }
         } catch (Exception ex){
-
         }
     }
 
@@ -59,7 +53,6 @@ public class HideThrows {
 
     public static <T> boolean test(T t, PredicateThrows<T>... predicates){
         try {
-            //Make it throw Exception when predicates is empty
             for (int i=0; i<predicates.length; i++) {
                 if(!predicates[i].test(t))
                     return false;
@@ -88,7 +81,6 @@ public class HideThrows {
 
     public static <T, U> boolean test(T t, U u, BiPredicateThrows<T, U>... predicates){
         try {
-            //Make it throw Exception when predicates is empty
             for (int i=0; i<predicates.length; i++) {
                 if(!predicates[i].test(t, u))
                     return false;
@@ -108,7 +100,6 @@ public class HideThrows {
 
     public static <T, U> void accept(T t, U u, BiConsumerThrows<T, U>... consumers){
         try {
-            //Make it throw Exception when predicates is empty
             for (int i=0; i<consumers.length; i++) {
                 consumers[i].accept(t, u);
             }
