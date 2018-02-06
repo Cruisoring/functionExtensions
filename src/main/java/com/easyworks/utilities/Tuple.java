@@ -1,11 +1,15 @@
 package com.easyworks.utilities;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.function.Supplier;
 
 public class Tuple {
     public static final Unit UNIT = new Unit();
+
+    public static String getClassName(Object object){
+        if(object == null) return null;
+        return object.getClass().getName();
+    }
 
     //region Factories to create Strong-typed Tuple instances based on the number of given arguments
     public static Unit create(){
@@ -263,13 +267,17 @@ public class Tuple {
     //endregion
 
     private final Object[] values;
+    private final String[] classNames;
     private final int length;
 
     private Tuple(Object... arguments){
         length = arguments.length;
         values = new Object[length];
+        classNames = new String[length];
         for (int i=0; i<length; i++){
-            values[i] = arguments[i];
+            Object argument = arguments[i];
+            values[i] = argument;
+            classNames[i] = getClassName(argument);
         }
     }
 
@@ -284,7 +292,7 @@ public class Tuple {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Tuple) || length != ((Tuple) obj).length)
+        if(obj == null || !(obj instanceof Tuple) || length != ((Tuple) obj).length)
             return false;
         if (obj == this)
             return true;

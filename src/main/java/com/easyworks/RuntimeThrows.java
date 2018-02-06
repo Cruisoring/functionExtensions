@@ -17,54 +17,6 @@ public class RuntimeThrows {
         }
     }
 
-    public static void run(RunnableThrows... runnables){
-        try {
-            for (int i=0; i<runnables.length; i++) {
-                runnables[i].run();
-            }
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public static <T> void accept(T t, ConsumerThrows<T> consumer){
-        try {
-            consumer.accept(t);
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public static <T> void accept(T t, ConsumerThrows<T>... consumers){
-        try {
-            for (int i=0; i<consumers.length; i++) {
-                consumers[i].accept(t);
-            }
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public static <T> boolean test(T t, PredicateThrows<T> predicate){
-        try {
-            return predicate.test(t);
-        }catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public static <T> boolean test(T t, PredicateThrows<T>... predicates){
-        try {
-            for (int i=0; i<predicates.length; i++) {
-                if(!predicates[i].test(t))
-                    return false;
-            }
-            return true;
-        }catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
-    }
-
     public static <T> T get(SupplierThrows<T> supplier){
         try {
             return supplier.get();
@@ -73,60 +25,72 @@ public class RuntimeThrows {
         }
     }
 
+
+    public static void run(RunnableThrows... runnables){
+        run(() -> {
+            for (int i=0; i<runnables.length; i++) {
+                runnables[i].run();
+            }
+        });
+    }
+
+    public static <T> void accept(T t, ConsumerThrows<T> consumer){
+        run(() -> consumer.accept(t));
+    }
+
+    public static <T> void accept(T t, ConsumerThrows<T>... consumers){
+        run(() -> {
+            for (int i=0; i<consumers.length; i++) {
+                consumers[i].accept(t);
+            }
+        });
+    }
+
+    public static <T> boolean test(T t, PredicateThrows<T> predicate){
+        return get(() -> predicate.test(t));
+    }
+
+    public static <T> boolean test(T t, PredicateThrows<T>... predicates){
+        return get(() -> {
+            for (int i=0; i<predicates.length; i++) {
+                if(!predicates[i].test(t))
+                    return false;
+            }
+            return true;
+        });
+    }
+
     public static <T, U> boolean test(T t, U u, BiPredicateThrows<T, U> predicate){
-        try {
-            return predicate.test(t, u);
-        }catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
+        return get(()-> predicate.test(t, u));
     }
 
     public static <T, U> boolean test(T t, U u, BiPredicateThrows<T, U>... predicates){
-        try {
+        return get(()-> {
             for (int i=0; i<predicates.length; i++) {
                 if(!predicates[i].test(t, u))
                     return false;
             }
             return true;
-        }catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
+        });
     }
 
-
     public static <T, U> void accept(T t, U u, BiConsumerThrows<T, U> consumer){
-        try {
-            consumer.accept(t, u);
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
+        run(() -> consumer.accept(t, u));
     }
 
     public static <T, U> void accept(T t, U u, BiConsumerThrows<T, U>... consumers){
-        try {
-            //Make it throw Exception when predicates is empty
+        run(() -> {
             for (int i=0; i<consumers.length; i++) {
                 consumers[i].accept(t, u);
             }
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
+        });
     }
 
     public static <T, R> R apply(T t, FunctionThrows<T,R> function){
-        try {
-            return function.apply(t);
-        }catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
+        return get(()->function.apply(t));
     }
 
     public static <T, U, R> R apply(T t, U u, BiFunctionThrows<T,U,R> function){
-        try {
-            return function.apply(t, u);
-        }catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
+        return get(()->function.apply(t, u));
     }
-
 }

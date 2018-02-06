@@ -22,7 +22,7 @@ public class Lazy<T> implements AutoCloseable {
      * @param supplier The factory to create value instance when getValue() is called.
      */
     public Lazy(SupplierThrows<T> supplier){
-        Objects.nonNull(supplier);
+        Objects.requireNonNull(supplier);
         this.supplier = supplier;
         this.closing = this::reset;
     }
@@ -34,6 +34,7 @@ public class Lazy<T> implements AutoCloseable {
      */
     public Lazy(SupplierThrows<T> supplier, RunnableThrows closing){
         this(supplier);
+        Objects.requireNonNull(closing);
         this.closing = closing;
     }
 
@@ -44,10 +45,9 @@ public class Lazy<T> implements AutoCloseable {
      * @return                  Another Lazy instance to delay initialization of type U.
      */
     public <U> Lazy<U> attach(SupplierThrows<U> dependentSupplier){
-        Objects.nonNull(dependentSupplier);
-        Lazy<U> child = new Lazy(dependentSupplier);
-        this.closing = this.closing.tryStartWith(child::close);
-        return child;
+        Lazy<U> dependent = new Lazy(dependentSupplier);
+        this.closing = this.closing.tryStartWith(dependent::close);
+        return dependent;
     }
 
     /**
@@ -58,10 +58,9 @@ public class Lazy<T> implements AutoCloseable {
      * @return                  Another Lazy instance to delay initialization of type U.
      */
     public <U> Lazy<U> attach(SupplierThrows<U> dependentSupplier, RunnableThrows closing){
-        Objects.nonNull(dependentSupplier);
-        Lazy<U> child = new Lazy(dependentSupplier, closing);
-        this.closing = this.closing.tryStartWith(child::close);
-        return child;
+        Lazy<U> dependent = new Lazy(dependentSupplier, closing);
+        this.closing = this.closing.tryStartWith(dependent::close);
+        return dependent;
     }
 
     /**
