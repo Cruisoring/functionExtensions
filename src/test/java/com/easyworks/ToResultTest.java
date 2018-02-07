@@ -1,6 +1,6 @@
 package com.easyworks;
 
-import com.easyworks.utilities.Result;
+import com.easyworks.utility.Result;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

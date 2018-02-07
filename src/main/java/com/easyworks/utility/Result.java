@@ -1,4 +1,4 @@
-package com.easyworks.utilities;
+package com.easyworks.utility;
 
 import com.easyworks.ResultFunction;
 

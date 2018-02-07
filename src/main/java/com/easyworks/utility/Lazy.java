@@ -1,8 +1,9 @@
-package com.easyworks;
+package com.easyworks.utility;
 
+import com.easyworks.NoThrows;
+import com.easyworks.RuntimeThrows;
 import com.easyworks.function.RunnableThrows;
 import com.easyworks.function.SupplierThrows;
-import com.easyworks.utilities.Defaults;
 
 import java.util.Objects;
 

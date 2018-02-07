@@ -1,9 +1,8 @@
 package com.easyworks;
 
-import com.easyworks.utilities.Result;
+import com.easyworks.utility.Result;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 
 @FunctionalInterface

@@ -1,6 +1,6 @@
 package com.easyworks;
 
-import com.easyworks.function.SupplierThrows;
+import com.easyworks.utility.Lazy;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
