@@ -1,9 +1,7 @@
 package com.easyworks;
 
 import com.easyworks.function.*;
-import com.easyworks.utilities.Result;
-
-import java.util.Arrays;
+import com.easyworks.utility.Result;
 
 /**
  * Helper methods to always return a Result object to indicate success operation or not,

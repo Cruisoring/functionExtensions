@@ -1,6 +1,6 @@
 package com.easyworks;
 
-import com.easyworks.utilities.Defaults;
+import com.easyworks.utility.Defaults;
 import junit.framework.TestCase;
 
 public class DefaultsTest extends TestCase {
