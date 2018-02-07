@@ -9,12 +9,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public abstract class Tuple implements AutoCloseable {
     public static Loggable loggable;
 
     public static final Unit UNIT = new Unit();
-
+    public static final Single TRUE = new Single(true);
+    public static final Single FALSE = new Single(false);
 
     //region Factories to create Strong-typed Tuple instances based on the number of given arguments
     public static Unit create(){
@@ -378,17 +380,16 @@ public abstract class Tuple implements AutoCloseable {
     //endregion
 
     private final Object[] values;
-    private final PredicateThrows<Class>[] classPredicates;
+    private final Class[] classes;
 
     private Tuple(Object... arguments){
         int length = arguments.length;
         values = new Object[length];
-        classPredicates = new PredicateThrows[length];
+        classes = new Class[length];
         for (int i=0; i<length; i++){
-            Object argument = arguments[i];
-            values[i] = argument;
-            if(argument != null)
-            classPredicates[i] = ClassHelper.getClassPredicate(argument.getClass());
+            Object obj = arguments[i];
+            values[i] = obj;
+            classes[i] = obj == null ? null : obj.getClass();
         }
     }
 
@@ -400,7 +401,8 @@ public abstract class Tuple implements AutoCloseable {
 
         int length = getLength();
         for (int i = 0; i < length; i++) {
-            if(NoThrows.test(clazz, classPredicates[i])){
+            if(classes[i] == null) continue;
+            if(ClassHelper.getClassPredicate(classes[i]).testNoThrows(clazz)){
                 matched.add((T)values[i]);
             }
         };
@@ -428,7 +430,8 @@ public abstract class Tuple implements AutoCloseable {
 
     @Override
     public String toString() {
-        return super.toString();
+        return String.format("[%s]", Arrays.stream(values)
+                .map(v -> v==null?"null":v.toString()).collect(Collectors.joining(", ")));
     }
 
     private boolean closed = false;

@@ -49,9 +49,10 @@ public class ClassHelper {
      */
     public static PredicateThrows<Class> getClassPredicate(Class klass){
         if(klass == null) return alwaysFalse;
-        if (classPredicates.containsKey(klass))
-            return classPredicates.get(klass);
-        return clazz -> clazz.isAssignableFrom(klass);
+        if (!classPredicates.containsKey(klass)){
+            classPredicates.put(klass,clazz -> clazz.isAssignableFrom(klass));
+        }
+        return classPredicates.get(klass);
     }
 
 
