@@ -16,6 +16,23 @@ public interface SupplierThrows<T> {
     }
 
     @FunctionalInterface
+    interface PredicateThrows<T> {
+        boolean test(T t) throws Exception;
+
+        default SupplierThrows<Boolean> asSupplier(T t){
+            return () -> test(t);
+        }
+
+        default boolean testNoThrows(T t){
+            return NoThrows.get(asSupplier(t), false);
+        }
+
+        default boolean testRuntimeThrows(T t){
+            return RuntimeThrows.get(asSupplier(t));
+        }
+    }
+
+    @FunctionalInterface
     interface FunctionThrows<T, R> {
         R apply(T t) throws Exception;
 
@@ -27,7 +44,7 @@ public interface SupplierThrows<T> {
             return NoThrows.get(asSupplier(t), defaultR);
         }
 
-        default R applyRuntimeThrows(T t, R defaultR){
+        default R applyRuntimeThrows(T t){
             return RuntimeThrows.get(asSupplier(t));
         }
     }

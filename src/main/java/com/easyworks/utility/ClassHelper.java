@@ -1,11 +1,13 @@
 package com.easyworks.utility;
 
+import com.easyworks.function.SupplierThrows;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class ClassHelper {
 
-    public static final Map<Class, PredicateThrows<Class>> classPredicates = new HashMap<Class, PredicateThrows<Class>>(){{
+    public static final Map<Class, SupplierThrows.PredicateThrows<Class>> classPredicates = new HashMap<Class, SupplierThrows.PredicateThrows<Class>>(){{
         put(Boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
         put(boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
         put(Byte.class, clazz -> Byte.class.equals(clazz) || byte.class.equals(clazz));
@@ -39,13 +41,13 @@ public class ClassHelper {
 
     }};
 
-    protected static final PredicateThrows<Class> alwaysFalse = c -> false;
+    protected static final SupplierThrows.PredicateThrows<Class> alwaysFalse = c -> false;
     /**
      * TODO: get the Class predicate based on the given object.
      * @param klass Type to be evaludated
      * @return
      */
-    public static PredicateThrows<Class> getClassPredicate(Class klass){
+    public static SupplierThrows.PredicateThrows<Class> getClassPredicate(Class klass){
         if(klass == null) return alwaysFalse;
         if (!classPredicates.containsKey(klass)){
             classPredicates.put(klass,clazz -> clazz.isAssignableFrom(klass));

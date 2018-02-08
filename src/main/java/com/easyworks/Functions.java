@@ -11,95 +11,102 @@ public class Functions {
     //region Factories to convert various Consumer methods, plus expected arguments, to RunnableThrows
     // that accept no input and returns nothing.
     public static<T>  RunnableThrows toRunnable(
-            RunnableThrows.ConsumerThrows<T> consumer,
-            T t) throws Exception{
+            T t,
+            RunnableThrows.ConsumerThrows<T> consumer) throws Exception{
         return () -> consumer.accept(t);
     }
 
     public static<T,U>  RunnableThrows toRunnable(
-            RunnableThrows.BiConsumerThrows<T,U> consumer,
-            T t, U u) throws Exception{
+            T t, U u,
+            RunnableThrows.BiConsumerThrows<T,U> consumer) throws Exception{
         return () -> consumer.accept(t, u);
     }
 
     public static<T,U,V>  RunnableThrows toRunnable(
-            RunnableThrows.TriConsumerThrows<T,U,V> consumer,
-            T t, U u, V v) throws Exception{
+            T t, U u, V v,
+            RunnableThrows.TriConsumerThrows<T,U,V> consumer) throws Exception{
         return () -> consumer.accept(t, u, v);
     }
 
     public static<T,U,V,W>  RunnableThrows toRunnable(
-            RunnableThrows.QuadConsumerThrows<T,U,V,W> consumer,
-            T t, U u, V v, W w) throws Exception{
+            T t, U u, V v, W w,
+            RunnableThrows.QuadConsumerThrows<T,U,V,W> consumer) throws Exception{
         return () -> consumer.accept(t, u, v, w);
     }
 
     public static<T,U,V,W,X>  RunnableThrows toRunnable(
-            RunnableThrows.PentaConsumerThrows<T,U,V,W,X> consumer,
-            T t, U u, V v, W w, X x) throws Exception{
+            T t, U u, V v, W w, X x,
+            RunnableThrows.PentaConsumerThrows<T,U,V,W,X> consumer) throws Exception{
         return () -> consumer.accept(t, u, v, w, x);
     }
 
     public static<T,U,V,W,X,Y>  RunnableThrows toRunnable(
-            RunnableThrows.HexaConsumerThrows<T,U,V,W,X,Y> consumer,
-            T t, U u, V v, W w, X x, Y y) throws Exception{
+            T t, U u, V v, W w, X x, Y y,
+            RunnableThrows.HexaConsumerThrows<T,U,V,W,X,Y> consumer) throws Exception{
         return () -> consumer.accept(t, u, v, w, x, y);
     }
 
     public static<T,U,V,W,X,Y,Z>  RunnableThrows toRunnable(
-            RunnableThrows.HeptaConsumerThrows<T,U,V,W,X,Y,Z> consumer,
-            T t, U u, V v, W w, X x, Y y, Z z) throws Exception{
+            T t, U u, V v, W w, X x, Y y, Z z,
+            RunnableThrows.HeptaConsumerThrows<T,U,V,W,X,Y,Z> consumer) throws Exception{
         return () -> consumer.accept(t, u, v, w, x, y, z);
     }
     //endregion
 
     //region Factories to convert various functions, plus expected 1-7 arguments, to RunnableThrows
     // that accept no input and returns nothing.
+    public static <T> SupplierThrows<Boolean> asSupplier(
+            T t,
+            SupplierThrows.PredicateThrows<T> predicate)
+            throws Exception {
+        return () -> predicate.test(t);
+    }
+
     public static <T,R> SupplierThrows<R> asSupplier(
-            SupplierThrows.FunctionThrows<T,R> function,
-            T t)
+            T t,
+            SupplierThrows.FunctionThrows<T,R> function)
             throws Exception {
          return () -> function.apply(t);
     }
 
     public static <T,U,R> SupplierThrows<R> asSupplier(
-            SupplierThrows.BiFunctionThrows<T,U,R> function,
-            T t, U u)
+            T t, U u,
+            SupplierThrows.BiFunctionThrows<T,U,R> function)
             throws Exception {
         return () -> function.apply(t, u);
     }
 
     public static <T,U,V,R> SupplierThrows<R> asSupplier(
-            SupplierThrows.TriFunctionThrows<T,U,V,R> function,
-            T t, U u, V v)
+            T t, U u, V v,
+            SupplierThrows.TriFunctionThrows<T,U,V,R> function)
             throws Exception {
         return () -> function.apply(t, u, v);
     }
 
     public static <T,U,V,W,R> SupplierThrows<R> asSupplier(
-            SupplierThrows.QuadFunctionThrows<T,U,V,W,R> function,
-            T t, U u, V v, W w)
+            T t, U u, V v, W w,
+            SupplierThrows.QuadFunctionThrows<T,U,V,W,R> function)
             throws Exception {
         return () -> function.apply(t, u, v, w);
     }
 
     public static <T,U,V,W,X,R> SupplierThrows<R> asSupplier(
-            SupplierThrows.PentaFunctionThrows<T,U,V,W,X,R> function,
-            T t, U u, V v, W w, X x)
+            T t, U u, V v, W w, X x,
+            SupplierThrows.PentaFunctionThrows<T,U,V,W,X,R> function)
             throws Exception {
         return () -> function.apply(t, u, v, w, x);
     }
 
     public static <T,U,V,W,X,Y,R> SupplierThrows<R> asSupplier(
-            SupplierThrows.HexaFunctionThrows<T,U,V,W,X,Y,R> function,
-            T t, U u, V v, W w, X x, Y y)
+            T t, U u, V v, W w, X x, Y y,
+            SupplierThrows.HexaFunctionThrows<T,U,V,W,X,Y,R> function)
             throws Exception {
         return () -> function.apply(t, u, v, w, x, y);
     }
 
     public static <T,U,V,W,X,Y,Z,R> SupplierThrows<R> asSupplier(
-            SupplierThrows.HeptaFunctionThrows<T,U,V,W,X,Y,Z,R> function,
-            T t, U u, V v, W w, X x, Y y, Z z)
+            T t, U u, V v, W w, X x, Y y, Z z,
+            SupplierThrows.HeptaFunctionThrows<T,U,V,W,X,Y,Z,R> function)
             throws Exception {
         return () -> function.apply(t, u, v, w, x, y, z);
     }
