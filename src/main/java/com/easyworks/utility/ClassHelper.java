@@ -1,7 +1,5 @@
 package com.easyworks.utility;
 
-import com.easyworks.function.PredicateThrows;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,6 +1,5 @@
 package com.easyworks.utility;
 
-import com.easyworks.function.PredicateThrows;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
