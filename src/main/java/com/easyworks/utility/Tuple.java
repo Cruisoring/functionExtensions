@@ -2,7 +2,6 @@ package com.easyworks.utility;
 
 import com.easyworks.Loggable;
 import com.easyworks.NoThrows;
-import com.easyworks.function.PredicateThrows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
