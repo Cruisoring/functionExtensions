@@ -1,10 +1,10 @@
 package com.easyworks.utility;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.time.LocalDate;
+
+import static org.junit.Assert.*;
 
 public class TupleTest {
     class A<T> {
@@ -169,5 +169,20 @@ public class TupleTest {
 
     @Test
     public void equals() {
+        Tuple.Dual<Boolean, Boolean> nullDual2 = Tuple.create(null, null);
+        assertTrue(nullDual.equals(nullDual2));
+        assertTrue(nullDual2.equals(nullDual));
+        assertEquals(nullDual2, nullDual);
+        assertEquals(nullDual, nullDual2);
+
+        Tuple.Set<Boolean> nullDual3 = Tuple.setOf(null, null);
+        assertFalse(nullDual2.equals(nullDual3));
+        assertFalse(nullDual3.equals(nullDual2));
+
+        Tuple.Set<String> null4 = Tuple.setOf(null, null);
+        assertTrue(nullDual3.equals(null4));
+        assertEquals(null4, nullDual3);
+        assertEquals(nullDual3, null4);
+
     }
 }

@@ -63,6 +63,22 @@ public abstract class Tuple implements AutoCloseable {
             group = Arrays.copyOf(values, values.length);
         }
 
+
+        @Override
+        public boolean equals(Object other){
+            if(other instanceof Set){
+                Set<T> that = (Set<T>) other;
+                if(that == null) return false;
+                return (that.canEqual(this) && super.equals(that));
+            }
+            return false;
+        }
+
+        @Override
+        public boolean canEqual(Object other){
+            return (other instanceof Set);
+        }
+
         /**
          * Return copy of the given values as an Set.
          * Notice: when T is a class, then it still exposes the original value to external users to change.
@@ -424,7 +440,11 @@ public abstract class Tuple implements AutoCloseable {
         if (obj == this)
             return true;
 
-        return Arrays.deepEquals(values, ((Tuple) obj).values);
+        return ((Tuple) obj).canEqual(this) && Arrays.deepEquals(values, ((Tuple) obj).values);
+    }
+
+    public boolean canEqual(Object other){
+        return (other instanceof Tuple);
     }
 
     @Override
