@@ -8,69 +8,6 @@ import com.easyworks.function.SupplierThrows;
  * either RunnableThrows or SupplierThrows depending on if it returns void or some result.
  */
 public class Functions<R> {
-//    public static Functions Default = null;
-//
-//    public static void execute(RunnableThrows runnableThrows){
-//        Default.run(runnableThrows);
-//    }
-//
-//    public static <T> void execute(T t,
-//                               RunnableThrows.ConsumerThrows<T> consumer){
-//        Default.run(t, consumer);
-//    }
-//
-//    public static <T,U> void execute(
-//            T t, U u,
-//            RunnableThrows.BiConsumerThrows<T,U> consumer){
-//        Default.run(t,u,consumer);
-//    }
-//
-//    public static <T,U,V> void execute(
-//            T t, U u, V v,
-//            RunnableThrows.TriConsumerThrows<T,U,V> consumer){
-//        Default.run(t,u,v,consumer);
-//    }
-//
-//    public static <T,U,V,W> void execute(
-//            T t, U u, V v, W w,
-//            RunnableThrows.QuadConsumerThrows<T,U,V,W> consumer){
-//        Default.run(t,u,v,w,consumer);
-//    }
-//
-//    public static <T,U,V,W,X> void execute(
-//            T t, U u, V v, W w, X x,
-//            RunnableThrows.PentaConsumerThrows<T,U,V,W,X> consumer){
-//        Default.run(t,u,v,w,x,consumer);
-//    }
-//
-//    public static <T,U,V,W,X,Y> void execute(
-//            T t, U u, V v, W w, X x, Y y,
-//            RunnableThrows.HexaConsumerThrows<T,U,V,W,X,Y> consumer){
-//        Default.run(t,u,v,w,x,y,consumer);
-//    }
-//
-//    public static <T,U,V,W,X,Y,Z> void execute(
-//            T t, U u, V v, W w, X x, Y y, Z z,
-//            RunnableThrows.HeptaConsumerThrows<T,U,V,W,X,Y,Z> consumer){
-//        Default.run(t,u,v,w,x,y,z,consumer);
-//    }
-//
-//    public static <R> R returns(SupplierThrows supplierThrows){
-//        return (R) Default.get(supplierThrows);
-//    }
-//
-//    public static <T,R> R returns(
-//            T t,
-//            SupplierThrows.FunctionThrows<T,R> function){
-//        return (R) Default.get(() -> function.apply(t));
-//    }
-//
-//    public static  <T,U,R> R returns(
-//            T t, U u,
-//            SupplierThrows.BiFunctionThrows<T,U,R> function){
-//        return (R) Default.get(() -> function.apply(t,u));
-//    }
-
 
     private ExceptionHandler<R> handler;
     public Functions(ExceptionHandler<R> handler){
@@ -280,4 +217,70 @@ public class Functions<R> {
         return () -> function.apply(t, u, v, w, x, y, z);
     }
     //endregion
+
+    //region other static helper functions that might be removed
+    //    public static Functions Default = null;
+//
+//    public static void execute(RunnableThrows runnableThrows){
+//        Default.run(runnableThrows);
+//    }
+//
+//    public static <T> void execute(T t,
+//                               RunnableThrows.ConsumerThrows<T> consumer){
+//        Default.run(t, consumer);
+//    }
+//
+//    public static <T,U> void execute(
+//            T t, U u,
+//            RunnableThrows.BiConsumerThrows<T,U> consumer){
+//        Default.run(t,u,consumer);
+//    }
+//
+//    public static <T,U,V> void execute(
+//            T t, U u, V v,
+//            RunnableThrows.TriConsumerThrows<T,U,V> consumer){
+//        Default.run(t,u,v,consumer);
+//    }
+//
+//    public static <T,U,V,W> void execute(
+//            T t, U u, V v, W w,
+//            RunnableThrows.QuadConsumerThrows<T,U,V,W> consumer){
+//        Default.run(t,u,v,w,consumer);
+//    }
+//
+//    public static <T,U,V,W,X> void execute(
+//            T t, U u, V v, W w, X x,
+//            RunnableThrows.PentaConsumerThrows<T,U,V,W,X> consumer){
+//        Default.run(t,u,v,w,x,consumer);
+//    }
+//
+//    public static <T,U,V,W,X,Y> void execute(
+//            T t, U u, V v, W w, X x, Y y,
+//            RunnableThrows.HexaConsumerThrows<T,U,V,W,X,Y> consumer){
+//        Default.run(t,u,v,w,x,y,consumer);
+//    }
+//
+//    public static <T,U,V,W,X,Y,Z> void execute(
+//            T t, U u, V v, W w, X x, Y y, Z z,
+//            RunnableThrows.HeptaConsumerThrows<T,U,V,W,X,Y,Z> consumer){
+//        Default.run(t,u,v,w,x,y,z,consumer);
+//    }
+//
+//    public static <R> R returns(SupplierThrows supplierThrows){
+//        return (R) Default.get(supplierThrows);
+//    }
+//
+//    public static <T,R> R returns(
+//            T t,
+//            SupplierThrows.FunctionThrows<T,R> function){
+//        return (R) Default.get(() -> function.apply(t));
+//    }
+//
+//    public static  <T,U,R> R returns(
+//            T t, U u,
+//            SupplierThrows.BiFunctionThrows<T,U,R> function){
+//        return (R) Default.get(() -> function.apply(t,u));
+//    }
+//endregion
+
 }

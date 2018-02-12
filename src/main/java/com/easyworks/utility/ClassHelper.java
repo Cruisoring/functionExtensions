@@ -22,6 +22,8 @@ public class ClassHelper {
         put(float.class, clazz -> float.class.equals(clazz) || Float.class.equals(clazz));
         put(Double.class, clazz -> Double.class.equals(clazz) || double.class.equals(clazz));
         put(double.class, clazz -> double.class.equals(clazz) || Double.class.equals(clazz));
+        put(char.class, clazz -> char.class.equals(clazz) || Character.class.equals(clazz));
+        put(Character.class, clazz -> Character.class.equals(clazz) || char.class.equals(clazz));
 
         put(Object[].class, clazz -> Object[].class.equals(clazz));
         put(Boolean[].class, clazz -> Boolean[].class.equals(clazz) || boolean[].class.equals(clazz));
@@ -38,6 +40,8 @@ public class ClassHelper {
         put(float[].class, clazz -> float[].class.equals(clazz) || Float[].class.equals(clazz));
         put(Double[].class, clazz -> Double[].class.equals(clazz) || double[].class.equals(clazz));
         put(double[].class, clazz -> double[].class.equals(clazz) || Double[].class.equals(clazz));
+        put(char[].class, clazz -> char[].class.equals(clazz) || Character[].class.equals(clazz));
+        put(Character[].class, clazz -> Character[].class.equals(clazz) || char[].class.equals(clazz));
 
     }};
 

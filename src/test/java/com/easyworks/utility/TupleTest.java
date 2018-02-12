@@ -45,8 +45,8 @@ public class TupleTest {
     Tuple tuple2 = Tuple.create("Second", "2");
     Tuple.Set<Boolean> boolSet2 = Tuple.setOf(true, false);
     Tuple tuple3 = Tuple.create(3, "Third", 3.33d);
-    Tuple tuple4 = Tuple.create(true, null, new A("Aaa"), new A("B").getClass());
-    Tuple tuple5 = Tuple.create(Progress.Working, "5", null, 5f, false);
+    Tuple.Quad tuple4 = Tuple.create(true, null, new A("Aaa"), new A("B").getClass());
+    Tuple.Penta tuple5 = Tuple.create(Progress.Working, "5", null, 5f, false);
     Tuple tuple6 = Tuple.create(6, Integer.valueOf(6), 6f, 6.0d, "six",  Progress.ofIndex(3));
     Tuple tuple7 = Tuple.create("Seven", new String[]{"arrayValue1", "arrayValue2"}, Character.valueOf('7'), '7', Integer.valueOf(7),
             new Character[]{'C'}, new char[]{'a','b'});
@@ -106,7 +106,7 @@ public class TupleTest {
         assertEquals(_1, singleString);
         String v = singleString.getFirst();
         assertEquals("First", v);
-        assertEquals(tuple0, tupleSet.getGroup()[0]);
+        assertEquals(tuple0, tupleSet.group[0]);
 
         assertEquals(1, set1.getLength());
     }
@@ -115,7 +115,7 @@ public class TupleTest {
     public void create2() {
         assertEquals(2, tuple2.getLength());
         assertEquals(2, boolSet2.getLength());
-        assertEquals(2, boolSet2.getGroup().length);
+        assertEquals(2, boolSet2.group.length);
         assertTrue(tuple2 instanceof Tuple.Dual);
         assertFalse(tuple2 instanceof Tuple.Set);
 
@@ -133,22 +133,51 @@ public class TupleTest {
 
     @Test
     public void create3() {
+        assertEquals(3, tuple3.getLength());
+        assertEquals(1, tuple3.getValuesOf(Integer.class).getLength());
+        assertEquals(1, tuple3.getValuesOf(double.class).getLength());
+        assertEquals(1, tuple3.getValuesOf(String.class).getLength());
+        assertEquals(Integer.valueOf(3), tuple3.getValuesOf(Integer.class).get(0));
+        assertEquals("Third", tuple3.getValuesOf(String.class).get(0));
     }
 
     @Test
     public void create4() {
+        assertEquals(4, tuple4.getLength());
+        assertEquals(true, tuple4.getFirst());
+        assertEquals(A.class, tuple4.getFourth());
+        assertEquals("Aaa", ((A)tuple4.getThird()).getValue());
     }
 
     @Test
     public void create5() {
+        assertEquals(5, tuple5.getLength());
+        assertEquals(Progress.Working, tuple5.getFirst());
+        assertEquals(false, tuple5.getFifth());
     }
 
     @Test
     public void create6() {
+
+        assertEquals(6, tuple6.getLength());
+        assertEquals(2, tuple6.getValuesOf(Integer.class).getLength());
+        assertEquals(2, tuple6.getValuesOf(int.class).getLength());
+        assertEquals(1, tuple6.getValuesOf(float.class).getLength());
+        assertEquals(1, tuple6.getValuesOf(Double.class).getLength());
+        assertEquals(1, tuple6.getValuesOf(Progress.class).getLength());
     }
 
     @Test
     public void create7() {
+
+        assertEquals(7, tuple7.getLength());
+        assertEquals(2, tuple7.getValuesOf(char.class).getLength());
+        assertEquals(2, tuple7.getValuesOf(Character.class).getLength());
+        assertEquals(2, tuple7.getValuesOf(char[].class).getLength());
+        assertEquals(2, tuple7.getValuesOf(Character[].class).getLength());
+        assertEquals(1, tuple7.getValuesOf(String.class).getLength());
+        assertEquals(1, tuple7.getValuesOf(int.class).getLength());
+
     }
 
     @Test
