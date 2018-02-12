@@ -8,8 +8,7 @@ import static org.junit.Assert.*;
 public class ToResultTest {
     @Test
     public void run() throws Exception {
-        int number =3;
-        assertEquals(Result.Success, ToResult.run(()->System.out.print("OK")));
+
     }
 
     @Test
