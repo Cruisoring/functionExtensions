@@ -2,7 +2,9 @@ package com.easyworks.utility;
 
 import com.easyworks.Loggable;
 import com.easyworks.NoThrows;
+import com.easyworks.function.SupplierThrows;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,42 +52,48 @@ public abstract class Tuple implements AutoCloseable {
         return new Hepta<>(t, u, v, w, x, y, z);
     }
 
-    public static <T> Set<T> setOf(T... values) { return new Set<>(values); }
+    public static <T> Set<T> setOf(T... values) { return new Set<T>(values); }
 
     //endregion Factories to create Strong-typed Tuple instances based on the number of given arguments
 
     //region Extended Strong-typed classes
 
     protected static class Set<T> extends Tuple{
-        private final T[] group;
+        public final T[] group;
         protected Set(T... values){
             super(values);
             group = Arrays.copyOf(values, values.length);
         }
 
-
         @Override
-        public boolean equals(Object other){
-            if(other instanceof Set){
-                Set<T> that = (Set<T>) other;
-                if(that == null) return false;
-                return (that.canEqual(this) && super.equals(that));
-            }
-            return false;
+        public boolean equals(Object obj) {
+            if(obj == null || !(obj instanceof Set))
+                return false;
+            if (obj == this)
+                return true;
+            Set other = (Set)obj;
+            if(!other.canEqual(this) || getLength() != ((Tuple) obj).getLength())
+                return false;
+
+            return super.equals(other);
         }
 
         @Override
-        public boolean canEqual(Object other){
+        public boolean canEqual(Object other) {
             return (other instanceof Set);
         }
 
-        /**
-         * Return copy of the given values as an Set.
-         * Notice: when T is a class, then it still exposes the original value to external users to change.
-         * @return  copy of the given values as an Set.
-         */
-        public T[] getGroup(){
-            return group;
+//        /**
+//         * Return copy of the given values as an Set.
+//         * Notice: when T is a class, then it still exposes the original value to external users to change.
+//         * @return  copy of the given values as an Set.
+//         */
+//        public T[] getGroup(){
+//            return group;
+//        }
+
+        public T get(int index){
+            return (T) Array.get(group, index);
         }
 
         @Override
@@ -124,12 +132,6 @@ public abstract class Tuple implements AutoCloseable {
     }
 
     protected static class Dual<T,U> extends Tuple {
-//        protected static class Set<T> extends Dual<T,T>{
-//            protected Set(T t1, T t2){
-//                super(t1, t2);
-//            }
-//        }
-
         private final Supplier<T> _1;
         private final Supplier<U> _2;
 
@@ -154,12 +156,6 @@ public abstract class Tuple implements AutoCloseable {
     }
 
     protected static class Triple<T,U,V> extends Tuple {
-//        protected static class Set<T> extends Triple<T,T,T>{
-//            protected Set(T t1, T t2, T t3){
-//                super(t1, t2, t3);
-//            }
-//        }
-
         private final Supplier<T> _1;
         private final Supplier<U> _2;
         private final Supplier<V> _3;
@@ -190,12 +186,6 @@ public abstract class Tuple implements AutoCloseable {
     }
 
     protected static class Quad<T,U,V,W> extends Tuple {
-//        protected static class Set<T> extends Quad<T,T,T,T>{
-//            protected Set(T t1, T t2, T t3, T t4){
-//                super(t1, t2, t3, t4);
-//            }
-//        }
-
         private final Supplier<T> _1;
         private final Supplier<U> _2;
         private final Supplier<V> _3;
@@ -232,12 +222,6 @@ public abstract class Tuple implements AutoCloseable {
     }
 
     protected static class Penta<T,U,V,W,X> extends Tuple {
-//        protected static class Set<T> extends Penta<T,T,T,T,T>{
-//            protected Set(T t1, T t2, T t3, T t4, T t5){
-//                super(t1, t2, t3, t4, t5);
-//            }
-//        }
-
         private final Supplier<T> _1;
         private final Supplier<U> _2;
         private final Supplier<V> _3;
@@ -280,12 +264,6 @@ public abstract class Tuple implements AutoCloseable {
     }
 
     protected static class Hexa<T,U,V,W,X,Y> extends Tuple {
-//        protected static class Set<T> extends Hexa<T,T,T,T,T,T>{
-//            protected Set(T t1, T t2, T t3, T t4, T t5, T t6){
-//                super(t1, t2, t3, t4, t5, t6);
-//            }
-//        }
-
         private final Supplier<T> _1;
         private final Supplier<U> _2;
         private final Supplier<V> _3;
@@ -294,7 +272,7 @@ public abstract class Tuple implements AutoCloseable {
         private final Supplier<Y> _6;
 
         protected Hexa(T t, U u, V v, W w, X x, Y y){
-            super(t, u, v, w);
+            super(t, u, v, w, x, y);
             _1 = () -> t;
             _2 = () -> u;
             _3 = () -> v;
@@ -334,12 +312,6 @@ public abstract class Tuple implements AutoCloseable {
     }
 
     protected static class Hepta<T,U,V,W,X,Y,Z> extends Tuple {
-//        protected static class Set<T> extends Hepta<T,T,T,T,T,T,T>{
-//            protected Set(T t1, T t2, T t3, T t4, T t5, T t6, T t7){
-//                super(t1, t2, t3, t4, t5, t6, t7);
-//            }
-//        }
-
         private final Supplier<T> _1;
         private final Supplier<U> _2;
         private final Supplier<V> _3;
@@ -349,7 +321,7 @@ public abstract class Tuple implements AutoCloseable {
         private final Supplier<Z> _7;
 
         protected Hepta(T t, U u, V v, W w, X x, Y y, Z z){
-            super(t, u, v, w);
+            super(t, u, v, w, x, y, z);
             _1 = () -> t;
             _2 = () -> u;
             _3 = () -> v;
@@ -414,37 +386,40 @@ public abstract class Tuple implements AutoCloseable {
         if(clazz == null)
             return new Set<T>();
 
+        SupplierThrows.PredicateThrows<Class> predicate = ClassHelper.getClassPredicate(clazz);
+
         int length = getLength();
         for (int i = 0; i < length; i++) {
             if(classes[i] == null) continue;
-            if(ClassHelper.getClassPredicate(classes[i]).testNoThrows(clazz)){
+            if(predicate.testNoThrows(classes[i])){
                 matched.add((T)values[i]);
             }
         };
-        T[] array = matched.toArray((T[]) java.lang.reflect.Array.newInstance(clazz, matched.size())) ;
+        T[] array = (T[]) matched.stream().toArray();
         return setOf(array);
     }
 
     public abstract int getLength();
-
     @Override
     public int hashCode() {
         return 17 * Arrays.deepHashCode(values) + getLength();
     }
 
-    //TODO: replace Arrays.deepEquals() which would return false when any value of the two Tuples is Null.
     @Override
     public boolean equals(Object obj) {
         if(obj == null || !(obj instanceof Tuple) || getLength() != ((Tuple) obj).getLength())
             return false;
         if (obj == this)
             return true;
+        Tuple other = (Tuple)obj;
+        if(!other.canEqual(this))
+            return false;
 
-        return ((Tuple) obj).canEqual(this) && Arrays.deepEquals(values, ((Tuple) obj).values);
+        return Arrays.deepEquals(values, other.values);
     }
 
-    public boolean canEqual(Object other){
-        return (other instanceof Tuple);
+    public boolean canEqual(Object obj) {
+        return (obj instanceof Tuple);
     }
 
     @Override
@@ -466,15 +441,15 @@ public abstract class Tuple implements AutoCloseable {
                 }
             }
             closed = true;
-            System.out.println("close() run successfully!");
+            Logger.L("close() run successfully!");
         }
     }
 
     @Override
     protected void finalize() throws Throwable {
-        if(!closed && loggable != null)
+        if(!closed)
         {
-            loggable.log( "FORGOT TO CLOSE THIS!" );
+            Logger.L( "******FORGOT TO CLOSE THE TUPLE!" );
         }
         super.finalize();
     }
