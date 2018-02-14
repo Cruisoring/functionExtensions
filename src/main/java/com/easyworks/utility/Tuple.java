@@ -4,7 +4,6 @@ import com.easyworks.Loggable;
 import com.easyworks.NoThrows;
 import com.easyworks.function.SupplierThrows;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,11 +57,22 @@ public abstract class Tuple implements AutoCloseable {
 
     //region Extended Strong-typed classes
 
-    protected static class Set<T> extends Tuple{
-        public final T[] group;
+    public static class Set<T> extends Tuple{
+        public final static Set EMPTY = new Set();
+//        public final T[] group;
+        public final Class<T> componentType;
         protected Set(T... values){
             super(values);
-            group = Arrays.copyOf(values, values.length);
+//            group = Arrays.copyOf(values, values.length);
+            componentType = (Class<T>) values.getClass().getComponentType();
+        }
+
+        public T[] asArray(){
+            return (T[])values;
+        }
+
+        public T get(int index){
+            return (T) values[index];
         }
 
         @Override
@@ -80,25 +90,23 @@ public abstract class Tuple implements AutoCloseable {
 
         @Override
         public boolean canEqual(Object other) {
-            return (other instanceof Set);
-        }
-
-//        /**
-//         * Return copy of the given values as an Set.
-//         * Notice: when T is a class, then it still exposes the original value to external users to change.
-//         * @return  copy of the given values as an Set.
-//         */
-//        public T[] getGroup(){
-//            return group;
-//        }
-
-        public T get(int index){
-            return (T) Array.get(group, index);
+            return (other instanceof Set) && ((Set) other).componentType == componentType;
         }
 
         @Override
-        public int getLength() {
-            return group.length;
+        public <R> Set<R> getSetOf(Class<R> clazz){
+            Objects.requireNonNull(clazz);
+            if(clazz.equals(componentType) || clazz.isAssignableFrom(componentType))
+                return (Set<R>) this;
+            return EMPTY;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s[%s]", componentType.getSimpleName(),
+                    Arrays.stream(values)
+                            .map(v -> v==null?"null":v.toString())
+                            .collect(Collectors.joining(", ")));
         }
     }
 
@@ -366,7 +374,7 @@ public abstract class Tuple implements AutoCloseable {
     }
     //endregion
 
-    private final Object[] values;
+    protected final Object[] values;
     private final Class[] classes;
 
     private Tuple(Object... arguments){
@@ -380,13 +388,11 @@ public abstract class Tuple implements AutoCloseable {
         }
     }
 
-    public <T> Set<T> getValuesOf(Class<T> clazz){
+    public <T> Set<T> getSetOf(Class<T> clazz){
         Objects.requireNonNull(clazz);
         List<T> matched = new ArrayList<>();
-        if(clazz == null)
-            return new Set<T>();
 
-        SupplierThrows.PredicateThrows<Class> predicate = ClassHelper.getClassPredicate(clazz);
+        SupplierThrows.PredicateThrows<Class> predicate = TypeHelper.getClassPredicate(clazz);
 
         int length = getLength();
         for (int i = 0; i < length; i++) {
@@ -399,7 +405,10 @@ public abstract class Tuple implements AutoCloseable {
         return setOf(array);
     }
 
-    public abstract int getLength();
+    public int getLength(){
+        return values.length;
+    }
+
     @Override
     public int hashCode() {
         return 17 * Arrays.deepHashCode(values) + getLength();

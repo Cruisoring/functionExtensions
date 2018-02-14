@@ -2,10 +2,14 @@ package com.easyworks.utility;
 
 import com.easyworks.function.SupplierThrows;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-public class ClassHelper {
+public class TypeHelper {
 
     public static final Map<Class, SupplierThrows.PredicateThrows<Class>> classPredicates = new HashMap<Class, SupplierThrows.PredicateThrows<Class>>(){{
         put(Boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
@@ -59,5 +63,38 @@ public class ClassHelper {
         return classPredicates.get(klass);
     }
 
+    public static <T> Class<T> getDeclaredType(T... instances){
+        Objects.requireNonNull(instances);
+        Class arrayClass = instances.getClass();
+        return (Class<T>) arrayClass.getComponentType();
+    }
+
+    public static <T> Type getGenericType(T instance){
+        return getGenericType(instance.getClass());
+    }
+
+    public static Type getGenericType(Class<?> instanceClass){
+        return getGenericTypeImpl(instanceClass);
+    }
+
+    private static Type getGenericTypeImpl(Type instanceType){
+        if(instanceType instanceof ParameterizedType)
+            return ((ParameterizedType) instanceType).getRawType();
+
+        Class<?> instanceClass = (Class<?>) instanceType;
+        if(Object.class.equals(instanceClass))
+            return null;
+        Type[] interfaces = instanceClass.getGenericInterfaces();
+        ParameterizedType[] parameterizedTypes = Arrays.stream(interfaces)
+                .filter(t -> t instanceof ParameterizedType)
+                .map(t -> (ParameterizedType)t)
+                .toArray(ParameterizedType[]::new);
+
+        if(parameterizedTypes.length > 0)
+            return instanceClass;
+
+        Type superType = instanceClass.getGenericSuperclass();
+        return superType == null ? null : getGenericTypeImpl(superType);
+    }
 
 }
