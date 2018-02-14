@@ -2,11 +2,16 @@ package com.easyworks.utility;
 
 import com.easyworks.function.SupplierThrows;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-public class ClassHelper {
-
+public class TypeHelper {
+    public static final Class ObjectClass = Object.class;
+    
     public static final Map<Class, SupplierThrows.PredicateThrows<Class>> classPredicates = new HashMap<Class, SupplierThrows.PredicateThrows<Class>>(){{
         put(Boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
         put(boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
@@ -22,6 +27,8 @@ public class ClassHelper {
         put(float.class, clazz -> float.class.equals(clazz) || Float.class.equals(clazz));
         put(Double.class, clazz -> Double.class.equals(clazz) || double.class.equals(clazz));
         put(double.class, clazz -> double.class.equals(clazz) || Double.class.equals(clazz));
+        put(char.class, clazz -> char.class.equals(clazz) || Character.class.equals(clazz));
+        put(Character.class, clazz -> Character.class.equals(clazz) || char.class.equals(clazz));
 
         put(Object[].class, clazz -> Object[].class.equals(clazz));
         put(Boolean[].class, clazz -> Boolean[].class.equals(clazz) || boolean[].class.equals(clazz));
@@ -38,6 +45,8 @@ public class ClassHelper {
         put(float[].class, clazz -> float[].class.equals(clazz) || Float[].class.equals(clazz));
         put(Double[].class, clazz -> Double[].class.equals(clazz) || double[].class.equals(clazz));
         put(double[].class, clazz -> double[].class.equals(clazz) || Double[].class.equals(clazz));
+        put(char[].class, clazz -> char[].class.equals(clazz) || Character[].class.equals(clazz));
+        put(Character[].class, clazz -> Character[].class.equals(clazz) || char[].class.equals(clazz));
 
     }};
 
@@ -55,5 +64,57 @@ public class ClassHelper {
         return classPredicates.get(klass);
     }
 
+    public static <T> Class<T> getDeclaredType(T... instances){
+        Objects.requireNonNull(instances);
+        Class arrayClass = instances.getClass();
+        Class componentType = (Class<T>) arrayClass.getComponentType();
+        if(ObjectClass == componentType && 1 == instances.length && instances[0] != null)
+            return (Class<T>) instances[0].getClass();
+        return componentType;
+    }
+
+    public static <T> Type getGenericType(T... instance){
+        Class<T> instanceClass = getDeclaredType(instance);
+        return getGenericType(instanceClass);
+    }
+
+    public static Type getGenericType(Class<?> instanceClass){
+        if(ObjectClass.equals(instanceClass) || instanceClass.isPrimitive())
+            return null;
+        return getGenericTypeImpl(instanceClass);
+    }
+
+    private static Type getGenericTypeImpl(Type instanceType){
+        if(instanceType instanceof ParameterizedType)
+            return ((ParameterizedType) instanceType).getRawType();
+
+        Class<?> instanceClass = (Class<?>) instanceType;
+        if(ObjectClass.equals(instanceClass))
+            return null;
+        Type[] typeParameters = instanceClass.getTypeParameters();
+        if(typeParameters != null && typeParameters.length>0)
+            return instanceClass;
+
+        Type[] interfaces = instanceClass.getGenericInterfaces();
+        ParameterizedType[] parameterizedTypes = Arrays.stream(interfaces)
+                .filter(t -> t instanceof ParameterizedType)
+                .map(t -> (ParameterizedType)t)
+                .toArray(ParameterizedType[]::new);
+
+        if(parameterizedTypes.length > 0) {
+            for (int i = 0; i < parameterizedTypes.length; i++) {
+                ParameterizedType pType = parameterizedTypes[i];
+                Type[] argumentTypes = pType.getActualTypeArguments();
+                for (int j = 0; j < argumentTypes.length; j++) {
+                    Class argumentClass = (Class) argumentTypes[i];
+                    if(!argumentClass.isAssignableFrom(instanceClass))
+                        return instanceClass;
+                }
+            }
+        }
+
+        Type superType = instanceClass.getGenericSuperclass();
+        return superType == null ? null : getGenericTypeImpl(superType);
+    }
 
 }
