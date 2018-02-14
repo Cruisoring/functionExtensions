@@ -1,11 +1,20 @@
 package com.easyworks.utility;
 
 import com.easyworks.function.SupplierThrows;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import org.junit.Test;
 
+import java.lang.reflect.GenericArrayType;
+import java.time.Month;
+import java.time.temporal.TemporalUnit;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static org.junit.Assert.*;
 
@@ -49,6 +58,14 @@ public class TypeHelperTest {
         assertEquals(Integer.class, TypeHelper.getDeclaredType(33));
         List<Integer> intList = null;
         assertEquals(List.class, TypeHelper.getDeclaredType(intList));
+        assertEquals(GenericA.class, TypeHelper.getDeclaredType(new GenericA<String>()));
+        assertEquals(GenericA.class, TypeHelper.getDeclaredType(new GenericA[]{new GenericA3()}));
+        assertEquals(IA.class, TypeHelper.getDeclaredType(new IA[]{new GenericA3()}));
+        assertEquals(GenericA3.class, TypeHelper.getDeclaredType(new GenericA3()));
+        assertEquals(GenericA.class, TypeHelper.getDeclaredType(new GenericA[]{new GenericC2(), null}));
+
+        IAB iab = new GenericD1();
+        assertEquals(IAB.class, TypeHelper.getDeclaredType(iab));
     }
 
     @Test
@@ -71,6 +88,11 @@ public class TypeHelperTest {
         Collection<String> list2 = new ArrayList<>();
 
         assertEquals(Collection.class, TypeHelper.getDeclaredType(listString, list2));
+
+        GenericA[] aArray = new GenericA[]{new GenericA(), new GenericA1(), new GenericA2(), new GenericA3()};
+        assertEquals(GenericA.class, TypeHelper.getDeclaredType(aArray));
+        IA[] iaArray = new IA[]{new GenericA<>(), new GenericA1(), new GenericA1(), new GenericA3(), new GenericC1(), new GenericD1()};
+        assertEquals(IA.class, TypeHelper.getDeclaredType(iaArray));
     }
 
 
@@ -92,6 +114,21 @@ public class TypeHelperTest {
 
     @Test
     public void getGenericType_withGivenClass_getRightGenericType(){
+        assertEquals(null, TypeHelper.getGenericType(Object.class));
+        assertEquals(null, TypeHelper.getGenericType(String.class));
+        assertEquals(null, TypeHelper.getGenericType(String[].class));
+        assertEquals(null, TypeHelper.getGenericType(Boolean.class));
+        assertEquals(null, TypeHelper.getGenericType(AtomicInteger.class));
+        assertEquals(Enum.class, TypeHelper.getGenericType(Enum.class));
+        assertEquals(Enum.class, TypeHelper.getGenericType(Month.class));
+
+        assertEquals(ArrayList.class, TypeHelper.getGenericType(ArrayList.class));
+        assertEquals(CopyOnWriteArrayList.class, TypeHelper.getGenericType(CopyOnWriteArrayList.class));
+        assertEquals(ConcurrentSkipListMap.class, TypeHelper.getGenericType(ConcurrentSkipListMap.class));
+
+        assertEquals(List.class, TypeHelper.getGenericType(List.class));
+
+
         assertEquals(GenericA.class, TypeHelper.getGenericType(new GenericA<Byte>().getClass()));
         assertEquals(GenericA.class, TypeHelper.getGenericType(GenericA.class));
         assertEquals(GenericA.class, TypeHelper.getGenericType(GenericA1.class));
@@ -125,5 +162,11 @@ public class TypeHelperTest {
         assertEquals(GenericD.class, TypeHelper.getGenericType(new GenericD()));
         assertEquals(GenericD.class, TypeHelper.getGenericType(new GenericD<String, Enum>()));
         assertEquals(GenericD.class, TypeHelper.getGenericType(new GenericD1()));
+    }
+
+    @Test
+    public void getGenericType_withLambdaClass(){
+        Function<String, Boolean> fun1 = null;
+        assertEquals(Function.class, TypeHelper.getGenericType(fun1));
     }
 }

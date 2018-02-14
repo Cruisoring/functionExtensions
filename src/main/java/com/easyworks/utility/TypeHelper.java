@@ -10,7 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class TypeHelper {
-
+    public static final Class ObjectClass = Object.class;
+    
     public static final Map<Class, SupplierThrows.PredicateThrows<Class>> classPredicates = new HashMap<Class, SupplierThrows.PredicateThrows<Class>>(){{
         put(Boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
         put(boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
@@ -66,14 +67,20 @@ public class TypeHelper {
     public static <T> Class<T> getDeclaredType(T... instances){
         Objects.requireNonNull(instances);
         Class arrayClass = instances.getClass();
-        return (Class<T>) arrayClass.getComponentType();
+        Class componentType = (Class<T>) arrayClass.getComponentType();
+        if(ObjectClass == componentType && 1 == instances.length && instances[0] != null)
+            return (Class<T>) instances[0].getClass();
+        return componentType;
     }
 
-    public static <T> Type getGenericType(T instance){
-        return getGenericType(instance.getClass());
+    public static <T> Type getGenericType(T... instance){
+        Class<T> instanceClass = getDeclaredType(instance);
+        return getGenericType(instanceClass);
     }
 
     public static Type getGenericType(Class<?> instanceClass){
+        if(ObjectClass.equals(instanceClass) || instanceClass.isPrimitive())
+            return null;
         return getGenericTypeImpl(instanceClass);
     }
 
@@ -82,16 +89,29 @@ public class TypeHelper {
             return ((ParameterizedType) instanceType).getRawType();
 
         Class<?> instanceClass = (Class<?>) instanceType;
-        if(Object.class.equals(instanceClass))
+        if(ObjectClass.equals(instanceClass))
             return null;
+        Type[] typeParameters = instanceClass.getTypeParameters();
+        if(typeParameters != null && typeParameters.length>0)
+            return instanceClass;
+
         Type[] interfaces = instanceClass.getGenericInterfaces();
         ParameterizedType[] parameterizedTypes = Arrays.stream(interfaces)
                 .filter(t -> t instanceof ParameterizedType)
                 .map(t -> (ParameterizedType)t)
                 .toArray(ParameterizedType[]::new);
 
-        if(parameterizedTypes.length > 0)
-            return instanceClass;
+        if(parameterizedTypes.length > 0) {
+            for (int i = 0; i < parameterizedTypes.length; i++) {
+                ParameterizedType pType = parameterizedTypes[i];
+                Type[] argumentTypes = pType.getActualTypeArguments();
+                for (int j = 0; j < argumentTypes.length; j++) {
+                    Class argumentClass = (Class) argumentTypes[i];
+                    if(!argumentClass.isAssignableFrom(instanceClass))
+                        return instanceClass;
+                }
+            }
+        }
 
         Type superType = instanceClass.getGenericSuperclass();
         return superType == null ? null : getGenericTypeImpl(superType);
