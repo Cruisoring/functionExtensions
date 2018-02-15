@@ -2,8 +2,8 @@ package com.easyworks.utility;
 
 import com.easyworks.NoThrows;
 import com.easyworks.RuntimeThrows;
-import com.easyworks.function.RunnableThrows;
-import com.easyworks.function.SupplierThrows;
+import com.easyworks.function.RunnableThrowable;
+import com.easyworks.function.SupplierThrowable;
 
 import java.util.Objects;
 
@@ -15,14 +15,14 @@ import java.util.Objects;
 public class Lazy<T> implements AutoCloseable {
     private boolean isCreated = false;
     private T value;
-    SupplierThrows<T> supplier;
-    RunnableThrows closing;
+    SupplierThrowable<T> supplier;
+    RunnableThrowable closing;
 
     /**
      * Construct a Lazy object with factory, instead of value set.
      * @param supplier The factory to create value instance when getValue() is called.
      */
-    public Lazy(SupplierThrows<T> supplier){
+    public Lazy(SupplierThrowable<T> supplier){
         Objects.requireNonNull(supplier);
         this.supplier = supplier;
         this.closing = this::reset;
@@ -33,7 +33,7 @@ public class Lazy<T> implements AutoCloseable {
      * @param supplier  The factory to create value instance when getValue() is called.
      * @param closing   The customer closing mechanism to release its own resources.
      */
-    public Lazy(SupplierThrows<T> supplier, RunnableThrows closing){
+    public Lazy(SupplierThrowable<T> supplier, RunnableThrowable closing){
         this(supplier);
         Objects.requireNonNull(closing);
         this.closing = closing;
@@ -45,7 +45,7 @@ public class Lazy<T> implements AutoCloseable {
      * @param <U>               Type of the object that depending on this.value of type T.
      * @return                  Another Lazy instance to delay initialization of type U.
      */
-    public <U> Lazy<U> attach(SupplierThrows<U> dependentSupplier){
+    public <U> Lazy<U> attach(SupplierThrowable<U> dependentSupplier){
         Lazy<U> dependent = new Lazy(dependentSupplier);
         this.closing = this.closing.tryStartWith(dependent::close);
         return dependent;
@@ -58,7 +58,7 @@ public class Lazy<T> implements AutoCloseable {
      * @param <U>               Type of the object that depending on this.value of type T.
      * @return                  Another Lazy instance to delay initialization of type U.
      */
-    public <U> Lazy<U> attach(SupplierThrows<U> dependentSupplier, RunnableThrows closing){
+    public <U> Lazy<U> attach(SupplierThrowable<U> dependentSupplier, RunnableThrowable closing){
         Lazy<U> dependent = new Lazy(dependentSupplier, closing);
         this.closing = this.closing.tryStartWith(dependent::close);
         return dependent;

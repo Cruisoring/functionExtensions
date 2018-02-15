@@ -9,7 +9,7 @@ import com.easyworks.function.*;
  */
 public class RuntimeThrows {
 
-    public static void run(RunnableThrows runnable){
+    public static void run(RunnableThrowable runnable){
         try {
             runnable.run();
         } catch (Exception ex){
@@ -17,7 +17,7 @@ public class RuntimeThrows {
         }
     }
 
-    public static <T> T get(SupplierThrows<T> supplier){
+    public static <T> T get(SupplierThrowable<T> supplier){
         try {
             return supplier.get();
         }catch (Exception ex){
@@ -25,7 +25,7 @@ public class RuntimeThrows {
         }
     }
 
-    public static void run(RunnableThrows... runnables){
+    public static void run(RunnableThrowable... runnables){
         run(() -> {
             for (int i=0; i<runnables.length; i++) {
                 runnables[i].run();

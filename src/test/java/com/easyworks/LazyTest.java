@@ -20,7 +20,7 @@ public class LazyTest {
     public void attach1() throws Exception {
         Lazy<String> string1 = new Lazy<String>(() -> "string1");
         Lazy<Integer> integerLazy = string1.attach(() -> Integer.valueOf(44),
-                () -> System.out.println("The optional RunnableThrows do nothing.")
+                () -> System.out.println("The optional RunnableThrowable do nothing.")
         );
         assertEquals(Integer.valueOf(44), integerLazy.getValue());
         string1.close();

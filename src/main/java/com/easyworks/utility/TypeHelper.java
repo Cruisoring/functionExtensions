@@ -1,6 +1,6 @@
 package com.easyworks.utility;
 
-import com.easyworks.function.SupplierThrows;
+import com.easyworks.function.SupplierThrowable;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class TypeHelper {
     public static final Class ObjectClass = Object.class;
     
-    public static final Map<Class, SupplierThrows.PredicateThrows<Class>> classPredicates = new HashMap<Class, SupplierThrows.PredicateThrows<Class>>(){{
+    public static final Map<Class, SupplierThrowable.PredicateThrowable<Class>> classPredicates = new HashMap<Class, SupplierThrowable.PredicateThrowable<Class>>(){{
         put(Boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
         put(boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
         put(Byte.class, clazz -> Byte.class.equals(clazz) || byte.class.equals(clazz));
@@ -51,12 +51,12 @@ public class TypeHelper {
 
     }};
 
-    protected static final SupplierThrows.PredicateThrows<Class> alwaysFalse = c -> false;
+    protected static final SupplierThrowable.PredicateThrowable<Class> alwaysFalse = c -> false;
     /**
      * @param instanceClass Type to be evaludated
      * @return
      */
-    public static SupplierThrows.PredicateThrows<Class> getClassPredicate(Class instanceClass){
+    public static SupplierThrowable.PredicateThrowable<Class> getClassPredicate(Class instanceClass){
         if(instanceClass == null) return alwaysFalse;
         if (!classPredicates.containsKey(instanceClass)){
             classPredicates.put(instanceClass,clazz -> clazz.isAssignableFrom(instanceClass));
@@ -64,7 +64,7 @@ public class TypeHelper {
         return classPredicates.get(instanceClass);
     }
 
-    public static <T> SupplierThrows.PredicateThrows getClassPredicate(T... instances){
+    public static <T> SupplierThrowable.PredicateThrowable getClassPredicate(T... instances){
         Class<T> instanceClass = getDeclaredType(instances);
         return getClassPredicate(instanceClass);
     }

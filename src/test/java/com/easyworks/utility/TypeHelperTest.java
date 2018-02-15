@@ -1,6 +1,6 @@
 package com.easyworks.utility;
 
-import com.easyworks.function.SupplierThrows;
+import com.easyworks.function.SupplierThrowable;
 import org.junit.Test;
 
 import java.time.Month;
@@ -18,7 +18,7 @@ public class TypeHelperTest {
 
     @Test
     public void getClassPredicate_withValueTypes_handleBothValueAndWrapperClass() {
-        SupplierThrows.PredicateThrows<Class> intPredicate = TypeHelper.getClassPredicate(int.class);
+        SupplierThrowable.PredicateThrowable<Class> intPredicate = TypeHelper.getClassPredicate(int.class);
         assertTrue(intPredicate.testNoThrows(int.class));
         assertTrue(intPredicate.testNoThrows(Integer.class));
         assertFalse(intPredicate.testNoThrows(Boolean.class));
@@ -26,7 +26,7 @@ public class TypeHelperTest {
 
     @Test
     public void getClassPredicate_withValueArrayTypes_handleBothValueAndWrapperClass() {
-        SupplierThrows.PredicateThrows<Class> intPredicate = TypeHelper.getClassPredicate(int[].class);
+        SupplierThrowable.PredicateThrowable<Class> intPredicate = TypeHelper.getClassPredicate(int[].class);
         assertTrue(intPredicate.testNoThrows(int[].class));
         assertTrue(intPredicate.testNoThrows(Integer[].class));
         assertFalse(intPredicate.testNoThrows(Boolean[].class));

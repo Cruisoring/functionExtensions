@@ -30,7 +30,7 @@ public class ToResult {
 //        }
 //    }
 //
-//    public static <T> Result accept(T t, ConsumerThrows<T> consumer){
+//    public static <T> Result accept(T t, ConsumerThrowable<T> consumer){
 //        try {
 //            consumer.accept(t);
 //            return Result.Success;
@@ -39,7 +39,7 @@ public class ToResult {
 //        }
 //    }
 //
-//    public static <T> Result accept(T t, ConsumerThrows<T>... consumers){
+//    public static <T> Result accept(T t, ConsumerThrowable<T>... consumers){
 //        try {
 //            //Make it throw Exception when consumers is empty
 //            for (int i=0; i<consumers.length; i++) {
@@ -51,7 +51,7 @@ public class ToResult {
 //        }
 //    }
 //
-//    public static <T> Result test(T t, PredicateThrows<T> predicate){
+//    public static <T> Result test(T t, PredicateThrowable<T> predicate){
 //        try {
 //            return predicate.test(t) ? Result.Success : Result.Failure;
 //        }catch (Exception ex){
@@ -59,7 +59,7 @@ public class ToResult {
 //        }
 //    }
 //
-//    public static <T> Result test(T t, PredicateThrows<T>... predicates){
+//    public static <T> Result test(T t, PredicateThrowable<T>... predicates){
 //        try {
 //            //Make it throw Exception when predicates is empty
 //            for (int i=0; i<predicates.length; i++) {
@@ -101,7 +101,7 @@ public class ToResult {
 //        }
 //    }
 //
-//    public static <T, U> Result accept(T t, U u, BiConsumerThrows<T, U> consumer){
+//    public static <T, U> Result accept(T t, U u, BiConsumerThrowable<T, U> consumer){
 //        try {
 //            consumer.accept(t, u);
 //            return Result.Success;
@@ -110,7 +110,7 @@ public class ToResult {
 //        }
 //    }
 //
-//    public static <T, U> Result accept(T t, U u, BiConsumerThrows<T, U>... consumers){
+//    public static <T, U> Result accept(T t, U u, BiConsumerThrowable<T, U>... consumers){
 //        try {
 //            //Make it throw Exception when predicates is empty
 //            for (int i=0; i<consumers.length; i++) {
@@ -122,7 +122,7 @@ public class ToResult {
 //        }
 //    }
 //
-//    public static <T, R> Result apply(T t, FunctionThrows<T,R> function){
+//    public static <T, R> Result apply(T t, FunctionThrowable<T,R> function){
 //        try {
 //            return new Result(function.apply(t));
 //        }catch (Exception ex){
@@ -130,7 +130,7 @@ public class ToResult {
 //        }
 //    }
 //
-//    public static <T, U, R> Result apply(T t, U u, BiFunctionThrows<T,U,R> function){
+//    public static <T, U, R> Result apply(T t, U u, BiFunctionThrowable<T,U,R> function){
 //        try {
 //            return new Result(function.apply(t, u));
 //        }catch (Exception ex){
@@ -152,19 +152,19 @@ public class ToResult {
 //        return () -> get(supplier);
 //    }
 //
-//    public static <T> ResultFunction toResultFunction(T t, ConsumerThrows<T> consumer){
+//    public static <T> ResultFunction toResultFunction(T t, ConsumerThrowable<T> consumer){
 //        return () -> ToResult.accept(consumer, t);
 //    }
 //
-//    public static <T> ResultFunction toResultFunction(T t, ConsumerThrows<T>... consumers){
+//    public static <T> ResultFunction toResultFunction(T t, ConsumerThrowable<T>... consumers){
 //        return () -> ToResult.accept(consumers, t);
 //    }
 //
-//    public static <T> ResultFunction toResultFunction(T t, PredicateThrows<T> predicate){
+//    public static <T> ResultFunction toResultFunction(T t, PredicateThrowable<T> predicate){
 //        return () -> test(predicate, t);
 //    }
 //
-//    public static <T> ResultFunction toResultFunction(T t, PredicateThrows<T>... predicates){
+//    public static <T> ResultFunction toResultFunction(T t, PredicateThrowable<T>... predicates){
 //        return () -> test(predicates, t);
 //    }
 //
@@ -172,15 +172,15 @@ public class ToResult {
 //        return () -> test(t, u, predicate);
 //    }
 //
-//    public static <T, U> ResultFunction toResultFunction(T t, U u, BiConsumerThrows<T, U> consumer){
+//    public static <T, U> ResultFunction toResultFunction(T t, U u, BiConsumerThrowable<T, U> consumer){
 //        return () -> accept(t, u, consumer);
 //    }
 //
-//    public static <T, R> ResultFunction toResultFunction(T t, FunctionThrows<T,R> function){
+//    public static <T, R> ResultFunction toResultFunction(T t, FunctionThrowable<T,R> function){
 //        return () -> apply(t, function);
 //    }
 //
-//    public static <T, U, R> ResultFunction toResultFunction(BiFunctionThrows<T,U,R> function, T t, U u){
+//    public static <T, U, R> ResultFunction toResultFunction(BiFunctionThrowable<T,U,R> function, T t, U u){
 //        return () -> apply(t, u, function);
 //    }
 //    //endregion
