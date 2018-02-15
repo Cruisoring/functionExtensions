@@ -1,7 +1,7 @@
 package com.easyworks.utility;
 
 import com.easyworks.NoThrows;
-import com.easyworks.function.SupplierThrows;
+import com.easyworks.function.SupplierThrowable;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -187,16 +187,16 @@ public class TupleTest {
         assertEquals(1, tuple7.getSetOf(String.class).getLength());
         assertEquals(1, tuple7.getSetOf(int.class).getLength());
 
-        Tuple.Hepta<Integer, Boolean, String, char[], Double, A<String>, SupplierThrows.PredicateThrows<A>> hepta =
+        Tuple.Hepta<Integer, Boolean, String, char[], Double, A<String>, SupplierThrowable.PredicateThrowable<A>> hepta =
                 Tuple.create(7, 7%2==0, "Seven", "Seven".toCharArray(), 7.0d, new A("Seven"),
-                        (SupplierThrows.PredicateThrows<A>)a -> ((String)(a.value)).length() > 5 );
+                        (SupplierThrowable.PredicateThrowable<A>) a -> ((String)(a.value)).length() > 5 );
         Integer item1 = hepta.getFirst();
         Boolean item2 = hepta.getSecond();
         String item3 = hepta.getThird();
         char[] item4 = hepta.getFourth();
         Double item5 = hepta.getFifth();
         A<String> item6 = hepta.getSixth();
-        SupplierThrows.PredicateThrows<A> item7 = hepta.getSeventh();
+        SupplierThrowable.PredicateThrowable<A> item7 = hepta.getSeventh();
         assertEquals(false, item2);
         assertEquals(false, NoThrows.get(() -> (boolean)(item7.test(item6)), false));
     }
@@ -218,9 +218,9 @@ public class TupleTest {
         assertEquals(0, stringSet.getSetOf(Integer.class).getLength());
         assertEquals(4, stringSet.getSetOf(String.class).getLength());
 
-        Tuple.Hepta<Integer, Boolean, String, char[], Double, A<String>, SupplierThrows.PredicateThrows<A>> hepta =
+        Tuple.Hepta<Integer, Boolean, String, char[], Double, A<String>, SupplierThrowable.PredicateThrowable<A>> hepta =
                 Tuple.create(7, 7%2==0, "Seven", "Seven".toCharArray(), 7.0d, new A("Seven"),
-                        (SupplierThrows.PredicateThrows<A>)a -> ((String)(a.value)).length() > 5 );
+                        (SupplierThrowable.PredicateThrowable<A>) a -> ((String)(a.value)).length() > 5 );
 
         Tuple.Set<String> stringSet1 = hepta.getSetOf(String.class);
         assertTrue(Arrays.deepEquals(new String[]{"Seven"}, stringSet1.asArray()));
@@ -289,6 +289,13 @@ public class TupleTest {
         assertFalse(nullDual3.equals(null4));
         assertNotEquals(null4, nullDual3);
         assertNotEquals(nullDual3, null4);
+    }
+
+    @Test
+    public void close(){
+        try(Tuple tuple = Tuple.create(123);){
+        }catch (Exception ex){ }
+
 
     }
 }

@@ -2,7 +2,7 @@ package com.easyworks.utility;
 
 import com.easyworks.Loggable;
 import com.easyworks.NoThrows;
-import com.easyworks.function.SupplierThrows;
+import com.easyworks.function.SupplierThrowable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -392,7 +392,7 @@ public abstract class Tuple implements AutoCloseable {
         Objects.requireNonNull(clazz);
         List<T> matched = new ArrayList<>();
 
-        SupplierThrows.PredicateThrows<Class> predicate = TypeHelper.getClassPredicate(clazz);
+        SupplierThrowable.PredicateThrowable<Class> predicate = TypeHelper.getClassPredicate(clazz);
 
         int length = getLength();
         for (int i = 0; i < length; i++) {
@@ -447,10 +447,11 @@ public abstract class Tuple implements AutoCloseable {
                 Object value = values[i];
                 if (value != null && value instanceof AutoCloseable) {
                     NoThrows.run(() -> ((AutoCloseable) value).close());
+                    Logger.L("%s closed()", value);
                 }
             }
             closed = true;
-            Logger.L("close() run successfully!");
+            Logger.L("%s.close() run successfully!", this);
         }
     }
 

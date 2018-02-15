@@ -6,7 +6,7 @@ public class RuntimeThrowsTest extends TestCase {
 //
 //    @Test
 //    public void testTest1() {
-//        PredicateThrows<File> p = file -> file.getCanonicalPath().length() > 100;
+//        PredicateThrowable<File> p = file -> file.getCanonicalPath().length() > 100;
 //        //Test would fail with NullPointException
 //        RuntimeThrows.test(null, p);
 //    }

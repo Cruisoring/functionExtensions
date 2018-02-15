@@ -4,10 +4,10 @@ import com.easyworks.NoThrows;
 import com.easyworks.RuntimeThrows;
 
 @FunctionalInterface
-public interface SupplierThrows<T> {
+public interface SupplierThrowable<T> {
     T get() throws Exception;
 
-    default T getNoThrows(T defaultT){
+    default T getNoThrowable(T defaultT){
         return NoThrows.get(this::get, defaultT);
     }
 
@@ -16,10 +16,10 @@ public interface SupplierThrows<T> {
     }
 
     @FunctionalInterface
-    interface PredicateThrows<T> {
+    interface PredicateThrowable<T> {
         boolean test(T t) throws Exception;
 
-        default SupplierThrows<Boolean> asSupplier(T t){
+        default SupplierThrowable<Boolean> asSupplier(T t){
             return () -> test(t);
         }
 
@@ -33,120 +33,120 @@ public interface SupplierThrows<T> {
     }
 
     @FunctionalInterface
-    interface FunctionThrows<T, R> {
+    interface FunctionThrowable<T, R> {
         R apply(T t) throws Exception;
 
-        default SupplierThrows<R> asSupplier(T t){
+        default SupplierThrowable<R> asSupplier(T t){
             return () -> apply(t);
         }
 
-        default R applyNoThrows(T t, R defaultR){
+        default R acceptNoThrowable(T t, R defaultR){
             return NoThrows.get(asSupplier(t), defaultR);
         }
 
-        default R applyRuntimeThrows(T t){
+        default R acceptRuntimeThrowable(T t){
             return RuntimeThrows.get(asSupplier(t));
         }
     }
 
     @FunctionalInterface
-    interface BiFunctionThrows<T, U, R> {
+    interface BiFunctionThrowable<T, U, R> {
         R apply(T t, U u) throws Exception;
 
-        default SupplierThrows<R> asSupplier(T t, U u){
+        default SupplierThrowable<R> asSupplier(T t, U u){
             return () -> apply(t, u);
         }
 
-        default R applyNoThrows(T t, U u, R defaultR) {
+        default R acceptNoThrowable(T t, U u, R defaultR) {
             return NoThrows.get(asSupplier(t, u), defaultR);
         }
 
-        default R applyRuntimeThrows(T t, U u) {
+        default R acceptRuntimeThrowable(T t, U u) {
             return RuntimeThrows.get(asSupplier(t, u));
         }
     }
 
         @FunctionalInterface
-    interface TriFunctionThrows<T,U,V,R> {
+    interface TriFunctionThrowable<T,U,V,R> {
         R apply(T t, U u, V v) throws Exception;
 
-        default SupplierThrows<R> asSupplier(T t, U u, V v){
+        default SupplierThrowable<R> asSupplier(T t, U u, V v){
             return () -> apply(t, u, v);
         }
 
-        default R applyNoThrows(T t, U u, V v, R defaultR) throws Exception{
+        default R acceptNoThrowable(T t, U u, V v, R defaultR) throws Exception{
             return NoThrows.get(asSupplier(t, u, v), defaultR);
         }
 
-        default R applyRuntimeThrows(T t, U u, V v){
+        default R acceptRuntimeThrowable(T t, U u, V v){
             return RuntimeThrows.get(asSupplier(t, u, v));
         }
     }
 
     @FunctionalInterface
-    interface QuadFunctionThrows<T,U,V,W,R> {
+    interface QuadFunctionThrowable<T,U,V,W,R> {
         R apply(T t, U u, V v, W w) throws Exception;
 
-        default SupplierThrows<R> asSupplier(T t, U u, V v, W w){
+        default SupplierThrowable<R> asSupplier(T t, U u, V v, W w){
             return () -> apply(t, u, v, w);
         }
 
-        default R applyNoThrows(T t, U u, V v, W w, R defaultR) throws Exception{
+        default R acceptNoThrowable(T t, U u, V v, W w, R defaultR) throws Exception{
             return NoThrows.get(asSupplier(t, u, v, w), defaultR);
         }
 
-        default R applyRuntimeThrows(T t, U u, V v, W w){
+        default R acceptRuntimeThrowable(T t, U u, V v, W w){
             return RuntimeThrows.get(asSupplier(t, u, v, w));
         }
     }
 
     @FunctionalInterface
-    interface PentaFunctionThrows<T,U,V,W,X,R> {
+    interface PentaFunctionThrowable<T,U,V,W,X,R> {
         R apply(T t, U u, V v, W w, X x) throws Exception;
 
-        default SupplierThrows<R> asSupplier(T t, U u, V v, W w, X x){
+        default SupplierThrowable<R> asSupplier(T t, U u, V v, W w, X x){
             return () -> apply(t, u, v, w, x);
         }
 
-        default R applyNoThrows(T t, U u, V v, W w, X x, R defaultR) throws Exception{
+        default R acceptNoThrowable(T t, U u, V v, W w, X x, R defaultR) throws Exception{
             return NoThrows.get(asSupplier(t, u, v, w, x), defaultR);
         }
 
-        default R applyRuntimeThrows(T t, U u, V v, W w, X x){
+        default R acceptRuntimeThrowable(T t, U u, V v, W w, X x){
             return RuntimeThrows.get(asSupplier(t, u, v, w, x));
         }
     }
 
     @FunctionalInterface
-    interface HexaFunctionThrows<T,U,V,W,X,Y,R> {
+    interface HexaFunctionThrowable<T,U,V,W,X,Y,R> {
         R apply(T t, U u, V v, W w, X x, Y y) throws Exception;
 
-        default SupplierThrows<R> asSupplier(T t, U u, V v, W w, X x, Y y){
+        default SupplierThrowable<R> asSupplier(T t, U u, V v, W w, X x, Y y){
             return () -> apply(t, u, v, w, x, y);
         }
 
-        default R applyNoThrows(T t, U u, V v, W w, X x, Y y, R defaultR) throws Exception{
+        default R acceptNoThrowable(T t, U u, V v, W w, X x, Y y, R defaultR) throws Exception{
             return NoThrows.get(asSupplier(t, u, v, w, x, y), defaultR);
         }
 
-        default R applyRuntimeThrows(T t, U u, V v, W w, X x, Y y){
+        default R acceptRuntimeThrowable(T t, U u, V v, W w, X x, Y y){
             return RuntimeThrows.get(asSupplier(t, u, v, w, x, y));
         }
     }
 
     @FunctionalInterface
-    interface HeptaFunctionThrows<T,U,V,W,X,Y,Z,R> {
+    interface HeptaFunctionThrowable<T,U,V,W,X,Y,Z,R> {
         R apply(T t, U u, V v, W w, X x, Y y, Z z) throws Exception;
 
-        default SupplierThrows<R> asSupplier(T t, U u, V v, W w, X x, Y y, Z z){
+        default SupplierThrowable<R> asSupplier(T t, U u, V v, W w, X x, Y y, Z z){
             return () -> apply(t, u, v, w, x, y, z);
         }
 
-        default R applyNoThrows(T t, U u, V v, W w, X x, Y y, Z z, R defaultR) throws Exception{
+        default R acceptNoThrowable(T t, U u, V v, W w, X x, Y y, Z z, R defaultR) throws Exception{
             return NoThrows.get(asSupplier(t, u, v, w, x, y, z), defaultR);
         }
 
-        default R applyRuntimeThrows(T t, U u, V v, W w, X x, Y y, Z z){
+        default R acceptRuntimeThrowable(T t, U u, V v, W w, X x, Y y, Z z){
             return RuntimeThrows.get(asSupplier(t, u, v, w, x, y, z));
         }
     }

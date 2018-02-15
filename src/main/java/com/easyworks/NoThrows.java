@@ -5,20 +5,20 @@ import com.easyworks.function.*;
 /**
  * Helper functions to hide Exceptions and return the default values instead.
  *
- * Note: Calling FunctionalInterface returning values, like SupplierThrows/FunctionThrows/BiFuntionThrows
- * shall append the defaultValue argument. Generally, it is awkward way to perform and evaluate.
+ * Note: Calling FunctionalInterface returning values, like SupplierThrowable/FunctionThrowable/BiFuntionThrows
+ * shall append the defaultOfType argument. Generally, it is awkward way to perform and evaluate.
  * {@code ToResult} is preferred.
  */
 public class NoThrows {
 
-    public static void run(RunnableThrows runnable){
+    public static void run(RunnableThrowable runnable){
         try {
             runnable.run();
         } catch (Exception ex){
         }
     }
 
-    public static <T> T get(SupplierThrows<T> supplier, T defaultValue){
+    public static <T> T get(SupplierThrowable<T> supplier, T defaultValue){
         try {
             return supplier.get();
         }catch (Exception ex){
@@ -26,7 +26,7 @@ public class NoThrows {
         }
     }
 
-    public static void run(RunnableThrows... runnables){
+    public static void run(RunnableThrowable... runnables){
         run(() -> {
             for (int i=0; i<runnables.length; i++) {
                 runnables[i].run();
