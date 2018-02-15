@@ -88,7 +88,7 @@ public class Lazy<T> implements AutoCloseable {
 
     /**
      * When the value has not been created successfully, try to create the value with the factory then return it when
-     * there is no Exception, or returns the defaultValue.
+     * there is no Exception, or returns the defaultOfType.
      * Notice: when Exception thrown, isCreated would not be set to True.
      * @param defaultValue  Default value of type T when calling the supplier method get any Exception.
      * @return  Either the created and cached value when factory is called successfully, or the default value if there
@@ -115,7 +115,7 @@ public class Lazy<T> implements AutoCloseable {
             if (this.value instanceof AutoCloseable){
                 NoThrows.run(((AutoCloseable) this.value)::close);
             }
-            this.value = Defaults.defaultValue(this.value);
+            this.value = Defaults.defaultOfInstance(this.value);
         }
     }
 
