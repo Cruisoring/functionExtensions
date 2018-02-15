@@ -1,13 +1,9 @@
 package com.easyworks.utility;
 
 import com.easyworks.function.SupplierThrows;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
 import org.junit.Test;
 
-import java.lang.reflect.GenericArrayType;
 import java.time.Month;
-import java.time.temporal.TemporalUnit;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -114,36 +110,39 @@ public class TypeHelperTest {
 
     @Test
     public void getGenericType_withGivenClass_getRightGenericType(){
-        assertEquals(null, TypeHelper.getGenericType(Object.class));
-        assertEquals(null, TypeHelper.getGenericType(String.class));
-        assertEquals(null, TypeHelper.getGenericType(String[].class));
-        assertEquals(null, TypeHelper.getGenericType(Boolean.class));
-        assertEquals(null, TypeHelper.getGenericType(AtomicInteger.class));
-        assertEquals(Enum.class, TypeHelper.getGenericType(Enum.class));
-        assertEquals(Enum.class, TypeHelper.getGenericType(Month.class));
+        assertEquals(null, TypeHelper.getGenericTypeFromType(Object.class));
+        assertEquals(null, TypeHelper.getGenericTypeFromType(String.class));
+        assertEquals(null, TypeHelper.getGenericTypeFromType(String[].class));
+        assertEquals(null, TypeHelper.getGenericTypeFromType(Boolean.class));
+        assertEquals(null, TypeHelper.getGenericTypeFromType(AtomicInteger.class));
+        assertEquals(Enum.class, TypeHelper.getGenericTypeFromType(Enum.class));
+        assertEquals(Enum.class, TypeHelper.getGenericTypeFromType(Month.class));
 
-        assertEquals(ArrayList.class, TypeHelper.getGenericType(ArrayList.class));
-        assertEquals(CopyOnWriteArrayList.class, TypeHelper.getGenericType(CopyOnWriteArrayList.class));
-        assertEquals(ConcurrentSkipListMap.class, TypeHelper.getGenericType(ConcurrentSkipListMap.class));
+        assertEquals(ArrayList.class, TypeHelper.getGenericTypeFromType(ArrayList.class));
+        assertEquals(CopyOnWriteArrayList.class, TypeHelper.getGenericTypeFromType(CopyOnWriteArrayList.class));
+        assertEquals(ConcurrentSkipListMap.class, TypeHelper.getGenericTypeFromType(ConcurrentSkipListMap.class));
 
-        assertEquals(List.class, TypeHelper.getGenericType(List.class));
+        assertEquals(List.class, TypeHelper.getGenericTypeFromType(List.class));
 
 
-        assertEquals(GenericA.class, TypeHelper.getGenericType(new GenericA<Byte>().getClass()));
-        assertEquals(GenericA.class, TypeHelper.getGenericType(GenericA.class));
-        assertEquals(GenericA.class, TypeHelper.getGenericType(GenericA1.class));
-        assertEquals(GenericA.class, TypeHelper.getGenericType(GenericA2.class));
-        assertEquals(GenericA.class, TypeHelper.getGenericType(GenericA3.class));
+        assertEquals(GenericA.class, TypeHelper.getGenericTypeFromType(new GenericA<Byte>().getClass()));
+        assertEquals(GenericA.class, TypeHelper.getGenericTypeFromType(GenericA.class));
+        assertEquals(GenericA.class, TypeHelper.getGenericTypeFromType(GenericA1.class));
+        assertEquals(GenericA.class, TypeHelper.getGenericTypeFromType(GenericA2.class));
+        assertEquals(GenericA.class, TypeHelper.getGenericTypeFromType(GenericA3.class));
 
-        assertEquals(GenericB.class, TypeHelper.getGenericType(GenericB.class));
-        assertEquals(GenericC.class, TypeHelper.getGenericType(GenericC.class));
-        assertEquals(GenericC.class, TypeHelper.getGenericType(GenericC1.class));
-        assertEquals(GenericC.class, TypeHelper.getGenericType(GenericC2.class));
-        assertEquals(GenericC.class, TypeHelper.getGenericType(GenericC3.class));
-        assertEquals(GenericD.class, TypeHelper.getGenericType(GenericD.class));
-        assertEquals(GenericD.class, TypeHelper.getGenericType(GenericD1.class));
+        assertEquals(GenericB.class, TypeHelper.getGenericTypeFromType(GenericB.class));
+        assertEquals(GenericC.class, TypeHelper.getGenericTypeFromType(GenericC.class));
+        assertEquals(GenericC.class, TypeHelper.getGenericTypeFromType(GenericC1.class));
+        assertEquals(GenericC.class, TypeHelper.getGenericTypeFromType(GenericC2.class));
+        assertEquals(GenericC.class, TypeHelper.getGenericTypeFromType(GenericC3.class));
+        assertEquals(GenericD.class, TypeHelper.getGenericTypeFromType(GenericD.class));
+        assertEquals(GenericD.class, TypeHelper.getGenericTypeFromType(GenericD1.class));
     }
 
+    /**
+     * Testing of getGenericType with Generic instance. Unfortunately, the argument type info cannot be kept.
+     */
     @Test
     public void getGenericType_withGivenInstance_getRightGenericType(){
         assertEquals(GenericA.class, TypeHelper.getGenericType(new GenericA()));
@@ -169,4 +168,60 @@ public class TypeHelperTest {
         Function<String, Boolean> fun1 = null;
         assertEquals(Function.class, TypeHelper.getGenericType(fun1));
     }
+
+    @Test
+    public void getGenericInfoFromType_withGivenClasses(){
+        assertEquals("Object", TypeHelper.getGenericInfoFromType(Object.class).values[3]);
+        assertEquals("String", TypeHelper.getGenericInfoFromType(String.class).values[3]);
+        assertEquals("String[]", TypeHelper.getGenericInfoFromType(String[].class).values[3]);
+        assertEquals("Boolean", TypeHelper.getGenericInfoFromType(Boolean.class).values[3]);
+        assertEquals("Number", TypeHelper.getGenericInfoFromType(AtomicInteger.class).values[3]);
+        assertEquals("Enum<E>", TypeHelper.getGenericInfoFromType(Enum.class).values[3]);
+        assertEquals("Enum<Month>", TypeHelper.getGenericInfoFromType(Month.class).values[3]);
+
+        assertEquals("ArrayList<E>", TypeHelper.getGenericInfoFromType(ArrayList.class).values[3]);
+        assertEquals("CopyOnWriteArrayList<E>", TypeHelper.getGenericInfoFromType(CopyOnWriteArrayList.class).values[3]);
+        assertEquals("ConcurrentSkipListMap<K,V>", TypeHelper.getGenericInfoFromType(ConcurrentSkipListMap.class).values[3]);
+
+        assertEquals("List<E>", TypeHelper.getGenericInfoFromType(List.class).values[3]);
+
+
+        assertEquals("GenericA<T>", TypeHelper.getGenericInfoFromType(new GenericA<Byte>().getClass()).values[3]);
+        assertEquals("GenericA<T>", TypeHelper.getGenericInfoFromType(GenericA.class).values[3]);
+        assertEquals("GenericA<Double>", TypeHelper.getGenericInfoFromType(GenericA1.class).values[3]);
+        assertEquals("GenericA<Double>", TypeHelper.getGenericInfoFromType(GenericA2.class).values[3]);
+        assertEquals("GenericA<Double>", TypeHelper.getGenericInfoFromType(GenericA3.class).values[3]);
+
+        assertEquals("GenericB<T>", TypeHelper.getGenericInfoFromType(GenericB.class).values[3]);
+        assertEquals("GenericC<T,U>", TypeHelper.getGenericInfoFromType(GenericC.class).values[3]);
+        assertEquals("GenericC<String,Integer>", TypeHelper.getGenericInfoFromType(GenericC1.class).values[3]);
+        assertEquals("GenericC<A,B>", TypeHelper.getGenericInfoFromType(GenericC2.class).values[3]);
+        assertEquals("GenericC<GenericC1,GenericC2>", TypeHelper.getGenericInfoFromType(GenericC3.class).values[3]);
+        assertEquals("GenericD<T,U>", TypeHelper.getGenericInfoFromType(GenericD.class).values[3]);
+        assertEquals("GenericD<Boolean,Integer>", TypeHelper.getGenericInfoFromType(GenericD1.class).values[3]);
+    }
+
+
+    @Test
+    public void getGenericInfo_withGivenInstance_getRightToken(){
+
+        assertEquals("GenericA<T>", TypeHelper.getGenericInfo(new GenericA()).values[3]);
+        assertEquals("GenericA<T>", TypeHelper.getGenericInfo(new GenericA<String>()).values[3]);
+        assertEquals("GenericA<Double>", TypeHelper.getGenericInfo(new GenericA1()).values[3]);
+        assertEquals("GenericA<Double>", TypeHelper.getGenericInfo(new GenericA2()).values[3]);
+        assertEquals("GenericA<Double>", TypeHelper.getGenericInfo(new GenericA3()).values[3]);
+
+        assertEquals("GenericB<T>", TypeHelper.getGenericInfo(new GenericB()).values[3]);
+        assertEquals("GenericB<T>", TypeHelper.getGenericInfo(new GenericB<String>()).values[3]);
+        assertEquals("GenericC<T,U>", TypeHelper.getGenericInfo(new GenericC()).values[3]);
+        assertEquals("GenericC<T,U>", TypeHelper.getGenericInfo(new GenericC<Boolean, Integer>()).values[3]);
+        assertEquals("GenericC<String,Integer>", TypeHelper.getGenericInfo(new GenericC1()).values[3]);
+        assertEquals("GenericC<A,B>", TypeHelper.getGenericInfo(new GenericC2()).values[3]);
+        assertEquals("GenericC<GenericC1,GenericC2>", TypeHelper.getGenericInfo(new GenericC3()).values[3]);
+        assertEquals("GenericD<T,U>", TypeHelper.getGenericInfo(new GenericD()).values[3]);
+        assertEquals("GenericD<T,U>", TypeHelper.getGenericInfo(new GenericD<String, Enum>()).values[3]);
+        assertEquals("GenericD<Boolean,Integer>", TypeHelper.getGenericInfo(new GenericD1()).values[3]);
+
+    }
+
 }

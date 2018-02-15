@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class TypeHelper {
     public static final Class ObjectClass = Object.class;
@@ -52,16 +53,20 @@ public class TypeHelper {
 
     protected static final SupplierThrows.PredicateThrows<Class> alwaysFalse = c -> false;
     /**
-     * TODO: get the Class predicate based on the given object.
-     * @param klass Type to be evaludated
+     * @param instanceClass Type to be evaludated
      * @return
      */
-    public static SupplierThrows.PredicateThrows<Class> getClassPredicate(Class klass){
-        if(klass == null) return alwaysFalse;
-        if (!classPredicates.containsKey(klass)){
-            classPredicates.put(klass,clazz -> clazz.isAssignableFrom(klass));
+    public static SupplierThrows.PredicateThrows<Class> getClassPredicate(Class instanceClass){
+        if(instanceClass == null) return alwaysFalse;
+        if (!classPredicates.containsKey(instanceClass)){
+            classPredicates.put(instanceClass,clazz -> clazz.isAssignableFrom(instanceClass));
         }
-        return classPredicates.get(klass);
+        return classPredicates.get(instanceClass);
+    }
+
+    public static <T> SupplierThrows.PredicateThrows getClassPredicate(T... instances){
+        Class<T> instanceClass = getDeclaredType(instances);
+        return getClassPredicate(instanceClass);
     }
 
     public static <T> Class<T> getDeclaredType(T... instances){
@@ -73,48 +78,73 @@ public class TypeHelper {
         return componentType;
     }
 
-    public static <T> Type getGenericType(T... instance){
-        Class<T> instanceClass = getDeclaredType(instance);
-        return getGenericType(instanceClass);
+    public static <T> Type getGenericType(T... instances){
+        Class<T> instanceClass = getDeclaredType(instances);
+        return getGenericTypeFromType(instanceClass);
     }
 
-    public static Type getGenericType(Class<?> instanceClass){
-        if(ObjectClass.equals(instanceClass) || instanceClass.isPrimitive())
-            return null;
-        return getGenericTypeImpl(instanceClass);
-    }
-
-    private static Type getGenericTypeImpl(Type instanceType){
+    public static Type getGenericTypeFromType(Type instanceType){
         if(instanceType instanceof ParameterizedType)
             return ((ParameterizedType) instanceType).getRawType();
 
         Class<?> instanceClass = (Class<?>) instanceType;
-        if(ObjectClass.equals(instanceClass))
+        if(ObjectClass.equals(instanceClass) || instanceClass.isPrimitive())
             return null;
         Type[] typeParameters = instanceClass.getTypeParameters();
         if(typeParameters != null && typeParameters.length>0)
             return instanceClass;
 
-        Type[] interfaces = instanceClass.getGenericInterfaces();
-        ParameterizedType[] parameterizedTypes = Arrays.stream(interfaces)
-                .filter(t -> t instanceof ParameterizedType)
-                .map(t -> (ParameterizedType)t)
-                .toArray(ParameterizedType[]::new);
+        Type superType = instanceClass.getGenericSuperclass();
+        return superType == null ? null : getGenericTypeFromType(superType);
+    }
 
-        if(parameterizedTypes.length > 0) {
-            for (int i = 0; i < parameterizedTypes.length; i++) {
-                ParameterizedType pType = parameterizedTypes[i];
-                Type[] argumentTypes = pType.getActualTypeArguments();
-                for (int j = 0; j < argumentTypes.length; j++) {
-                    Class argumentClass = (Class) argumentTypes[i];
-                    if(!argumentClass.isAssignableFrom(instanceClass))
-                        return instanceClass;
-                }
-            }
+    public static <T> Tuple getGenericInfo(T... instances){
+        Class<T> instanceClass = getDeclaredType(instances);
+        return getGenericInfoFromType(instanceClass);
+    }
+
+    public static Tuple getGenericInfoFromType(Type instanceType) {
+        return getGenericInfoFromType(instanceType, instanceType);
+    }
+
+    public static Tuple getGenericInfoFromType(Type instanceType, Type originalType){
+        //Define Triple with types explicitly to keep Type information
+        Tuple.Quad<Class, Type[], String, String> typeInfo = null;
+        Type[] typeParameters;
+        Type[] typedArguments;
+        if(instanceType instanceof ParameterizedType){
+            ParameterizedType parameterizedType = ((ParameterizedType) instanceType);
+            Type rawType = parameterizedType.getRawType();
+            Class rawClass = (Class) rawType;
+            typeParameters = rawClass.getTypeParameters();
+            typedArguments = parameterizedType.getActualTypeArguments();
+
+            String token = String.format("%s<%s>", rawClass.getName(),
+                    Arrays.stream(typedArguments).map(t -> t.getTypeName()).collect(Collectors.joining(",")));
+            String tokenSimple = String.format("%s<%s>", rawClass.getSimpleName(),
+                    Arrays.stream(typedArguments).map(t -> ((Class)t).getSimpleName()).collect(Collectors.joining(",")));
+            typeInfo = Tuple.create(rawClass, typedArguments, token, tokenSimple);
+            return typeInfo;
+        }
+
+        Class<?> instanceClass = (Class<?>) instanceType;
+        if(ObjectClass.equals(instanceClass) || instanceClass.isPrimitive()) {
+            Class originalClass = ((Class)originalType);
+            typeInfo = Tuple.create(null, null, originalClass.getName(), originalClass.getSimpleName());
+            return typeInfo;
+        }
+        typeParameters = instanceClass.getTypeParameters();
+        if(typeParameters != null && typeParameters.length>0) {
+            String token = String.format("%s<%s>", instanceClass.getName(),
+                    Arrays.stream(typeParameters).map(t -> t.getTypeName()).collect(Collectors.joining(",")));
+            String tokenSimple = String.format("%s<%s>", instanceClass.getSimpleName(),
+                    Arrays.stream(typeParameters).map(t -> t.toString()).collect(Collectors.joining(",")));
+            typeInfo = Tuple.create(instanceClass, typeParameters, token, tokenSimple);
+            return typeInfo;
         }
 
         Type superType = instanceClass.getGenericSuperclass();
-        return superType == null ? null : getGenericTypeImpl(superType);
+        return getGenericInfoFromType(superType, instanceType);
     }
 
 }
