@@ -36,6 +36,21 @@ public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {
         this(HashMap::new, null, valueFunction);
     }
 
+    /**
+     * Returns <tt>true</tt> if this map contains a mapping for the specified
+     * key.  More formally, returns <tt>true</tt> if and only if
+     * this map contains a mapping for a key <tt>k</tt> such that
+     * <tt>(key==null ? k==null : key.equals(k))</tt>.  (There can be
+     * at most one such mapping.)
+     *
+     * @param key key whose presence in this map is to be tested
+     * @return <tt>true</tt> if this map contains a mapping for the specified
+     *         key, <tt>null</tt> if no such mapping
+     */
+    public Tuple retrieve(TKey key){
+        return get(key, null);
+    }
+
     //region Factory methods to create MultiValuesRepository ith Function to map key to Tuple, and optional Map and closing action
     public static <TKey,T> SingleValuesRepository<TKey, T> toSingleValuesRepository(
             SupplierThrowable<Map<TKey, Tuple>> storageSupplier,
@@ -97,7 +112,7 @@ public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {
 
     //region Factory methods to create MultiValuesRepository with Function to map key to Tuple
     public static <TKey,T> SingleValuesRepository<TKey, T> toSingleValuesRepository(
-            FunctionThrowable<TKey, Single<T>> valueFunction){
+            FunctionThrowable<TKey, T> valueFunction){
         return new SingleValuesRepository(valueFunction);
     }
 
@@ -121,7 +136,7 @@ public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {
         return new PentaValuesRepository(valueFunction);
     }
 
-    public static <TKey,T,U,V,W,X,Y> HexaValuesRepository<TKey,T,U,V,W,X,Y> toHaxaValuesRepository(
+    public static <TKey,T,U,V,W,X,Y> HexaValuesRepository<TKey,T,U,V,W,X,Y> toHexaValuesRepository(
             FunctionThrowable<TKey, Hexa<T,U,V,W,X,Y>> valueFunction){
         return new HexaValuesRepository(valueFunction);
     }

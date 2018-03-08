@@ -95,8 +95,19 @@ public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
      * (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
      */
 
-    public boolean containsKey(TKey tKey){
+    public boolean containsKey(Object tKey){
         return getValue().containsKey(tKey);
+    }
+
+    /**
+     * Returns the number of key-value mappings in this map.  If the
+     * map contains more than <tt>Integer.MAX_VALUE</tt> elements, returns
+     * <tt>Integer.MAX_VALUE</tt>.
+     *
+     * @return the number of key-value mappings in this map
+     */
+    public int getSize(){
+        return getValue().size();
     }
 
     /**

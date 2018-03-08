@@ -3,7 +3,7 @@ package com.easyworks.repository;
 import com.easyworks.tuple.Dual;
 
 /**
- * Interface to denote the Tuple value of 2 elements
+ * Interface for map.values that are of <tt>Tuple</tt> of 2 elements and keep the methods to retrieve them as strong-typed values
  * @param <TKey>    Type of the Key of the map
  * @param <T>       Type of the first element of the Tuple value
  * @param <U>       Type of the second element of the Tuple value

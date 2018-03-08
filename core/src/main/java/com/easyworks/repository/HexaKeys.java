@@ -12,6 +12,23 @@ public interface HexaKeys<K1,K2,K3,K4,K5,K6, T> {
         return Tuple.create(k1, k2, k3, k4, k5, k6);
     }
 
+    /**
+     * Interface for map.keys that are of <tt>Tuple.Hexa</tt> of 6 elements and keep the methods to use them as strong-typed
+     * values to fetch mapped values of Tuple.Single composed by 1 elements of types <tt>T</tt>
+     * @param <K1>  type of the first element of the Keys of the map
+     * @param <K2>  type of the second element of the Keys of the map
+     * @param <K3>  type of the third element of the Keys of the map
+     * @param <K4>  type of the fourth element of the Keys of the map
+     * @param <K5>  type of the fifth element of the Keys of the map
+     * @param <K6>  type of the sixth element of the Keys of the map
+     * @param <T>   type of the first element of stored value (Tuple.Single composed by 1 element of types <tt>T</tt>
+     */
+    interface HexaKeys1<K1,K2,K3,K4,K5,K6, T> extends HexaKeys<K1,K2,K3,K4,K5,K6, Single<T>>, SingleValues<Hexa<K1,K2,K3,K4,K5,K6>, T>{
+        default T getFirst(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6) {
+            return getFirstValue(getKey(k1, k2, k3, k4, k5, k6));
+        }
+    }
+
     interface HexaKeys2<K1,K2,K3,K4,K5,K6, T,U> extends HexaKeys<K1,K2,K3,K4,K5,K6, Dual<T,U>>, 
             DualValues<Hexa<K1,K2,K3,K4,K5,K6>, T,U>{
         default T getFirst(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6) {

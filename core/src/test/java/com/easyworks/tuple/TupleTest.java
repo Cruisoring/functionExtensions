@@ -2,6 +2,7 @@ package com.easyworks.tuple;
 
 import com.easyworks.Functions;
 import com.easyworks.function.PredicateThrowable;
+import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import org.junit.Assert;
 import org.junit.Test;
@@ -288,6 +289,37 @@ public class TupleTest {
     }
 
     @Test
+    public void getSetOfWithPredicate() {
+        Tuple manyValues = Tuple.asTuple("abc", null, 33, true, "a", "", 'a', Tuple.TRUE, 47);
+        assertEquals(Tuple.setOf("abc", "a", ""), manyValues.getSetOf(String.class));
+        assertEquals(Tuple.setOf("abc"), manyValues.getSetOf(String.class, s->s.length()>2));
+    }
+
+    @Test
+    public void asTuple(){
+        Tuple tuple = Tuple.asTuple(null);
+        assertEquals(1, tuple.getLength());
+
+        int[] ints = new int[] {1, 2};
+        tuple = Tuple.asTuple(ints);
+        assertEquals(1, tuple.getLength());
+        assertEquals(Tuple.create(new int[] {1, 2}), tuple);
+
+        Object[] elements = new Object[] {1, "ok", true};
+        tuple = Tuple.asTuple(elements);
+        assertEquals(3, tuple.getLength());
+        assertTrue(Arrays.deepEquals(tuple.values, elements));
+
+        elements = new Object[]{1,2,3,"abc", 'a', true, Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3), 'b'};
+        tuple = Tuple.asTuple(elements);
+        assertEquals(10, tuple.getLength());
+        Set<Tuple> tupleSet = tuple.getSetOf(Tuple.class);
+        assertEquals(3, tupleSet.getLength());
+        assertNotEquals(tupleSet, Tuple.asTuple(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)));
+        assertEquals(Tuple.setOf(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)), tupleSet);
+    }
+
+    @Test
     public void testHashCode() {
         System.out.println(tuple0.hashCode());
         System.out.println(tuple1.hashCode());
@@ -326,11 +358,11 @@ public class TupleTest {
         assertEquals(nullDual2, nullDual);
         assertEquals(nullDual, nullDual2);
 
-        Set<Boolean> nullDual3 = Tuple.setOf(null, true);
+        Set<Boolean> nullDual3 = Tuple.setOf(Boolean.class, null, null);
         assertFalse(nullDual2.equals(nullDual3));
         assertFalse(nullDual3.equals(nullDual2));
 
-        Set<String> null4 = Tuple.setOf(null, (String)null);
+        Set<String> null4 = Tuple.setOf(String.class, null, null);
         assertFalse(nullDual3.equals(null4));
         assertNotEquals(null4, nullDual3);
         assertNotEquals(nullDual3, null4);

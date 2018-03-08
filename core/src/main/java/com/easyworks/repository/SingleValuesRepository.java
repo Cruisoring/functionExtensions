@@ -24,9 +24,38 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
         return (Single<T>)get(tKey, null);
     }
 
+    public static class SingleValuesRepository1<K1, T> extends SingleValuesRepository<Single<K1>, T>
+            implements SingleKeys.SingleKeys1<K1, T> {
+
+        protected SingleValuesRepository1(SupplierThrowable<Map<Single<K1>, Tuple>> storageSupplier,
+                                          ConsumerThrowable<Map<Single<K1>, Tuple>> closing,
+                                          FunctionThrowable<K1, T> valueFunction) {
+            super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst()));
+        }
+
+        protected SingleValuesRepository1(FunctionThrowable<K1, T> valueFunction) {
+            this(HashMap::new, null, valueFunction);
+        }
+
+        @Override
+        public boolean containsKey(Object tKey){
+            if(tKey instanceof Single){
+                return super.containsKey(tKey);
+            } else if (tKey == null) {
+                return super.containsKey(getKey(null));
+            }
+            K1 k1 = (K1)tKey;
+            return k1 == null ? false : super.containsKey(getKey(k1));
+        }
+
+        @Override
+        public boolean containsKeyOf(K1 k1) {
+            return containsKey(getKey(k1));
+        }
+    }
 
     public static class SingleValuesRepository2<K1,K2, T> extends SingleValuesRepository<Dual<K1,K2>, T>
-        implements DualKeys<K1,K2, T>{
+        implements DualKeys.DualKeys1<K1,K2, T> {
 
         protected SingleValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Tuple>> storageSupplier,
                                         ConsumerThrowable<Map<Dual<K1,K2>, Tuple>> closing,
@@ -38,9 +67,16 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
             this(HashMap::new, null, valueFunction);
         }
 
+        /**
+         * Retrieve mapped value with both keys
+         *
+         * @param k1 first element of actual key of the map, with type of <tt>K1</tt>
+         * @param k2 second element of actual key of the map, with type of <tt>K2</tt>
+         * @return mapped value of type <tt>T</tt>
+         */
         @Override
-        public T retrieve(K1 k1, K2 k2) {
-            return retrieve(getKey(k1, k2)).getFirst();
+        public Single<T> retrieve(K1 k1, K2 k2) {
+            return retrieve(getKey(k1, k2));
         }
 
         @Override
@@ -49,27 +85,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
         }
     }
 
-    public static class SingleValuesRepository1<K1, T> extends SingleValuesRepository<Single<K1>, T>
-        implements SingleKeys<K1>{
-
-        protected SingleValuesRepository1(SupplierThrowable<Map<Single<K1>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Single<K1>, Tuple>> closing,
-                                        FunctionThrowable<K1, T> valueFunction) {
-            super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst()));
-        }
-
-        protected SingleValuesRepository1(FunctionThrowable<K1, T> valueFunction) {
-            this(HashMap::new, null, valueFunction);
-        }
-
-        @Override
-        public boolean containsKeyOf(K1 k1) {
-            return containsKey(getKey(k1));
-        }
-    }
-
     public static class SingleValuesRepository3<K1,K2,K3, T> extends SingleValuesRepository<Triple<K1,K2,K3>, T>
-        implements TripleKeys<K1,K2,K3, T>{
+        implements TripleKeys.TripleKeys1<K1,K2,K3, T> {
 
         protected SingleValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Tuple>> storageSupplier,
                                         ConsumerThrowable<Map<Triple<K1,K2,K3>, Tuple>> closing,
@@ -82,8 +99,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
         }
 
         @Override
-        public T retrieve(K1 k1, K2 k2, K3 k3) {
-            return retrieve(getKey(k1, k2, k3)).getFirst();
+        public Single<T> retrieve(K1 k1, K2 k2, K3 k3) {
+            return retrieve(getKey(k1, k2, k3));
         }
 
         @Override
@@ -93,7 +110,7 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     }
 
     public static class SingleValuesRepository4<K1,K2,K3,K4, T> extends SingleValuesRepository<Quad<K1,K2,K3,K4>, T>
-        implements QuadKeys<K1,K2,K3,K4, T> {
+        implements QuadKeys.QuadKeys1<K1,K2,K3,K4, T> {
 
         protected SingleValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Tuple>> storageSupplier,
                                         ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Tuple>> closing,
@@ -107,8 +124,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
         }
 
         @Override
-        public T retrieve(K1 k1, K2 k2, K3 k3, K4 k4) {
-            return retrieve(getKey(k1, k2, k3, k4)).getFirst();
+        public Single<T> retrieve(K1 k1, K2 k2, K3 k3, K4 k4) {
+            return retrieve(getKey(k1, k2, k3, k4));
         }
 
         @Override
@@ -118,7 +135,7 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     }
 
     public static class SingleValuesRepository5<K1,K2,K3,K4,K5, T> extends SingleValuesRepository<Penta<K1,K2,K3,K4,K5>, T>
-            implements PentaKeys<K1,K2,K3,K4,K5, T> {
+            implements PentaKeys.PentaKeys1<K1,K2,K3,K4,K5, T> {
 
         protected SingleValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Tuple>> storageSupplier,
                                         ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Tuple>> closing,
@@ -133,8 +150,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
         }
 
         @Override
-        public T retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5) {
-            return retrieve(getKey(k1, k2, k3, k4, k5)).getFirst();
+        public Single<T> retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5) {
+            return retrieve(getKey(k1, k2, k3, k4, k5));
         }
 
         @Override
@@ -144,7 +161,7 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     }
 
     public static class SingleValuesRepository6<K1,K2,K3,K4,K5,K6, T> extends SingleValuesRepository<Hexa<K1,K2,K3,K4,K5,K6>, T>
-            implements HexaKeys<K1,K2,K3,K4,K5,K6, T> {
+            implements HexaKeys.HexaKeys1<K1,K2,K3,K4,K5,K6, T> {
 
         protected SingleValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Tuple>> storageSupplier,
                                         ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Tuple>> closing,
@@ -159,8 +176,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
         }
 
         @Override
-        public T retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6) {
-            return retrieve(getKey(k1, k2, k3, k4, k5, k6)).getFirst();
+        public Single<T> retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6) {
+            return retrieve(getKey(k1, k2, k3, k4, k5, k6));
         }
 
         @Override
@@ -170,7 +187,7 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     }
 
     public static class SingleValuesRepository7<K1,K2,K3,K4,K5,K6,K7, T> extends SingleValuesRepository<Hepta<K1,K2,K3,K4,K5,K6,K7>, T>
-            implements HeptaKeys<K1,K2,K3,K4,K5,K6,K7, T> {
+            implements HeptaKeys.HeptaKeys1<K1,K2,K3,K4,K5,K6,K7, T> {
 
         protected SingleValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Tuple>> storageSupplier,
                                         ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Tuple>> closing,
@@ -185,8 +202,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
         }
 
         @Override
-        public T retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6, K7 k7) {
-            return retrieve(getKey(k1, k2, k3, k4, k5, k6, k7)).getFirst();
+        public Single<T> retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6, K7 k7) {
+            return retrieve(getKey(k1, k2, k3, k4, k5, k6, k7));
         }
 
         @Override

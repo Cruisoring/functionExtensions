@@ -4,10 +4,19 @@ import com.easyworks.tuple.*;
 
 public interface SingleKeys<TKey> {
 
+//    T retrieve(TKey key);
+
     boolean containsKeyOf(TKey key);
 
     default Single<TKey> getKey(TKey key){
         return Tuple.create(key);
+    }
+
+    interface SingleKeys1<TKey, T> extends SingleKeys<TKey>, SingleValues<Single<TKey>, T>{
+
+        default T getFirst(TKey key) {
+            return getFirstValue(getKey(key));
+        }
     }
 
     interface SingleKeys2<TKey, T,U> extends SingleKeys<TKey>, DualValues<Single<TKey>, T,U>{

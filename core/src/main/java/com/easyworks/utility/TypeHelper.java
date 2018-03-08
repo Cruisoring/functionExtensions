@@ -116,7 +116,7 @@ public class TypeHelper {
     public static PredicateThrowable<Class> getClassPredicate(Class instanceClass){
         if(instanceClass == null) return alwaysFalse;
         if (!classPredicates.containsKey(instanceClass)){
-            classPredicates.put(instanceClass,clazz -> clazz.isAssignableFrom(instanceClass));
+            classPredicates.put(instanceClass,clazz -> instanceClass.isAssignableFrom(clazz));
         }
         return classPredicates.get(instanceClass);
     }

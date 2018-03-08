@@ -12,6 +12,20 @@ public interface TripleKeys<K1,K2,K3, T> {
         return Tuple.create(k1, k2, k3);
     }
 
+    /**
+     * Interface for map.keys that are of <tt>Tuple.Triple</tt> of 3 elements and keep the methods to use them as strong-typed
+     * values to fetch mapped values of Tuple.Single composed by 1 elements of types <tt>T</tt>
+     * @param <K1>  type of the first element of the Keys of the map
+     * @param <K2>  type of the second element of the Keys of the map
+     * @param <K3>  type of the third element of the Keys of the map
+     * @param <T>   type of the first element of stored value (Tuple.Single composed by 1 element of types <tt>T</tt>
+     */
+    interface TripleKeys1<K1,K2,K3, T> extends TripleKeys<K1,K2,K3, Single<T>>, SingleValues<Triple<K1,K2,K3>, T>{
+        default T getFirst(K1 k1, K2 k2, K3 k3) {
+            return getFirstValue(getKey(k1, k2, k3));
+        }
+    }
+
     interface TripleKeys2<K1,K2,K3, T,U> extends TripleKeys<K1,K2,K3, Dual<T,U>>,
             DualValues<Triple<K1,K2,K3>, T,U>{
         default T getFirst(K1 k1, K2 k2, K3 k3) {

@@ -1,7 +1,10 @@
 package com.easyworks.tuple;
 
+import com.easyworks.function.PredicateThrowable;
+
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -20,6 +23,18 @@ public class Set<T> extends Tuple{
     protected Set(T... elements){
         super(elements);
         elementType = (Class<T>) elements.getClass().getComponentType();
+    }
+
+    /**
+     * Constructor to accept multiple elements of same type <code>T</code> that is specified explicitly
+     * Notice: if only one 'null' is used, then it would be wrapped as Object[]{null}, thus elementType is Object.class
+     * @param elementType  type of the elements being specified to cope with <tt>Type Erasure</tt>
+     * @param elements  Elements to be persisted
+     */
+    protected Set(Class<T> elementType, T... elements){
+        super(elements);
+        Objects.requireNonNull(elementType);
+        this.elementType = elementType;
     }
 
     /**
