@@ -6,8 +6,6 @@ import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import org.junit.Test;
 
-import java.util.Arrays;
-
 import static org.junit.Assert.*;
 
 public class TupleRepositoryTest {
@@ -175,39 +173,158 @@ public class TupleRepositoryTest {
     }
 
     @Test
-    public void toDualValuesRepository() {
-    }
-
-    @Test
     public void toDualValuesRepository1() {
+        DualValuesRepository.DualValuesRepository1<String, Character, Integer> repository = TupleRepository.toDualValuesRepository(
+                s -> Tuple.create(s.charAt(0), s.length())
+        );
+
+        assertEquals(Tuple.create(Character.valueOf('a'), 1), repository.retrieve(Tuple.create("a")));
+        assertEquals(null, repository.getSecond(null));
+        assertEquals(1, repository.getSize());
+
+        assertEquals(Character.valueOf('x'), repository.getFirst("xyz"));
+        assertEquals(false, repository.containsKeyOf(null));
+        assertEquals(false, repository.containsKeyOf(""));
+        assertMatch(new Tuple[]{Tuple.create("a"), Tuple.create("xyz")}, repository.getValue().keySet().toArray(new Tuple[2]));
+        assertMatch(new Tuple[]{Tuple.create('a', 1), Tuple.create('x', 3)}, repository.getValue().values().toArray(new Tuple[2]));
     }
 
     @Test
-    public void toTriValuesRepository() {
+    public void toDualValuesRepository4() {
+        DualValuesRepository.DualValuesRepository4<String, String, Integer, Boolean, String, Integer> repository = TupleRepository.toDualValuesRepository(
+                (s1, s2, n, b) -> Tuple.create(s1+s2, n + (b?s1.length(): s2.length()))
+        );
+
+        assertEquals(Tuple.create("abc", 5), repository.retrieve(Tuple.create("a", "bc", 3, false)));
+        assertEquals(true, repository.containsKeyOf("a", "bc", 3, false));
+        assertEquals(null, repository.getSecond("a", null, 3, false));
+        assertEquals(1, repository.getSize());
+
+        assertEquals("12345", repository.getFirst("12", "345", 1, true));
+        assertMatch(new Tuple[]{Tuple.create("a", "bc", 3, false), Tuple.create("12", "345", 1, true)},
+                repository.getValue().keySet().toArray(new Tuple[2]));
+        assertMatch(new Tuple[]{Tuple.create("abc", 5), Tuple.create("12345", 3)},
+                repository.getValue().values().toArray(new Tuple[2]));
     }
 
     @Test
-    public void toTriValuesRepository1() {
+    public void toTripleValuesRepository1() {
+        TripleValuesRepository.TripleValuesRepository1<String, Boolean, String, Integer> repository = TupleRepository.toTripleValuesRepository(
+                s -> Tuple.create(s.length()>2, s.substring(1), s.indexOf('?'))
+        );
+
+        assertEquals(Tuple.create(true, "bc", -1), repository.retrieve(Tuple.create("abc")));
+        assertEquals(true, repository.getFirst("what?"));
+        assertEquals("ood", repository.getSecond("good"));
+        assertEquals(null, repository.getSecond(""));
+        assertEquals(Integer.valueOf(0), repository.getThird("?"));
+
+        assertEquals(false, repository.containsKeyOf(null));
+        assertEquals(false, repository.containsKeyOf("GOOD"));
+        assertMatch(new Tuple[]{Tuple.create("abc"), Tuple.create("good"), Tuple.create("?"), Tuple.create("what?")},
+                repository.getValue().keySet().toArray(new Tuple[4]));
+        assertMatch(new Tuple[]{Tuple.create(true, "bc", -1), Tuple.create(true, "hat?", 4)
+                        , Tuple.create(true, "ood", -1), Tuple.create(false, "", 0)},
+                repository.getValue().values().toArray(new Tuple[4]));
     }
 
     @Test
-    public void toQuadValuesRepository() {
+    public void toTripleValuesRepository5() {
+        TripleValuesRepository.TripleValuesRepository5<String, Boolean, String, Integer, Character, Boolean, String, Integer> repository = TupleRepository.toTripleValuesRepository(
+                (s1, b, s2, i, c) -> Tuple.create(s1.length()>3==b, s2.substring(i), s1.indexOf(c))
+        );
+
+        assertEquals(Tuple.create(false, "3", 0), repository.retrieve(Tuple.create("abc", true, "123", 2, 'a')));
+        assertEquals(null, repository.retrieve(Tuple.create("abc", true, "123", 4, 'a')));
+        assertEquals(true, repository.getFirst("what?", true, "abc", 0, '-'));
+        assertEquals("ood", repository.getSecond("bad", false, "good", 1, 'a'));
+        assertEquals(null, repository.getSecond(null, false, "good", 1, 'a'));
+        assertEquals(Integer.valueOf(1), repository.getThird("bad", false, "good", 1, 'a'));
+
+        assertEquals(false, repository.containsKeyOf("abc", true, "123", 4, 'a'));
+        assertEquals(false, repository.containsKeyOf(null, false, "good", 1, 'a'));
+        assertMatch(new Tuple[]{Tuple.create("abc", true, "123", 2, 'a'), Tuple.create("what?", true, "abc", 0, '-')
+                        , Tuple.create("bad", false, "good", 1, 'a')},
+                repository.getValue().keySet().toArray(new Tuple[3]));
+        assertMatch(new Tuple[]{Tuple.create(false, "3", 0), Tuple.create(true, "abc", -1)
+                        , Tuple.create(true, "ood", 1)},
+                repository.getValue().values().toArray(new Tuple[3]));
     }
 
     @Test
     public void toQuadValuesRepository1() {
+        QuadValuesRepository.QuadValuesRepository1<String, Boolean, String, Integer, Character> repository = TupleRepository.toQuadValuesRepository(
+                s -> Tuple.create(s.length()>2, s.substring(1), s.indexOf('?'), s.charAt(0))
+        );
+
+        assertEquals(Tuple.create(true, "bc", -1, Character.valueOf('a')), repository.retrieve(Tuple.create("abc")));
+        assertEquals(true, repository.getFirst("what?"));
+        assertEquals("ood", repository.getSecond("good"));
+        assertEquals(null, repository.getSecond(""));
+        assertEquals(Integer.valueOf(0), repository.getThird("?"));
+        assertEquals(Character.valueOf('w'), repository.getFourth("what?"));
+
+        assertEquals(false, repository.containsKeyOf(null));
+        assertEquals(false, repository.containsKeyOf("GOOD"));
+        assertMatch(new Tuple[]{Tuple.create("abc"), Tuple.create("good"), Tuple.create("?"), Tuple.create("what?")},
+                repository.getValue().keySet().toArray(new Tuple[4]));
+        assertMatch(new Tuple[]{Tuple.create(true, "bc", -1, 'a'), Tuple.create(true, "hat?", 4, 'w')
+                        , Tuple.create(true, "ood", -1, 'g'), Tuple.create(false, "", 0, '?')},
+                repository.getValue().values().toArray(new Tuple[4]));
     }
 
     @Test
-    public void toPentaValuesRepository() {
+    public void toQuadValuesRepository6() {
+        QuadValuesRepository.QuadValuesRepository6<String, Boolean, String, Integer, Character, Boolean,   Boolean, String, String, Integer> repository =
+                TupleRepository.toQuadValuesRepository(
+                    (s1, b1, s2, i, c, b2) -> Tuple.create(b1 =(s1.length()>3), s2.substring(i), s1.substring(i), (b2?0:100))
+        );
+
+        assertEquals(Tuple.create(false, "3", "c", 0), repository.retrieve(Tuple.create("abc", true, "123", 2, 'a', true)));
+        assertEquals(null, repository.retrieve(Tuple.create("abc", true, "123", 4, 'a', null)));
+        assertEquals(true, repository.getFirst("what?", true, "abc", 0, '-', true));
+        assertEquals("ood", repository.getSecond("bad", false, "good", 1, 'a', false));
+        assertEquals(null, repository.getSecond(null, false, "good", 1, 'a', true));
+        assertEquals("ad", repository.getThird("bad", false, "good", 1, 'a', false));
+        assertEquals(Integer.valueOf(100), repository.getFourth("bad", false, "good", 1, 'a', false));
+
+        assertEquals(false, repository.containsKeyOf("abc", true, "123", 4, 'a', null));
+        assertEquals(false, repository.containsKeyOf(null, false, "good", 1, 'a', true));
+        assertMatch(new Tuple[]{Tuple.create("abc", true, "123", 2, 'a', true),
+                        Tuple.create("what?", true, "abc", 0, '-', true)
+                        , Tuple.create("bad", false, "good", 1, 'a', false)},
+                repository.getValue().keySet().toArray(new Tuple[3]));
+        assertMatch(new Tuple[]{Tuple.create(false, "3", "c", 0), Tuple.create(false, "ood", "ad", 100)
+                        , Tuple.create(true, "abc", "what?", 0)},
+                repository.getValue().values().toArray(new Tuple[3]));
     }
 
     @Test
     public void toPentaValuesRepository1() {
+        PentaValuesRepository.PentaValuesRepository1<String, Boolean, String, Integer, Character, char[]> repository = TupleRepository.toPentaValuesRepository(
+                s -> Tuple.create(s.length()>2, s.substring(1), s.indexOf('?'), s.charAt(0), s.toCharArray())
+        );
+
+        assertEquals(Tuple.create(true, "bc", -1, Character.valueOf('a'), "abc".toCharArray()), repository.retrieve(Tuple.create("abc")));
+        assertEquals(true, repository.getFirst("what?"));
+        assertEquals("ood", repository.getSecond("good"));
+        assertEquals(null, repository.getSecond(""));
+        assertEquals(Integer.valueOf(0), repository.getThird("?"));
+        assertEquals(Character.valueOf('w'), repository.getFourth("what?"));
+        Object v5 = repository.getFifth("what?");
+        //assertTrue(ArrayHelper.matchInOrder(TypeHelper.asArray("what?".toCharArray()), (Character[])v5));
+
+        assertEquals(false, repository.containsKeyOf(null));
+        assertEquals(false, repository.containsKeyOf("GOOD"));
+        assertMatch(new Tuple[]{Tuple.create("abc"), Tuple.create("good"), Tuple.create("?"), Tuple.create("what?")},
+                repository.getValue().keySet().toArray(new Tuple[4]));
+        assertMatch(new Tuple[]{Tuple.create(true, "bc", -1, 'a', "abc".toCharArray()), Tuple.create(true, "hat?", 4, 'w', "what?".toCharArray())
+                        , Tuple.create(true, "ood", -1, 'g', "good".toCharArray()), Tuple.create(false, "", 0, '?', "what?".toCharArray())},
+                repository.getValue().values().toArray(new Tuple[4]));
     }
 
     @Test
-    public void toHexaValuesRepository() {
+    public void toPentaValuesRepository7() {
     }
 
     @Test
@@ -215,10 +332,14 @@ public class TupleRepositoryTest {
     }
 
     @Test
-    public void toHeptaValuesRepository() {
+    public void toHexaValuesRepository3() {
     }
 
     @Test
     public void toHeptaValuesRepository1() {
+    }
+
+    @Test
+    public void toHeptaValuesRepository5() {
     }
 }

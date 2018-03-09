@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
  * would close any elements if they are also AutoCloseable.
  */
 public class Tuple implements AutoCloseable, Comparable<Tuple> {
+    private static java.util.Set<Class> valueArrayClasses = new HashSet<Class>(Arrays.asList(
+            byte[].class, boolean[].class, char[].class, float[].class,
+            int[].class, double[].class, long[].class, short[].class));
+
     public static final Unit UNIT = new Unit();
     public static final Single TRUE = new Single(true);
     public static final Single FALSE = new Single(false);
@@ -33,7 +37,11 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
         int length = elements.length;
         values = new Object[length];
         for (int i=0; i<length; i++){
-            values[i] = elements[i];
+            Object element = elements[i];
+//            if(valueArrayClasses.contains(element.getClass()))
+//                values[i] = TypeHelper.asArray(element);
+//            else
+                values[i] = element;
         }
     }
 
@@ -161,7 +169,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null || !(obj instanceof Tuple) || getLength() != ((Tuple) obj).getLength())
+        int length = values.length;
+        if(obj == null || !(obj instanceof Tuple) || length != ((Tuple) obj).getLength())
             return false;
         if (obj == this)
             return true;

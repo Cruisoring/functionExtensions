@@ -16,6 +16,7 @@ public class ArrayHelper {
         return array;
     }
 
+
     public static <T extends Comparable<T>> boolean matchInOrder(T[] expected, T[] actual) {
         if(expected.length != actual.length)
             return false;
@@ -44,7 +45,6 @@ public class ArrayHelper {
         Arrays.sort(expected);
         Arrays.sort(actual);
         if(!Arrays.deepEquals(expected, actual)){
-            Logger.L("Expected: %s != %s", Tuple.asTuple(expected), Tuple.asTuple(actual));
             return false;
         }
         return true;

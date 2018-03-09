@@ -108,49 +108,49 @@ public class TupleRepository {
         return new DualValuesRepository.DualValuesRepository7(storageSupplier, closing, valueFunction);
     }
 
-    public static <TKey, T,U,V> TripleValuesRepository.TripleValuesRepository1<TKey, T,U,V> toTriValuesRepository(
+    public static <TKey, T,U,V> TripleValuesRepository.TripleValuesRepository1<TKey, T,U,V> toTripleValuesRepository(
             SupplierThrowable<Map<Tuple, Tuple>> storageSupplier,
             ConsumerThrowable<Map<Tuple, Tuple>> closing,
             FunctionThrowable<TKey, Triple<T,U,V>>  valueFunction){
         return new TripleValuesRepository.TripleValuesRepository1(storageSupplier, closing, valueFunction);
     }
 
-    public static <K1,K2, T,U,V> TripleValuesRepository.TripleValuesRepository2<K1,K2, T,U,V> toTriValuesRepository(
+    public static <K1,K2, T,U,V> TripleValuesRepository.TripleValuesRepository2<K1,K2, T,U,V> toTripleValuesRepository(
             SupplierThrowable<Map<Tuple, Tuple>> storageSupplier,
             ConsumerThrowable<Map<Tuple, Tuple>> closing,
             BiFunctionThrowable<K1,K2, Triple<T,U,V>>  valueFunction){
         return new TripleValuesRepository.TripleValuesRepository2(storageSupplier, closing, valueFunction);
     }
 
-    public static <K1,K2,K3, T,U,V> TripleValuesRepository.TripleValuesRepository3<K1,K2,K3, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3, T,U,V> TripleValuesRepository.TripleValuesRepository3<K1,K2,K3, T,U,V> toTripleValuesRepository(
             SupplierThrowable<Map<Tuple, Tuple>> storageSupplier,
             ConsumerThrowable<Map<Tuple, Tuple>> closing,
             TriFunctionThrowable<K1,K2,K3, Triple<T,U,V>> valueFunction){
         return new TripleValuesRepository.TripleValuesRepository3(storageSupplier, closing, valueFunction);
     }
 
-    public static <K1,K2,K3,K4, T,U,V> TripleValuesRepository.TripleValuesRepository4<K1,K2,K3,K4, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3,K4, T,U,V> TripleValuesRepository.TripleValuesRepository4<K1,K2,K3,K4, T,U,V> toTripleValuesRepository(
             SupplierThrowable<Map<Tuple, Tuple>> storageSupplier,
             ConsumerThrowable<Map<Tuple, Tuple>> closing,
             QuadFunctionThrowable<K1,K2,K3,K4, Triple<T,U,V>> valueFunction){
         return new TripleValuesRepository.TripleValuesRepository4(storageSupplier, closing, valueFunction);
     }
 
-    public static <K1,K2,K3,K4,K5, T,U,V> TripleValuesRepository.TripleValuesRepository5<K1,K2,K3,K4,K5, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3,K4,K5, T,U,V> TripleValuesRepository.TripleValuesRepository5<K1,K2,K3,K4,K5, T,U,V> toTripleValuesRepository(
             SupplierThrowable<Map<Tuple, Tuple>> storageSupplier,
             ConsumerThrowable<Map<Tuple, Tuple>> closing,
             PentaFunctionThrowable<K1,K2,K3,K4,K5, Triple<T,U,V>> valueFunction){
         return new TripleValuesRepository.TripleValuesRepository5(storageSupplier, closing, valueFunction);
     }
 
-    public static <K1,K2,K3,K4,K5,K6, T,U,V> TripleValuesRepository.TripleValuesRepository6<K1,K2,K3,K4,K5,K6, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3,K4,K5,K6, T,U,V> TripleValuesRepository.TripleValuesRepository6<K1,K2,K3,K4,K5,K6, T,U,V> toTripleValuesRepository(
             SupplierThrowable<Map<Tuple, Tuple>> storageSupplier,
             ConsumerThrowable<Map<Tuple, Tuple>> closing,
             HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Triple<T,U,V>> valueFunction){
         return new TripleValuesRepository.TripleValuesRepository6(storageSupplier, closing, valueFunction);
     }
 
-    public static <K1,K2,K3,K4,K5,K6,K7, T,U,V> TripleValuesRepository.TripleValuesRepository7<K1,K2,K3,K4,K5,K6,K7, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3,K4,K5,K6,K7, T,U,V> TripleValuesRepository.TripleValuesRepository7<K1,K2,K3,K4,K5,K6,K7, T,U,V> toTripleValuesRepository(
             SupplierThrowable<Map<Tuple, Tuple>> storageSupplier,
             ConsumerThrowable<Map<Tuple, Tuple>> closing,
             HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Triple<T,U,V>> valueFunction){
@@ -429,37 +429,37 @@ public class TupleRepository {
         return new DualValuesRepository.DualValuesRepository7(valueFunction);
     }
 
-    public static <TKey, T,U,V> TripleValuesRepository.TripleValuesRepository1<TKey, T,U,V> toTriValuesRepository(
+    public static <TKey, T,U,V> TripleValuesRepository.TripleValuesRepository1<TKey, T,U,V> toTripleValuesRepository(
             FunctionThrowable<TKey, Triple<T,U,V>>  valueFunction){
         return new TripleValuesRepository.TripleValuesRepository1(valueFunction);
     }
 
-    public static <K1,K2, T,U,V> TripleValuesRepository.TripleValuesRepository2<K1,K2, T,U,V> toTriValuesRepository(
+    public static <K1,K2, T,U,V> TripleValuesRepository.TripleValuesRepository2<K1,K2, T,U,V> toTripleValuesRepository(
             BiFunctionThrowable<K1,K2, Triple<T,U,V>>  valueFunction){
         return new TripleValuesRepository.TripleValuesRepository2(valueFunction);
     }
 
-    public static <K1,K2,K3, T,U,V> TripleValuesRepository.TripleValuesRepository3<K1,K2,K3, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3, T,U,V> TripleValuesRepository.TripleValuesRepository3<K1,K2,K3, T,U,V> toTripleValuesRepository(
             TriFunctionThrowable<K1,K2,K3, Triple<T,U,V>> valueFunction){
         return new TripleValuesRepository.TripleValuesRepository3(valueFunction);
     }
 
-    public static <K1,K2,K3,K4, T,U,V> TripleValuesRepository.TripleValuesRepository4<K1,K2,K3,K4, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3,K4, T,U,V> TripleValuesRepository.TripleValuesRepository4<K1,K2,K3,K4, T,U,V> toTripleValuesRepository(
             QuadFunctionThrowable<K1,K2,K3,K4, Triple<T,U,V>> valueFunction){
         return new TripleValuesRepository.TripleValuesRepository4(valueFunction);
     }
 
-    public static <K1,K2,K3,K4,K5, T,U,V> TripleValuesRepository.TripleValuesRepository5<K1,K2,K3,K4,K5, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3,K4,K5, T,U,V> TripleValuesRepository.TripleValuesRepository5<K1,K2,K3,K4,K5, T,U,V> toTripleValuesRepository(
             PentaFunctionThrowable<K1,K2,K3,K4,K5, Triple<T,U,V>> valueFunction){
         return new TripleValuesRepository.TripleValuesRepository5(valueFunction);
     }
 
-    public static <K1,K2,K3,K4,K5,K6, T,U,V> TripleValuesRepository.TripleValuesRepository6<K1,K2,K3,K4,K5,K6, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3,K4,K5,K6, T,U,V> TripleValuesRepository.TripleValuesRepository6<K1,K2,K3,K4,K5,K6, T,U,V> toTripleValuesRepository(
             HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Triple<T,U,V>> valueFunction){
         return new TripleValuesRepository.TripleValuesRepository6(valueFunction);
     }
 
-    public static <K1,K2,K3,K4,K5,K6,K7, T,U,V> TripleValuesRepository.TripleValuesRepository7<K1,K2,K3,K4,K5,K6,K7, T,U,V> toTriValuesRepository(
+    public static <K1,K2,K3,K4,K5,K6,K7, T,U,V> TripleValuesRepository.TripleValuesRepository7<K1,K2,K3,K4,K5,K6,K7, T,U,V> toTripleValuesRepository(
             HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Triple<T,U,V>> valueFunction){
         return new TripleValuesRepository.TripleValuesRepository7(valueFunction);
     }

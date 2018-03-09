@@ -1,6 +1,8 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
+import com.easyworks.function.BiFunctionThrowable;
+import com.easyworks.function.FunctionThrowable;
 import com.easyworks.function.PredicateThrowable;
 import com.easyworks.tuple.Quad;
 import com.easyworks.tuple.Tuple;
@@ -50,6 +52,136 @@ public class TypeHelper {
         put(char[].class, clazz -> char[].class.equals(clazz) || Character[].class.equals(clazz));
         put(Character[].class, clazz -> Character[].class.equals(clazz) || char[].class.equals(clazz));
     }};
+
+    public static final Map<Class, Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>>> valueArrayConverters
+            = new HashMap<Class, Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>>>(){
+        {
+            put(byte[].class, Tuple.create(byte.class, Byte.class, array -> ((byte[]) array).length,
+                    (array, i) -> Byte.valueOf(((byte[]) array)[i])));
+            put(boolean[].class, Tuple.create(boolean.class, Boolean.class, array -> ((boolean[]) array).length,
+                    (array, i) -> Boolean.valueOf(((boolean[]) array)[i])));
+            put(char[].class, Tuple.create(char.class, Character.class, array -> ((char[]) array).length,
+                    (array, i) -> Character.valueOf(((char[]) array)[i])));
+            put(float[].class, Tuple.create(float.class, Float.class, array -> ((float[]) array).length,
+                    (array, i) -> Float.valueOf(((float[]) array)[i])));
+            put(int[].class, Tuple.create(int.class, Integer.class, array -> ((int[]) array).length,
+                    (array, i) -> Integer.valueOf(((int[]) array)[i])));
+            put(double[].class, Tuple.create(double.class, Double.class, array -> ((double[]) array).length,
+                    (array, i) -> Double.valueOf(((double[]) array)[i])));
+            put(short[].class, Tuple.create(short.class, Short.class, array -> ((short[]) array).length,
+                    (array, i) -> Short.valueOf(((short[]) array)[i])));
+            put(long[].class, Tuple.create(long.class, Long.class, array -> ((long[]) array).length,
+                    (array, i) -> Long.valueOf(((long[]) array)[i])));
+        }
+    };
+
+    private static <V,O extends Comparator<O>> O[] asArray(V array){
+        if(array == null)
+            return null;
+
+        Class arrayClass = array.getClass();
+        Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>> quad =
+                valueArrayConverters.get(arrayClass);
+        return (O[]) Functions.Default.apply(() -> toObjectArray(array, quad.getSecond(), quad.getThird().apply(array), quad.getFourth()));
+    }
+
+    private static <V,O> O[] toObjectArray(V array, Class<O> objectClass, int size, BiFunctionThrowable<V, Integer, O> getValueAt)
+            throws Exception {
+        if(array == null)
+            return null;
+        O[] result = (O[]) Array.newInstance(objectClass, size);
+        for (int i = 0; i < size; i++) {
+            result[i] = getValueAt.apply(array, i);
+        }
+        return result;
+    }
+
+    //*/
+
+    public static Boolean[] toObjectArray(boolean[] array){
+        return asArray(array);
+    }
+
+    public static Byte[] toObjectArray(byte[] array){
+        return asArray(array);
+    }
+
+    public static Character[] toObjectArray(char[] array){
+        return asArray(array);
+    }
+
+    public static Float[] toObjectArray(float[] array){
+        return asArray(array);
+    }
+
+    public static Double[] toObjectArray(double[] array){
+        return asArray(array);
+    }
+
+    public static Integer[] toObjectArray(int[] array){
+        return asArray(array);
+    }
+
+    public static Short[] toObjectArray(short[] array){
+        return asArray(array);
+    }
+    /*/
+    public static Boolean[] toObjectArray(boolean[] array){
+        if(array == null)
+            return null;
+
+        return (Boolean[]) Functions.Default.apply(() ->
+                toObjectArray(array, Boolean.class, array.length, (a, i)->Boolean.valueOf(a[i])));
+    }
+
+    public static Byte[] toObjectArray(byte[] array){
+        if(array == null)
+            return null;
+
+        return (Byte[]) Functions.Default.apply(() ->
+                toObjectArray(array, Byte.class, array.length, (a, i)->Byte.valueOf(a[i])));
+    }
+
+    public static Character[] toObjectArray(char[] array){
+        if(array == null)
+            return null;
+
+        return (Character[]) Functions.Default.apply(() ->
+                toObjectArray(array, Character.class, array.length, (a, i)->Character.valueOf(a[i])));
+    }
+
+    public static Float[] toObjectArray(float[] array){
+        if(array == null)
+            return null;
+
+        return (Float[]) Functions.Default.apply(() ->
+                toObjectArray(array, Float.class, array.length, (a, i)->Float.valueOf(a[i])));
+    }
+
+    public static Double[] toObjectArray(double[] array){
+        if(array == null)
+            return null;
+
+        return (Double[]) Functions.Default.apply(() ->
+                toObjectArray(array, Double.class, array.length, (a, i)->Double.valueOf(a[i])));
+    }
+
+    public static Integer[] toObjectArray(int[] array){
+        if(array == null)
+            return null;
+
+        return (Integer[]) Functions.Default.apply(() ->
+                toObjectArray(array, Integer.class, array.length, (a, i)->Integer.valueOf(a[i])));
+    }
+
+    public static Short[] toObjectArray(short[] array){
+        if(array == null)
+            return null;
+
+        return (Short[]) Functions.Default.apply(() ->
+                toObjectArray(array, Short.class, array.length, (a, i)->Short.valueOf(a[i])));
+    }
+    //*/
 
     protected static final PredicateThrowable<Class> alwaysFalse = c -> false;
 
