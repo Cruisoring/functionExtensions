@@ -6,11 +6,11 @@ import com.easyworks.tuple.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends MultiValuesRepository<TKey>
+public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKey, Hexa<T,U,V,W,X,Y>>
     implements HexaValues<TKey, T,U,V,W,X,Y>{
 
-    protected HexaValuesRepository(SupplierThrowable<Map<TKey, Tuple>> storageSupplier,
-                                ConsumerThrowable<Map<TKey, Tuple>> closing,
+    protected HexaValuesRepository(SupplierThrowable<Map<TKey, Hexa<T,U,V,W,X,Y>>> storageSupplier,
+                                ConsumerThrowable<Map<TKey, Hexa<T,U,V,W,X,Y>>> closing,
                                 FunctionThrowable<TKey, Hexa<T,U,V,W,X,Y>> valueFunction){
         super(storageSupplier, closing, t -> valueFunction.apply(t));
     }
@@ -27,8 +27,8 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends MultiValuesRep
     public static class HexaValuesRepository1<K1, T,U,V,W,X,Y> extends HexaValuesRepository<Single<K1>, T,U,V,W,X,Y>
             implements SingleKeys.SingleKeys6<K1, T,U,V,W,X,Y> {
 
-        protected HexaValuesRepository1(SupplierThrowable<Map<Single<K1>, Tuple>> storageSupplier,
-                                         ConsumerThrowable<Map<Single<K1>, Tuple>> closing,
+        protected HexaValuesRepository1(SupplierThrowable<Map<Single<K1>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
+                                         ConsumerThrowable<Map<Single<K1>, Hexa<T,U,V,W,X,Y>>> closing,
                                          FunctionThrowable<K1, Hexa<T,U,V,W,X,Y>> valueFunction) {
             super(storageSupplier, closing, single -> valueFunction.apply(single.getFirst()));
         }
@@ -46,8 +46,8 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends MultiValuesRep
     public static class HexaValuesRepository2<K1,K2, T,U,V,W,X,Y> extends HexaValuesRepository<Dual<K1,K2>, T,U,V,W,X,Y>
             implements DualKeys.DualKeys6<K1,K2, T,U,V,W,X,Y>{
 
-        protected HexaValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Tuple>> storageSupplier,
-                                         ConsumerThrowable<Map<Dual<K1,K2>, Tuple>> closing,
+        protected HexaValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
+                                         ConsumerThrowable<Map<Dual<K1,K2>, Hexa<T,U,V,W,X,Y>>> closing,
                                          BiFunctionThrowable<K1, K2, Hexa<T,U,V,W,X,Y>> valueFunction) {
             super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
@@ -70,8 +70,8 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends MultiValuesRep
     public static class HexaValuesRepository3<K1,K2,K3, T,U,V,W,X,Y> extends HexaValuesRepository<Triple<K1,K2,K3>, T,U,V,W,X,Y>
             implements TripleKeys.TripleKeys6<K1,K2,K3, T,U,V,W,X,Y>{
 
-        protected HexaValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Tuple>> storageSupplier,
-                                         ConsumerThrowable<Map<Triple<K1,K2,K3>, Tuple>> closing,
+        protected HexaValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
+                                         ConsumerThrowable<Map<Triple<K1,K2,K3>, Hexa<T,U,V,W,X,Y>>> closing,
                                          TriFunctionThrowable<K1, K2, K3, Hexa<T,U,V,W,X,Y>> valueFunction) {
             super(storageSupplier, closing, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
@@ -94,8 +94,8 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends MultiValuesRep
     public static class HexaValuesRepository4<K1,K2,K3,K4, T,U,V,W,X,Y> extends HexaValuesRepository<Quad<K1,K2,K3,K4>, T,U,V,W,X,Y>
             implements QuadKeys.QuadKeys6<K1,K2,K3,K4, T,U,V,W,X,Y> {
 
-        protected HexaValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Tuple>> storageSupplier,
-                                         ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Tuple>> closing,
+        protected HexaValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
+                                         ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Hexa<T,U,V,W,X,Y>>> closing,
                                          QuadFunctionThrowable<K1,K2,K3,K4, Hexa<T,U,V,W,X,Y>> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
@@ -119,8 +119,8 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends MultiValuesRep
     public static class HexaValuesRepository5<K1,K2,K3,K4,K5, T,U,V,W,X,Y> extends HexaValuesRepository<Penta<K1,K2,K3,K4,K5>, T,U,V,W,X,Y>
             implements PentaKeys.PentaKeys6<K1,K2,K3,K4,K5, T,U,V,W,X,Y> {
 
-        protected HexaValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Tuple>> storageSupplier,
-                                         ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Tuple>> closing,
+        protected HexaValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
+                                         ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Hexa<T,U,V,W,X,Y>>> closing,
                                          PentaFunctionThrowable<K1,K2,K3,K4,K5, Hexa<T,U,V,W,X,Y>> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
@@ -145,8 +145,8 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends MultiValuesRep
     public static class HexaValuesRepository6<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y> extends HexaValuesRepository<Hexa<K1,K2,K3,K4,K5,K6>, T,U,V,W,X,Y>
             implements HexaKeys.HexaKeys6<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y> {
 
-        protected HexaValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Tuple>> storageSupplier,
-                                         ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Tuple>> closing,
+        protected HexaValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
+                                         ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Hexa<T,U,V,W,X,Y>>> closing,
                                          HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Hexa<T,U,V,W,X,Y>> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
@@ -171,8 +171,8 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends MultiValuesRep
     public static class HexaValuesRepository7<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y> extends HexaValuesRepository<Hepta<K1,K2,K3,K4,K5,K6,K7>, T,U,V,W,X,Y>
             implements HeptaKeys.HeptaKeys6<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y> {
 
-        protected HexaValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Tuple>> storageSupplier,
-                                         ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Tuple>> closing,
+        protected HexaValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
+                                         ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hexa<T,U,V,W,X,Y>>> closing,
                                          HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Hexa<T,U,V,W,X,Y>> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),

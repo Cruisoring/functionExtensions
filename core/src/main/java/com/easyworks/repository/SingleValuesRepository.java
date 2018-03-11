@@ -6,11 +6,11 @@ import com.easyworks.tuple.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
+public class SingleValuesRepository<TKey, T> extends Repository<TKey, Single<T>>
     implements SingleValues<TKey, T> {
 
-    protected SingleValuesRepository(SupplierThrowable<Map<TKey, Tuple>> storageSupplier,
-                                     ConsumerThrowable<Map<TKey, Tuple>> closing,
+    protected SingleValuesRepository(SupplierThrowable<Map<TKey, Single<T>>> storageSupplier,
+                                     ConsumerThrowable<Map<TKey, Single<T>>> closing,
                                      FunctionThrowable<TKey, T> valueFunction){
         super(storageSupplier, closing, t -> Tuple.create(valueFunction.apply(t)));
     }
@@ -27,8 +27,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     public static class SingleValuesRepository1<K1, T> extends SingleValuesRepository<Single<K1>, T>
             implements SingleKeys.SingleKeys1<K1, T> {
 
-        protected SingleValuesRepository1(SupplierThrowable<Map<Single<K1>, Tuple>> storageSupplier,
-                                          ConsumerThrowable<Map<Single<K1>, Tuple>> closing,
+        protected SingleValuesRepository1(SupplierThrowable<Map<Single<K1>, Single<T>>> storageSupplier,
+                                          ConsumerThrowable<Map<Single<K1>, Single<T>>> closing,
                                           FunctionThrowable<K1, T> valueFunction) {
             super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst()));
         }
@@ -57,8 +57,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     public static class SingleValuesRepository2<K1,K2, T> extends SingleValuesRepository<Dual<K1,K2>, T>
         implements DualKeys.DualKeys1<K1,K2, T> {
 
-        protected SingleValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Dual<K1,K2>, Tuple>> closing,
+        protected SingleValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Single<T>>> storageSupplier,
+                                        ConsumerThrowable<Map<Dual<K1,K2>, Single<T>>> closing,
                                         BiFunctionThrowable<K1, K2, T> valueFunction) {
             super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
@@ -88,8 +88,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     public static class SingleValuesRepository3<K1,K2,K3, T> extends SingleValuesRepository<Triple<K1,K2,K3>, T>
         implements TripleKeys.TripleKeys1<K1,K2,K3, T> {
 
-        protected SingleValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Triple<K1,K2,K3>, Tuple>> closing,
+        protected SingleValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Single<T>>> storageSupplier,
+                                        ConsumerThrowable<Map<Triple<K1,K2,K3>, Single<T>>> closing,
                                         TriFunctionThrowable<K1, K2, K3, T> valueFunction) {
             super(storageSupplier, closing, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
@@ -112,8 +112,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     public static class SingleValuesRepository4<K1,K2,K3,K4, T> extends SingleValuesRepository<Quad<K1,K2,K3,K4>, T>
         implements QuadKeys.QuadKeys1<K1,K2,K3,K4, T> {
 
-        protected SingleValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Tuple>> closing,
+        protected SingleValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Single<T>>> storageSupplier,
+                                        ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Single<T>>> closing,
                                         QuadFunctionThrowable<K1,K2,K3,K4, T> valueFunction) {
             super(storageSupplier, closing, tuple -> 
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
@@ -137,8 +137,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     public static class SingleValuesRepository5<K1,K2,K3,K4,K5, T> extends SingleValuesRepository<Penta<K1,K2,K3,K4,K5>, T>
             implements PentaKeys.PentaKeys1<K1,K2,K3,K4,K5, T> {
 
-        protected SingleValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Tuple>> closing,
+        protected SingleValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Single<T>>> storageSupplier,
+                                        ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Single<T>>> closing,
                                         PentaFunctionThrowable<K1,K2,K3,K4,K5, T> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
@@ -163,8 +163,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     public static class SingleValuesRepository6<K1,K2,K3,K4,K5,K6, T> extends SingleValuesRepository<Hexa<K1,K2,K3,K4,K5,K6>, T>
             implements HexaKeys.HexaKeys1<K1,K2,K3,K4,K5,K6, T> {
 
-        protected SingleValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Tuple>> closing,
+        protected SingleValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Single<T>>> storageSupplier,
+                                        ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Single<T>>> closing,
                                         HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, T> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
@@ -189,8 +189,8 @@ public class SingleValuesRepository<TKey, T> extends MultiValuesRepository<TKey>
     public static class SingleValuesRepository7<K1,K2,K3,K4,K5,K6,K7, T> extends SingleValuesRepository<Hepta<K1,K2,K3,K4,K5,K6,K7>, T>
             implements HeptaKeys.HeptaKeys1<K1,K2,K3,K4,K5,K6,K7, T> {
 
-        protected SingleValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Tuple>> closing,
+        protected SingleValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Single<T>>> storageSupplier,
+                                        ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Single<T>>> closing,
                                         HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, T> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),

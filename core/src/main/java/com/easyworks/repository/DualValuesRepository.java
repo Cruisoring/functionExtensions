@@ -13,7 +13,7 @@ import java.util.Map;
  * @param <T>       type of the first element of the Tuple.Dual that is mapped from the key
  * @param <U>       type of the second element of the Tuple.Dual that is mapped from the key
  */
-public class DualValuesRepository<TKey, T, U> extends MultiValuesRepository<TKey>
+public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>>
     implements DualValues<TKey, T,U> {
     /**
      * Construct a repository with given map factory, extra closing logic and Function to map key to value
@@ -22,8 +22,8 @@ public class DualValuesRepository<TKey, T, U> extends MultiValuesRepository<TKey
      * @param closing           Extra steps to run before reset() being called.
      * @param valueFunction     Function to map key of <tt>TKey<tt> type to value of <tt>Tuple.Dual<tt> type
      */
-    protected DualValuesRepository(SupplierThrowable<Map<TKey, Tuple>> storageSupplier,
-                                   ConsumerThrowable<Map<TKey, Tuple>> closing,
+    protected DualValuesRepository(SupplierThrowable<Map<TKey, Dual<T,U>>> storageSupplier,
+                                   ConsumerThrowable<Map<TKey, Dual<T,U>>> closing,
                                    FunctionThrowable<TKey, Dual<T, U>> valueFunction){
         super(storageSupplier, closing, t -> valueFunction.apply(t));
     }
@@ -62,8 +62,8 @@ public class DualValuesRepository<TKey, T, U> extends MultiValuesRepository<TKey
          * @param closing           Extra steps to run before reset() being called.
          * @param valueFunction     Function to map key of <tt>K1<tt> type to value of <tt>Tuple.Dual<tt> type
          */
-        protected DualValuesRepository1(SupplierThrowable<Map<Single<K1>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Single<K1>, Tuple>> closing,
+        protected DualValuesRepository1(SupplierThrowable<Map<Single<K1>, Dual<T,U>>> storageSupplier,
+                                        ConsumerThrowable<Map<Single<K1>, Dual<T,U>>> closing,
                                         FunctionThrowable<K1, Dual<T, U>> valueFunction) {
             super(storageSupplier, closing, single -> valueFunction.apply(single.getFirst()));
         }
@@ -104,8 +104,8 @@ public class DualValuesRepository<TKey, T, U> extends MultiValuesRepository<TKey
          * @param closing           Extra steps to run before reset() being called.
          * @param valueFunction     Function to map key of 2 elements to value of 2 elements
          */
-        protected DualValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Dual<K1,K2>, Tuple>> closing,
+        protected DualValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Dual<T,U>>> storageSupplier,
+                                        ConsumerThrowable<Map<Dual<K1,K2>, Dual<T,U>>> closing,
                                         BiFunctionThrowable<K1, K2, Dual<T, U>> valueFunction) {
             super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
@@ -159,8 +159,8 @@ public class DualValuesRepository<TKey, T, U> extends MultiValuesRepository<TKey
          * @param closing           Extra steps to run before reset() being called.
          * @param valueFunction     Function to map key of 3 elements to value of 2 elements
          */
-        protected DualValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Triple<K1,K2,K3>, Tuple>> closing,
+        protected DualValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Dual<T,U>>> storageSupplier,
+                                        ConsumerThrowable<Map<Triple<K1,K2,K3>, Dual<T,U>>> closing,
                                         TriFunctionThrowable<K1, K2, K3, Dual<T, U>> valueFunction) {
             super(storageSupplier, closing, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
@@ -217,8 +217,8 @@ public class DualValuesRepository<TKey, T, U> extends MultiValuesRepository<TKey
          * @param closing           Extra steps to run before reset() being called.
          * @param valueFunction     Function to map key of 4 elements to value of 2 elements
          */
-        protected DualValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Tuple>> closing,
+        protected DualValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Dual<T,U>>> storageSupplier,
+                                        ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Dual<T,U>>> closing,
                                         QuadFunctionThrowable<K1,K2,K3,K4, Dual<T, U>> valueFunction) {
             super(storageSupplier, closing, tuple -> 
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
@@ -279,8 +279,8 @@ public class DualValuesRepository<TKey, T, U> extends MultiValuesRepository<TKey
          * @param closing           Extra steps to run before reset() being called.
          * @param valueFunction     Function to map key of 5 elements to value of 2 elements
          */
-        protected DualValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Tuple>> closing,
+        protected DualValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Dual<T,U>>> storageSupplier,
+                                        ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Dual<T,U>>> closing,
                                         PentaFunctionThrowable<K1,K2,K3,K4,K5, Dual<T, U>> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
@@ -345,8 +345,8 @@ public class DualValuesRepository<TKey, T, U> extends MultiValuesRepository<TKey
          * @param closing           Extra steps to run before reset() being called.
          * @param valueFunction     Function to map key of 6 elements to value of 2 elements
          */
-        protected DualValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Tuple>> closing,
+        protected DualValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Dual<T,U>>> storageSupplier,
+                                        ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Dual<T,U>>> closing,
                                         HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Dual<T, U>> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
@@ -414,8 +414,8 @@ public class DualValuesRepository<TKey, T, U> extends MultiValuesRepository<TKey
          * @param closing           Extra steps to run before reset() being called.
          * @param valueFunction     Function to map key of 7 elements to value of 2 elements
          */
-        protected DualValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Tuple>> storageSupplier,
-                                        ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Tuple>> closing,
+        protected DualValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Dual<T,U>>> storageSupplier,
+                                        ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Dual<T,U>>> closing,
                                         HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Dual<T, U>> valueFunction) {
             super(storageSupplier, closing, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
