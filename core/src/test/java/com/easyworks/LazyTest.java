@@ -34,25 +34,26 @@ public class LazyTest {
         List<String> logs = new ArrayList<>();
         Lazy<Boolean> booleanLazy;
         try(Lazy<String> stringLazy = new Lazy<String>(() -> "1234567",
-                s -> logs.add(String.format("stringLazy is closing")));
+                (s0, s1) -> logs.add(String.format("stringLazy changed: %s -> %s", s0, s1)));
             Lazy<Integer> integerLazy = stringLazy.create(str -> 37 + str.length(),
-                    i -> logs.add(String.format("integerLazy is closing")))) {
+                    (i0, i1)-> logs.add(String.format("integerLazy changed: %s -> %s", i0, i1)))) {
             assertEquals(Integer.valueOf(44), integerLazy.getValue());
             assertTrue(stringLazy.isValueInitialized());
             booleanLazy = integerLazy.create(n -> n%2==0,
-                    b -> logs.add(String.format("booleanLazy is closing")));
+                    (b0, b1) -> logs.add(String.format("booleanLazy changed: %s -> %s", b0, b1)));
             boolean booleanValue = booleanLazy.getValue();
         }
 
         assertFalse(booleanLazy.isValueInitialized());
-        assertTrue(Arrays.deepEquals(new String[]{"integerLazy is closing", "booleanLazy is closing", "stringLazy is closing"}, logs.toArray()));
+        assertTrue(Arrays.deepEquals(new String[]{"integerLazy is closing: 44",
+                "booleanLazy is closing: true", "stringLazy is closing: 1234567"}, logs.toArray()));
     }
 
     @Test
     public void closeDependency_parentsNotClosed() throws Exception {
         Lazy<String> string1 = new Lazy<String>(() -> "1234567");
         Lazy<Integer> integerLazy = string1.create(str -> 37 + str.length(),
-                i -> Logger.L("%d would be reset.", i));
+                (i0,i1) -> Logger.L("%d would be reset to %d", i0, i1));
         Lazy<Boolean> booleanLazy = integerLazy.create(i -> i%2 == 0);
 
         assertTrue(booleanLazy.getValue());
@@ -126,7 +127,7 @@ public class LazyTest {
     public void close() throws Exception {
 
         Lazy<Integer> integerLazy = new Lazy(() -> Integer.valueOf(33),
-                t -> logs.add("You shall see me after the test :)"));
+                (i0, i1) -> logs.add("You shall see me after the test :)"));
         integerLazy.close();
         assertEquals("You shall see me after the test :)", logs.get(0));
     }

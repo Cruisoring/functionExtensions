@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HeptaValuesRepository<TKey, T, U, V, W, X, Y, Z> extends Repository<TKey, Hepta<T,U,V,W,X,Y,Z>>
-    implements HeptaValues<TKey, T,U,V,W,X,Y,Z>{
+        implements HeptaValues<TKey, T,U,V,W,X,Y,Z>{
 
     protected HeptaValuesRepository(SupplierThrowable<Map<TKey, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                                 ConsumerThrowable<Map<TKey, Hepta<T,U,V,W,X,Y,Z>>> closing,
-                                 FunctionThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
-        super(storageSupplier, closing, t -> valueFunction.apply(t));
+                                    TriConsumerThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
+                                    FunctionThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+        super(storageSupplier, changesConsumer, t -> valueFunction.apply(t));
     }
 
     protected HeptaValuesRepository(FunctionThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
@@ -25,12 +25,12 @@ public class HeptaValuesRepository<TKey, T, U, V, W, X, Y, Z> extends Repository
     }
 
     public static class HeptaValuesRepository1<K1, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Single<K1>, T,U,V,W,X,Y,Z>
-                implements SingleKeys.SingleKeys7<K1, T,U,V,W,X,Y,Z> {
+            implements SingleKeys.SingleKeys7<K1, T,U,V,W,X,Y,Z> {
 
         protected HeptaValuesRepository1(SupplierThrowable<Map<Single<K1>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                                        ConsumerThrowable<Map<Single<K1>, Hepta<T,U,V,W,X,Y,Z>>> closing,
-                                        FunctionThrowable<K1, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
-            super(storageSupplier, closing, single -> valueFunction.apply(single.getFirst()));
+                                         TriConsumerThrowable<Single<K1>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
+                                         FunctionThrowable<K1, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+            super(storageSupplier, changesConsumer, single -> valueFunction.apply(single.getFirst()));
         }
 
         protected HeptaValuesRepository1(FunctionThrowable<K1, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
@@ -47,9 +47,9 @@ public class HeptaValuesRepository<TKey, T, U, V, W, X, Y, Z> extends Repository
             implements DualKeys.DualKeys7<K1,K2, T,U,V,W,X,Y,Z>{
 
         protected HeptaValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                                        ConsumerThrowable<Map<Dual<K1,K2>, Hepta<T,U,V,W,X,Y,Z>>> closing,
-                                        BiFunctionThrowable<K1, K2, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
-            super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
+                                         TriConsumerThrowable<Dual<K1,K2>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
+                                         BiFunctionThrowable<K1, K2, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+            super(storageSupplier, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
 
         protected HeptaValuesRepository2(BiFunctionThrowable<K1, K2, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
@@ -71,9 +71,9 @@ public class HeptaValuesRepository<TKey, T, U, V, W, X, Y, Z> extends Repository
             implements TripleKeys.TripleKeys7<K1,K2,K3, T,U,V,W,X,Y,Z>{
 
         protected HeptaValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                                        ConsumerThrowable<Map<Triple<K1,K2,K3>, Hepta<T,U,V,W,X,Y,Z>>> closing,
-                                        TriFunctionThrowable<K1, K2, K3, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
-            super(storageSupplier, closing, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
+                                         TriConsumerThrowable<Triple<K1,K2,K3>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
+                                         TriFunctionThrowable<K1, K2, K3, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+            super(storageSupplier, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
 
         protected HeptaValuesRepository3(TriFunctionThrowable<K1, K2, K3, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
@@ -95,9 +95,9 @@ public class HeptaValuesRepository<TKey, T, U, V, W, X, Y, Z> extends Repository
             implements QuadKeys.QuadKeys7<K1,K2,K3,K4, T,U,V,W,X,Y,Z> {
 
         protected HeptaValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                                        ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Hepta<T,U,V,W,X,Y,Z>>> closing,
-                                        QuadFunctionThrowable<K1,K2,K3,K4, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                         TriConsumerThrowable<Quad<K1,K2,K3,K4>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
+                                         QuadFunctionThrowable<K1,K2,K3,K4, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
         }
 
@@ -120,9 +120,9 @@ public class HeptaValuesRepository<TKey, T, U, V, W, X, Y, Z> extends Repository
             implements PentaKeys.PentaKeys7<K1,K2,K3,K4,K5, T,U,V,W,X,Y,Z> {
 
         protected HeptaValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                                        ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Hepta<T,U,V,W,X,Y,Z>>> closing,
-                                        PentaFunctionThrowable<K1,K2,K3,K4,K5, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                         TriConsumerThrowable<Penta<K1,K2,K3,K4,K5>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
+                                         PentaFunctionThrowable<K1,K2,K3,K4,K5, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth()));
         }
@@ -146,9 +146,9 @@ public class HeptaValuesRepository<TKey, T, U, V, W, X, Y, Z> extends Repository
             implements HexaKeys.HexaKeys7<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y,Z> {
 
         protected HeptaValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                                        ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Hepta<T,U,V,W,X,Y,Z>>> closing,
-                                        HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                         TriConsumerThrowable<Hexa<K1,K2,K3,K4,K5,K6>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
+                                         HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth()));
         }
@@ -172,9 +172,9 @@ public class HeptaValuesRepository<TKey, T, U, V, W, X, Y, Z> extends Repository
             implements HeptaKeys.HeptaKeys7<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y,Z> {
 
         protected HeptaValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                                        ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hepta<T,U,V,W,X,Y,Z>>> closing,
-                                        HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                         TriConsumerThrowable<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
+                                         HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth(), tuple.getSeventh()));
         }

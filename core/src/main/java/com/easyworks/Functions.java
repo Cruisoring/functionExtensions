@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Functional Interface executioner to execute methods with expected 1-7 parameters as
@@ -115,6 +116,21 @@ public class Functions<R> {
             return results;
         } catch (InterruptedException e) {
             return null;
+        } finally{
+            EXEC.shutdown();
+        }
+    }
+
+    public static <T> void runParallel(ConsumerThrowable<T> consumerThrowable, Stream<T> paramStream, long timeoutMills){
+        List<Callable<Void>> callables = new ArrayList<>();
+        paramStream.forEach(param -> {
+            callables.add(() -> {consumerThrowable.accept(param); return null;});
+        });
+
+        ExecutorService EXEC = Executors.newCachedThreadPool();
+        try {
+            EXEC.invokeAll(callables, timeoutMills, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
         } finally{
             EXEC.shutdown();
         }

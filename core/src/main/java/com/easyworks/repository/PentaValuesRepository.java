@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PentaValuesRepository<TKey, T, U, V, W, X> extends Repository<TKey, Penta<T,U,V,W,X>>
-    implements PentaValues<TKey, T,U,V,W,X>{
+        implements PentaValues<TKey, T,U,V,W,X>{
 
     protected PentaValuesRepository(SupplierThrowable<Map<TKey, Penta<T,U,V,W,X>>> storageSupplier,
-                                 ConsumerThrowable<Map<TKey, Penta<T,U,V,W,X>>> closing,
-                                 FunctionThrowable<TKey, Penta<T,U,V,W,X>> valueFunction){
-        super(storageSupplier, closing, t -> valueFunction.apply(t));
+                                    TriConsumerThrowable<TKey, Penta<T,U,V,W,X>, Penta<T,U,V,W,X>> changesConsumer,
+                                    FunctionThrowable<TKey, Penta<T,U,V,W,X>> valueFunction){
+        super(storageSupplier, changesConsumer, t -> valueFunction.apply(t));
     }
 
     protected PentaValuesRepository(FunctionThrowable<TKey, Penta<T,U,V,W,X>> valueFunction){
@@ -28,9 +28,9 @@ public class PentaValuesRepository<TKey, T, U, V, W, X> extends Repository<TKey,
             implements SingleKeys.SingleKeys5<K1, T,U,V,W,X> {
 
         protected PentaValuesRepository1(SupplierThrowable<Map<Single<K1>, Penta<T,U,V,W,X>>> storageSupplier,
-                                        ConsumerThrowable<Map<Single<K1>, Penta<T,U,V,W,X>>> closing,
-                                        FunctionThrowable<K1, Penta<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, closing, single -> valueFunction.apply(single.getFirst()));
+                                         TriConsumerThrowable<Single<K1>, Penta<T,U,V,W,X>, Penta<T,U,V,W,X>> changesConsumer,
+                                         FunctionThrowable<K1, Penta<T,U,V,W,X>> valueFunction) {
+            super(storageSupplier, changesConsumer, single -> valueFunction.apply(single.getFirst()));
         }
 
         protected PentaValuesRepository1(FunctionThrowable<K1, Penta<T,U,V,W,X>> valueFunction) {
@@ -47,9 +47,9 @@ public class PentaValuesRepository<TKey, T, U, V, W, X> extends Repository<TKey,
             implements DualKeys.DualKeys5<K1,K2, T,U,V,W,X>{
 
         protected PentaValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Penta<T,U,V,W,X>>> storageSupplier,
-                                        ConsumerThrowable<Map<Dual<K1,K2>, Penta<T,U,V,W,X>>> closing,
-                                        BiFunctionThrowable<K1, K2, Penta<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
+                                         TriConsumerThrowable<Dual<K1,K2>, Penta<T,U,V,W,X>, Penta<T,U,V,W,X>> changesConsumer,
+                                         BiFunctionThrowable<K1, K2, Penta<T,U,V,W,X>> valueFunction) {
+            super(storageSupplier, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
 
         protected PentaValuesRepository2(BiFunctionThrowable<K1, K2, Penta<T,U,V,W,X>> valueFunction) {
@@ -71,9 +71,9 @@ public class PentaValuesRepository<TKey, T, U, V, W, X> extends Repository<TKey,
             implements TripleKeys.TripleKeys5<K1,K2,K3, T,U,V,W,X>{
 
         protected PentaValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Penta<T,U,V,W,X>>> storageSupplier,
-                                        ConsumerThrowable<Map<Triple<K1,K2,K3>, Penta<T,U,V,W,X>>> closing,
-                                        TriFunctionThrowable<K1, K2, K3, Penta<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, closing, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
+                                         TriConsumerThrowable<Triple<K1,K2,K3>, Penta<T,U,V,W,X>, Penta<T,U,V,W,X>> changesConsumer,
+                                         TriFunctionThrowable<K1, K2, K3, Penta<T,U,V,W,X>> valueFunction) {
+            super(storageSupplier, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
 
         protected PentaValuesRepository3(TriFunctionThrowable<K1, K2, K3, Penta<T,U,V,W,X>> valueFunction) {
@@ -95,9 +95,9 @@ public class PentaValuesRepository<TKey, T, U, V, W, X> extends Repository<TKey,
             implements QuadKeys.QuadKeys5<K1,K2,K3,K4, T,U,V,W,X> {
 
         protected PentaValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Penta<T,U,V,W,X>>> storageSupplier,
-                                        ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Penta<T,U,V,W,X>>> closing,
-                                        QuadFunctionThrowable<K1,K2,K3,K4, Penta<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                         TriConsumerThrowable<Quad<K1,K2,K3,K4>, Penta<T,U,V,W,X>, Penta<T,U,V,W,X>> changesConsumer,
+                                         QuadFunctionThrowable<K1,K2,K3,K4, Penta<T,U,V,W,X>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
         }
 
@@ -120,9 +120,9 @@ public class PentaValuesRepository<TKey, T, U, V, W, X> extends Repository<TKey,
             implements PentaKeys.PentaKeys5<K1,K2,K3,K4,K5, T,U,V,W,X> {
 
         protected PentaValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Penta<T,U,V,W,X>>> storageSupplier,
-                                        ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Penta<T,U,V,W,X>>> closing,
-                                        PentaFunctionThrowable<K1,K2,K3,K4,K5, Penta<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                         TriConsumerThrowable<Penta<K1,K2,K3,K4,K5>, Penta<T,U,V,W,X>, Penta<T,U,V,W,X>> changesConsumer,
+                                         PentaFunctionThrowable<K1,K2,K3,K4,K5, Penta<T,U,V,W,X>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth()));
         }
@@ -146,9 +146,9 @@ public class PentaValuesRepository<TKey, T, U, V, W, X> extends Repository<TKey,
             implements HexaKeys.HexaKeys5<K1,K2,K3,K4,K5,K6, T,U,V,W,X> {
 
         protected PentaValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Penta<T,U,V,W,X>>> storageSupplier,
-                                        ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Penta<T,U,V,W,X>>> closing,
-                                        HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Penta<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                         TriConsumerThrowable<Hexa<K1,K2,K3,K4,K5,K6>, Penta<T,U,V,W,X>, Penta<T,U,V,W,X>> changesConsumer,
+                                         HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Penta<T,U,V,W,X>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth()));
         }
@@ -172,9 +172,9 @@ public class PentaValuesRepository<TKey, T, U, V, W, X> extends Repository<TKey,
             implements HeptaKeys.HeptaKeys5<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X> {
 
         protected PentaValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Penta<T,U,V,W,X>>> storageSupplier,
-                                         ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Penta<T,U,V,W,X>>> closing,
+                                         TriConsumerThrowable<Hepta<K1,K2,K3,K4,K5,K6,K7>, Penta<T,U,V,W,X>, Penta<T,U,V,W,X>> changesConsumer,
                                          HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Penta<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth(), tuple.getSeventh()));
         }

@@ -10,9 +10,9 @@ public class TripleValuesRepository<TKey, T, U, V> extends Repository<TKey, Trip
     implements TripleValues<TKey, T,U,V> {
 
     protected TripleValuesRepository(SupplierThrowable<Map<TKey, Triple<T,U,V>>> storageSupplier,
-                                     ConsumerThrowable<Map<TKey, Triple<T,U,V>>> closing,
+                                     TriConsumerThrowable<TKey, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
                                      FunctionThrowable<TKey, Triple<T,U,V>> valueFunction){
-        super(storageSupplier, closing, t -> valueFunction.apply(t));
+        super(storageSupplier, changesConsumer, t -> valueFunction.apply(t));
     }
 
     protected TripleValuesRepository(FunctionThrowable<TKey, Triple<T,U,V>> valueFunction){
@@ -28,9 +28,9 @@ public class TripleValuesRepository<TKey, T, U, V> extends Repository<TKey, Trip
             implements SingleKeys.SingleKeys3<K1, T,U,V> {
 
         protected TripleValuesRepository1(SupplierThrowable<Map<Single<K1>, Triple<T,U,V>>> storageSupplier,
-                                          ConsumerThrowable<Map<Single<K1>, Triple<T,U,V>>> closing,
+                                          TriConsumerThrowable<Single<K1>, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
                                           FunctionThrowable<K1, Triple<T,U,V>> valueFunction) {
-            super(storageSupplier, closing, single -> valueFunction.apply(single.getFirst()));
+            super(storageSupplier, changesConsumer, single -> valueFunction.apply(single.getFirst()));
         }
 
         protected TripleValuesRepository1(FunctionThrowable<K1, Triple<T,U,V>> valueFunction) {
@@ -47,9 +47,9 @@ public class TripleValuesRepository<TKey, T, U, V> extends Repository<TKey, Trip
             implements DualKeys.DualKeys3<K1,K2, T,U,V>{
 
         protected TripleValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Triple<T,U,V>>> storageSupplier,
-                                          ConsumerThrowable<Map<Dual<K1,K2>, Triple<T,U,V>>> closing,
+                                          TriConsumerThrowable<Dual<K1,K2>, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
                                           BiFunctionThrowable<K1, K2, Triple<T,U,V>> valueFunction) {
-            super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
+            super(storageSupplier, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
 
         protected TripleValuesRepository2(BiFunctionThrowable<K1, K2, Triple<T,U,V>> valueFunction) {
@@ -71,9 +71,9 @@ public class TripleValuesRepository<TKey, T, U, V> extends Repository<TKey, Trip
             implements TripleKeys.TripleKeys3<K1,K2,K3, T,U,V>{
 
         protected TripleValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Triple<T,U,V>>> storageSupplier,
-                                          ConsumerThrowable<Map<Triple<K1,K2,K3>, Triple<T,U,V>>> closing,
+                                          TriConsumerThrowable<Triple<K1,K2,K3>, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
                                           TriFunctionThrowable<K1, K2, K3, Triple<T,U,V>> valueFunction) {
-            super(storageSupplier, closing, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
+            super(storageSupplier, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
 
         protected TripleValuesRepository3(TriFunctionThrowable<K1, K2, K3, Triple<T,U,V>> valueFunction) {
@@ -95,9 +95,9 @@ public class TripleValuesRepository<TKey, T, U, V> extends Repository<TKey, Trip
             implements QuadKeys.QuadKeys3<K1,K2,K3,K4, T,U,V> {
 
         protected TripleValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Triple<T,U,V>>> storageSupplier,
-                                          ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Triple<T,U,V>>> closing,
+                                          TriConsumerThrowable<Quad<K1,K2,K3,K4>, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
                                           QuadFunctionThrowable<K1,K2,K3,K4, Triple<T,U,V>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
         }
 
@@ -120,9 +120,9 @@ public class TripleValuesRepository<TKey, T, U, V> extends Repository<TKey, Trip
             implements PentaKeys.PentaKeys3<K1,K2,K3,K4,K5, T,U,V> {
 
         protected TripleValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Triple<T,U,V>>> storageSupplier,
-                                          ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Triple<T,U,V>>> closing,
+                                          TriConsumerThrowable<Penta<K1,K2,K3,K4,K5>, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
                                           PentaFunctionThrowable<K1,K2,K3,K4,K5, Triple<T,U,V>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth()));
         }
@@ -146,9 +146,9 @@ public class TripleValuesRepository<TKey, T, U, V> extends Repository<TKey, Trip
             implements HexaKeys.HexaKeys3<K1,K2,K3,K4,K5,K6, T,U,V> {
 
         protected TripleValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Triple<T,U,V>>> storageSupplier,
-                                          ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Triple<T,U,V>>> closing,
+                                          TriConsumerThrowable<Hexa<K1,K2,K3,K4,K5,K6>, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
                                           HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Triple<T,U,V>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth()));
         }
@@ -172,9 +172,9 @@ public class TripleValuesRepository<TKey, T, U, V> extends Repository<TKey, Trip
             implements HeptaKeys.HeptaKeys3<K1,K2,K3,K4,K5,K6,K7, T,U,V> {
 
         protected TripleValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Triple<T,U,V>>> storageSupplier,
-                                          ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Triple<T,U,V>>> closing,
+                                          TriConsumerThrowable<Hepta<K1,K2,K3,K4,K5,K6,K7>, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
                                           HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Triple<T,U,V>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth(), tuple.getSeventh()));
         }
