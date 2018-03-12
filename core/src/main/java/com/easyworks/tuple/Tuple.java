@@ -1,8 +1,10 @@
 package com.easyworks.tuple;
 
 import com.easyworks.Functions;
+import com.easyworks.Lazy;
 import com.easyworks.function.PredicateThrowable;
 import com.easyworks.function.SupplierThrowable;
+import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import com.easyworks.utility.TypeHelper;
 
@@ -25,6 +27,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
     public static final Single FALSE = new Single(false);
 
     protected final Object[] values;
+    protected final Lazy<Object> pureObjectValues;
 
     /**
      * Protected constructor to keep the elements as a final array.
@@ -37,12 +40,10 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
         int length = elements.length;
         values = new Object[length];
         for (int i=0; i<length; i++){
-            Object element = elements[i];
-//            if(valueArrayClasses.contains(element.getClass()))
-//                values[i] = TypeHelper.asArray(element);
-//            else
-                values[i] = element;
+            values[i] = elements[i];
         }
+
+        pureObjectValues = new Lazy(() -> ArrayHelper.asPureObject(values));
     }
 
     /**
@@ -342,7 +343,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
      * @return      Tuple containing 6 elements that could be accessed as their original types.
      */
     public static <T,U,V,W,X,Y> Hexa<T,U,V,W,X,Y> create(T t, U u, V v, W w, X x, Y y){
-        return new Hexa<>(t, u, v, w, x, y);
+        return new Hexa(t, u, v, w, x, y);
     }
 
     /**
@@ -364,7 +365,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
      * @return      Tuple containing seven elements that could be accessed as their original types.
      */
     public static <T,U,V,W,X,Y,Z> Hepta<T,U,V,W,X,Y,Z> create(T t, U u, V v, W w, X x, Y y, Z z){
-        return new Hepta<>(t, u, v, w, x, y, z);
+        return new Hepta(t, u, v, w, x, y, z);
     }
 
     /**

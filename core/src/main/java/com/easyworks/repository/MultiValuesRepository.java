@@ -112,7 +112,7 @@ public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {
 
     //region Factory methods to create MultiValuesRepository with Function to map key to Tuple
     public static <TKey,T> SingleValuesRepository<TKey, T> toSingleValuesRepository(
-            FunctionThrowable<TKey, T> valueFunction){
+            FunctionThrowable<TKey, Single<T>> valueFunction){
         return new SingleValuesRepository(valueFunction);
     }
 

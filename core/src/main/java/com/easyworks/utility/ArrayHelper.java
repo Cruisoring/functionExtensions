@@ -4,15 +4,16 @@ import com.easyworks.Functions;
 import com.easyworks.function.BiFunctionThrowable;
 import com.easyworks.function.FunctionThrowable;
 import com.easyworks.repository.*;
-import com.easyworks.tuple.Dual;
-import com.easyworks.tuple.Quad;
-import com.easyworks.tuple.Tuple;
+import com.easyworks.tuple.*;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
-public class ArrayHelper {
+public class ArrayHelper<T,R> {
+    public static final Class ObjectClass = Object.class;
+    public static int ParalellEvaluationThreashold = 100;
 
     private static <T> T[] defaultArrayFactory(Class<T> clazz, int length){
         return (T[]) Array.newInstance(clazz, length);
@@ -39,173 +40,281 @@ public class ArrayHelper {
         return Functions.Default.apply(factory, length);
     }
 
-    public static final TripleValuesRepository.TripleValuesRepository2<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>, FunctionThrowable<Object, Object>> arrayConverters = TupleRepository.toTripleValuesRepository(
-            (fromClass, toClass) -> {
+    public static final SingleValuesRepository.SingleValuesRepository6<
+                Class,              //fromClass as the first key
+                Class,              //toClass as the second key
+                FunctionThrowable<Object, Integer>, //getLength
+                BiFunctionThrowable<Object, Integer, Object>,   //getFromElementAtIndex
+                Function<Object, Object>,             // elementConverter as the third key
+                Boolean,            //parallelEvaluationRquired
 
-            }
+                Function<Object, Object>        //Final converter based on the given keys
+                >
+            arrayConverters = TupleRepository.toSingleValuesRepository(
+            () -> new HashMap<
+                    Hexa<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>, Function<Object, Object>, Boolean>,
+                    Single<Function<Object, Object>>>(){{
+                put(Tuple.create(boolean.class, Boolean.class, null, Array::getBoolean, null,null),
+                        Tuple.create(getToArrayFunction(boolean.class, Boolean.class, null, Array::getBoolean, null, null)));
+                put(Tuple.create(byte.class, Byte.class, null, Array::getByte,null, null),
+                        Tuple.create(getToArrayFunction(byte.class, Byte.class, null, Array::getByte, null, null)));
+                put(Tuple.create(char.class, Character.class, null, Array::getChar,null, null),
+                        Tuple.create(getToArrayFunction(char.class, Character.class, null, Array::getChar, null, null)));
+                put(Tuple.create(int.class, Integer.class, null, Array::getInt,null, null),
+                        Tuple.create(getToArrayFunction(int.class, Integer.class, null, Array::getInt, null, null)));
+                put(Tuple.create(short.class, Short.class, null, Array::getShort,null, null),
+                        Tuple.create(getToArrayFunction(short.class, Short.class, null, Array::getShort, null, null)));
+                put(Tuple.create(long.class, Long.class, null, Array::getLong,null, null),
+                        Tuple.create(getToArrayFunction(long.class, Long.class, null, Array::getLong, null, null)));
+                put(Tuple.create(float.class, Float.class, null, Array::getFloat,null, null),
+                        Tuple.create(getToArrayFunction(float.class, Float.class, null, Array::getFloat, null, null)));
+                put(Tuple.create(double.class, Double.class, null, Array::getDouble, null, null),
+                        Tuple.create(getToArrayFunction(double.class, Double.class, null, Array::getDouble, null, null)));
+            }},
+            null,
+            (fromClass, toClass, getLength, getFromElementAtIndex, elementConverter, parallelRequired) ->
+                    getToArrayFunction( fromClass, toClass, getLength, getFromElementAtIndex, elementConverter, parallelRequired)
     );
 
-    private static <T, R> Function<Object,R[]> getArrayConverter(
-            Class<T> fromClass, Class<R> toClass,
+    private static <T, R> Function<Object, Object> getToArrayFunction(
+            Class<T> fromClass,
+            Class<R> toClass,
             FunctionThrowable<Object, Integer> getLength,
-            BiFunctionThrowable<Object, Integer, T> getElementByIndex,
-            FunctionThrowable<T, R> elementConverter){
+            BiFunctionThrowable<Object, Integer, Object> getElementByIndex,
+            Function<Object, R> elementConverter,
+            Boolean parallelRequired){
         Objects.requireNonNull(fromClass);
         Objects.requireNonNull(toClass);
         if(fromClass.equals(toClass))
             return array -> (array==null || !array.getClass().isArray()) ? null : (R[])array;
 
         //Try best to prepare default getLength, getElementByIndex and elementConverter
-        final FunctionThrowable<Object, Integer> getLengthFinal = getLength == null ?
-                getLength: array -> Array.getLength(array);
-        final BiFunctionThrowable<Object, Integer, T> getElement = getElementByIndex == null ?
-                getElementByIndex : (array, i) -> ((T[])array)[i];
-        final FunctionThrowable<T, R> toResultElement = elementConverter == null ?
-                elementConverter : t -> (R)t;
+        final FunctionThrowable<Object, Integer> getLengthFinal = getLength != null ?
+                getLength: Array::getLength;
+        final BiFunctionThrowable<Object, Integer, Object> getElement = getElementByIndex != null ?
+                getElementByIndex : Array::get;
+        final FunctionThrowable<Object, R> toResultElement = elementConverter != null ?
+                 t -> elementConverter.apply(t) : t -> toClass.cast(t);
 
-        return array -> {
-            if (array == null) return null;
-            try {
-                int length = getLengthFinal.apply(array);
-                R[] toArray = (R[]) getArray(toClass, length);
-                for (int i = 0; i < length; i++) {
-                    toArray[i] = toResultElement.apply(getElement.apply(array, i));
+        if(null == parallelRequired){
+            return group -> {
+                if (group == null) return null;
+                try{
+                    int length = getLengthFinal.apply(group);
+                    final R[] toArray = (R[]) getArray(toClass, length);
+                    if(length < ParalellEvaluationThreashold){
+                        for (int i = 0; i < length; i++) {
+                            toArray[i] = toResultElement.apply(getElement.apply(group, i));
+                        }
+                    } else {
+                        Functions.runParallel(
+                                (Integer i) -> toArray[i] = toResultElement.apply(getElement.apply(group, i)),
+                                IntStream.range(0, length).boxed(),
+                                Long.MAX_VALUE);
+                    }
+                    return toArray;
+                }catch (Exception ex){
+                    return null;
                 }
-                return toArray;
-            }catch (Exception ex){
-                return null;
-            }
-        };
-    }
+            };
 
-    public static final Map<Class, Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>>> valuesMapper
-            = new HashMap<Class, Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>>>(){
-        {
-            put(byte[].class, Tuple.create(byte.class, Byte.class, array -> ((byte[]) array).length,
-                    (array, i) -> Byte.valueOf(((byte[]) array)[i])));
-            put(boolean[].class, Tuple.create(boolean.class, Boolean.class, array -> ((boolean[]) array).length,
-                    (array, i) -> Boolean.valueOf(((boolean[]) array)[i])));
-            put(char[].class, Tuple.create(char.class, Character.class, array -> ((char[]) array).length,
-                    (array, i) -> Character.valueOf(((char[]) array)[i])));
-            put(float[].class, Tuple.create(float.class, Float.class, array -> ((float[]) array).length,
-                    (array, i) -> Float.valueOf(((float[]) array)[i])));
-            put(int[].class, Tuple.create(int.class, Integer.class, array -> ((int[]) array).length,
-                    (array, i) -> Integer.valueOf(((int[]) array)[i])));
-            put(double[].class, Tuple.create(double.class, Double.class, array -> ((double[]) array).length,
-                    (array, i) -> Double.valueOf(((double[]) array)[i])));
-            put(short[].class, Tuple.create(short.class, Short.class, array -> ((short[]) array).length,
-                    (array, i) -> Short.valueOf(((short[]) array)[i])));
-            put(long[].class, Tuple.create(long.class, Long.class, array -> ((long[]) array).length,
-                    (array, i) -> Long.valueOf(((long[]) array)[i])));
+        } else if (parallelRequired){
+            return array -> {
+                if (array == null) return null;
+                try {
+                    int length = getLengthFinal.apply(array);
+                    final R[] toArray = (R[]) getArray(toClass, length);
+                    Functions.runParallel(
+                            (Integer i) -> toArray[i] = toResultElement.apply(getElement.apply(array, i)),
+                            IntStream.range(0, length).boxed(),
+                            Long.MAX_VALUE);
+                    return toArray;
+                }catch (Exception ex){
+                    return null;
+                }
+            };
+        } else {
+            return array -> {
+                if (array == null) return null;
+                try {
+                    int length = getLengthFinal.apply(array);
+                    final R[] toArray = (R[]) getArray(toClass, length);
+                    for (int i = 0; i < length; i++) {
+                        toArray[i] = toResultElement.apply(getElement.apply(array, i));
+                    }
+                    return toArray;
+                }catch (Exception ex){
+                    return null;
+                }
+            };
         }
-    };
+   }
 
-    private static Object[] asObjects(Object array){
+    //*/
+
+//    public static final Map<Class, Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>>> valuesMapper
+//            = new HashMap<Class, Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>>>(){
+//        {
+//            put(byte[].class, Tuple.create(byte.class, Byte.class, array -> ((byte[]) array).length,
+//                    (array, i) -> Byte.valueOf(((byte[]) array)[i])));
+//            put(boolean[].class, Tuple.create(boolean.class, Boolean.class, array -> ((boolean[]) array).length,
+//                    (array, i) -> Boolean.valueOf(((boolean[]) array)[i])));
+//            put(char[].class, Tuple.create(char.class, Character.class, array -> ((char[]) array).length,
+//                    (array, i) -> Character.valueOf(((char[]) array)[i])));
+//            put(float[].class, Tuple.create(float.class, Float.class, array -> ((float[]) array).length,
+//                    (array, i) -> Float.valueOf(((float[]) array)[i])));
+//            put(int[].class, Tuple.create(int.class, Integer.class, array -> ((int[]) array).length,
+//                    (array, i) -> Integer.valueOf(((int[]) array)[i])));
+//            put(double[].class, Tuple.create(double.class, Double.class, array -> ((double[]) array).length,
+//                    (array, i) -> Double.valueOf(((double[]) array)[i])));
+//            put(short[].class, Tuple.create(short.class, Short.class, array -> ((short[]) array).length,
+//                    (array, i) -> Short.valueOf(((short[]) array)[i])));
+//            put(long[].class, Tuple.create(long.class, Long.class, array -> ((long[]) array).length,
+//                    (array, i) -> Long.valueOf(((long[]) array)[i])));
+//        }
+//    };
+
+    public static Object[] asObjects(Object array){
         if(array == null)
             return null;
 
         Class arrayClass = array.getClass();
-        Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>> quad =
-                valuesMapper.get(arrayClass);
-        return (Object[]) Functions.Default.apply(() -> toObjects(array, quad.getSecond(), quad.getThird().apply(array), quad.getFourth()));
+        if(!arrayClass.isArray())
+            return null;
+
+        Class componentClass = arrayClass.getComponentType();
+        Function<Object, Object> converter = arrayConverters.getFirst(componentClass, ObjectClass, null, null, null, null);
+        if(converter == null)
+            return null;
+        return (Object[]) converter.apply(array);
     }
 
-    private static <O> Object[] toObjects(Object values, Class<O> objectClass, int size, BiFunctionThrowable<Object, Integer, O> getValueAt)
-            throws Exception {
-        if(values == null)
+    public static Object asPureObject(Object object){
+        if(object == null)
             return null;
-        Object[] objects = new Object[size];
-        for (int i = 0; i < size; i++) {
-            objects[i] = getValueAt.apply(values, i);
+
+        Class objectClass = object.getClass();
+        if(!objectClass.isArray())
+            return object;
+
+        Object[] objects = asObjects(object);
+        for (int i = 0; i < objects.length; i++) {
+            objects[i] = asPureObject(objects[i]);
         }
         return objects;
     }
 
-    private static <T> T[] toArray(Object values, Class<T> objectClass, int size, BiFunctionThrowable<Object, Integer, T> getValueAt)
-            throws Exception {
-        if(values == null)
-            return null;
-        T[] result = (T[]) Array.newInstance(objectClass, size);
-        for (int i = 0; i < size; i++) {
-            result[i] = getValueAt.apply(values, i);
-        }
-        return result;
-    }
+//    private static <O> Object[] toObjects(Object values, Class<O> objectClass, int size, BiFunctionThrowable<Object, Integer, O> getValueAt)
+//            throws Exception {
+//        if(values == null)
+//            return null;
+//        Object[] objects = new Object[size];
+//        for (int i = 0; i < size; i++) {
+//            objects[i] = getValueAt.apply(values, i);
+//        }
+//        return objects;
+//    }
+//
+//    private static <T> T[] toArray(Object values, Class<T> objectClass, int size, BiFunctionThrowable<Object, Integer, T> getValueAt)
+//            throws Exception {
+//        if(values == null)
+//            return null;
+//        T[] result = (T[]) Array.newInstance(objectClass, size);
+//        for (int i = 0; i < size; i++) {
+//            result[i] = getValueAt.apply(values, i);
+//        }
+//        return result;
+//    }
 
-    private static <T> T[] asArray(Object values){
-        if(values == null)
-            return null;
-
-        Class arrayClass = values.getClass();
-        Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>> quad =
-                valuesMapper.get(arrayClass);
-        return (T[]) Functions.Default.apply(() -> toArray(values, quad.getSecond(), quad.getThird().apply(values), quad.getFourth()));
-    }
-
-    public static Object[] toObjects(boolean[] values){
-        return asObjects(values);
-    }
-
-    public static Object[] toObjects(byte[] values){
-        return asObjects(values);
-    }
-
-    public static Object[] toObjects(int[] values){
-        return asObjects(values);
-    }
-
-    public static Object[] toObjects(char[] values){
-        return asObjects(values);
-    }
-
-    public static Object[] toObjects(short[] values){
-        return asObjects(values);
-    }
-
-    public static Object[] toObjects(long[] values){
-        return asObjects(values);
-    }
-
-    public static Object[] toObjects(float[] values){
-        return asObjects(values);
-    }
-
-    public static Object[] toObjects(double[] values){
-        return asObjects(values);
-    }
+//    private static <T> T[] asArray(Object values){
+//        if(values == null)
+//            return null;
+//
+//        Class arrayClass = values.getClass();
+//        Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>> quad =
+//                valuesMapper.get(arrayClass);
+//        return (T[]) Functions.Default.apply(() -> toArray(values, quad.getSecond(), quad.getThird().apply(values), quad.getFourth()));
+//    }
+//
+//    public static Object[] toObjects(boolean[] values){
+//        return (Object[]) arrayConverters.getThird(boolean.class, Object.class, null, null).apply(values);
+//    }
+//
+//    public static Object[] toObjects(byte[] values){
+//        return asObjects(values);
+//    }
+//
+//    public static Object[] toObjects(int[] values){
+//        return asObjects(values);
+//    }
+//
+//    public static Object[] toObjects(char[] values){
+//        return asObjects(values);
+//    }
+//
+//    public static Object[] toObjects(short[] values){
+//        return asObjects(values);
+//    }
+//
+//    public static Object[] toObjects(long[] values){
+//        return asObjects(values);
+//    }
+//
+//    public static Object[] toObjects(float[] values){
+//        return asObjects(values);
+//    }
+//
+//    public static Object[] toObjects(double[] values){
+//        return asObjects(values);
+//    }
 
     //*/
-
+    private static Function<Object, Object> toBooleanArray  =
+            arrayConverters.getFirst(boolean.class, Boolean.class, null, Array::getBoolean, null,null);
     public static Boolean[] toArray(boolean[] values){
-        return asArray(values);
+        return (Boolean[]) toBooleanArray.apply(values);
     }
 
+    private static Function<Object, Object> toByteArray =
+            arrayConverters.getFirst(byte.class, Byte.class, null, Array::getByte, null,null);
     public static Byte[] toArray(byte[] values){
-        return asArray(values);
+        return (Byte[]) toByteArray.apply(values);
     }
-    
+
+    private static Function<Object, Object> toCharacterArray =
+            arrayConverters.getFirst(char.class, Character.class, null, Array::getChar, null,null);
     public static Character[] toArray(char[] values){
-        return asArray(values);
+        return (Character[]) toCharacterArray.apply(values);
     }
 
+    private static Function<Object, Object> toFloatArray =
+            arrayConverters.getFirst(float.class, Float.class, null, Array::getFloat, null,null);
     public static Float[] toArray(float[] values){
-        return asArray(values);
+        return (Float[]) toFloatArray.apply(values);
     }
 
+    private static Function<Object, Object> toDoubleArray =
+            arrayConverters.getFirst(double.class, Double.class, null, Array::getDouble, null,null);
     public static Double[] toArray(double[] values){
-        return asArray(values);
+        return (Double[]) toDoubleArray.apply(values);
     }
 
+    private static Function<Object, Object> toIntegerArray =
+            arrayConverters.getFirst(int.class, Integer.class, null, Array::getInt, null,null);
     public static Integer[] toArray(int[] values){
-        return asArray(values);
+        return (Integer[]) toIntegerArray.apply(values);
     }
 
+    private static Function<Object, Object> toShortArray =
+            arrayConverters.getFirst(short.class, Short.class, null, Array::getShort, null,null);
     public static Short[] toArray(short[] values){
-        return asArray(values);
+        return (Short[]) toShortArray.apply(values);
     }
 
+    private static Function<Object, Object> toLongArray =
+            arrayConverters.getFirst(long.class, Long.class, null, Array::getLong, null, null);
     public static Long[] toArray(long[] values){
-        return asArray(values);
+        return (Long[]) toLongArray.apply(values);
     }
 
     /*/
@@ -280,7 +389,6 @@ public class ArrayHelper {
         T[] array = (T[])collection.toArray((T[]) Array.newInstance(clazz, 0));
         return array;
     }
-
 
     public static <T extends Comparable<T>> boolean matchInOrder(T[] expected, T[] actual) {
         if(expected.length != actual.length)
