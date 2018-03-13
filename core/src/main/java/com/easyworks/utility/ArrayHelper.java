@@ -72,8 +72,8 @@ public class ArrayHelper<T,R> {
                         Tuple.create(getToArrayFunction(double.class, Double.class, null, Array::getDouble, null, null)));
             }},
             null,
-            (fromClass, toClass, getLength, getFromElementAtIndex, elementConverter, parallelRequired) ->
-                    getToArrayFunction( fromClass, toClass, getLength, getFromElementAtIndex, elementConverter, parallelRequired)
+            (fromClass, toClass, getLength, getFromElementAtIndex, elementConverter, parallelRequired) -> Tuple.create(
+                    getToArrayFunction( fromClass, toClass, getLength, getFromElementAtIndex, elementConverter, parallelRequired))
     );
 
     private static <T, R> Function<Object, Object> getToArrayFunction(
