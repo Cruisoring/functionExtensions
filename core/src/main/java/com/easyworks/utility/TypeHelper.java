@@ -1,8 +1,6 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
-import com.easyworks.function.BiFunctionThrowable;
-import com.easyworks.function.FunctionThrowable;
 import com.easyworks.function.PredicateThrowable;
 import com.easyworks.tuple.Quad;
 import com.easyworks.tuple.Tuple;
@@ -313,6 +311,21 @@ public class TypeHelper {
     public static Class<?> findSubClassParameterType(Object instance, Class<?> classOfInterest, int parameterIndex) {
         Map<Type, Type> typeMap = new HashMap<Type, Type>();
         Class<?> instanceClass = instance.getClass();
+        ConstantPool constantPool = getConstantPoolOfClass(instanceClass);
+        Map<Integer, String[]> members = new HashMap();
+        String[] member = null;
+        int index = constantPool.getSize();
+        while(--index >=0) {
+            try {
+                member = constantPool.getMemberRefInfoAt(index);
+                members.put(index, member);
+//                break;
+            } catch (Exception ex){
+                continue;
+            }
+        }
+
+
         while (classOfInterest != instanceClass.getSuperclass()) {
             extractTypeArguments(typeMap, instanceClass);
             instanceClass = instanceClass.getSuperclass();
@@ -379,5 +392,17 @@ public class TypeHelper {
             }
         }
         return false;
+    }
+
+//    private static final QuadValuesRepository<Class, Class[], Class[], String[] Class[]> typeInfoRepository = MultiValuesRepository.toQuadValuesRepository(() ->{
+//
+//    })
+
+    public static Quad<Class[], Class[], String[], Class[]> parse(Object instance){
+        Objects.requireNonNull(instance);
+        Class instanceClass = instance.getClass();
+        TypeVariable[] typeParameters = instanceClass.getTypeParameters();
+
+        return null;
     }
 }

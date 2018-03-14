@@ -2,10 +2,8 @@ package com.easyworks.repository;
 
 import com.easyworks.Functions;
 import com.easyworks.Lazy;
-import com.easyworks.function.ConsumerThrowable;
-import com.easyworks.function.FunctionThrowable;
-import com.easyworks.function.RunnableThrowable;
-import com.easyworks.function.SupplierThrowable;
+import com.easyworks.function.*;
+import com.easyworks.utility.Logger;
 
 import java.util.*;
 
@@ -16,24 +14,29 @@ import java.util.*;
  */
 public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
         implements FunctionThrowable<TKey, TValue> {
+    public static boolean USE_DEFAULT_CHNAGES_LOG = false;
     //Default time to close parallelly all AutoCloseable keys/values contained by the map
-    public static final long DEFAULT_RESET_TIMEOUT = 2000;
+    public static long DEFAULT_RESET_TIMEOUT = 2000;
 
-    //Function to map key of <code>TKey<code> type to value of <code>TValue<code> type
+
+   //Function to map key of <code>TKey<code> type to value of <code>TValue<code> type
     final FunctionThrowable<TKey, TValue> valueFunctionThrowable;
 
+    final TriConsumerThrowable<TKey, TValue, TValue> changesConsumer;
+
     /**
-     * Construct a repository with given map factory, extra closing logic and Function to map key to value
+     * Construct a repository with given map factory, extra changesConsumer logic and Function to map key to value
      * @param storageSupplier   Factory to get a map instance
-     * @param closing           Extra steps to run before reset() being called.
+     * @param changesConsumer           Extra steps to run before reset() being called.
      * @param valueFunction     Function to map key of <code>TKey<code> type to value of <code>TValue<code> type
      */
     public Repository(SupplierThrowable<Map<TKey, TValue>> storageSupplier,
-                      ConsumerThrowable<Map<TKey, TValue>> closing,
+                      TriConsumerThrowable<TKey, TValue, TValue> changesConsumer,
                       FunctionThrowable<TKey, TValue> valueFunction){
-        super(storageSupplier, closing);
+        super(storageSupplier, null);
         Objects.requireNonNull(valueFunction);
         this.valueFunctionThrowable = valueFunction;
+        this.changesConsumer = changesConsumer != null ? changesConsumer : (USE_DEFAULT_CHNAGES_LOG ? this::defualtChangesLog : null);
     }
 
     /**
@@ -42,6 +45,15 @@ public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
      */
     public Repository(FunctionThrowable<TKey, TValue> valueFunction){
         this(HashMap::new, null, valueFunction);
+    }
+
+    private void defualtChangesLog(TKey key, TValue oldValue, TValue newValue){
+        Class keyClass = key.getClass();
+        Object value = oldValue == null ? newValue : oldValue;
+        Class valueClass = value == null ? null : value.getClass();
+        Logger.L("%s<%s,%s>.put(%s: %s -> %s)",
+                this.getClass().getSimpleName(), keyClass.getSimpleName(), valueClass.getSimpleName(),
+                key, oldValue, newValue);
     }
 
     /**
@@ -57,6 +69,8 @@ public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
         if(!storage.containsKey(tKey)){
             result = valueFunctionThrowable.apply(tKey);
             storage.put(tKey, result);
+            if(changesConsumer != null)
+                changesConsumer.accept(tKey, null, result);
         } else {
             result = storage.get(tKey);
         }
@@ -128,6 +142,10 @@ public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
                 if(value instanceof AutoCloseable){
                     AutoCloseable vClose = (AutoCloseable)value;
                     keyValueToClose.add(vClose::close);
+                }
+
+                if(changesConsumer != null){
+                    Functions.Default.run(changesConsumer, key, value, null);
                 }
             });
             map.clear();

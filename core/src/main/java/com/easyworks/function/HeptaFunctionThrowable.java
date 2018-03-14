@@ -1,5 +1,9 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 /**
  * Functional Interface identifying methods, accepting 7 arguments and returning result of type <code>R</code>,
  * while their service logic could throw Exceptions.
@@ -13,7 +17,7 @@ package com.easyworks.function;
  * @param <R>   Type of the returned result.
  */
 @FunctionalInterface
-public interface HeptaFunctionThrowable<T,U,V,W,X,Y,Z,R> extends AbstractThrowable {
+public interface HeptaFunctionThrowable<T,U,V,W,X,Y,Z, R> extends AbstractThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 7 arguments and returning result of type <code>R</code>
      * @param t     The first argument of type <code>T</code>.
@@ -42,5 +46,22 @@ public interface HeptaFunctionThrowable<T,U,V,W,X,Y,Z,R> extends AbstractThrowab
 
     default SupplierThrowable<R> asSupplier(T t, U u, V v, W w, X x, Y y, Z z){
         return () -> apply(t, u, v, w, x, y, z);
+    }
+
+
+    default HeptaFunction<T,U,V,W,X,Y,Z, R> orElse(Function<Exception, R> exceptionHanlder){
+        Objects.requireNonNull(exceptionHanlder);
+        return (t, u, v, w, x, y, z) -> {
+            try {
+                return apply(t, u, v, w, x, y, z);
+            } catch (Exception e) {
+                return exceptionHanlder.apply(e);
+            }
+        };
+    }
+
+    @FunctionalInterface
+    interface HeptaFunction<T,U,V,W,X,Y,Z, R> extends AbstractThrowable{
+        R apply(T t, U u, V v, W w, X x, Y y, Z z);
     }
 }

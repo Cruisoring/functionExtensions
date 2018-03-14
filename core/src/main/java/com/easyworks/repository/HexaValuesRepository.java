@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKey, Hexa<T,U,V,W,X,Y>>
-    implements HexaValues<TKey, T,U,V,W,X,Y>{
+        implements HexaValues<TKey, T,U,V,W,X,Y>{
 
     protected HexaValuesRepository(SupplierThrowable<Map<TKey, Hexa<T,U,V,W,X,Y>>> storageSupplier,
-                                ConsumerThrowable<Map<TKey, Hexa<T,U,V,W,X,Y>>> closing,
-                                FunctionThrowable<TKey, Hexa<T,U,V,W,X,Y>> valueFunction){
-        super(storageSupplier, closing, t -> valueFunction.apply(t));
+                                   TriConsumerThrowable<TKey, Hexa<T,U,V,W,X,Y>, Hexa<T,U,V,W,X,Y>> changesConsumer,
+                                   FunctionThrowable<TKey, Hexa<T,U,V,W,X,Y>> valueFunction){
+        super(storageSupplier, changesConsumer, valueFunction);
     }
 
     protected HexaValuesRepository(FunctionThrowable<TKey, Hexa<T,U,V,W,X,Y>> valueFunction){
@@ -28,9 +28,9 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKe
             implements SingleKeys.SingleKeys6<K1, T,U,V,W,X,Y> {
 
         protected HexaValuesRepository1(SupplierThrowable<Map<Single<K1>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
-                                         ConsumerThrowable<Map<Single<K1>, Hexa<T,U,V,W,X,Y>>> closing,
-                                         FunctionThrowable<K1, Hexa<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, closing, single -> valueFunction.apply(single.getFirst()));
+                                        TriConsumerThrowable<Single<K1>, Hexa<T,U,V,W,X,Y>, Hexa<T,U,V,W,X,Y>> changesConsumer,
+                                        FunctionThrowable<K1, Hexa<T,U,V,W,X,Y>> valueFunction) {
+            super(storageSupplier, changesConsumer, single -> valueFunction.apply(single.getFirst()));
         }
 
         protected HexaValuesRepository1(FunctionThrowable<K1, Hexa<T,U,V,W,X,Y>> valueFunction) {
@@ -47,9 +47,9 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKe
             implements DualKeys.DualKeys6<K1,K2, T,U,V,W,X,Y>{
 
         protected HexaValuesRepository2(SupplierThrowable<Map<Dual<K1,K2>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
-                                         ConsumerThrowable<Map<Dual<K1,K2>, Hexa<T,U,V,W,X,Y>>> closing,
-                                         BiFunctionThrowable<K1, K2, Hexa<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, closing, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
+                                        TriConsumerThrowable<Dual<K1,K2>, Hexa<T,U,V,W,X,Y>, Hexa<T,U,V,W,X,Y>> changesConsumer,
+                                        BiFunctionThrowable<K1, K2, Hexa<T,U,V,W,X,Y>> valueFunction) {
+            super(storageSupplier, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
 
         protected HexaValuesRepository2(BiFunctionThrowable<K1, K2, Hexa<T,U,V,W,X,Y>> valueFunction) {
@@ -71,9 +71,9 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKe
             implements TripleKeys.TripleKeys6<K1,K2,K3, T,U,V,W,X,Y>{
 
         protected HexaValuesRepository3(SupplierThrowable<Map<Triple<K1,K2,K3>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
-                                         ConsumerThrowable<Map<Triple<K1,K2,K3>, Hexa<T,U,V,W,X,Y>>> closing,
-                                         TriFunctionThrowable<K1, K2, K3, Hexa<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, closing, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
+                                        TriConsumerThrowable<Triple<K1,K2,K3>, Hexa<T,U,V,W,X,Y>, Hexa<T,U,V,W,X,Y>> changesConsumer,
+                                        TriFunctionThrowable<K1, K2, K3, Hexa<T,U,V,W,X,Y>> valueFunction) {
+            super(storageSupplier, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
 
         protected HexaValuesRepository3(TriFunctionThrowable<K1, K2, K3, Hexa<T,U,V,W,X,Y>> valueFunction) {
@@ -95,9 +95,9 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKe
             implements QuadKeys.QuadKeys6<K1,K2,K3,K4, T,U,V,W,X,Y> {
 
         protected HexaValuesRepository4(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
-                                         ConsumerThrowable<Map<Quad<K1,K2,K3,K4>, Hexa<T,U,V,W,X,Y>>> closing,
-                                         QuadFunctionThrowable<K1,K2,K3,K4, Hexa<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                        TriConsumerThrowable<Quad<K1,K2,K3,K4>, Hexa<T,U,V,W,X,Y>, Hexa<T,U,V,W,X,Y>> changesConsumer,
+                                        QuadFunctionThrowable<K1,K2,K3,K4, Hexa<T,U,V,W,X,Y>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
         }
 
@@ -120,9 +120,9 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKe
             implements PentaKeys.PentaKeys6<K1,K2,K3,K4,K5, T,U,V,W,X,Y> {
 
         protected HexaValuesRepository5(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
-                                         ConsumerThrowable<Map<Penta<K1,K2,K3,K4,K5>, Hexa<T,U,V,W,X,Y>>> closing,
-                                         PentaFunctionThrowable<K1,K2,K3,K4,K5, Hexa<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                        TriConsumerThrowable<Penta<K1,K2,K3,K4,K5>, Hexa<T,U,V,W,X,Y>, Hexa<T,U,V,W,X,Y>> changesConsumer,
+                                        PentaFunctionThrowable<K1,K2,K3,K4,K5, Hexa<T,U,V,W,X,Y>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth()));
         }
@@ -146,9 +146,9 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKe
             implements HexaKeys.HexaKeys6<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y> {
 
         protected HexaValuesRepository6(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
-                                         ConsumerThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Hexa<T,U,V,W,X,Y>>> closing,
-                                         HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Hexa<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                        TriConsumerThrowable<Hexa<K1,K2,K3,K4,K5,K6>, Hexa<T,U,V,W,X,Y>, Hexa<T,U,V,W,X,Y>> changesConsumer,
+                                        HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Hexa<T,U,V,W,X,Y>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth()));
         }
@@ -172,9 +172,9 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKe
             implements HeptaKeys.HeptaKeys6<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y> {
 
         protected HexaValuesRepository7(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hexa<T,U,V,W,X,Y>>> storageSupplier,
-                                         ConsumerThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hexa<T,U,V,W,X,Y>>> closing,
-                                         HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Hexa<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, closing, tuple ->
+                                        TriConsumerThrowable<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hexa<T,U,V,W,X,Y>, Hexa<T,U,V,W,X,Y>> changesConsumer,
+                                        HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Hexa<T,U,V,W,X,Y>> valueFunction) {
+            super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth(), tuple.getSeventh()));
         }

@@ -16,7 +16,7 @@ public class MultiValuesRepositoryTest {
 
     @Test
     public void toSingleValuesRepository() {
-        SingleValuesRepository<String, Integer> repository = MultiValuesRepository.toSingleValuesRepository(s -> s.length());
+        SingleValuesRepository<String, Integer> repository = MultiValuesRepository.toSingleValuesRepository(s -> Tuple.create(s.length()));
         assertEquals(Integer.valueOf(0), repository.getFirstValue(""));
         assertEquals(Integer.valueOf(1), repository.getFirstValue(" "));
         assertEquals(Integer.valueOf(10), repository.getFirstValue("0123456789"));
