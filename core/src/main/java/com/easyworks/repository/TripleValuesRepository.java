@@ -12,7 +12,7 @@ public class TripleValuesRepository<TKey, T, U, V> extends Repository<TKey, Trip
     protected TripleValuesRepository(SupplierThrowable<Map<TKey, Triple<T,U,V>>> storageSupplier,
                                      TriConsumerThrowable<TKey, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
                                      FunctionThrowable<TKey, Triple<T,U,V>> valueFunction){
-        super(storageSupplier, changesConsumer, t -> valueFunction.apply(t));
+        super(storageSupplier, changesConsumer, valueFunction);
     }
 
     protected TripleValuesRepository(FunctionThrowable<TKey, Triple<T,U,V>> valueFunction){

@@ -312,7 +312,7 @@ public class TupleRepositoryTest {
         assertEquals(Integer.valueOf(0), repository.getThird("?"));
         assertEquals(Character.valueOf('w'), repository.getFourth("what?"));
         Object v5 = repository.getFifth("what?");
-        //assertTrue(ArrayHelper.matchInOrder(TypeHelper.asArray("what?".toCharArray()), (Character[])v5));
+        //assertTrue(ArrayHelper.matchWithOrder(TypeHelper.asArray("what?".toCharArray()), (Character[])v5));
 
         assertEquals(false, repository.containsKeyOf(null));
         assertEquals(false, repository.containsKeyOf("GOOD"));

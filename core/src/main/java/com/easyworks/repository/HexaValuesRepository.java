@@ -12,7 +12,7 @@ public class HexaValuesRepository<TKey, T, U, V, W, X, Y> extends Repository<TKe
     protected HexaValuesRepository(SupplierThrowable<Map<TKey, Hexa<T,U,V,W,X,Y>>> storageSupplier,
                                    TriConsumerThrowable<TKey, Hexa<T,U,V,W,X,Y>, Hexa<T,U,V,W,X,Y>> changesConsumer,
                                    FunctionThrowable<TKey, Hexa<T,U,V,W,X,Y>> valueFunction){
-        super(storageSupplier, changesConsumer, t -> valueFunction.apply(t));
+        super(storageSupplier, changesConsumer, valueFunction);
     }
 
     protected HexaValuesRepository(FunctionThrowable<TKey, Hexa<T,U,V,W,X,Y>> valueFunction){

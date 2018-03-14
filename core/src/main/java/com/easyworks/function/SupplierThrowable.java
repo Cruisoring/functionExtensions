@@ -7,6 +7,12 @@ package com.easyworks.function;
  */
 @FunctionalInterface
 public interface SupplierThrowable<T> extends AbstractThrowable {
+
+    /**
+     * Get a result
+     * @return the result of type <tt>T</tt>
+     * @throws Exception
+     */
     T get() throws Exception;
 
 }

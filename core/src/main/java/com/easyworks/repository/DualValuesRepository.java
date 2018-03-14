@@ -25,7 +25,7 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
     protected DualValuesRepository(SupplierThrowable<Map<TKey, Dual<T,U>>> storageSupplier,
                                    TriConsumerThrowable<TKey, Dual<T,U>, Dual<T,U>> changesConsumer,
                                    FunctionThrowable<TKey, Dual<T, U>> valueFunction){
-        super(storageSupplier, changesConsumer, t -> valueFunction.apply(t));
+        super(storageSupplier, changesConsumer, valueFunction);
     }
 
     /**

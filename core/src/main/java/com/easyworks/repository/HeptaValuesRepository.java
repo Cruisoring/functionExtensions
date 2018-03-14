@@ -12,7 +12,7 @@ public class HeptaValuesRepository<TKey, T, U, V, W, X, Y, Z> extends Repository
     protected HeptaValuesRepository(SupplierThrowable<Map<TKey, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
                                     TriConsumerThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
                                     FunctionThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
-        super(storageSupplier, changesConsumer, t -> valueFunction.apply(t));
+        super(storageSupplier, changesConsumer, valueFunction);
     }
 
     protected HeptaValuesRepository(FunctionThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>> valueFunction){

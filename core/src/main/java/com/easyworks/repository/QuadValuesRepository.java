@@ -12,7 +12,7 @@ public class QuadValuesRepository<TKey, T, U, V, W> extends Repository<TKey, Qua
     protected QuadValuesRepository(SupplierThrowable<Map<TKey, Quad<T,U,V,W>>> storageSupplier,
                                    TriConsumerThrowable<TKey, Quad<T,U,V,W>, Quad<T,U,V,W>> changesConsumer,
                                    FunctionThrowable<TKey, Quad<T, U, V, W>> valueFunction){
-        super(storageSupplier, changesConsumer, (key) -> valueFunction.apply(key));
+        super(storageSupplier, changesConsumer, valueFunction);
     }
 
     protected QuadValuesRepository(FunctionThrowable<TKey, Quad<T, U, V, W>> valueFunction){

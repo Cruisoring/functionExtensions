@@ -1,6 +1,5 @@
 package com.easyworks.repository;
 
-import com.easyworks.function.ConsumerThrowable;
 import com.easyworks.function.FunctionThrowable;
 import com.easyworks.function.SupplierThrowable;
 import com.easyworks.function.TriConsumerThrowable;
@@ -10,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Repository where values are of <tt>Tuple</tt> type.
+ * Repository where values are of <tt>Tuple</tt> type, but the key is single value of type <tt>TKey</tt>.
  * @param <TKey>    Type of the key
  */
 public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {

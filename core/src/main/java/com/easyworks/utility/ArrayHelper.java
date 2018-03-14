@@ -13,29 +13,58 @@ import java.util.stream.IntStream;
 
 public class ArrayHelper<T,R> {
     public static final Class ObjectClass = Object.class;
+    public static final Class ArrayClass = Array.class;
     public static int ParalellEvaluationThreashold = 100;
 
     private static <T> T[] defaultArrayFactory(Class<T> clazz, int length){
         return (T[]) Array.newInstance(clazz, length);
     }
 
-    public static final DualValuesRepository<Class, Class, FunctionThrowable<Integer, Object>> classFactories = MultiValuesRepository.toDualValuesRepository(
+    protected static final DualValuesRepository<Class, Class, FunctionThrowable<Integer, Object>> classFactories = MultiValuesRepository.toDualValuesRepository(
             () -> new HashMap<Class, Dual<Class, FunctionThrowable<Integer, Object>>>(){{
-                put(int.class, Tuple.create(int[].class, i -> new int[i]));
-                put(char.class, Tuple.create(char[].class, i -> new char[i]));
-                put(byte.class, Tuple.create(byte[].class, i -> new byte[i]));
-                put(boolean.class, Tuple.create(boolean[].class, i -> new boolean[i]));
-                put(short.class, Tuple.create(short[].class, i -> new short[i]));
-                put(long.class, Tuple.create(long[].class, i -> new long[i]));
-                put(float.class, Tuple.create(float[].class, i -> new float[i]));
-                put(double.class, Tuple.create(double[].class, i -> new double[i]));
+                put(int.class, Tuple.create(Integer.class, i -> new int[i]));
+                put(char.class, Tuple.create(Character.class, i -> new char[i]));
+                put(byte.class, Tuple.create(Byte.class, i -> new byte[i]));
+                put(boolean.class, Tuple.create(Boolean.class, i -> new boolean[i]));
+                put(short.class, Tuple.create(Short.class, i -> new short[i]));
+                put(long.class, Tuple.create(Long.class, i -> new long[i]));
+                put(float.class, Tuple.create(Float.class, i -> new float[i]));
+                put(double.class, Tuple.create(Double.class, i -> new double[i]));
                 put(Object[].class, Tuple.create(Object.class, i -> new Object[i]));
             }},
             null,
-            clazz -> Tuple.create( null, length -> Array.newInstance(clazz, length)
+            clazz -> Tuple.create( clazz, length -> Array.newInstance(clazz, length)
     ));
 
-    public static Object getArray(Class clazz, int length) {
+    public static Class getComponentType(Object array){
+        if(array == null) return null;
+        Class arrayClass = array.getClass();
+        if(!arrayClass.isArray())
+            return null;
+
+        return arrayClass.getComponentType();
+    }
+
+    public static Class objectify(Class clazz){
+        if(clazz == null)
+            return null;
+        return classFactories.containsKey(clazz) ? classFactories.getFirstValue(clazz) : clazz;
+    }
+
+    public static Class[] objectify(Class[] classes){
+        if(classes == null)
+            return null;
+
+        int size = classes.length;
+        Class[] result = new Class[size];
+        for (int i = 0; i < size; i++) {
+            result[i] = objectify(classes[i]);
+        }
+        return result;
+    }
+
+
+    public static Object getNewArray(Class clazz, int length) {
         FunctionThrowable<Integer, Object> factory = classFactories.getSecondValue(clazz);
         return Functions.Default.apply(factory, length);
     }
@@ -55,28 +84,28 @@ public class ArrayHelper<T,R> {
                     Hexa<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>, Function<Object, Object>, Boolean>,
                     Single<Function<Object, Object>>>(){{
                 put(Tuple.create(boolean.class, Boolean.class, null, Array::getBoolean, null,null),
-                        Tuple.create(getToArrayFunction(boolean.class, Boolean.class, null, Array::getBoolean, null, null)));
+                        Tuple.create(getArrayConverter(boolean.class, Boolean.class, null, null, null, null)));
                 put(Tuple.create(byte.class, Byte.class, null, Array::getByte,null, null),
-                        Tuple.create(getToArrayFunction(byte.class, Byte.class, null, Array::getByte, null, null)));
+                        Tuple.create(getArrayConverter(byte.class, Byte.class, null, null, null, null)));
                 put(Tuple.create(char.class, Character.class, null, Array::getChar,null, null),
-                        Tuple.create(getToArrayFunction(char.class, Character.class, null, Array::getChar, null, null)));
+                        Tuple.create(getArrayConverter(char.class, Character.class, null, null, null, null)));
                 put(Tuple.create(int.class, Integer.class, null, Array::getInt,null, null),
-                        Tuple.create(getToArrayFunction(int.class, Integer.class, null, Array::getInt, null, null)));
+                        Tuple.create(getArrayConverter(int.class, Integer.class, null, null, null, null)));
                 put(Tuple.create(short.class, Short.class, null, Array::getShort,null, null),
-                        Tuple.create(getToArrayFunction(short.class, Short.class, null, Array::getShort, null, null)));
+                        Tuple.create(getArrayConverter(short.class, Short.class, null, null, null, null)));
                 put(Tuple.create(long.class, Long.class, null, Array::getLong,null, null),
-                        Tuple.create(getToArrayFunction(long.class, Long.class, null, Array::getLong, null, null)));
+                        Tuple.create(getArrayConverter(long.class, Long.class, null, null, null, null)));
                 put(Tuple.create(float.class, Float.class, null, Array::getFloat,null, null),
-                        Tuple.create(getToArrayFunction(float.class, Float.class, null, Array::getFloat, null, null)));
+                        Tuple.create(getArrayConverter(float.class, Float.class, null, null, null, null)));
                 put(Tuple.create(double.class, Double.class, null, Array::getDouble, null, null),
-                        Tuple.create(getToArrayFunction(double.class, Double.class, null, Array::getDouble, null, null)));
+                        Tuple.create(getArrayConverter(double.class, Double.class, null, null, null, null)));
             }},
             null,
             (fromClass, toClass, getLength, getFromElementAtIndex, elementConverter, parallelRequired) -> Tuple.create(
-                    getToArrayFunction( fromClass, toClass, getLength, getFromElementAtIndex, elementConverter, parallelRequired))
+                    getArrayConverter( fromClass, toClass, getLength, getFromElementAtIndex, elementConverter, parallelRequired))
     );
 
-    private static <T, R> Function<Object, Object> getToArrayFunction(
+    private static <T, R> Function<Object, Object> getArrayConverter(
             Class<T> fromClass,
             Class<R> toClass,
             FunctionThrowable<Object, Integer> getLength,
@@ -85,23 +114,33 @@ public class ArrayHelper<T,R> {
             Boolean parallelRequired){
         Objects.requireNonNull(fromClass);
         Objects.requireNonNull(toClass);
-        if(fromClass.equals(toClass))
-            return array -> (array==null || !array.getClass().isArray()) ? null : (R[])array;
-
         //Try best to prepare default getLength, getElementByIndex and elementConverter
         final FunctionThrowable<Object, Integer> getLengthFinal = getLength != null ?
                 getLength: Array::getLength;
         final BiFunctionThrowable<Object, Integer, Object> getElement = getElementByIndex != null ?
                 getElementByIndex : Array::get;
         final FunctionThrowable<Object, R> toResultElement = elementConverter != null ?
-                 t -> elementConverter.apply(t) : t -> toClass.cast(t);
+                t -> elementConverter.apply(t) : (t -> toClass.cast(t));
+
+        if(fromClass.equals(toClass)) {
+            return array -> {
+                if (array == null || !array.getClass().isArray())
+                    return null;
+                return Functions.Default.apply(() -> {
+                    int length = getLengthFinal.apply(array);
+                    Object newArray = getNewArray(toClass, length);
+                    System.arraycopy(array, 0, newArray, 0, length);
+                    return newArray;
+                });
+            };
+        }
 
         if(null == parallelRequired){
             return group -> {
                 if (group == null) return null;
                 try{
                     int length = getLengthFinal.apply(group);
-                    final R[] toArray = (R[]) getArray(toClass, length);
+                    final R[] toArray = (R[]) getNewArray(toClass, length);
                     if(length < ParalellEvaluationThreashold){
                         for (int i = 0; i < length; i++) {
                             toArray[i] = toResultElement.apply(getElement.apply(group, i));
@@ -123,7 +162,7 @@ public class ArrayHelper<T,R> {
                 if (array == null) return null;
                 try {
                     int length = getLengthFinal.apply(array);
-                    final R[] toArray = (R[]) getArray(toClass, length);
+                    final R[] toArray = (R[]) getNewArray(toClass, length);
                     Functions.runParallel(
                             (Integer i) -> toArray[i] = toResultElement.apply(getElement.apply(array, i)),
                             IntStream.range(0, length).boxed(),
@@ -138,7 +177,7 @@ public class ArrayHelper<T,R> {
                 if (array == null) return null;
                 try {
                     int length = getLengthFinal.apply(array);
-                    final R[] toArray = (R[]) getArray(toClass, length);
+                    final R[] toArray = (R[]) getNewArray(toClass, length);
                     for (int i = 0; i < length; i++) {
                         toArray[i] = toResultElement.apply(getElement.apply(array, i));
                     }
@@ -149,30 +188,6 @@ public class ArrayHelper<T,R> {
             };
         }
    }
-
-    //*/
-
-//    public static final Map<Class, Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>>> valuesMapper
-//            = new HashMap<Class, Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>>>(){
-//        {
-//            put(byte[].class, Tuple.create(byte.class, Byte.class, array -> ((byte[]) array).length,
-//                    (array, i) -> Byte.valueOf(((byte[]) array)[i])));
-//            put(boolean[].class, Tuple.create(boolean.class, Boolean.class, array -> ((boolean[]) array).length,
-//                    (array, i) -> Boolean.valueOf(((boolean[]) array)[i])));
-//            put(char[].class, Tuple.create(char.class, Character.class, array -> ((char[]) array).length,
-//                    (array, i) -> Character.valueOf(((char[]) array)[i])));
-//            put(float[].class, Tuple.create(float.class, Float.class, array -> ((float[]) array).length,
-//                    (array, i) -> Float.valueOf(((float[]) array)[i])));
-//            put(int[].class, Tuple.create(int.class, Integer.class, array -> ((int[]) array).length,
-//                    (array, i) -> Integer.valueOf(((int[]) array)[i])));
-//            put(double[].class, Tuple.create(double.class, Double.class, array -> ((double[]) array).length,
-//                    (array, i) -> Double.valueOf(((double[]) array)[i])));
-//            put(short[].class, Tuple.create(short.class, Short.class, array -> ((short[]) array).length,
-//                    (array, i) -> Short.valueOf(((short[]) array)[i])));
-//            put(long[].class, Tuple.create(long.class, Long.class, array -> ((long[]) array).length,
-//                    (array, i) -> Long.valueOf(((long[]) array)[i])));
-//        }
-//    };
 
     public static Object[] asObjects(Object array){
         if(array == null)
@@ -187,6 +202,20 @@ public class ArrayHelper<T,R> {
         if(converter == null)
             return null;
         return (Object[]) converter.apply(array);
+    }
+
+    public static Object asArray(Object array){
+        if(array == null) return null;
+
+        //Assuming array is array of primitive values
+        Class valueType = getComponentType(array);
+        if(!valueType.isPrimitive())
+            return array;
+
+        Class objectType = classFactories.getFirstValue(valueType);
+        Function<Object, Object> toArrayConverter  =
+                arrayConverters.getFirst(valueType, objectType, null, null, null,null);
+        return toArrayConverter.apply(array);
     }
 
     public static Object asPureObject(Object object){
@@ -269,51 +298,61 @@ public class ArrayHelper<T,R> {
 //    }
 
     //*/
+    public static <T,R> R[] convertArray(T[] fromArray, Class<R> toComponentType){
+        if(fromArray == null)
+            return null;
+
+        Objects.requireNonNull(toComponentType);
+        Class<T> fromComponentType = getComponentType(fromArray);
+        Function<Object, Object> converter = arrayConverters.getFirst(fromComponentType, toComponentType, null, null, null, null);
+        return (R[]) converter.apply(fromArray);
+    }
+
     private static Function<Object, Object> toBooleanArray  =
-            arrayConverters.getFirst(boolean.class, Boolean.class, null, Array::getBoolean, null,null);
-    public static Boolean[] toArray(boolean[] values){
+            arrayConverters.getFirst(boolean.class, Boolean.class, null, null, null,null);
+    public static Boolean[] convertArray(boolean[] values){
         return (Boolean[]) toBooleanArray.apply(values);
     }
 
     private static Function<Object, Object> toByteArray =
-            arrayConverters.getFirst(byte.class, Byte.class, null, Array::getByte, null,null);
-    public static Byte[] toArray(byte[] values){
+            arrayConverters.getFirst(byte.class, Byte.class, null, null, null,null);
+    public static Byte[] convertArray(byte[] values){
         return (Byte[]) toByteArray.apply(values);
     }
 
     private static Function<Object, Object> toCharacterArray =
             arrayConverters.getFirst(char.class, Character.class, null, Array::getChar, null,null);
-    public static Character[] toArray(char[] values){
+    public static Character[] convertArray(char[] values){
         return (Character[]) toCharacterArray.apply(values);
     }
 
     private static Function<Object, Object> toFloatArray =
             arrayConverters.getFirst(float.class, Float.class, null, Array::getFloat, null,null);
-    public static Float[] toArray(float[] values){
+    public static Float[] convertArray(float[] values){
         return (Float[]) toFloatArray.apply(values);
     }
 
     private static Function<Object, Object> toDoubleArray =
             arrayConverters.getFirst(double.class, Double.class, null, Array::getDouble, null,null);
-    public static Double[] toArray(double[] values){
+    public static Double[] convertArray(double[] values){
         return (Double[]) toDoubleArray.apply(values);
     }
 
     private static Function<Object, Object> toIntegerArray =
             arrayConverters.getFirst(int.class, Integer.class, null, Array::getInt, null,null);
-    public static Integer[] toArray(int[] values){
+    public static Integer[] convertArray(int[] values){
         return (Integer[]) toIntegerArray.apply(values);
     }
 
     private static Function<Object, Object> toShortArray =
             arrayConverters.getFirst(short.class, Short.class, null, Array::getShort, null,null);
-    public static Short[] toArray(short[] values){
+    public static Short[] convertArray(short[] values){
         return (Short[]) toShortArray.apply(values);
     }
 
     private static Function<Object, Object> toLongArray =
             arrayConverters.getFirst(long.class, Long.class, null, Array::getLong, null, null);
-    public static Long[] toArray(long[] values){
+    public static Long[] convertArray(long[] values){
         return (Long[]) toLongArray.apply(values);
     }
 
@@ -383,14 +422,19 @@ public class ArrayHelper<T,R> {
     }
     //*/
 
-    public static <T> T[] toArray(Collection<T> collection, Class<T> clazz){
+    public static <T> T[] toArray(Collection collection, Class<T> clazz){
         Objects.requireNonNull(collection);
         Objects.requireNonNull(clazz);
-        T[] array = (T[])collection.toArray((T[]) Array.newInstance(clazz, 0));
-        return array;
+        try {
+            Object[] objects = collection.toArray();
+            T[] array = convertArray(objects, clazz);
+            return array;
+        } catch (Exception ex){
+            return null;
+        }
     }
 
-    public static <T extends Comparable<T>> boolean matchInOrder(T[] expected, T[] actual) {
+    public static <T> boolean matchWithOrder(T[] expected, T[] actual) {
         if(expected.length != actual.length)
             return false;
 
@@ -401,36 +445,48 @@ public class ArrayHelper<T,R> {
         return true;
     }
 
-    public static <T extends Comparable<T>> boolean matchInOrder(Collection<T> expected, Collection<T> actual, Class<T> clazz) {
+    public static <T extends Comparable<T>> boolean matchWithOrder(Collection<T> expected, Collection<T> actual, Class<T> clazz) {
         int size = expected.size();
         if(size != actual.size())
             return false;
         T[] expectedArray = toArray(expected, clazz);
         T[] actualArray = toArray(actual, clazz);
 
-        return matchInOrder(expectedArray, actualArray);
+        return matchWithOrder(expectedArray, actualArray);
     }
 
-    public static <T extends Comparable<T>> boolean matchWithoutOrder(T[] expected, T[] actual){
-        if(expected.length != actual.length)
+    public static <T> boolean matchWithoutOrder(T[] expected, T[] actual){
+        if(expected == null || actual ==null || expected.length != actual.length)
             return false;
 
-        Arrays.sort(expected);
-        Arrays.sort(actual);
-        if(!Arrays.deepEquals(expected, actual)){
+        Class componentType = getComponentType(expected);
+        T[] expectedCopy = (T[]) convertArray(expected, componentType);
+        T[] actualCopy = (T[]) convertArray(actual, componentType);
+
+        Arrays.sort(expectedCopy);
+        Arrays.sort(actualCopy);
+        if(!Arrays.deepEquals(expectedCopy, actualCopy)){
             return false;
         }
         return true;
     }
 
     public static <T extends Comparable<T>> boolean matchWithoutOrder(Collection<T> expected, Collection<T> actual, Class<T> clazz) {
+        if(expected == null || actual == null)
+            return false;
+
         int size = expected.size();
         if(size != actual.size())
             return false;
-        T[] expectedArray = toArray(expected, clazz);
-        T[] actualArray = toArray(actual, clazz);
+        T[] expectedCopy = toArray(expected, clazz);
+        T[] actualCopy = toArray(actual, clazz);
 
-        return matchWithoutOrder(expectedArray, actualArray);
+        Arrays.sort(expectedCopy);
+        Arrays.sort(actualCopy);
+        if(!Arrays.deepEquals(expectedCopy, actualCopy)){
+            return false;
+        }
+        return true;
     }
 
 }

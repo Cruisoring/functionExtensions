@@ -12,7 +12,7 @@ public class SingleValuesRepository<TKey, T> extends Repository<TKey, Single<T>>
     protected SingleValuesRepository(SupplierThrowable<Map<TKey, Single<T>>> storageSupplier,
                                      TriConsumerThrowable<TKey, Single<T>, Single<T>> changesConsumer,
                                      FunctionThrowable<TKey, Single<T>> valueFunction){
-        super(storageSupplier, changesConsumer, t -> valueFunction.apply(t));
+        super(storageSupplier, changesConsumer, valueFunction);
     }
 
     protected SingleValuesRepository(FunctionThrowable<TKey, Single<T>> valueFunction){

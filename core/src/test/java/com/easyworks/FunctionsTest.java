@@ -1,6 +1,8 @@
 package com.easyworks;
 
 import com.easyworks.function.*;
+import com.easyworks.tuple.Triple;
+import com.easyworks.tuple.Tuple;
 import com.easyworks.utility.Defaults;
 import com.easyworks.utility.Logger;
 import org.junit.Assert;
@@ -51,6 +53,20 @@ public class FunctionsTest {
 
         BiFunctionThrowable<String, Integer, Integer> intFunc = FunctionsTest::sumOf;
         assertEquals(Integer.class, Functions.getReturnType(intFunc));
+    }
+
+    @Test
+    public void getGenericInfo(){
+        ConsumerThrowable<Integer> consumerInteger = FunctionsTest::doNothing;
+//        Triple<Class, Class[], Class> genericInfo = Functions.lambdaGenericInfoRepository.retrieve(Tuple.create(consumerInteger));
+
+        FunctionThrowable<Integer, List<Integer>> listFactory = i -> new ArrayList<Integer>();
+        Triple<Boolean, Class[], Class> genericInfo = Functions.lambdaGenericInfoRepository.retrieve(listFactory);
+        assertEquals(Tuple.create(true, new Class[]{Integer.class}, List.class), genericInfo);
+
+        BiFunctionThrowable<Integer, Integer, Boolean> func = (n1, n2) -> n1 + 12 > n2;
+        genericInfo = Functions.lambdaGenericInfoRepository.retrieve(func);
+        assertEquals(Tuple.create(true, new Class[]{Integer.class, Integer.class}, Boolean.class), genericInfo);
     }
 
     @Test

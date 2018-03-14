@@ -1,5 +1,6 @@
 package com.easyworks;
 
+import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,8 +46,9 @@ public class LazyTest {
         }
 
         assertFalse(booleanLazy.isValueInitialized());
-        assertTrue(Arrays.deepEquals(new String[]{"integerLazy is closing: 44",
-                "booleanLazy is closing: true", "stringLazy is closing: 1234567"}, logs.toArray()));
+        assertTrue(ArrayHelper.matchWithOrder(new String[]{"stringLazy changed: null -> 1234567", "integerLazy changed: null -> 44",
+                "booleanLazy changed: null -> true", "booleanLazy changed: true -> null",
+                "integerLazy changed: 44 -> null", "stringLazy changed: 1234567 -> null"}, logs.toArray()));
     }
 
     @Test
@@ -128,6 +130,7 @@ public class LazyTest {
 
         Lazy<Integer> integerLazy = new Lazy(() -> Integer.valueOf(33),
                 (i0, i1) -> logs.add("You shall see me after the test :)"));
+        Integer value = integerLazy.getValue();
         integerLazy.close();
         assertEquals("You shall see me after the test :)", logs.get(0));
     }

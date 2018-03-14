@@ -12,7 +12,7 @@ public class PentaValuesRepository<TKey, T, U, V, W, X> extends Repository<TKey,
     protected PentaValuesRepository(SupplierThrowable<Map<TKey, Penta<T,U,V,W,X>>> storageSupplier,
                                     TriConsumerThrowable<TKey, Penta<T,U,V,W,X>, Penta<T,U,V,W,X>> changesConsumer,
                                     FunctionThrowable<TKey, Penta<T,U,V,W,X>> valueFunction){
-        super(storageSupplier, changesConsumer, t -> valueFunction.apply(t));
+        super(storageSupplier, changesConsumer, valueFunction);
     }
 
     protected PentaValuesRepository(FunctionThrowable<TKey, Penta<T,U,V,W,X>> valueFunction){
