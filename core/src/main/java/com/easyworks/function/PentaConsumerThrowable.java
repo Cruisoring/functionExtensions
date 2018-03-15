@@ -1,5 +1,8 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+
 /**
  * Functional Interface identifying methods, accepting 5 arguments and returning nothing,
  * while their service logic could throw Exceptions.
@@ -34,4 +37,21 @@ public interface PentaConsumerThrowable<T,U,V,W,X> extends AbstractThrowable {
     default RunnableThrowable asRunnable(T t, U u, V v, W w, X x){
         return () -> accept(t, u, v, w, x);
     }
+
+    default PentaConsumer<T,U,V,W,X> orElse(Consumer<Exception> exceptionHandler){
+        Objects.requireNonNull(exceptionHandler);
+        return (t, u, v, w, x) -> {
+            try {
+                accept(t, u, v, w, x);
+            } catch (Exception e) {
+                exceptionHandler.accept(e);
+            }
+        };
+    }
+
+    @FunctionalInterface
+    interface PentaConsumer<T,U,V,W,X> extends AbstractThrowable{
+        void accept(T t, U u, V v, W w, X x);
+    }
+
 }

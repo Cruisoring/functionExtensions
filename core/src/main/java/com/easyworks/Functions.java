@@ -30,17 +30,6 @@ import java.util.stream.Stream;
 public class Functions<R> {
 
     /**
-     * Functional Interface to define the behaviours of handling Exception by considering return type of the Lambda Expression.
-     * Notice: The following method shall be implmented: <code>T apply(Exception t, AbstractThrowable u);</code>
-     * @param <T> Return type of the original Lambda Expression.
-     *           Notice: Type of <code>T</code> shall be ignored to cope with more generic scenario, thanks to Java type erasure.
-     */
-    @FunctionalInterface
-    public static interface ExceptionHandler<T>
-            extends BiFunction<Exception, AbstractThrowable, T> {
-    }
-
-    /**
      * Repository to evaluate a Lambda expression to get its Parameter Types, and return Type.
      *
      * Notice: the Lambda Expression must be provided directly to calling the embedded
@@ -85,25 +74,17 @@ public class Functions<R> {
 //        return lambdaGenericInfoRepository.getThirdValue(aThrowable);
     }
 
-    /**
-     * Factory to create Functions instance with given exception handler and default value factory.
-     * @param exeptionConsumer  Exception Handler to allow differentiated processing of different kinds of Excpeitons.
-     * @param defaultValueFactory   Default return value factory based on the returned type of the Lambda Expression.
-     * @param <R> Type of the return value.
-     * @return  Higher-order Function executioner with customised behaviours.
-     */
-    public static <R> Functions<R> buildFunctions(ConsumerThrowable<Exception> exeptionConsumer, FunctionThrowable<AbstractThrowable, Object> defaultValueFactory){
-        Objects.requireNonNull(exeptionConsumer);
+//    /**
+//     * Factory to create Functions instance with given exception handler and default value factory.
+//     * @param exeptionConsumer  Exception Handler to allow differentiated processing of different kinds of Excpeitons.
+//     * @param defaultValueFactory   Default return value factory based on the returned type of the Lambda Expression.
+//     * @param <R> Type of the return value.
+//     * @return  Higher-order Function executioner with customised behaviours.
+//     */
+    public static <R> Functions<R> buildFunctions(ExceptionHandler exceptionHandler, DefaultReturner<R> defaultValueFactory){
+        Objects.requireNonNull(exceptionHandler);
         Objects.requireNonNull(defaultValueFactory);
-        ExceptionHandler <R> handler = (Exception ex, AbstractThrowable supplier) -> {
-            try{
-                exeptionConsumer.accept(ex);
-                return (R) defaultValueFactory.apply(supplier);
-            }catch (Exception e){
-                throw new RuntimeException(e);
-            }
-        };
-        return new Functions(handler);
+        return new Functions(exceptionHandler, defaultValueFactory);
     };
 
     // Static Functions instance to hidden any Exceptions by returning default values matching the given Lambda Expression
@@ -113,8 +94,10 @@ public class Functions<R> {
     }
 //    public static final Functions ReturnsDefaultValue = new Functions((ExceptionHandler) returnDefaultValue);
     @SuppressWarnings("unchecked")
-    public static final Functions ReturnsDefaultValue = new Functions((ex, supplier) ->
-        Defaults.defaultOfType(getReturnType((AbstractThrowable) supplier)));
+    public static final Functions ReturnsDefaultValue = new Functions(
+            ex -> {},
+            function -> Defaults.defaultOfType(getReturnType(function))
+        );
 
     // Static Functions instance to simply throw RuntimeException whenever an Exception is caught.
     public static final Functions ThrowsRuntimeException = new Functions();
@@ -198,23 +181,27 @@ public class Functions<R> {
     //Exception Handler that shall throw either RuntimeException or return default value of Type R when an exception is caught.
     private final ExceptionHandler<R> handler;
 
+    private final DefaultReturner<R> defaultReturner;
+
     /**
      * Constructor without ExceptionHandler provided, would always throw RuntimeException accordingly.
      */
     private Functions(){
         this.handler = null;
+        this.defaultReturner = null;
     }
 
     /**
      * Constructor with a Non-nullable ExceptionHandler to define behaviours when execute an AbstractThrowable.
      * Notice: thanks to the Java Type Erasing, the Functions instance created can be used with Lambda expressions of
      * different return types.
-     * @param handler   ExceptionHandler instance that could be defined as Lambda to either throw RuntimeException or
+     * @param exceptionHandler   ExceptionHandler instance that could be defined as Lambda to either throw RuntimeException or
      *                  return default value of type R.
      */
-    public Functions(ExceptionHandler<R> handler){
-        Objects.requireNonNull(handler);
-        this.handler = handler;
+    public Functions(ExceptionHandler<R> exceptionHandler, DefaultReturner<R> defaultReturner){
+        Objects.requireNonNull(exceptionHandler);
+        this.handler = exceptionHandler;
+        this.defaultReturner = defaultReturner;
     }
 
     /**
@@ -228,7 +215,7 @@ public class Functions<R> {
             runnableThrowable.run();
         } catch (Exception ex){
             if(handler != null)
-                handler.apply(ex, runnableThrowable);
+                handler.handle(ex);
             else
                 throw new RuntimeException(ex);
         }
@@ -248,7 +235,7 @@ public class Functions<R> {
             return supplierThrowable.get();
         } catch (Exception ex){
             if(handler != null)
-                return (T) handler.apply(ex, supplierThrowable);
+                return (T) handler.apply(defaultReturner, ex, supplierThrowable);
             else
                 throw new RuntimeException(ex);
         }
@@ -267,7 +254,7 @@ public class Functions<R> {
             return supplierThrowable.get();
         } catch (Exception ex){
             if(handler != null)
-                return (T) handler.apply(ex, originalLambda);
+                return (T) handler.apply(defaultReturner, ex, originalLambda);
             else
                 throw new RuntimeException(ex);
         }
@@ -573,108 +560,4 @@ public class Functions<R> {
             T t, U u, V v, W w, X x, Y y, Z z){
         return apply(function, () -> function.apply(t,u,v,w,x,y,z));
     }
-
-//    //region Factories to convert various Consumer methods, plus expected arguments, to RunnableThrowable
-//    // that accept no input and returns nothing.
-//    public static<T> RunnableThrowable toRunnable(
-//            T t,
-//            RunnableThrowable.ConsumerThrowable<T> consumer) throws Exception{
-//        return () -> consumer.accept(t);
-//    }
-//
-//    public static<T,U> RunnableThrowable toRunnable(
-//            T t, U u,
-//            RunnableThrowable.BiConsumerThrowable<T,U> consumer) throws Exception{
-//        return () -> consumer.accept(t, u);
-//    }
-//
-//    public static<T,U,V> RunnableThrowable toRunnable(
-//            T t, U u, V v,
-//            RunnableThrowable.TriConsumerThrowable<T,U,V> consumer) throws Exception{
-//        return () -> consumer.accept(t, u, v);
-//    }
-//
-//    public static<T,U,V,W> RunnableThrowable toRunnable(
-//            T t, U u, V v, W w,
-//            RunnableThrowable.QuadConsumerThrowable<T,U,V,W> consumer) throws Exception{
-//        return () -> consumer.accept(t, u, v, w);
-//    }
-//
-//    public static<T,U,V,W,X> RunnableThrowable toRunnable(
-//            T t, U u, V v, W w, X x,
-//            RunnableThrowable.PentaConsumerThrowable<T,U,V,W,X> consumer) throws Exception{
-//        return () -> consumer.accept(t, u, v, w, x);
-//    }
-//
-//    public static<T,U,V,W,X,Y> RunnableThrowable toRunnable(
-//            T t, U u, V v, W w, X x, Y y,
-//            RunnableThrowable.HexaConsumerThrowable<T,U,V,W,X,Y> consumer) throws Exception{
-//        return () -> consumer.accept(t, u, v, w, x, y);
-//    }
-//
-//    public static<T,U,V,W,X,Y,Z> RunnableThrowable toRunnable(
-//            T t, U u, V v, W w, X x, Y y, Z z,
-//            RunnableThrowable.HeptaConsumerThrowable<T,U,V,W,X,Y,Z> consumer) throws Exception{
-//        return () -> consumer.accept(t, u, v, w, x, y, z);
-//    }
-//    //endregion
-//
-//    //region Factories to convert various functions, plus expected 1-7 arguments, to RunnableThrowable
-//    // that accept no input and returns nothing.
-//    public static <T> SupplierThrowable<Boolean> asSupplier(
-//            T t,
-//            SupplierThrowable.PredicateThrowable<T> predicate)
-//            throws Exception {
-//        return () -> predicate.test(t);
-//    }
-//
-//    public static <T,R> SupplierThrowable<R> asSupplier(
-//            T t,
-//            SupplierThrowable.FunctionThrowable<T,R> rop)
-//            throws Exception {
-//         return () -> rop.apply(t);
-//    }
-//
-//    public static <T,U,R> SupplierThrowable<R> asSupplier(
-//            T t, U u,
-//            SupplierThrowable.BiFunctionThrowable<T,U,R> rop)
-//            throws Exception {
-//        return () -> rop.apply(t, u);
-//    }
-//
-//    public static <T,U,V,R> SupplierThrowable<R> asSupplier(
-//            T t, U u, V v,
-//            SupplierThrowable.TriFunctionThrowable<T,U,V,R> rop)
-//            throws Exception {
-//        return () -> rop.apply(t, u, v);
-//    }
-//
-//    public static <T,U,V,W,R> SupplierThrowable<R> asSupplier(
-//            T t, U u, V v, W w,
-//            SupplierThrowable.QuadFunctionThrowable<T,U,V,W,R> rop)
-//            throws Exception {
-//        return () -> rop.apply(t, u, v, w);
-//    }
-//
-//    public static <T,U,V,W,X,R> SupplierThrowable<R> asSupplier(
-//            T t, U u, V v, W w, X x,
-//            SupplierThrowable.PentaFunctionThrowable<T,U,V,W,X,R> rop)
-//            throws Exception {
-//        return () -> rop.apply(t, u, v, w, x);
-//    }
-//
-//    public static <T,U,V,W,X,Y,R> SupplierThrowable<R> asSupplier(
-//            T t, U u, V v, W w, X x, Y y,
-//            SupplierThrowable.HexaFunctionThrowable<T,U,V,W,X,Y,R> rop)
-//            throws Exception {
-//        return () -> rop.apply(t, u, v, w, x, y);
-//    }
-//
-//    public static <T,U,V,W,X,Y,Z,R> SupplierThrowable<R> asSupplier(
-//            T t, U u, V v, W w, X x, Y y, Z z,
-//            SupplierThrowable.HeptaFunctionThrowable<T,U,V,W,X,Y,Z,R> rop)
-//            throws Exception {
-//        return () -> rop.apply(t, u, v, w, x, y, z);
-//    }
-//    //endregion
 }

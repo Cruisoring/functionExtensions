@@ -1,5 +1,8 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+
 /**
  * Functional Interface identifying methods, accepting one argument and returning nothing,
  * while their service logic could throw Exceptions.
@@ -21,5 +24,16 @@ public interface ConsumerThrowable<T> extends AbstractThrowable {
      */
     default RunnableThrowable asRunnable(T t){
         return () -> accept(t);
+    }
+
+    default Consumer<T> orElse(Consumer<Exception> exceptionHandler){
+        Objects.requireNonNull(exceptionHandler);
+        return t -> {
+            try {
+                accept(t);
+            } catch (Exception e) {
+                exceptionHandler.accept(e);
+            }
+        };
     }
 }

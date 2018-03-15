@@ -1,5 +1,8 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+
 /**
  * Functional Interface identifying methods, accepting 4 arguments and returning nothing,
  * while their service logic could throw Exceptions.
@@ -30,5 +33,21 @@ public interface QuadConsumerThrowable<T,U,V,W> extends AbstractThrowable {
      */
     default RunnableThrowable asRunnable(T t, U u, V v, W w){
         return () -> accept(t, u, v, w);
+    }
+
+    default QuadConsumer<T,U,V,W> orElse(Consumer<Exception> exceptionHandler){
+        Objects.requireNonNull(exceptionHandler);
+        return (t, u, v, w) -> {
+            try {
+                accept(t, u, v, w);
+            } catch (Exception e) {
+                exceptionHandler.accept(e);
+            }
+        };
+    }
+
+    @FunctionalInterface
+    interface QuadConsumer<T,U,V,W> extends AbstractThrowable{
+        void accept(T t, U u, V v, W w);
     }
 }

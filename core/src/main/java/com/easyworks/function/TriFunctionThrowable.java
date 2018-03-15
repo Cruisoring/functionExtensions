@@ -1,5 +1,8 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Function;
+
 /**
  * Functional Interface identifying methods, accepting 3 arguments and returning result of type <code>R</code>,
  * while their service logic could throw Exceptions.
@@ -29,5 +32,21 @@ public interface TriFunctionThrowable<T,U,V,R> extends AbstractThrowable {
      */
     default SupplierThrowable<R> asSupplier(T t, U u, V v){
         return () -> apply(t, u, v);
+    }
+
+    default TriFunction<T,U,V, R> orElse(Function<Exception, R> exceptionHanlder){
+        Objects.requireNonNull(exceptionHanlder);
+        return (t, u, v) -> {
+            try {
+                return apply(t, u, v);
+            } catch (Exception e) {
+                return exceptionHanlder.apply(e);
+            }
+        };
+    }
+
+    @FunctionalInterface
+    interface TriFunction<T,U,V, R> extends AbstractThrowable{
+        R apply(T t, U u, V v);
     }
 }

@@ -1,6 +1,10 @@
 package com.easyworks.function;
 
 
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
 /**
  * Functional Interface identifying methods, accepting 2 arguments and returning nothing,
  * while their service logic could throw Exceptions.
@@ -26,4 +30,17 @@ public interface BiConsumerThrowable<T, U> extends AbstractThrowable {
     default RunnableThrowable asRunnable(T t, U u){
         return () -> accept(t, u);
     }
+
+
+    default BiConsumer<T,U> orElse(Consumer<Exception> exceptionHandler){
+        Objects.requireNonNull(exceptionHandler);
+        return (t, u) -> {
+            try {
+                accept(t, u);
+            } catch (Exception e) {
+                exceptionHandler.accept(e);
+            }
+        };
+    }
+
 }

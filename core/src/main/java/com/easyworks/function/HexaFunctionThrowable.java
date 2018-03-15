@@ -1,5 +1,8 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Function;
+
 /**
  * Functional Interface identifying methods, accepting 6 arguments and returning result of type <code>R</code>,
  * while their service logic could throw Exceptions.
@@ -38,5 +41,21 @@ public interface HexaFunctionThrowable<T,U,V,W,X,Y,R> extends AbstractThrowable 
      */
     default SupplierThrowable<R> asSupplier(T t, U u, V v, W w, X x, Y y){
         return () -> apply(t, u, v, w, x, y);
+    }
+
+    default HexaFunction<T,U,V,W,X,Y, R> orElse(Function<Exception, R> exceptionHanlder){
+        Objects.requireNonNull(exceptionHanlder);
+        return (t, u, v, w, x, y) -> {
+            try {
+                return apply(t, u, v, w, x, y);
+            } catch (Exception e) {
+                return exceptionHanlder.apply(e);
+            }
+        };
+    }
+
+    @FunctionalInterface
+    interface HexaFunction<T,U,V,W,X,Y, R> extends AbstractThrowable{
+        R apply(T t, U u, V v, W w, X x, Y y);
     }
 }
