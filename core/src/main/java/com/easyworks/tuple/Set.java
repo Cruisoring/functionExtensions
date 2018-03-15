@@ -1,10 +1,7 @@
 package com.easyworks.tuple;
 
-import com.easyworks.function.PredicateThrowable;
-
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -81,9 +78,10 @@ public class Set<T> extends Tuple{
      * @param <R>   Type of the persistent elements
      * @return      The Set iselft if the class is matched, or Empty.
      */
-    @Override
-    public <R> com.easyworks.tuple.Set<R> getSetOf(Class<R> clazz){
+//    @Override
+    public <R> com.easyworks.tuple.Set<R> getSetOf(Class<R[]> clazz){
         Objects.requireNonNull(clazz);
+
         if(clazz.equals(elementType) || clazz.isAssignableFrom(elementType))
             return (com.easyworks.tuple.Set<R>) this;
         return EMPTY;

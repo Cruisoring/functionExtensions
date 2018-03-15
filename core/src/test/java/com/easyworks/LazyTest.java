@@ -46,7 +46,7 @@ public class LazyTest {
         }
 
         assertFalse(booleanLazy.isValueInitialized());
-        assertTrue(ArrayHelper.matchWithOrder(new String[]{"stringLazy changed: null -> 1234567", "integerLazy changed: null -> 44",
+        assertTrue(ArrayHelper.matchArrays(new String[]{"stringLazy changed: null -> 1234567", "integerLazy changed: null -> 44",
                 "booleanLazy changed: null -> true", "booleanLazy changed: true -> null",
                 "integerLazy changed: 44 -> null", "stringLazy changed: 1234567 -> null"}, logs.toArray()));
     }

@@ -3,7 +3,6 @@ package com.easyworks.function;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Functional Interface identifying methods, accepting 2 arguments and returning result of type <code>R</code>,

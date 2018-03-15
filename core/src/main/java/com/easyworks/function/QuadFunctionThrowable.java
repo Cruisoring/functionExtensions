@@ -13,7 +13,7 @@ import java.util.function.Function;
  * @param <R>   Type of the returned result.
  */
 @FunctionalInterface
-public interface QuadFunctionThrowable<T,U,V,W,R> extends AbstractThrowable {
+public interface QuadFunctionThrowable<T,U,V,W,R> extends Supplierable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 4 arguments and returning result of type <code>R</code>
      * @param t     The first argument of type <code>T</code>.
@@ -49,7 +49,7 @@ public interface QuadFunctionThrowable<T,U,V,W,R> extends AbstractThrowable {
     }
 
     @FunctionalInterface
-    interface QuadFunction<T,U,V,W, R> extends AbstractThrowable{
+    interface QuadFunction<T,U,V,W, R> extends Supplierable {
         R apply(T t, U u, V v, W w);
     }
 }

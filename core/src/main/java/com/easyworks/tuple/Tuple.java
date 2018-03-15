@@ -2,7 +2,6 @@ package com.easyworks.tuple;
 
 import com.easyworks.Functions;
 import com.easyworks.Lazy;
-import com.easyworks.function.PredicateThrowable;
 import com.easyworks.function.SupplierThrowable;
 import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
@@ -54,22 +53,58 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
      */
     public <T> Set<T> getSetOf(Class<T> clazz){
         Objects.requireNonNull(clazz);
-        List<T> matched = new ArrayList<>();
+        Boolean isArray = clazz.isArray();
 
-        PredicateThrowable<Class> predicate = TypeHelper.getClassPredicate(clazz);
+
 
         int length = getLength();
+        List<T> matched = new ArrayList<T>();
         for (int i = 0; i < length; i++) {
             Object v = values[i];
             if(v != null){
                 try {
-                    if(predicate.apply(v.getClass()))
-                        matched.add((T)v);
+                    Class vClass = v.getClass();
+                    if(!isArray && predicate.test(vClass)) {
+                        matched.add((T) v);
+                    } else if(isArray && vClass.isArray()){
+                        Class vCompomentClass = vClass.getComponentType();
+                        if(vClass.isArray() && predicate.test(vCompomentClass)){
+                            matched.add(componentType.equals(vCompomentClass) ? (T)v : (T)ArrayHelper.convertArray(v, componentType));
+                        }
+                    }
                 }catch (Exception ex){}
             }
         };
-        T[] array = (T[]) matched.stream().toArray();
-        return setOf(clazz, array);
+        T[] array = ArrayHelper.toArray(matched, clazz);
+        return setOf(componentType, array);
+    }
+
+    public <T> Set<T[]> getArraySetOf(Class<T[]> arrayClass){
+        Class componentType = arrayClass.getComponentType();
+        Predicate<Class> predicate = TypeHelper.getClassPredicate(componentType);
+
+        int length = getLength();
+        List<T[]> matched = new ArrayList<T[]>();
+        for (int i = 0; i < length; i++) {
+            Object v = values[i];
+            if(v != null){
+                try {
+                    Class vClass = v.getClass();
+                    if(arrayClass.equals(vClass)) {
+                        matched.add(arrayClass.cast(v));
+                    } else if(vClass.isArray()){
+                        Class vCompomentClass = vClass.getComponentType();
+                        if(predicate.test(vCompomentClass)){
+                            T[] converted = (T[])ArrayHelper.convertArray(v, componentType);
+                            if(converted != null)
+                                matched.add(converted);
+                        }
+                    }
+                }catch (Exception ex){}
+            }
+        };
+        Object[] array = matched.toArray();
+        return setOf(componentType, array);
     }
 
     /**
@@ -84,14 +119,14 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
         Objects.requireNonNull(valuePredicate);
         List<T> matched = new ArrayList<>();
 
-        PredicateThrowable<Class> classPredicate = TypeHelper.getClassPredicate(clazz);
+        Predicate<Class> classPredicate = TypeHelper.getClassPredicate(clazz);
 
         int length = getLength();
         for (int i = 0; i < length; i++) {
             Object v = values[i];
             if(v != null){
                 try {
-                    if(classPredicate.apply(v.getClass()) && valuePredicate.test((T)v))
+                    if(classPredicate.test(v.getClass()) && valuePredicate.test((T)v))
                         matched.add((T)v);
                 }catch (Exception ex){}
             }
@@ -388,7 +423,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
      * @param <T>           Actually Type of the elements
      * @return              A strong-typed Set instance
      */
-    public static <T> Set<T> setOf(Class<T> elementType, T... elements){
+    public static <T> Set<T> setOf(Class<T> elementType, T[] elements){
         return new Set<T>(elementType, elements);
     }
 
@@ -410,7 +445,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
      * @param elements  All elements to be persisted by the Tuple
      * @return          A <tt>Tuple</tt> instance with length of the elements
      */
-    public static Tuple asTuple(Object... elements){
+    public static Tuple of(Object... elements){
         return new Tuple(elements);
     }
 

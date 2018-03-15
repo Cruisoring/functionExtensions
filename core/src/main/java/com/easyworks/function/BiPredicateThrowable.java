@@ -1,10 +1,5 @@
 package com.easyworks.function;
 
-import java.util.Objects;
-import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
-
 /**
  * Functional Interface identifying methods, accepting 2 arguments and returning value type of boolean
  * while their service logic could throw Exceptions.

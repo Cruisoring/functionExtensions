@@ -51,12 +51,12 @@ public class ArrayHelperTest {
     public void asObjects() {
         int[] ints = new int[]{1,2,3};
         Object[] objects = ArrayHelper.asObjects(ints);
-        assertTrue(ArrayHelper.matchWithOrder(new Object[]{1,2,3}, objects));
+        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, objects));
 
-        assertTrue(ArrayHelper.matchWithOrder(new Object[]{1,2,3}, ArrayHelper.asObjects(new Integer[]{1,2,3})));
+        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, ArrayHelper.asObjects(new Integer[]{1,2,3})));
 
         DayOfWeek[] days = new DayOfWeek[]{DayOfWeek.FRIDAY, DayOfWeek.MONDAY};
-        assertTrue(ArrayHelper.matchWithOrder(new Object[]{DayOfWeek.FRIDAY, DayOfWeek.MONDAY}, ArrayHelper.asObjects(days)));
+        assertTrue(ArrayHelper.matchArrays(new Object[]{DayOfWeek.FRIDAY, DayOfWeek.MONDAY}, ArrayHelper.asObjects(days)));
 
         Collection[] collections = new Collection[]{new ArrayList(), new HashSet()};
         objects = ArrayHelper.asObjects(collections);
@@ -83,31 +83,29 @@ public class ArrayHelperTest {
         assertEquals(7, objects.length);
         assertEquals(null, objects[0]);
         assertEquals(23, objects[1]);
-        assertTrue(ArrayHelper.matchWithOrder(new Object[]{1,2,3}, (Object[])objects[2]));
+        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, (Object[])objects[2]));
         assertEquals(DayOfWeek.FRIDAY, objects[3]);
-        assertTrue(ArrayHelper.matchWithOrder(new Object[]{DayOfWeek.MONDAY, null}, (Object[])objects[4]));
-        assertTrue(ArrayHelper.matchWithOrder(new Object[]{null, null, null}, (Object[])objects[5]));
-        assertTrue(ArrayHelper.matchWithOrder(new Object[]{new Object[0], new Object[]{'a', 'b', 'c'}}, (Object[])objects[6]));
+        assertTrue(ArrayHelper.matchArrays(new Object[]{DayOfWeek.MONDAY, null}, (Object[])objects[4]));
+        assertTrue(ArrayHelper.matchArrays(new Object[]{null, null, null}, (Object[])objects[5]));
+        assertTrue(ArrayHelper.matchArrays(new Object[]{new Object[0], new Object[]{'a', 'b', 'c'}}, (Object[])objects[6]));
     }
 
     @Test
     public void toArray() {
         Collection<Object> collection = Arrays.asList(3, 'a', null, "String", DayOfWeek.FRIDAY, new char[]{'a'});
-        Object[] objects = ArrayHelper.toArray(collection, Object.class);
+        Object[] objects = ArrayHelper.toArray(collection, Object[].class);
         assertEquals(6, objects.length);
-        assertNull(ArrayHelper.toArray(collection, Integer.class));
+        assertNull(ArrayHelper.toArray(collection, Integer[].class));
 
         collection = Arrays.asList(new int[]{1,2}, new boolean[0], new Character[]{'x'},
                 new Tuple[]{Tuple.TRUE, Tuple.UNIT}, new Enum[]{DayOfWeek.FRIDAY, Month.APRIL},
                 new Collection[]{new ArrayList(), null});
-        objects = ArrayHelper.toArray(collection, Object.class);
+        objects = ArrayHelper.toArray(collection, Object[].class);
         assertEquals(6, objects.length);
 
-        //No array like Integer[], Byte[] can be saved as Array?
-        Array[] arrays = ArrayHelper.toArray(collection, Array.class);
 
         Collection collection2 = Arrays.asList(new ArrayList(), null, new LinkedList());
-        List[] lists = ArrayHelper.toArray(collection2, List.class);
+        List[] lists = (List[])ArrayHelper.toArray(collection2, List[].class);
         assertEquals(3, lists.length);
     }
 
@@ -118,13 +116,13 @@ public class ArrayHelperTest {
     @Test
     public void convertArray() {
         A[] array = new A[]{ new B(), new C()};
-        B[] bArray = ArrayHelper.convertArray(array, B.class);
+        B[] bArray = ArrayHelper.convertArray(array, B[].class);
         assertEquals(2, bArray.length);
 
         assertNull(ArrayHelper.convertArray(array, C.class));
 
         Object[] objects = new Object[]{new A(), new B(), new C(), new D()};
-        A[] aArray = ArrayHelper.convertArray(objects, A.class);
+        A[] aArray = ArrayHelper.convertArray(objects, A[].class);
         assertEquals(4, aArray.length);
     }
 
@@ -134,6 +132,7 @@ public class ArrayHelperTest {
         Integer[] integers = ArrayHelper.convertArray(ints);
         assertNotNull(integers);
         assertEquals(3, integers.length);
+        int[] intsBack = ArrayHelper.convertArray(integers, int[].class);
 
         integers = ArrayHelper.convertArray(new int[0]);
         assertEquals(0, integers.length);

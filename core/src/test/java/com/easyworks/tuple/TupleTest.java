@@ -2,7 +2,6 @@ package com.easyworks.tuple;
 
 import com.easyworks.Functions;
 import com.easyworks.function.PredicateThrowable;
-import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import org.junit.Assert;
 import org.junit.Test;
@@ -289,33 +288,50 @@ public class TupleTest {
     }
 
     @Test
+    public void getSetOf2() {
+        Tuple tuple = Tuple.of((Integer)null, -1, -2, new int[]{1,2}, new Integer[]{3,4,5}, -5, new Object[]{6,7});
+        Set<Integer> integers = tuple.getSetOf(int.class);
+
+        Set<Integer[]> integerArrays = tuple.getSetOf(Integer[].class);
+        assertEquals(Set.setOf(new Integer[]{1,2}, new Integer[]{3,4,5}), integerArrays);
+
+        Set<int[]> intArrays = tuple.getSetOf(int[].class);
+        assertEquals(Set.setOf(new int[]{1,2}, new int[]{3,4,5}), intArrays);
+
+        Set<Integer> ints = tuple.getSetOf(Integer.class);
+        assertEquals(Set.setOf(Integer.valueOf(-1), Integer.valueOf(-2), Integer.valueOf(-5)), ints);
+
+        assertEquals(ints, integers);
+   }
+
+    @Test
     public void getSetOfWithPredicate() {
-        Tuple manyValues = Tuple.asTuple("abc", null, 33, true, "a", "", 'a', Tuple.TRUE, 47);
+        Tuple manyValues = Tuple.of("abc", null, 33, true, "a", "", 'a', Tuple.TRUE, 47);
         assertEquals(Tuple.setOf("abc", "a", ""), manyValues.getSetOf(String.class));
         assertEquals(Tuple.setOf("abc"), manyValues.getSetOf(String.class, s->s.length()>2));
     }
 
     @Test
     public void asTuple(){
-        Tuple tuple = Tuple.asTuple(null);
+        Tuple tuple = Tuple.of(null);
         assertEquals(1, tuple.getLength());
 
         int[] ints = new int[] {1, 2};
-        tuple = Tuple.asTuple(ints);
+        tuple = Tuple.of(ints);
         assertEquals(1, tuple.getLength());
         assertEquals(Tuple.create(new int[] {1, 2}), tuple);
 
         Object[] elements = new Object[] {1, "ok", true};
-        tuple = Tuple.asTuple(elements);
+        tuple = Tuple.of(elements);
         assertEquals(3, tuple.getLength());
         assertTrue(Arrays.deepEquals(tuple.values, elements));
 
         elements = new Object[]{1,2,3,"abc", 'a', true, Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3), 'b'};
-        tuple = Tuple.asTuple(elements);
+        tuple = Tuple.of(elements);
         assertEquals(10, tuple.getLength());
         Set<Tuple> tupleSet = tuple.getSetOf(Tuple.class);
         assertEquals(3, tupleSet.getLength());
-        assertNotEquals(tupleSet, Tuple.asTuple(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)));
+        assertNotEquals(tupleSet, Tuple.of(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)));
         assertEquals(Tuple.setOf(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)), tupleSet);
     }
 
