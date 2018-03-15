@@ -1,5 +1,8 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Function;
+
 /**
  * Functional Interface identifying methods, accepting 5 arguments and returning result of type <code>R</code>,
  * while their service logic could throw Exceptions.
@@ -35,5 +38,21 @@ public interface PentaFunctionThrowable<T,U,V,W,X,R> extends AbstractThrowable {
      */
     default SupplierThrowable<R> asSupplier(T t, U u, V v, W w, X x){
         return () -> apply(t, u, v, w, x);
+    }
+
+    default PentaFunction<T,U,V,W,X, R> orElse(Function<Exception, R> exceptionHanlder){
+        Objects.requireNonNull(exceptionHanlder);
+        return (t, u, v, w, x) -> {
+            try {
+                return apply(t, u, v, w, x);
+            } catch (Exception e) {
+                return exceptionHanlder.apply(e);
+            }
+        };
+    }
+
+    @FunctionalInterface
+    interface PentaFunction<T,U,V,W,X, R> extends AbstractThrowable{
+        R apply(T t, U u, V v, W w, X x);
     }
 }

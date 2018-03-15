@@ -15,7 +15,7 @@ public class TupleRepositoryTest {
             fail("Tuple array of different length");
 
         if(!ArrayHelper.matchWithoutOrder(tuplesExpected, tuples)){
-            Logger.L("Expected: %s    !=   %s", Tuple.asTuple(tuplesExpected), Tuple.asTuple(tuples));
+            Logger.L("Expected: %s    !=   %s", Tuple.of(tuplesExpected), Tuple.of(tuples));
             fail("Failed with Arrays.deepEquals after sorting");
         }
     }
@@ -312,7 +312,7 @@ public class TupleRepositoryTest {
         assertEquals(Integer.valueOf(0), repository.getThird("?"));
         assertEquals(Character.valueOf('w'), repository.getFourth("what?"));
         Object v5 = repository.getFifth("what?");
-        //assertTrue(ArrayHelper.matchWithOrder(TypeHelper.asArray("what?".toCharArray()), (Character[])v5));
+        //assertTrue(ArrayHelper.matchArrays(TypeHelper.asArray("what?".toCharArray()), (Character[])v5));
 
         assertEquals(false, repository.containsKeyOf(null));
         assertEquals(false, repository.containsKeyOf("GOOD"));

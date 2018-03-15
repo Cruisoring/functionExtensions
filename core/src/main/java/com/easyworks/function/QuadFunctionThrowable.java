@@ -1,5 +1,8 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Function;
+
 /**
  * Functional Interface identifying methods, accepting 4 arguments and returning result of type <code>R</code>,
  * while their service logic could throw Exceptions.
@@ -10,7 +13,7 @@ package com.easyworks.function;
  * @param <R>   Type of the returned result.
  */
 @FunctionalInterface
-public interface QuadFunctionThrowable<T,U,V,W,R> extends AbstractThrowable {
+public interface QuadFunctionThrowable<T,U,V,W,R> extends Supplierable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 4 arguments and returning result of type <code>R</code>
      * @param t     The first argument of type <code>T</code>.
@@ -32,5 +35,21 @@ public interface QuadFunctionThrowable<T,U,V,W,R> extends AbstractThrowable {
      */
     default SupplierThrowable<R> asSupplier(T t, U u, V v, W w){
         return () -> apply(t, u, v, w);
+    }
+
+    default QuadFunction<T,U,V,W, R> orElse(Function<Exception, R> exceptionHanlder){
+        Objects.requireNonNull(exceptionHanlder);
+        return (t, u, v, w) -> {
+            try {
+                return apply(t, u, v, w);
+            } catch (Exception e) {
+                return exceptionHanlder.apply(e);
+            }
+        };
+    }
+
+    @FunctionalInterface
+    interface QuadFunction<T,U,V,W, R> extends Supplierable {
+        R apply(T t, U u, V v, W w);
     }
 }

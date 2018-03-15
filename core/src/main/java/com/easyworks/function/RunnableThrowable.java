@@ -1,5 +1,10 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 /**
  * Functional Interface defined to identify methods returning nothing while their service logic could throw Exceptions.
  */
@@ -11,6 +16,17 @@ public interface RunnableThrowable extends AbstractThrowable {
      * @throws Exception    Any Exception could be thrown by the concerned service logic.
      */
     void run() throws Exception;
+
+    default Runnable orElse(Consumer<Exception> exceptionHandler){
+        Objects.requireNonNull(exceptionHandler);
+        return () -> {
+            try {
+                run();
+            } catch (Exception e) {
+                exceptionHandler.accept(e);
+            }
+        };
+    }
 
     /**
      * Defualt method to combine another method together, accepting no argument and returning nothing.

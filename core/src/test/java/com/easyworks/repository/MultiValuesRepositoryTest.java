@@ -195,17 +195,17 @@ public class MultiValuesRepositoryTest {
     @Test
     public void toMultiValuesRepository() {
         MultiValuesRepository<String> repository = MultiValuesRepository.toMultiValuesRepository(s ->
-                Tuple.asTuple(s.length(), s.contains("?"), s.charAt(0), s.toCharArray(), s.substring(5),
+                Tuple.of(s.length(), s.contains("?"), s.charAt(0), s.toCharArray(), s.substring(5),
                         Character.getNumericValue(s.charAt(s.length()-1)), s.length()>7, s.length()<12));
 
         Tuple tuple = repository.retrieve("A test of retrieve");
         assertEquals(8, tuple.getLength());
         assertEquals(1, repository.getSize());
-        assertEquals(Tuple.asTuple(18, false, 'A', "A test of retrieve".toCharArray(), "t of retrieve", 14, true, false), tuple);
+        assertEquals(Tuple.of(18, false, 'A', "A test of retrieve".toCharArray(), "t of retrieve", 14, true, false), tuple);
 
 
         MultiValuesRepository<String> repositoryOfTuples = MultiValuesRepository.toMultiValuesRepository(s ->
-                Tuple.asTuple(
+                Tuple.of(
                         Tuple.create(s.length(), s.contains("?")),
                         Tuple.create(s.charAt(0), s.toCharArray(), s.substring(5)),
                         Tuple.create(Character.getNumericValue(s.charAt(s.length()-1)), s.length()>7, s.length()<12)));
@@ -213,8 +213,8 @@ public class MultiValuesRepositoryTest {
         Tuple tuple2 = repositoryOfTuples.retrieve("A test of retrieve");
         assertEquals(3, tuple2.getLength());
         Set<Tuple> tupleSet = tuple2.getSetOf(Tuple.class);
-        assertEquals(Tuple.asTuple(18, false), tupleSet.get(0));
-        assertEquals(Tuple.asTuple('A', "A test of retrieve".toCharArray(), "t of retrieve"), tupleSet.get(1));
-        assertEquals(Tuple.asTuple(14, true, false), tupleSet.get(2));
+        assertEquals(Tuple.of(18, false), tupleSet.get(0));
+        assertEquals(Tuple.of('A', "A test of retrieve".toCharArray(), "t of retrieve"), tupleSet.get(1));
+        assertEquals(Tuple.of(14, true, false), tupleSet.get(2));
     }
 }

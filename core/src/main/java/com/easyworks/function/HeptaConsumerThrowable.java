@@ -1,5 +1,9 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 /**
  * Functional Interface identifying methods, accepting 7 arguments and returning nothing,
  * while their service logic could throw Exceptions.
@@ -39,5 +43,22 @@ public interface HeptaConsumerThrowable<T,U,V,W,X,Y,Z> extends AbstractThrowable
      */
     default RunnableThrowable asRunnable(T t, U u, V v, W w, X x, Y y, Z z){
         return () -> accept(t, u, v, w, x, y, z);
+    }
+
+    default HeptaConsumer<T,U,V,W,X,Y,Z> orElse(Consumer<Exception> exceptionHandler){
+        Objects.requireNonNull(exceptionHandler);
+        return (t, u, v, w, x, y, z) -> {
+            try {
+                accept(t, u, v, w, x, y, z);
+            } catch (Exception e) {
+                exceptionHandler.accept(e);
+            }
+        };
+    }
+
+
+    @FunctionalInterface
+    interface HeptaConsumer<T,U,V,W,X,Y,Z> extends AbstractThrowable{
+        void accept(T t, U u, V v, W w, X x, Y y, Z z);
     }
 }

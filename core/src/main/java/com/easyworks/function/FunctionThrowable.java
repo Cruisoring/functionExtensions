@@ -1,5 +1,8 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Function;
+
 /**
  * Functional Interface identifying methods, accepting 1 argument and returning value type of <code>R</code>
  * while their service logic could throw Exceptions.
@@ -24,4 +27,28 @@ public interface FunctionThrowable<T, R> extends AbstractThrowable {
     default SupplierThrowable<R> asSupplier(T t){
         return () -> apply(t);
     }
+
+
+    default Function<T, R> orElse(Function<Exception, R> exceptionHanlder){
+        Objects.requireNonNull(exceptionHanlder);
+        return (t) -> {
+            try {
+                return apply(t);
+            } catch (Exception e) {
+                return exceptionHanlder.apply(e);
+            }
+        };
+    }
+
+    default Function<T, R> orElse(R defaultResult){
+        Objects.requireNonNull(defaultResult);
+        return (t) -> {
+            try {
+                return apply(t);
+            } catch (Exception e) {
+                return defaultResult;
+            }
+        };
+    }
+
 }

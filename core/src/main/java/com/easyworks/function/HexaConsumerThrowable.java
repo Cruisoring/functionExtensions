@@ -1,5 +1,8 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+
 /**
  * Functional Interface identifying methods, accepting 6 arguments and returning nothing,
  * while their service logic could throw Exceptions.
@@ -36,5 +39,21 @@ public interface HexaConsumerThrowable<T,U,V,W,X,Y> extends AbstractThrowable {
      */
     default RunnableThrowable asRunnable(T t, U u, V v, W w, X x, Y y){
         return () -> accept(t, u, v, w, x, y);
+    }
+
+    default HexaConsumer<T,U,V,W,X,Y> orElse(Consumer<Exception> exceptionHandler){
+        Objects.requireNonNull(exceptionHandler);
+        return (t, u, v, w, x, y) -> {
+            try {
+                accept(t, u, v, w, x, y);
+            } catch (Exception e) {
+                exceptionHandler.accept(e);
+            }
+        };
+    }
+
+    @FunctionalInterface
+    interface HexaConsumer<T,U,V,W,X,Y> extends AbstractThrowable{
+        void accept(T t, U u, V v, W w, X x, Y y);
     }
 }

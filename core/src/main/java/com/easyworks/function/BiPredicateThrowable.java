@@ -28,4 +28,5 @@ public interface BiPredicateThrowable<T,U> extends BiFunctionThrowable<T, U, Boo
     default SupplierThrowable<Boolean> asSupplier(T t, U u){
         return () -> test(t, u);
     }
+
 }

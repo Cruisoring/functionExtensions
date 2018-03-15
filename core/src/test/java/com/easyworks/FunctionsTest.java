@@ -21,14 +21,17 @@ public class FunctionsTest {
 
     private static List<String> logs = new ArrayList();
 
-    static Functions logToList = new Functions<Object>((Exception ex, AbstractThrowable lambda) -> {
-        String msg = ex.getMessage();
-        msg = ex.getClass().getSimpleName() + (msg == null?"":":"+msg);
-        logs.add(msg);
-        Logger.L(msg);
-        Class returnType = Functions.getReturnType(lambda);
-        return Defaults.defaultOfType(returnType);
-    });
+    static Functions logToList = new Functions<Object>(
+            ex -> {
+                String msg = ex.getMessage();
+                msg = ex.getClass().getSimpleName() + (msg == null?"":":"+msg);
+                logs.add(msg);
+                Logger.L(msg);
+            },
+            lambda -> {
+                Class returnType = Functions.getReturnType(lambda);
+                return Defaults.defaultOfType(returnType);
+            });
 
     @Before
     public void beforeTest(){
@@ -289,7 +292,7 @@ public class FunctionsTest {
                 SQLException.class, NumberFormatException.class
         };
         List<String> logs = new ArrayList();
-        ConsumerThrowable<Exception> exHandler = ex -> {
+        ExceptionHandler exHandler = ex -> {
             final Class<? extends Exception> exceptionType = ex.getClass();
             if(IntStream.range(0, noticeables.length).anyMatch(i -> noticeables[i].isAssignableFrom(exceptionType))){
                 String msg = ex.getMessage();
@@ -299,14 +302,14 @@ public class FunctionsTest {
                 throw new RuntimeException(ex);
             }
         };
-        FunctionThrowable<AbstractThrowable, Object> defualtFactory = supplier -> {
-            final Class returnType = Functions.getReturnType(supplier);
+        DefaultReturner defaultReturner = lambda -> {
+            final Class returnType = Functions.getReturnType(lambda);
             if(returnType == Integer.class || returnType == int.class)
                 return -1;
             return Defaults.defaultOfType(returnType);
         };
 
-        Functions customFunctions = Functions.buildFunctions(exHandler, defualtFactory);
+        Functions customFunctions = Functions.buildFunctions(exHandler, defaultReturner);
 
         Integer result = (Integer) customFunctions.apply(f14, false, null, null, null, null, null, null);
         assertEquals(Integer.valueOf(-1), result);

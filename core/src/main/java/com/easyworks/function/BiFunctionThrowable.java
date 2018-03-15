@@ -1,5 +1,9 @@
 package com.easyworks.function;
 
+import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 /**
  * Functional Interface identifying methods, accepting 2 arguments and returning result of type <code>R</code>,
  * while their service logic could throw Exceptions.
@@ -27,4 +31,16 @@ public interface BiFunctionThrowable<T, U, R> extends AbstractThrowable {
     default SupplierThrowable<R> asSupplier(T t, U u){
         return () -> apply(t, u);
     }
+
+    default BiFunction<T, U, R> orElse(Function<Exception, R> exceptionHandler){
+        Objects.requireNonNull(exceptionHandler);
+        return (t, u) -> {
+            try {
+                return apply(t, u);
+            } catch (Exception e) {
+                return exceptionHandler.apply(e);
+            }
+        };
+    }
+
 }
