@@ -3,7 +3,6 @@ package com.easyworks.tuple;
 import com.easyworks.Functions;
 import com.easyworks.Lazy;
 import com.easyworks.function.SupplierThrowable;
-import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import com.easyworks.utility.TypeHelper;
@@ -67,9 +66,9 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         Class<?> componentType = isArray ? clazz.getComponentType() : null;
 
         int length = getLength();
-        Object array = ArrayHelper.getNewArray(clazz, length);
-        TriConsumerThrowable<Object, Integer, Object> setElementAtIndex = ArrayHelper.getArraySetter(array.getClass());
-        int next = 0;
+        List<T> list = new ArrayList<T>();
+//        TriConsumerThrowable<Object, Integer, Object> setElementAtIndex = ArrayHelper.getArraySetter(array.getClass());
+//        int next = 0;
         for (int i = 0; i < length; i++) {
             Object v = values[i];
             if(v != null){
@@ -79,47 +78,18 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
                 }
 
                 Object converted = (clazz.equals(vClass) || !isArray) ? v : ArrayHelper.mapArray(v, componentType);
-                try {
-                    setElementAtIndex.accept(array, i, converted);
-                    i++;
-                }catch(Exception ex){
-                    i = i;
-                }
+                list.add((T)converted);
             }
         };
-        T[] array2 = null;
-        try {
-            array2 = ArrayHelper.copyOfRange((T[])array, 0, next);
-            return setOf(clazz, array2);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public <T> Set<T[]> getArraySetOf(Class<T[]> arrayClass){
-        Class componentType = arrayClass.getComponentType();
-        Predicate<Class> predicate = TypeHelper.getClassPredicate(arrayClass);
-
-        int length = getLength();
-        List<T[]> matched = new ArrayList<T[]>();
-        for (int i = 0; i < length; i++) {
-            Object v = values[i];
-            if(v != null){
-                try {
-                    Class vClass = v.getClass();
-                    if(arrayClass.equals(vClass)) {
-                        matched.add(arrayClass.cast(v));
-                    } else if(predicate.test(vClass)){
-                        Class vCompomentClass = vClass.getComponentType();
-                        T[] converted = (T[])ArrayHelper.mapArray(v, componentType);
-                        if(converted != null)
-                            matched.add(converted);
-                    }
-                }catch (Exception ex){}
-            }
-        };
-        Object[] array = matched.toArray();
-        return setOf(componentType, array);
+        T[] array = (T[])ArrayHelper.getNewArray(clazz, list.size());
+        array = list.toArray(array);
+        return setOf(clazz, array);
+//        try {
+//            array2 = ArrayHelper.copyOfRange((T[])array, 0, next);
+//            return setOf(clazz, array2);
+//        } catch (Exception e) {
+//            return null;
+//        }
     }
 
     /**

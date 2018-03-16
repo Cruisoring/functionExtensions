@@ -551,12 +551,12 @@ public class ArrayHelper<T, R> {
         return converter.apply(fromArray);
     }
 
-    public static <T> T[] toArray(Collection collection, Class<T[]> arrayClass) {
+    public static <T> T toArray(Collection collection, Class<T> arrayClass) {
         Objects.requireNonNull(collection);
         Objects.requireNonNull(arrayClass);
         try {
             Object[] objects = collection.toArray();
-            return (T[]) mapArray(objects, arrayClass.getComponentType());
+            return (T) mapArray(objects, arrayClass.getComponentType());
         } catch (Exception ex) {
             return null;
         }
