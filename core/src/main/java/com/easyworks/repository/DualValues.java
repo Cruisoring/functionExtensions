@@ -1,6 +1,6 @@
 package com.easyworks.repository;
 
-import com.easyworks.tuple.Dual;
+import com.easyworks.tuple.Tuple;
 
 /**
  * Interface for map.values that are of <tt>Tuple</tt> of 2 elements and keep the methods to retrieve them as strong-typed values
@@ -8,32 +8,17 @@ import com.easyworks.tuple.Dual;
  * @param <T>       Type of the first element of the Tuple value
  * @param <U>       Type of the second element of the Tuple value
  */
-public interface DualValues<TKey, T,U> {
+public interface DualValues<TKey, T,U> extends SingleValues<TKey, T> {
 
     /**
-     * Retreive the value of key as strong-typed Tuple of 2 elements
-     * @param key   key to retrieve corresponding Tuple.Dual value
-     * @return      corresponding Tuple.Dual value
-     */
-    Dual<T,U> retrieve(TKey key);
-
-    /**
-     * Get the first element of type <tt>T</tt>
-     * @param key   key to retrieve corresponding Tuple.Dual value
-     * @return      the first element of type <tt>T</tt>
-     */
-    default T getFirstValue(TKey key) {
-        Dual<T,U> value = retrieve(key);
-        return value == null ? null : value.getFirst();
-    }
-
-    /**
-     * Get the second element of type <tt>U</tt>
-     * @param key   key to retrieve corresponding Tuple.Dual value
-     * @return      the second element of type <tt>U</tt>
+     * Retrieve the first value of the Tuple as type of <tt>U</tt>
+     * @param key   key to retrieve corresponding Tuple value as a whole
+     * @return      second value of type <tt>U</tt>
      */
     default U getSecondValue(TKey key) {
-        Dual<T,U> value = retrieve(key);
-        return value == null ? null : value.getSecond();
+        Tuple tuple = retrieve(key);
+        if(tuple == null)
+            return null;
+        return (U) tuple.getValueAt(1);
     }
 }
