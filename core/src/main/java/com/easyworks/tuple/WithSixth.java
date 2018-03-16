@@ -1,13 +1,13 @@
 package com.easyworks.tuple;
 
-public interface WithFifth<T,U,V,W,X> extends WithFourth<T,U,V,W> {
+public interface WithSixth<T,U,V,W,X,Y> extends WithFifth<T,U,V,W,X> {
 
     /**
-     * Get the fifth element of <code>X</code>
-     * @return  value of the fifth element of type <code>X</code>
+     * Get the sixth element of <code>Y</code>
+     * @return  value of the sixth element of type <code>Y</code>
      */
-    default X getFifth() {
-        return (X)getValues()[4];
+    default Y getSixth() {
+        return (Y)getValueAt(5);
     }
 
 }

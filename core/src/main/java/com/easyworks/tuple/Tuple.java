@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
  * would close any elements if they are also AutoCloseable.
  */
-public class Tuple implements AutoCloseable, Comparable<Tuple> {
+public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
     private static java.util.Set<Class> valueArrayClasses = new HashSet<Class>(Arrays.asList(
             byte[].class, boolean[].class, char[].class, float[].class,
             int[].class, double[].class, long[].class, short[].class));
@@ -45,6 +45,14 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
 
         pureObjectValues = new Lazy(() -> ArrayHelper.asPureObject(values));
     }
+
+    @Override
+    public Object getValueAt(int index) {
+        if(index < 0 || index >= values.length)
+            return null;
+        return values[index];
+    }
+
 
     /**
      * Get all Non-null elements matching the given class as an immutable <code>Set</code>

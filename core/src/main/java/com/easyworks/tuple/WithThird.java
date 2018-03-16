@@ -1,12 +1,13 @@
 package com.easyworks.tuple;
 
-public interface WithSecond<T,U> extends WithFirst<T> {
+public interface WithThird<T,U,V> extends WithSecond<T,U> {
+
     /**
-     * Get the second element of <code>U</code>
-     * @return  value of the second element of type <code>U</code>
+     * Get the third element of <code>V</code>
+     * @return  value of the third element of type <code>V</code>
      */
-    default U getSecond() {
-        return (U)getValues()[1];
+    default V getThird() {
+        return (V)getValueAt(2);
     }
 
 }
