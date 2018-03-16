@@ -3,6 +3,7 @@ package com.easyworks.tuple;
 import com.easyworks.Functions;
 import com.easyworks.Lazy;
 import com.easyworks.function.SupplierThrowable;
+import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import com.easyworks.utility.TypeHelper;
@@ -53,35 +54,43 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
      */
     public <T> Set<T> getSetOf(Class<T> clazz){
         Objects.requireNonNull(clazz);
+        Predicate<Class> predicate = TypeHelper.getClassPredicate(clazz);
         Boolean isArray = clazz.isArray();
-
-
+        Class<?> componentType = isArray ? clazz.getComponentType() : null;
 
         int length = getLength();
-        List<T> matched = new ArrayList<T>();
+        Object array = ArrayHelper.getNewArray(clazz, length);
+        TriConsumerThrowable<Object, Integer, Object> setElementAtIndex = ArrayHelper.getArraySetter(array.getClass());
+        int next = 0;
         for (int i = 0; i < length; i++) {
             Object v = values[i];
             if(v != null){
+                Class vClass = v.getClass();
+                if(!predicate.test(vClass)) {
+                    continue;
+                }
+
+                Object converted = (clazz.equals(vClass) || !isArray) ? v : ArrayHelper.mapArray(v, componentType);
                 try {
-                    Class vClass = v.getClass();
-                    if(!isArray && predicate.test(vClass)) {
-                        matched.add((T) v);
-                    } else if(isArray && vClass.isArray()){
-                        Class vCompomentClass = vClass.getComponentType();
-                        if(vClass.isArray() && predicate.test(vCompomentClass)){
-                            matched.add(componentType.equals(vCompomentClass) ? (T)v : (T)ArrayHelper.convertArray(v, componentType));
-                        }
-                    }
-                }catch (Exception ex){}
+                    setElementAtIndex.accept(array, i, converted);
+                    i++;
+                }catch(Exception ex){
+                    i = i;
+                }
             }
         };
-        T[] array = ArrayHelper.toArray(matched, clazz);
-        return setOf(componentType, array);
+        T[] array2 = null;
+        try {
+            array2 = ArrayHelper.copyOfRange((T[])array, 0, next);
+            return setOf(clazz, array2);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public <T> Set<T[]> getArraySetOf(Class<T[]> arrayClass){
         Class componentType = arrayClass.getComponentType();
-        Predicate<Class> predicate = TypeHelper.getClassPredicate(componentType);
+        Predicate<Class> predicate = TypeHelper.getClassPredicate(arrayClass);
 
         int length = getLength();
         List<T[]> matched = new ArrayList<T[]>();
@@ -92,13 +101,11 @@ public class Tuple implements AutoCloseable, Comparable<Tuple> {
                     Class vClass = v.getClass();
                     if(arrayClass.equals(vClass)) {
                         matched.add(arrayClass.cast(v));
-                    } else if(vClass.isArray()){
+                    } else if(predicate.test(vClass)){
                         Class vCompomentClass = vClass.getComponentType();
-                        if(predicate.test(vCompomentClass)){
-                            T[] converted = (T[])ArrayHelper.convertArray(v, componentType);
-                            if(converted != null)
-                                matched.add(converted);
-                        }
+                        T[] converted = (T[])ArrayHelper.mapArray(v, componentType);
+                        if(converted != null)
+                            matched.add(converted);
                     }
                 }catch (Exception ex){}
             }

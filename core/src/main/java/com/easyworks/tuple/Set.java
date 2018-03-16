@@ -79,7 +79,7 @@ public class Set<T> extends Tuple{
      * @return      The Set iselft if the class is matched, or Empty.
      */
 //    @Override
-    public <R> com.easyworks.tuple.Set<R> getSetOf(Class<R[]> clazz){
+    public <R> com.easyworks.tuple.Set<R> getSetOf(Class<R> clazz){
         Objects.requireNonNull(clazz);
 
         if(clazz.equals(elementType) || clazz.isAssignableFrom(elementType))

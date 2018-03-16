@@ -374,11 +374,11 @@ public class TupleTest {
         assertEquals(nullDual2, nullDual);
         assertEquals(nullDual, nullDual2);
 
-        Set<Boolean> nullDual3 = Tuple.setOf(Boolean.class, null, null);
+        Set<Boolean> nullDual3 = Tuple.setOf(Boolean.class, new Boolean[]{null, null});
         assertFalse(nullDual2.equals(nullDual3));
         assertFalse(nullDual3.equals(nullDual2));
 
-        Set<String> null4 = Tuple.setOf(String.class, null, null);
+        Set<String> null4 = Tuple.setOf(String.class, new String[]{null, null} );
         assertFalse(nullDual3.equals(null4));
         assertNotEquals(null4, nullDual3);
         assertNotEquals(nullDual3, null4);

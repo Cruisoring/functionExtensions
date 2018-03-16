@@ -116,13 +116,13 @@ public class ArrayHelperTest {
     @Test
     public void convertArray() {
         A[] array = new A[]{ new B(), new C()};
-        B[] bArray = ArrayHelper.convertArray(array, B[].class);
+        B[] bArray = (B[]) ArrayHelper.mapArray(array, B.class);
         assertEquals(2, bArray.length);
 
-        assertNull(ArrayHelper.convertArray(array, C.class));
+        assertNull(ArrayHelper.mapArray(array, C.class));
 
         Object[] objects = new Object[]{new A(), new B(), new C(), new D()};
-        A[] aArray = ArrayHelper.convertArray(objects, A[].class);
+        A[] aArray = (A[])ArrayHelper.mapArray(objects, A.class);
         assertEquals(4, aArray.length);
     }
 
@@ -132,7 +132,7 @@ public class ArrayHelperTest {
         Integer[] integers = ArrayHelper.convertArray(ints);
         assertNotNull(integers);
         assertEquals(3, integers.length);
-        int[] intsBack = ArrayHelper.convertArray(integers, int[].class);
+        int[] intsBack = (int[])ArrayHelper.mapArray(integers, int.class);
 
         integers = ArrayHelper.convertArray(new int[0]);
         assertEquals(0, integers.length);
