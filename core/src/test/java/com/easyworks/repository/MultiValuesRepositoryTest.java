@@ -187,7 +187,7 @@ public class MultiValuesRepositoryTest {
                 new Tuple[]{Tuple.create(5,true, '?', "?abcd".toCharArray(), "", 13, false),
                         Tuple.create(11, true, '?', "?0123456789".toCharArray(), "456789", 9, true)}));
 
-        Hepta tuple = repository.retrieve("A test of retrieve");
+        Tuple tuple = repository.retrieve("A test of retrieve");
         assertEquals(3, repository.getSize());
         assertEquals(Tuple.create(18, false, 'A', "A test of retrieve".toCharArray(), "t of retrieve", 14, true), tuple);
     }

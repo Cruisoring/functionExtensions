@@ -14,7 +14,7 @@ import java.util.Map;
  * @param <U>       type of the second element of the Tuple.Dual that is mapped from the key
  */
 public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>>
-        implements DualValues<TKey, T,U> {
+        implements DualValues<TKey, T, U> {
     /**
      * Construct a repository with given map factory, extra changesConsumer logic and Function to map key to value
      * Shall be considerer only when the Tuple value contains more than 7 elements
@@ -36,14 +36,9 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
         this(HashMap::new, null, valueFunction);
     }
 
-    /**
-     * Wrapper of get(TKey, T) to retrieve actual value mapped from the given key
-     * @param tKey  key to be mapped
-     * @return      actual <tt>Tuple.Dual</tt> that keeps 2 elements of type <tt>T and U</tt> respectively
-     */
     @Override
-    public Dual<T, U> retrieve(TKey tKey) {
-        return (Dual<T, U>)get(tKey, null);
+    public Dual<T,U> retrieve(TKey tKey) {
+        return get(tKey, null);
     }
 
     /**
@@ -54,7 +49,7 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
      * @param <U>   type of the second element of the Tuple.Dual that is mapped from the key
      */
     public static class DualValuesRepository1<K1, T,U> extends DualValuesRepository<Single<K1>, T,U>
-            implements SingleKeys.SingleKeys2<K1, T, U> {
+            implements SingleKeys.DualValues<K1, T, U> {
 
         /**
          * Construct a repository with given map factory, extra changesConsumer logic and Function to map key to value of 2 elements
@@ -75,16 +70,6 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
         protected DualValuesRepository1(FunctionThrowable<K1, Dual<T, U>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
-
-        /**
-         * Returns true if there is a mapping exist with the given key
-         * @param k1    single element to compose the key of expected Tuple.Single type
-         * @return      Returns <tt>true</tt> if this map contains a mapping for the specified key.
-         */
-        @Override
-        public boolean containsKeyOf(K1 k1) {
-            return containsKey(getKey(k1));
-        }
     }
 
     /**
@@ -96,7 +81,7 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
      * @param <U>   type of the second element of the Tuple.Dual that is mapped from the key
      */
     public static class DualValuesRepository2<K1,K2, T,U> extends DualValuesRepository<Dual<K1,K2>, T,U>
-            implements DualKeys.DualKeys2<K1,K2, T,U>{
+            implements DualKeys.DualValues<K1,K2, T,U> {
 
         /**
          * Construct a repository with given map factory, extra changesConsumer logic and Function to map key of 2 elements to value of 2 elements
@@ -117,28 +102,6 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
         protected DualValuesRepository2(BiFunctionThrowable<K1, K2, Dual<T, U>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
-
-        /**
-         * Wrapper of get(TKey, T) to retrieve actual <tt>Tuple.Dual</tt> value mapped from the given key
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @return     actual <tt>Tuple.Dual</tt> that keeps 2 elements of type <tt>T and U</tt> respectively
-         */
-        @Override
-        public Dual<T, U> retrieve(K1 k1, K2 k2) {
-            return retrieve(getKey(k1, k2));
-        }
-
-        /**
-         * Returns true if there is a mapping exist with the given key of 2 elements
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @return      Returns <tt>true</tt> if this map contains a mapping for the specified key.
-         */
-        @Override
-        public boolean containsKeyOf(K1 k1, K2 k2) {
-            return containsKey(getKey(k1, k2));
-        }
     }
 
     /**
@@ -151,7 +114,7 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
      * @param <U>   type of the second element of the Tuple.Dual that is mapped from the key
      */
     public static class DualValuesRepository3<K1,K2,K3, T,U> extends DualValuesRepository<Triple<K1,K2,K3>, T,U>
-            implements TripleKeys.TripleKeys2<K1,K2,K3, T,U>{
+            implements TripleKeys.DualValues<K1,K2,K3, T,U>{
 
         /**
          * Construct a repository with given map factory, extra changesConsumer logic and Function to map key of 3 elements to value of 2 elements
@@ -172,30 +135,6 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
         protected DualValuesRepository3(TriFunctionThrowable<K1, K2, K3, Dual<T, U>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
-
-        /**
-         * Wrapper of get(TKey, T) to retrieve actual <tt>Tuple.Dual</tt> value mapped from the given key
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @return     actual <tt>Tuple.Dual</tt> that keeps 2 elements of type <tt>T and U</tt> respectively
-         */
-        @Override
-        public Dual<T, U> retrieve(K1 k1, K2 k2, K3 k3) {
-            return retrieve(getKey(k1, k2, k3));
-        }
-
-        /**
-         * Returns true if there is a mapping exist with the given key of 3 elements
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @return      Returns <tt>true</tt> if this map contains a mapping for the specified key.
-         */
-        @Override
-        public boolean containsKeyOf(K1 k1, K2 k2, K3 k3) {
-            return containsKey(getKey(k1, k2, k3));
-        }
     }
 
     /**
@@ -209,7 +148,7 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
      * @param <U>   type of the second element of the Tuple.Dual that is mapped from the key
      */
     public static class DualValuesRepository4<K1,K2,K3,K4, T,U> extends DualValuesRepository<Quad<K1,K2,K3,K4>, T,U>
-            implements QuadKeys.QuadKeys2<K1,K2,K3,K4, T,U> {
+            implements QuadKeys.DualValues<K1,K2,K3,K4, T,U> {
 
         /**
          * Construct a repository with given map factory, extra changesConsumer logic and Function to map key of 4 elements to value of 2 elements
@@ -231,32 +170,6 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
         protected DualValuesRepository4(QuadFunctionThrowable<K1,K2,K3,K4, Dual<T, U>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
-
-        /**
-         * Wrapper of get(TKey, T) to retrieve actual <tt>Tuple.Dual</tt> value mapped from the given key
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @param k4    fourth element to compose the key of expected Tuple type
-         * @return     actual <tt>Tuple.Dual</tt> that keeps 2 elements of type <tt>T and U</tt> respectively
-         */
-        @Override
-        public Dual<T, U> retrieve(K1 k1, K2 k2, K3 k3, K4 k4) {
-            return retrieve(getKey(k1, k2, k3, k4));
-        }
-
-        /**
-         * Returns true if there is a mapping exist with the given key of 4 elements
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @param k4    fourth element to compose the key of expected Tuple type
-         * @return      Returns <tt>true</tt> if this map contains a mapping for the specified key.
-         */
-        @Override
-        public boolean containsKeyOf(K1 k1, K2 k2, K3 k3, K4 k4) {
-            return containsKey(getKey(k1, k2, k3, k4));
-        }
     }
 
     /**
@@ -271,7 +184,7 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
      * @param <U>   type of the second element of the Tuple.Dual that is mapped from the key
      */
     public static class DualValuesRepository5<K1,K2,K3,K4,K5, T,U> extends DualValuesRepository<Penta<K1,K2,K3,K4,K5>, T,U>
-            implements PentaKeys.PentaKeys2<K1,K2,K3,K4,K5, T,U> {
+            implements PentaKeys.DualValues<K1,K2,K3,K4,K5, T,U> {
 
         /**
          * Construct a repository with given map factory, extra changesConsumer logic and Function to map key of 5 elements to value of 2 elements
@@ -294,34 +207,6 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
         protected DualValuesRepository5(PentaFunctionThrowable<K1,K2,K3,K4,K5, Dual<T, U>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
-
-        /**
-         * Wrapper of get(TKey, T) to retrieve actual <tt>Tuple.Dual</tt> value mapped from the given key
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @param k4    fourth element to compose the key of expected Tuple type
-         * @param k5    fifth element to compose the key of expected Tuple type
-         * @return     actual <tt>Tuple.Dual</tt> that keeps 2 elements of type <tt>T and U</tt> respectively
-         */
-        @Override
-        public Dual<T, U> retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5) {
-            return retrieve(getKey(k1, k2, k3, k4, k5));
-        }
-
-        /**
-         * Returns true if there is a mapping exist with the given key of 5 elements
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @param k4    fourth element to compose the key of expected Tuple type
-         * @param k5    fifth element to compose the key of expected Tuple type
-         * @return      Returns <tt>true</tt> if this map contains a mapping for the specified key.
-         */
-        @Override
-        public boolean containsKeyOf(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5) {
-            return containsKey(getKey(k1, k2, k3, k4, k5));
-        }
     }
 
     /**
@@ -337,7 +222,7 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
      * @param <U>   type of the second element of the Tuple.Dual that is mapped from the key
      */
     public static class DualValuesRepository6<K1,K2,K3,K4,K5,K6, T,U> extends DualValuesRepository<Hexa<K1,K2,K3,K4,K5,K6>, T,U>
-            implements HexaKeys.HexaKeys2<K1,K2,K3,K4,K5,K6, T,U> {
+            implements HexaKeys.DualValues<K1,K2,K3,K4,K5,K6, T,U> {
 
         /**
          * Construct a repository with given map factory, extra changesConsumer logic and Function to map key of 6 elements to value of 2 elements
@@ -360,36 +245,6 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
         protected DualValuesRepository6(HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Dual<T, U>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
-
-        /**
-         * Wrapper of get(TKey, T) to retrieve actual <tt>Tuple.Dual</tt> value mapped from the given key
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @param k4    fourth element to compose the key of expected Tuple type
-         * @param k5    fifth element to compose the key of expected Tuple type
-         * @param k6    sixth element to compose the key of expected Tuple type
-         * @return     actual <tt>Tuple.Dual</tt> that keeps 2 elements of type <tt>T and U</tt> respectively
-         */
-        @Override
-        public Dual<T, U> retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6) {
-            return retrieve(getKey(k1, k2, k3, k4, k5, k6));
-        }
-
-        /**
-         * Returns true if there is a mapping exist with the given key of 6 elements
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @param k4    fourth element to compose the key of expected Tuple type
-         * @param k5    fifth element to compose the key of expected Tuple type
-         * @param k6    sixth element to compose the key of expected Tuple type
-         * @return      Returns <tt>true</tt> if this map contains a mapping for the specified key.
-         */
-        @Override
-        public boolean containsKeyOf(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6) {
-            return containsKey(getKey(k1, k2, k3, k4, k5, k6));
-        }
     }
 
     /**
@@ -406,7 +261,7 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
      * @param <U>   type of the second element of the Tuple.Dual that is mapped from the key
      */
     public static class DualValuesRepository7<K1,K2,K3,K4,K5,K6,K7, T,U> extends DualValuesRepository<Hepta<K1,K2,K3,K4,K5,K6,K7>, T,U>
-            implements HeptaKeys.HeptaKeys2<K1,K2,K3,K4,K5,K6,K7, T,U> {
+            implements HeptaKeys.DualValues<K1,K2,K3,K4,K5,K6,K7, T,U> {
 
         /**
          * Construct a repository with given map factory, extra changesConsumer logic and Function to map key of 7 elements to value of 2 elements
@@ -428,38 +283,6 @@ public class DualValuesRepository<TKey, T, U> extends Repository<TKey, Dual<T,U>
          */
         protected DualValuesRepository7(HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Dual<T, U>> valueFunction) {
             this(HashMap::new, null, valueFunction);
-        }
-
-        /**
-         * Wrapper of get(TKey, T) to retrieve actual <tt>Tuple.Dual</tt> value mapped from the given key
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @param k4    fourth element to compose the key of expected Tuple type
-         * @param k5    fifth element to compose the key of expected Tuple type
-         * @param k6    sixth element to compose the key of expected Tuple type
-         * @param k7    seventh element to compose the key of expected Tuple type
-         * @return     actual <tt>Tuple.Dual</tt> that keeps 2 elements of type <tt>T and U</tt> respectively
-         */
-        @Override
-        public Dual<T, U> retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6, K7 k7) {
-            return retrieve(getKey(k1, k2, k3, k4, k5, k6, k7));
-        }
-
-        /**
-         * Returns true if there is a mapping exist with the given key of 7 elements
-         * @param k1    first element to compose the key of expected Tuple type
-         * @param k2    second element to compose the key of expected Tuple type
-         * @param k3    third element to compose the key of expected Tuple type
-         * @param k4    fourth element to compose the key of expected Tuple type
-         * @param k5    fifth element to compose the key of expected Tuple type
-         * @param k6    sixth element to compose the key of expected Tuple type
-         * @param k7    seventh element to compose the key of expected Tuple type
-         * @return      Returns <tt>true</tt> if this map contains a mapping for the specified key.
-         */
-        @Override
-        public boolean containsKeyOf(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5, K6 k6, K7 k7) {
-            return containsKey(getKey(k1, k2, k3, k4, k5, k6, k7));
         }
     }
 
