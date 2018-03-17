@@ -11,7 +11,7 @@ import static org.junit.Assert.assertNull;
 public class DualValuesRepositoryTest {
 
     DualValuesRepository<String, Integer, Boolean> dualValuesRepository =
-            MultiValuesRepository.toDualValuesRepository(s -> Tuple.create(s.length(), s.contains("a")));
+            DualValuesRepository.fromKey(s -> Tuple.create(s.length(), s.contains("a")));
 
     @Test
     public void retrieve() {

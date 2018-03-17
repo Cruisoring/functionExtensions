@@ -22,7 +22,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toSingleValuesRepository1() {
-        SingleValuesRepository.SingleValuesRepository1<String, Integer> repository = TupleRepository.toSingleValuesRepository(
+        SingleValuesRepository.SingleKeys<String, Integer> repository = SingleValuesRepository.fromOneKeys(
                 s -> Tuple.create(s.length())
         );
         assertEquals(Integer.valueOf(0), repository.getFirst(""));
@@ -46,7 +46,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toSingleValuesRepository2() {
-        SingleValuesRepository.SingleValuesRepository2<String, String, Integer> repository = TupleRepository.toSingleValuesRepository(
+        SingleValuesRepository.DualKeys<String, String, Integer> repository = SingleValuesRepository.fromTwoKeys(
                 (s1,s2) -> Tuple.create(s1.length() + s2.length())
         );
         assertEquals(Integer.valueOf(0), repository.getFirst("",""));
@@ -72,7 +72,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toSingleValuesRepository3() {
-        SingleValuesRepository.SingleValuesRepository3<String, String, Boolean, Integer> repository = TupleRepository.toSingleValuesRepository(
+        SingleValuesRepository.TripleKeys<String, String, Boolean, Integer> repository = SingleValuesRepository.fromThreeKeys(
                 (s1,s2,b) -> Tuple.create(s1.length() + (b?s2.length():0))
         );
         assertEquals(Integer.valueOf(0), repository.getFirst("", "", true));
@@ -98,7 +98,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toSingleValuesRepository4() {
-        SingleValuesRepository.SingleValuesRepository4<String, String, Boolean, Integer, Integer> repository = TupleRepository.toSingleValuesRepository(
+        SingleValuesRepository.QuadKeys<String, String, Boolean, Integer, Integer> repository = SingleValuesRepository.fromFourKeys(
                 (s1,s2,b,n) -> Tuple.create(s1.length() + (b?s2.length():n))
         );
         assertEquals(Integer.valueOf(0), repository.getFirst("", "", true, 10));
@@ -124,7 +124,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toSingleValuesRepository5() {
-        SingleValuesRepository.SingleValuesRepository5<String, String, Boolean, String, Integer, Integer> repository = TupleRepository.toSingleValuesRepository(
+        SingleValuesRepository.PentaKeys<String, String, Boolean, String, Integer, Integer> repository = SingleValuesRepository.fromFiveKeys(
                 (s1,s2,b,s3,n) -> Tuple.create(s1.length() + s2.length() + (b?s3.length():n))
         );
         assertEquals(Integer.valueOf(3), repository.getFirst("", "", true, "abc", 10));
@@ -144,7 +144,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toSingleValuesRepository6() {
-        SingleValuesRepository.SingleValuesRepository6<String, String, Boolean, String, Integer, Integer, Boolean> repository = TupleRepository.toSingleValuesRepository(
+        SingleValuesRepository.HexaKeys<String, String, Boolean, String, Integer, Integer, Boolean> repository = SingleValuesRepository.fromSixKeys(
                 (s1,s2,b,s3,n1,n2) -> Tuple.create(s1.length() + s2.length() + (b?s3.length():n1) > n2)
         );
         assertEquals(false, repository.getFirst("", "", true, "abc", 10, 8));
@@ -159,7 +159,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toSingleValuesRepository7() {
-        SingleValuesRepository.SingleValuesRepository7<Object,Object,Object,Object,Object,Object,Object,Tuple> repository = TupleRepository.toSingleValuesRepository(
+        SingleValuesRepository.HeptaKeys<Object,Object,Object,Object,Object,Object,Object,Tuple> repository = SingleValuesRepository.fromSevenKeys(
                 (o1,o2,o3,o4,o5,o6,o7)->{
                     Tuple all = Tuple.create(o1,o2,o3,o4,o5,o6,o7);
                     Set<Integer> integerSet = all.getSetOf(Integer.class);
@@ -174,7 +174,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toDualValuesRepository1() {
-        DualValuesRepository.DualValuesRepository1<String, Character, Integer> repository = TupleRepository.toDualValuesRepository(
+        DualValuesRepository.SingleKeys<String, Character, Integer> repository = DualValuesRepository.fromOneKeys(
                 s -> Tuple.create(s.charAt(0), s.length())
         );
 
@@ -191,7 +191,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toDualValuesRepository4() {
-        DualValuesRepository.DualValuesRepository4<String, String, Integer, Boolean, String, Integer> repository = TupleRepository.toDualValuesRepository(
+        DualValuesRepository.QuadKeys<String, String, Integer, Boolean, String, Integer> repository = DualValuesRepository.fromFourKeys(
                 (s1, s2, n, b) -> Tuple.create(s1+s2, n + (b?s1.length(): s2.length()))
         );
 
@@ -209,7 +209,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toTripleValuesRepository1() {
-        TripleValuesRepository.TripleValuesRepository1<String, Boolean, String, Integer> repository = TupleRepository.toTripleValuesRepository(
+        TripleValuesRepository.SingleKeys<String, Boolean, String, Integer> repository = TripleValuesRepository.fromOneKeys(
                 s -> Tuple.create(s.length()>2, s.substring(1), s.indexOf('?'))
         );
 
@@ -230,7 +230,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toTripleValuesRepository5() {
-        TripleValuesRepository.TripleValuesRepository5<String, Boolean, String, Integer, Character, Boolean, String, Integer> repository = TupleRepository.toTripleValuesRepository(
+        TripleValuesRepository.PentaKeys<String, Boolean, String, Integer, Character, Boolean, String, Integer> repository = TripleValuesRepository.fromFiveKeys(
                 (s1, b, s2, i, c) -> Tuple.create(s1.length()>3==b, s2.substring(i), s1.indexOf(c))
         );
 
@@ -253,7 +253,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toQuadValuesRepository1() {
-        QuadValuesRepository.QuadValuesRepository1<String, Boolean, String, Integer, Character> repository = TupleRepository.toQuadValuesRepository(
+        QuadValuesRepository.SingleKeys<String, Boolean, String, Integer, Character> repository = QuadValuesRepository.fromOneKeys(
                 s -> Tuple.create(s.length()>2, s.substring(1), s.indexOf('?'), s.charAt(0))
         );
 
@@ -275,8 +275,8 @@ public class TupleRepositoryTest {
 
     @Test
     public void toQuadValuesRepository6() {
-        QuadValuesRepository.QuadValuesRepository6<String, Boolean, String, Integer, Character, Boolean,   Boolean, String, String, Integer> repository =
-                TupleRepository.toQuadValuesRepository(
+        QuadValuesRepository.HexaKeys<String, Boolean, String, Integer, Character, Boolean,   Boolean, String, String, Integer> repository =
+                QuadValuesRepository.fromSixKeys(
                     (s1, b1, s2, i, c, b2) -> Tuple.create(b1 =(s1.length()>3), s2.substring(i), s1.substring(i), (b2?0:100))
         );
 
@@ -301,7 +301,7 @@ public class TupleRepositoryTest {
 
     @Test
     public void toPentaValuesRepository1() {
-        PentaValuesRepository.PentaValuesRepository1<String, Boolean, String, Integer, Character, char[]> repository = TupleRepository.toPentaValuesRepository(
+        PentaValuesRepository.SingleKeys<String, Boolean, String, Integer, Character, char[]> repository = PentaValuesRepository.fromOneKeys(
                 s -> Tuple.create(s.length()>2, s.substring(1), s.indexOf('?'), s.charAt(0), s.toCharArray())
         );
 
@@ -328,8 +328,8 @@ public class TupleRepositoryTest {
 
     @Test
     public void toPentaValuesRepository7() {
-        PentaValuesRepository.PentaValuesRepository7<String, Integer, Character, Byte, Boolean, String, Short,
-                Boolean, String, Integer, Character, char[]> repository = TupleRepository.toPentaValuesRepository(
+        PentaValuesRepository.HeptaKeys<String, Integer, Character, Byte, Boolean, String, Short,
+                Boolean, String, Integer, Character, char[]> repository = PentaValuesRepository.fromSevenKeys(
                 (s, n, ch, b, bool, subS, short1) ->
                         Tuple.create((s.charAt(n))==ch, s.substring((int)b), s.indexOf(subS), s.charAt(short1), new char[]{s.charAt(bool? n:short1)})
         );
@@ -350,8 +350,8 @@ public class TupleRepositoryTest {
 
     @Test
     public void toHexaValuesRepository1() {
-        HexaValuesRepository.HexaValuesRepository1<String, Character, Character, Integer, Boolean, String, Integer> repository =
-                TupleRepository.toHexaValuesRepository(s -> Tuple.create(
+        HexaValuesRepository.SingleKeys<String, Character, Character, Integer, Boolean, String, Integer> repository =
+                HexaValuesRepository.fromOneKeys(s -> Tuple.create(
                     s.charAt(0), s.charAt(1), (s.charAt(2) - 'a'), (s.length()%3)==0, s.substring(2), s.length()));
 
         assertEquals(Character.valueOf('b'),  repository.getSecond("abcdef"));
@@ -360,9 +360,9 @@ public class TupleRepositoryTest {
 
     @Test
     public void toHexaValuesRepository3() {
-        HexaValuesRepository.HexaValuesRepository3<String, Integer, Boolean,
+        HexaValuesRepository.TripleKeys<String, Integer, Boolean,
                 Character, Character, Integer, Boolean, String, Integer> repository =
-                TupleRepository.toHexaValuesRepository((s,i,b) -> Tuple.create(
+                HexaValuesRepository.fromThreeKeys((s, i, b) -> Tuple.create(
                         s.charAt(0), s.charAt(1), (s.charAt(i) - 'a'), (s.length()%(b?3:5))==0, s.substring(i), s.length()));
 
         assertEquals(Character.valueOf('b'),  repository.getSecond("abcde", 4, true));
@@ -371,8 +371,8 @@ public class TupleRepositoryTest {
 
     @Test
     public void toHeptaValuesRepository1() {
-        HeptaValuesRepository.HeptaValuesRepository1<String, Character, Character, Integer, Boolean, String, Integer, Byte> repository =
-                TupleRepository.toHeptaValuesRepository(s -> Tuple.create(
+        HeptaValuesRepository.SingleKeys<String, Character, Character, Integer, Boolean, String, Integer, Byte> repository =
+                HeptaValuesRepository.fromOneKeys(s -> Tuple.create(
                         s.charAt(0), s.charAt(1), (s.charAt(2) - 'a'), (s.length()%3)==0, s.substring(2), s.length(),
                         (byte)(s.charAt(s.length()-1))));
 

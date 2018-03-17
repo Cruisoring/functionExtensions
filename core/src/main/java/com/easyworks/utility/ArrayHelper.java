@@ -36,7 +36,7 @@ public class ArrayHelper<T, R> {
 //            , TriFunctionThrowable<Object, Integer, Integer, Object>    //Copies the specified range of the specified array into a new array. with fromIndex and toIndex
 //            , QuadFunctionThrowable<Objects, Integer, Integer, Object, Integer>   //Search a range of specific array with a specific key
             >
-            classArrayFactories = MultiValuesRepository.toQuadValuesRepository(
+            classArrayFactories = QuadValuesRepository.fromKey(
             () -> new HashMap<Class, Quad<
                     Class,
                     FunctionThrowable<Integer, Object>,
@@ -147,7 +147,7 @@ public class ArrayHelper<T, R> {
     }
 
 
-    public static final SingleValuesRepository.SingleValuesRepository6<
+    public static final SingleValuesRepository.HexaKeys<
             Class,              //fromClass as the first key
             Class,              //toClass as the second key
             BiFunctionThrowable<Object, Integer, Object>, //Function to get the Element At Index of the FromArray
@@ -158,7 +158,7 @@ public class ArrayHelper<T, R> {
             Function<Object, Object>       //Final converter based on the given keys
 
             >
-            arrayConverters = TupleRepository.toSingleValuesRepository(
+            arrayConverters = SingleValuesRepository.fromSixKeys(
             () -> new HashMap<
                     Hexa<Class, Class, BiFunctionThrowable<Object, Integer, Object>, TriConsumerThrowable<Object, Integer, Object>, Function<Object, Object>, Boolean>,
                     Single<Function<Object, Object>>>() {{

@@ -16,7 +16,7 @@ public class MultiValuesRepositoryTest {
 
     @Test
     public void toSingleValuesRepository() {
-        SingleValuesRepository<String, Integer> repository = MultiValuesRepository.toSingleValuesRepository(s -> Tuple.create(s.length()));
+        SingleValuesRepository<String, Integer> repository = SingleValuesRepository.fromKey(s -> Tuple.create(s.length()));
         assertEquals(Integer.valueOf(0), repository.getFirstValue(""));
         assertEquals(Integer.valueOf(1), repository.getFirstValue(" "));
         assertEquals(Integer.valueOf(10), repository.getFirstValue("0123456789"));
@@ -31,7 +31,7 @@ public class MultiValuesRepositoryTest {
 
     @Test
     public void toDualValuesRepository() {
-        DualValuesRepository<String, Integer, Boolean> repository = MultiValuesRepository.toDualValuesRepository(s ->
+        DualValuesRepository<String, Integer, Boolean> repository = DualValuesRepository.fromKey(s ->
                 Tuple.create(s.length(), s.contains("?")));
         assertEquals(Integer.valueOf(0), repository.getFirstValue(""));
         assertEquals(Integer.valueOf(1), repository.getFirstValue(" "));
@@ -53,7 +53,7 @@ public class MultiValuesRepositoryTest {
 
     @Test
     public void toTripleValuesRepository() {
-        TripleValuesRepository<String, Integer, Boolean, Character> repository = MultiValuesRepository.toTripleValuesRepository(s ->
+        TripleValuesRepository<String, Integer, Boolean, Character> repository = TripleValuesRepository.fromKey(s ->
                 Tuple.create(s.length(), s.contains("?"), s.charAt(0)));
         assertEquals(null, repository.getFirstValue(null));
         //StringIndexOutOfBoundsException thrown with key of empty String
@@ -78,7 +78,7 @@ public class MultiValuesRepositoryTest {
 
     @Test
     public void toQuadValuesRepository() {
-        QuadValuesRepository<String, Integer, Boolean, Character, char[]> repository = MultiValuesRepository.toQuadValuesRepository(s ->
+        QuadValuesRepository<String, Integer, Boolean, Character, char[]> repository = QuadValuesRepository.fromKey(s ->
                 Tuple.create(s.length(), s.contains("?"), s.charAt(0), s.toCharArray()));
         assertEquals(null, repository.getFirstValue(null));
         //StringIndexOutOfBoundsException thrown with key of empty String
@@ -103,7 +103,7 @@ public class MultiValuesRepositoryTest {
 
     @Test
     public void toPentaValuesRepository() {
-        PentaValuesRepository<String, Integer, Boolean, Character, char[], String> repository = MultiValuesRepository.toPentaValuesRepository(s ->
+        PentaValuesRepository<String, Integer, Boolean, Character, char[], String> repository = PentaValuesRepository.fromKey(s ->
                 Tuple.create(s.length(), s.contains("?"), s.charAt(0), s.toCharArray(), s.substring(5)));
         assertEquals(null, repository.getThirdValue(null));
         //StringIndexOutOfBoundsException thrown with strings whose length is less than 5
@@ -132,7 +132,7 @@ public class MultiValuesRepositoryTest {
 
     @Test
     public void toHaxaValuesRepository() {
-        HexaValuesRepository<String, Integer, Boolean, Character, char[], String, Integer> repository = MultiValuesRepository.toHexaValuesRepository(s ->
+        HexaValuesRepository<String, Integer, Boolean, Character, char[], String, Integer> repository = HexaValuesRepository.fromKey(s ->
                 Tuple.create(s.length(), s.contains("?"), s.charAt(0), s.toCharArray(), s.substring(5),
                         Character.getNumericValue(s.charAt(s.length()-1))));
         assertEquals(null, repository.getThirdValue(null));
@@ -163,7 +163,7 @@ public class MultiValuesRepositoryTest {
 
     @Test
     public void toHeptaValuesRepository() {
-        HeptaValuesRepository<String, Integer, Boolean, Character, char[], String, Integer, Boolean> repository = MultiValuesRepository.toHeptaValuesRepository(s ->
+        HeptaValuesRepository<String, Integer, Boolean, Character, char[], String, Integer, Boolean> repository = HeptaValuesRepository.fromKey(s ->
                 Tuple.create(s.length(), s.contains("?"), s.charAt(0), s.toCharArray(), s.substring(5),
                         Character.getNumericValue(s.charAt(s.length()-1)), s.length()>7));
         assertEquals(null, repository.getThirdValue(null));

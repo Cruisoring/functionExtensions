@@ -59,13 +59,6 @@ public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {
         return new SingleValuesRepository(storageSupplier, changesConsumer, valueFunction);
     }
 
-    public static <TKey,T,U> DualValuesRepository<TKey, T, U> toDualValuesRepository(
-            SupplierThrowable<Map<TKey, Dual<T,U>>> storageSupplier,
-            TriConsumerThrowable<TKey, Dual<T,U>, Dual<T,U>> changesConsumer,
-            FunctionThrowable<TKey, Dual<T,U>> valueFunction){
-        return new DualValuesRepository(storageSupplier, changesConsumer, valueFunction);
-    }
-
     public static <TKey,T,U,V> TripleValuesRepository<TKey,T,U,V> toTripleValuesRepository(
             SupplierThrowable<Map<TKey, Triple<T,U,V>>> storageSupplier,
             TriConsumerThrowable<TKey, Triple<T,U,V>, Triple<T,U,V>> changesConsumer,
@@ -114,11 +107,6 @@ public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {
     public static <TKey,T> SingleValuesRepository<TKey, T> toSingleValuesRepository(
             FunctionThrowable<TKey, Single<T>> valueFunction){
         return new SingleValuesRepository(valueFunction);
-    }
-
-    public static <TKey,T,U> DualValuesRepository<TKey, T, U> toDualValuesRepository(
-            FunctionThrowable<TKey, Dual<T,U>> valueFunction){
-        return new DualValuesRepository(valueFunction);
     }
 
     public static <TKey,T,U,V> TripleValuesRepository<TKey,T,U,V> toTripleValuesRepository(

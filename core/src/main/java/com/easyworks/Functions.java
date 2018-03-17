@@ -1,7 +1,6 @@
 package com.easyworks;
 
 import com.easyworks.function.*;
-import com.easyworks.repository.MultiValuesRepository;
 import com.easyworks.repository.TripleValuesRepository;
 import com.easyworks.tuple.Triple;
 import com.easyworks.tuple.Tuple;
@@ -19,7 +18,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,7 +33,7 @@ public class Functions<R> {
      * Notice: the Lambda Expression must be provided directly to calling the embedded
      * <tt>FunctionThrowable&lt;TKey, Triple&lt;T,U,V&gt;&gt; valueFunction</tt>
      */
-    public static final TripleValuesRepository<AbstractThrowable, Boolean, Class[], Class> lambdaGenericInfoRepository = MultiValuesRepository.toTripleValuesRepository(
+    public static final TripleValuesRepository<AbstractThrowable, Boolean, Class[], Class> lambdaGenericInfoRepository = TripleValuesRepository.fromKey(
             lambda -> {
                 if(lambda == null)
                     throw new NullPointerException();
