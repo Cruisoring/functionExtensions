@@ -1,18 +1,33 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
+import com.easyworks.function.BiFunctionThrowable;
 import com.easyworks.function.PredicateThrowable;
+import com.easyworks.function.TriConsumerThrowable;
+import com.easyworks.repository.HexaValuesRepository;
 import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class TypeHelper {
     public static final Class ObjectClass = Object.class;
     public static final String LAMBDA_NAME_KEY = "$Lambda";
+
+//    public static final HexaValuesRepository<Class,
+//            Class,              //concerned Class
+//
+//            Class,              //Class of the corresponding wrapper
+//            Class,              //Class of its array
+//            Class,              //Class of the corresponding wrapper array
+//            BiFunctionThrowable<Object, Integer, Object>, //Function to get the Element as index of its array
+//            TriConsumerThrowable<Object, Integer, Object>, //Function to set the Element at Index of its array
+//            Function<Object, Object>,             // Function to convert
+//            >
 
     public static final Map<Class, PredicateThrowable<Class>> classPredicates = new HashMap<Class, PredicateThrowable<Class>>(){{
         put(Boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));

@@ -3,6 +3,7 @@ package com.easyworks.tuple;
 import com.easyworks.Functions;
 import com.easyworks.Lazy;
 import com.easyworks.function.SupplierThrowable;
+import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import com.easyworks.utility.TypeHelper;
@@ -66,30 +67,29 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         Class<?> componentType = isArray ? clazz.getComponentType() : null;
 
         int length = getLength();
-        List<T> list = new ArrayList<T>();
-//        TriConsumerThrowable<Object, Integer, Object> setElementAtIndex = ArrayHelper.getArraySetter(array.getClass());
-//        int next = 0;
+        List<Integer> list = new ArrayList<Integer>();
         for (int i = 0; i < length; i++) {
             Object v = values[i];
             if(v != null){
                 Class vClass = v.getClass();
-                if(!predicate.test(vClass)) {
-                    continue;
+                if(predicate.test(vClass)) {
+                    list.add(i);
                 }
-
-                Object converted = (clazz.equals(vClass) || !isArray) ? v : ArrayHelper.mapArray(v, componentType);
-                list.add((T)converted);
             }
         };
-        T[] array = (T[])ArrayHelper.getNewArray(clazz, list.size());
-        array = list.toArray(array);
+        length = list.size();
+        Object array = ArrayHelper.getNewArray(clazz, length);
+        TriConsumerThrowable<Object, Integer, Object> setElementAtIndex = ArrayHelper.arrayConverters
+        for (int i = 0; i < length; i++) {
+            Object v = values[list.get(i)];
+            if(!isArray){
+                array[i] = (T)v;
+                continue;
+            }
+            Class vClass = v.getClass();
+            array[i] = (T)(clazz.equals(vClass) ? v : ArrayHelper.mapArray(v, componentType));
+        }
         return setOf(clazz, array);
-//        try {
-//            array2 = ArrayHelper.copyOfRange((T[])array, 0, next);
-//            return setOf(clazz, array2);
-//        } catch (Exception e) {
-//            return null;
-//        }
     }
 
     /**
