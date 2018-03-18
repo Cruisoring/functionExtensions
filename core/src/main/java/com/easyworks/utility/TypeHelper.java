@@ -4,10 +4,17 @@ import com.easyworks.Functions;
 import com.easyworks.function.BiFunctionThrowable;
 import com.easyworks.function.PredicateThrowable;
 import com.easyworks.function.TriConsumerThrowable;
+import com.easyworks.function.TriFunctionThrowable;
+import com.easyworks.repository.HeptaValuesRepository;
 import com.easyworks.repository.HexaValuesRepository;
+import com.easyworks.tuple.Hepta;
+import com.easyworks.tuple.Hexa;
+import com.easyworks.tuple.Tuple;
 import sun.reflect.ConstantPool;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -18,16 +25,131 @@ public class TypeHelper {
     public static final Class ObjectClass = Object.class;
     public static final String LAMBDA_NAME_KEY = "$Lambda";
 
-//    public static final HexaValuesRepository<Class,
-//            Class,              //concerned Class
-//
-//            Class,              //Class of the corresponding wrapper
-//            Class,              //Class of its array
-//            Class,              //Class of the corresponding wrapper array
-//            BiFunctionThrowable<Object, Integer, Object>, //Function to get the Element as index of its array
-//            TriConsumerThrowable<Object, Integer, Object>, //Function to set the Element at Index of its array
-//            Function<Object, Object>,             // Function to convert
-//            >
+    private static final <T> T[] asCopyOfRange(Object array, int from, int to){
+        return Arrays.copyOfRange((T[])array, from , to);
+    }
+
+    private static final String objectsToString(Object array){
+        Object[] objects = ArrayHelper.asObjects(array);
+        return Arrays.toString(objects);
+    }
+
+    public static final HeptaValuesRepository<
+            Class,              //concerned Class
+
+            Class             //Class of the corresponding wrapper
+            , Predicate<Class> //Equivalent predicate
+            , Class              //Class of its array
+            , BiFunctionThrowable<Object, Integer, Object>//Function to get the Element as index of its array
+            , TriConsumerThrowable<Object, Integer, Object>//Function to set the Element at Index of its array
+            , TriFunctionThrowable<Object, Integer, Integer, Object>//copyOfRange(original, from, to) -> new array
+            , Function<Object, String>             // Convert array to String
+    > classOperators = HeptaValuesRepository.fromKey(
+            () -> new HashMap<Class,
+                    Hepta<
+                        Class,
+                        Predicate<Class>,
+                        Class,
+                        BiFunctionThrowable<Object, Integer, Object>,
+                        TriConsumerThrowable<Object, Integer, Object>,
+                        TriFunctionThrowable<Object, Integer, Integer, Object>,
+                        Function<Object, String>
+                    >
+                >(){{
+                    put(int.class, Tuple.create(
+                            Integer.class
+                            , clazz -> int.class.equals(clazz) || Integer.class.equals(clazz)
+                            , int[].class
+                            , (array, index) -> Array.getInt(array, index)
+                            , (array, index, value) -> Array.setInt(array, index, (int)value)
+                            , (array, from, to) -> Arrays.copyOfRange((int[])array, from, to)
+                            , array -> Arrays.toString((int [])array)));
+                    put(byte.class, Tuple.create(
+                            Byte.class
+                            , clazz -> byte.class.equals(clazz) || Byte.class.equals(clazz)
+                            , byte[].class
+                            , (array, index) -> Array.getByte(array, index)
+                            , (array, index, value) -> Array.setByte(array, index, (byte)value)
+                            , (array, from, to) -> Arrays.copyOfRange((byte[])array, from, to)
+                            , array -> Arrays.toString((byte[])array)));
+                    put(boolean.class, Tuple.create(
+                            Boolean.class
+                            , clazz -> boolean.class.equals(clazz) || Boolean.class.equals(clazz)
+                            , boolean[].class
+                            , (array, index) -> Array.getBoolean(array, index)
+                            , (array, index, value) -> Array.setBoolean(array, index, (boolean)value)
+                            , (array, from, to) -> Arrays.copyOfRange((boolean[])array, from, to)
+                            , array -> Arrays.toString((boolean[])array)));
+                    put(char.class, Tuple.create(
+                            Character.class
+                            , clazz -> char.class.equals(clazz) || Character.class.equals(clazz)
+                            , char[].class
+                            , (array, index) -> Array.getChar(array, index)
+                            , (array, index, value) -> Array.setChar(array, index, (char)value)
+                            , (array, from, to) -> Arrays.copyOfRange((char[])array, from, to)
+                            , array -> Arrays.toString((char[])array)));
+                    put(short.class, Tuple.create(
+                            Short.class
+                            , clazz -> short.class.equals(clazz) || Short.class.equals(clazz)
+                            , short[].class
+                            , (array, index) -> Array.getShort(array, index)
+                            , (array, index, value) -> Array.setShort(array, index, (short)value)
+                            , (array, from, to) -> Arrays.copyOfRange((short[])array, from, to)
+                            , array -> Arrays.toString((short[])array)));
+                    put(long.class, Tuple.create(
+                            Long.class
+                            , clazz -> long.class.equals(clazz) || Long.class.equals(clazz)
+                            , long[].class
+                            , (array, index) -> Array.getByte(array, index)
+                            , (array, index, value) -> Array.setLong(array, index, (long)value)
+                            , (array, from, to) -> Arrays.copyOfRange((long[])array, from, to)
+                            , array -> Arrays.toString((long[])array)));
+                    put(double.class, Tuple.create(
+                            Double.class
+                            , clazz -> double.class.equals(clazz) || Double.class.equals(clazz)
+                            , double[].class
+                            , (array, index) -> Array.getDouble(array, index)
+                            , (array, index, value) -> Array.setDouble(array, index, (double)value)
+                            , (array, from, to) -> Arrays.copyOfRange((double[])array, from, to)
+                            , array -> Arrays.toString((double[])array)));
+                    put(float.class, Tuple.create(
+                            Float.class
+                            , clazz -> float.class.equals(clazz) || Float.class.equals(clazz)
+                            , float[].class
+                            , (array, index) -> Array.getFloat(array, index)
+                            , (array, index, value) -> Array.setFloat(array, index, (float)value)
+                            , (array, from, to) -> Arrays.copyOfRange((float[])array, from, to)
+                            , array -> Arrays.toString((float[])array)));
+
+            }},
+            null,
+            clazz -> {
+                Class wrapper = null;
+                Predicate<Class> cPredicate;
+
+                if(!clazz.isArray()){
+                    cPredicate = otherClass -> otherClass != null && otherClass.isAssignableFrom(clazz);
+                } else {
+                    Class componentClass = clazz.getComponentType();
+                    Predicate<Class> componentPredicate = getClassPredicate(componentClass);
+                    cPredicate = otherClass -> otherClass != null && otherClass.isArray()
+                            && componentPredicate.test(otherClass.getComponentType());
+                }
+
+                Class arrayClass = ArrayHelper.getNewArray(clazz, 0).getClass();
+                BiFunctionThrowable<Object, Integer, Object> getElement = Array::get;
+                TriConsumerThrowable<Object, Integer, Object> setElement = Array::set;
+                TriFunctionThrowable<Object, Integer, Integer, Object> copyOfRange = TypeHelper::asCopyOfRange;
+                Function<Object, String> toString = TypeHelper::objectsToString;
+                return Tuple.create(wrapper, cPredicate, arrayClass, getElement, setElement, copyOfRange, toString);
+            }
+    );
+
+    public static final Predicate<Class> getClassPredicate(Class clazz){
+        if(clazz == null) return null;
+
+        return classOperators.getSecondValue(clazz);
+    }
 
     public static final Map<Class, PredicateThrowable<Class>> classPredicates = new HashMap<Class, PredicateThrowable<Class>>(){{
         put(Boolean.class, clazz -> Boolean.class.equals(clazz) || boolean.class.equals(clazz));
@@ -83,13 +205,13 @@ public class TypeHelper {
      * @param instanceClass Type to be evaludated
      * @return
      */
-    public static Predicate<Class> getClassPredicate(Class instanceClass){
-        if(instanceClass == null) return c -> false;
-        if (!classPredicates.containsKey(instanceClass)){
-            classPredicates.put(instanceClass,clazz -> instanceClass.isAssignableFrom(clazz));
-        }
-        return classPredicates.get(instanceClass).orElse(false);
-    }
+//    public static Predicate<Class> getClassPredicate(Class instanceClass){
+//        if(instanceClass == null) return c -> false;
+//        if (!classPredicates.containsKey(instanceClass)){
+//            classPredicates.put(instanceClass,clazz -> instanceClass.isAssignableFrom(clazz));
+//        }
+//        return classPredicates.get(instanceClass).orElse(false);
+//    }
 
     public static <T> Predicate getClassPredicate(T... instances){
         Class<T> instanceClass = getDeclaredType(instances);
