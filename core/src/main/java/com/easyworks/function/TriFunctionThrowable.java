@@ -1,6 +1,5 @@
 package com.easyworks.function;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -35,11 +34,12 @@ public interface TriFunctionThrowable<T,U,V,R> extends Supplierable<R> {
     }
 
     default TriFunction<T,U,V, R> orElse(Function<Exception, R> exceptionHanlder){
-        Objects.requireNonNull(exceptionHanlder);
         return (t, u, v) -> {
             try {
                 return apply(t, u, v);
             } catch (Exception e) {
+                if(exceptionHanlder == null)
+                    return null;
                 return exceptionHanlder.apply(e);
             }
         };

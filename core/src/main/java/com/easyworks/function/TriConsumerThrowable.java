@@ -1,6 +1,5 @@
 package com.easyworks.function;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -33,12 +32,12 @@ public interface TriConsumerThrowable<T,U,V> extends AbstractThrowable {
     }
 
     default TriConsumer<T,U,V> orElse(Consumer<Exception> exceptionHandler){
-        Objects.requireNonNull(exceptionHandler);
         return (t, u, v) -> {
             try {
                 accept(t, u, v);
             } catch (Exception e) {
-                exceptionHandler.accept(e);
+                if(exceptionHandler != null)
+                    exceptionHandler.accept(e);
             }
         };
     }

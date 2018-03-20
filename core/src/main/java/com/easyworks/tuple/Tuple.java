@@ -62,34 +62,35 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      */
     public <T> Set<T> getSetOf(Class<T> clazz){
         Objects.requireNonNull(clazz);
-        Predicate<Class> predicate = TypeHelper.getClassPredicate(clazz);
-        Boolean isArray = clazz.isArray();
-        Class<?> componentType = isArray ? clazz.getComponentType() : null;
 
-        int length = getLength();
-        List<Integer> list = new ArrayList<Integer>();
-        for (int i = 0; i < length; i++) {
-            Object v = values[i];
-            if(v != null){
-                Class vClass = v.getClass();
-                if(predicate.test(vClass)) {
-                    list.add(i);
+        try {
+            Predicate<Class> predicate = TypeHelper.getClassPredicate(clazz);
+            Boolean isArray = clazz.isArray();
+            Class<?> componentType = isArray ? clazz.getComponentType() : null;
+
+            int length = getLength();
+            List<Integer> list = new ArrayList<Integer>();
+            for (int i = 0; i < length; i++) {
+                Object v = values[i];
+                if (v != null) {
+                    Class vClass = v.getClass();
+                    if (predicate.test(vClass)) {
+                        list.add(i);
+                    }
                 }
             }
-        };
-        length = list.size();
-        Object array = ArrayHelper.getNewArray(clazz, length);
-        TriConsumerThrowable<Object, Integer, Object> setElementAtIndex = ArrayHelper.arrayConverters
-        for (int i = 0; i < length; i++) {
-            Object v = values[list.get(i)];
-            if(!isArray){
-                array[i] = (T)v;
-                continue;
+            ;
+            length = list.size();
+            Object array = ArrayHelper.getNewArray(clazz, length);
+            TriConsumerThrowable<Object, Integer, Object> setElementAtIndex = TypeHelper.getArrayElementSetter(clazz);
+            for (int i = 0; i < length; i++) {
+                Object v = values[list.get(i)];
+                setElementAtIndex.accept(array, i, v);
             }
-            Class vClass = v.getClass();
-            array[i] = (T)(clazz.equals(vClass) ? v : ArrayHelper.mapArray(v, componentType));
+            return setOf(clazz, (T[])array);
+        }catch (Exception ex){
+            return null;
         }
-        return setOf(clazz, array);
     }
 
     /**
@@ -397,7 +398,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
     public static <T> Set<T> setOf(T... elements) {
         if(elements == null)
             return (Set<T>) Functions.ReturnsDefaultValue.apply(Set::new, elements);
-        Class<T> elementType = TypeHelper.getDeclaredType(elements);
+        Class<T> elementType = (Class<T>) elements.getClass().getComponentType();
         return new Set<T>(elementType, elements);
     }
 

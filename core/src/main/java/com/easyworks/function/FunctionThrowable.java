@@ -29,7 +29,7 @@ public interface FunctionThrowable<T, R> extends AbstractThrowable {
     }
 
 
-    default Function<T, R> orElse(Function<Exception, R> exceptionHanlder){
+    default Function<T, R> withHandler(Function<Exception, R> exceptionHanlder){
         Objects.requireNonNull(exceptionHanlder);
         return (t) -> {
             try {
@@ -41,7 +41,6 @@ public interface FunctionThrowable<T, R> extends AbstractThrowable {
     }
 
     default Function<T, R> orElse(R defaultResult){
-        Objects.requireNonNull(defaultResult);
         return (t) -> {
             try {
                 return apply(t);

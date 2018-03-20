@@ -1,6 +1,5 @@
 package com.easyworks.function;
 
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -20,11 +19,12 @@ public interface SupplierThrowable<R> extends Supplierable<R> {
     R get() throws Exception;
 
     default Supplier<R> orElse(Function<Exception, R> exceptionHanlder){
-        Objects.requireNonNull(exceptionHanlder);
         return () -> {
             try {
                 return get();
             } catch (Exception e) {
+                if(exceptionHanlder == null)
+                    return null;
                 return exceptionHanlder.apply(e);
             }
         };

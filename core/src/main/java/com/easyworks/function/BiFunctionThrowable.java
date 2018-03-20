@@ -1,6 +1,5 @@
 package com.easyworks.function;
 
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -29,16 +28,16 @@ public interface BiFunctionThrowable<T, U, R> extends AbstractThrowable {
      * @return      The converted <code>SupplierThrowable</code> by applying the 2 given arguments.
      */
     default SupplierThrowable<R> asSupplier(T t, U u){
-        return () -> apply(t, u);
+        SupplierThrowable<R> supplierThrowable = () -> apply(t, u);
+        return supplierThrowable;
     }
 
     default BiFunction<T, U, R> orElse(Function<Exception, R> exceptionHandler){
-        Objects.requireNonNull(exceptionHandler);
         return (t, u) -> {
             try {
                 return apply(t, u);
             } catch (Exception e) {
-                return exceptionHandler.apply(e);
+                return asSupplier(t, u).orElse(exceptionHandler).get();
             }
         };
     }

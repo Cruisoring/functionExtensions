@@ -643,4 +643,31 @@ public class ArrayHelper<T, R> {
         return true;
     }
 
+    public static boolean deepEquals(Object expectedArray, Object actualArray){
+        Objects.requireNonNull(expectedArray);
+        Objects.requireNonNull(actualArray);
+
+        Class expectedClass = expectedArray.getClass();
+        Class actualClass = actualArray.getClass();
+        if(!TypeHelper.getClassPredicate(expectedClass).test(actualClass))
+            return false;       //When classes are not equivalent
+
+        int expectedSize = Array.getLength(expectedArray);
+        if(expectedSize != Array.getLength(actualArray))
+            return false;
+
+        BiFunctionThrowable<Object, Integer, Object> expectedGetter = TypeHelper.getArrayElementGetter(expectedClass);
+        BiFunctionThrowable<Object, Integer, Object> actualGetter = TypeHelper.getArrayElementGetter(actualClass);
+        for (int i = 0; i < expectedSize; i++) {
+            try{
+                Object expectedElement = expectedGetter.apply(expectedArray, i);
+                Object actualElement = actualGetter.apply(actualArray, i);
+                if(!Objects.equals(expectedElement, actualElement))
+                    return false;
+            }catch (Exception ex){
+                return false;
+            }
+        }
+        return true;
+    }
 }
