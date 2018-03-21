@@ -33,14 +33,13 @@ public interface BiConsumerThrowable<T, U> extends AbstractThrowable {
 
 
     default BiConsumer<T,U> orElse(Consumer<Exception> exceptionHandler){
-        Objects.requireNonNull(exceptionHandler);
         return (t, u) -> {
             try {
                 accept(t, u);
             } catch (Exception e) {
-                exceptionHandler.accept(e);
+                if(exceptionHandler != null)
+                    exceptionHandler.accept(e);
             }
         };
     }
-
 }
