@@ -1,24 +1,33 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
-import com.easyworks.function.*;
+import com.easyworks.function.BiFunctionThrowable;
+import com.easyworks.function.FunctionThrowable;
+import com.easyworks.function.TriConsumerThrowable;
+import com.easyworks.function.TriFunctionThrowable;
 import com.easyworks.repository.HeptaValuesRepository;
+import com.easyworks.repository.QuadValuesRepository;
 import com.easyworks.tuple.Hepta;
+import com.easyworks.tuple.Quad;
 import com.easyworks.tuple.Tuple;
-import com.sun.deploy.util.StringUtils;
 import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class TypeHelper {
-    public static final Class ObjectClass = Object.class;
+    private static boolean EMPTY_ARRAY_AS_DEFAULT = true;
+
+    static{
+        if("false".equalsIgnoreCase(System.getProperty("EMPTY_ARRAY_AS_DEFAULT"))){
+            EMPTY_ARRAY_AS_DEFAULT = true;
+        }
+    }
 
     private static final Method _getConstantPool = (Method) Functions.ReturnsDefaultValue.apply(() -> {
         Method method = Class.class.getDeclaredMethod("getConstantPool");
@@ -29,6 +38,7 @@ public class TypeHelper {
     public static ConstantPool getConstantPoolOfClass(Class objectClass){
         return (ConstantPool) Functions.ReturnsDefaultValue.apply(()->_getConstantPool.invoke(objectClass));
     }
+
 
     private static <T> TriFunctionThrowable<Object, Integer, Integer, Object> getCopier(Class<T> componentType){
         return (array, from, to) -> Arrays.copyOfRange((T[])array, from, to);
@@ -181,7 +191,7 @@ public class TypeHelper {
                             clazz -> long.class.equals(clazz) || Long.class.equals(clazz)
                             , i -> new long[i]
                             , long[].class
-                            , (array, index) -> Array.getByte(array, index)
+                            , (array, index) -> Array.getLong(array, index)
                             , (array, index, value) -> Array.setLong(array, index, (long)value)
                             , (array, from, to) -> Arrays.copyOfRange((long[])array, from, to)
                             , array -> Arrays.toString((long[])array)));
@@ -273,43 +283,189 @@ public class TypeHelper {
         return classOperators.getSecondValue(clazz);
     }
 
+    /**
+     * Get the class of the Array composed by elements of the concerned class
+     * @param clazz     type of the elements to compose the array
+     * @return      class of the array composed by elements of the concerned class
+     */
     public static Class getArrayClass(Class clazz){
         if(clazz == null) return null;
 
         return classOperators.getThirdValue(clazz);
     }
 
+    /**
+     * get the getter operator to get element at specific position of concerned array
+     * @param clazz type of the elements to compose the array
+     * @return      operator with 2 input arguments of the arra and the index, and returns the element at that position
+     */
     public static BiFunctionThrowable<Object, Integer, Object> getArrayElementGetter(Class clazz){
         if(clazz == null) return null;
 
         return classOperators.getFourthValue(clazz);
     }
 
+    /**
+     * get the setter operator to set element at specific position of concerned array with given value
+     * @param clazz type of the elements to compose the array
+     * @return      operator receiving 3 arguments (array, index, value) and set the element at index of the array with the given value
+     */
     public static TriConsumerThrowable<Object, Integer, Object> getArrayElementSetter(Class clazz){
         if(clazz == null) return null;
 
         return classOperators.getFifthValue(clazz);
     }
 
+    /**
+     * get the copyOfRange operator to build new array of the same type, but with different ranges
+     * @param clazz type of the elements to compose the array
+     * @return      copyOfRange operator receiving 3 arguments(originalArray, fromIndex, toIndex) and return the new array
+     *              of the same type as originalArray, but with part or all elements as specified by the fromIndex and toIndex
+     */
     public static TriFunctionThrowable<Object, Integer, Integer, Object> getArrayRangeCopier(Class clazz){
         if(clazz == null) return null;
 
         return classOperators.getSixthValue(clazz);
     }
 
+    /**
+     * get the deep toString operator to compose a String reflect all values of the elements, calling the corresponding
+     * deep toString operator of the elements if they are arays
+     * @param clazz type of the elements composing the concerned array
+     * @return  deep toString operator to capture all elements of the array and any arrays represented by the elements
+     */
     public static Function<Object, String> getArrayToString(Class clazz){
         if(clazz == null) return null;
 
         return classOperators.getSeventhValue(clazz);
     }
 
-    public static <T> Class<T> getDeclaredType(T... instances){
-        Objects.requireNonNull(instances);
-        Class arrayClass = instances.getClass();
-        Class componentType = (Class<T>) arrayClass.getComponentType();
-        if(ObjectClass == componentType && 1 == instances.length && instances[0] != null)
-            return (Class<T>) instances[0].getClass();
-        return componentType;
+    private static final QuadValuesRepository<
+            Class,      // original Class of the concerned object
+
+            Boolean     // isPrmitiveType, when the original class is primitive type, or it is array of primitive type
+            , Object    // default value of the concerned class
+            , Class     // equivalent class: could be the wrapper if original class is primitive,
+            // or primitive type if original class is wrapper
+            , Function<Object, Object>  // convert the value of original class to equivalent class
+    > primitiveTypeConverters = QuadValuesRepository.fromKey(
+            () -> new HashMap<Class, Quad<Boolean, Object, Class, Function<Object,Object>>>(){{
+                put(boolean.class, Tuple.create(
+                        true
+                        , false
+                        , Boolean.class
+                        , b -> Boolean.valueOf((boolean)b)));
+                put(Boolean.class, Tuple.create(
+                        false
+                        , false
+                        , boolean.class
+                        , b -> boolean.class.cast(b)));
+                put(byte.class, Tuple.create(
+                        true
+                        , (byte)0
+                        , Byte.class
+                        , b -> Byte.valueOf((byte)b)));
+                put(Byte.class, Tuple.create(
+                        false
+                        , (byte)0
+                        , byte.class
+                        , b -> byte.class.cast(b)));
+                put(char.class, Tuple.create(
+                        true
+                        , (char)0
+                        , Character.class
+                        , c -> Character.valueOf((char)c)));
+                put(Character.class, Tuple.create(
+                        false
+                        , (char)0
+                        , char.class
+                        , c -> char.class.cast(c)));
+                put(double.class, Tuple.create(
+                        true
+                        , 0d
+                        , Double.class
+                        , d -> Double.valueOf((double)d)));
+                put(Double.class, Tuple.create(
+                        false
+                        , 0d
+                        , double.class
+                        , d -> double.class.cast(d)));
+                put(float.class, Tuple.create(
+                        true
+                        , 0f
+                        , Float.class
+                        , f -> Float.valueOf((float)f)));
+                put(Float.class, Tuple.create(
+                        false
+                        , 0f
+                        , float.class
+                        , f -> float.class.cast(f)));
+                put(int.class, Tuple.create(
+                        true
+                        , 0
+                        , Integer.class
+                        , i -> Integer.valueOf((int)i)));
+                put(Integer.class, Tuple.create(
+                        false
+                        , 0
+                        , int.class
+                        , i -> int.class.cast(i)));
+                put(long.class, Tuple.create(
+                        true
+                        , 0L
+                        , Long.class
+                        , l -> Long.valueOf((long)l)));
+                put(Long.class, Tuple.create(
+                        false
+                        , 0L
+                        , long.class
+                        , l -> long.class.cast(l)));
+                put(short.class, Tuple.create(
+                        true
+                        , (short)0
+                        , Short.class
+                        , s -> Short.valueOf((short)s)));
+                put(Short.class, Tuple.create(
+                        false
+                        , (short)0
+                        , Short.class
+                        , s -> short.class.cast(s)));
+
+            }},
+            null,
+            clazz -> {
+                Boolean isArray = clazz.isArray();
+                if(!isArray && !clazz.isPrimitive())
+                    return Tuple.create(false, null, null, obj -> obj);
+
+                Class componentClass = clazz.getComponentType();
+                Boolean isPrimitive = isPrimitive(componentClass);
+
+                Object defaultValue = EMPTY_ARRAY_AS_DEFAULT ? ArrayHelper.getNewArray(componentClass, 0) : null;
+                Class equivalentComponentClass = getEquivalentClass(componentClass);
+                Class equivalentClass = classOperators.getThirdValue(equivalentComponentClass);
+
+                Function<Object, Object> converter = ArrayHelper.arrayConverters.getFirst(componentClass, equivalentComponentClass, null, null, null, null);
+                Quad<Boolean, Object, Class, FunctionThrowable<Object, Object>> componentTuple = null;
+
+                return Tuple.create(isPrimitive, defaultValue, equivalentClass, converter);
+            }
+    );
+
+    public static Boolean isPrimitive(Class clazz){
+        Boolean result =  primitiveTypeConverters.getFirstValue(clazz);
+        return result == null ? false : result;
     }
 
+    public static Object getDefaultValue(Class clazz){
+        return primitiveTypeConverters.getSecondValue(clazz);
+    }
+
+    public static Class getEquivalentClass(Class clazz){
+        return primitiveTypeConverters.getThirdValue(clazz);
+    }
+
+    public static Function<Object, Object> getToEquivalentConverter(Class clazz){
+        return primitiveTypeConverters.getFourthValue(clazz);
+    }
 }

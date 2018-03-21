@@ -55,14 +55,9 @@ public class Defaults<T> {
      * @return Default instance of the given value instance.
      */
     public static <T> T defaultOfInstance(T... samples) {
-        Class clazz;
         if (samples == null)
             return null;
-        else if(samples.length != 1){
-            clazz = samples.getClass();
-        }else {
-            clazz = TypeHelper.getDeclaredType(samples);
-        }
-        return defaultOfType((Class<T>) clazz);
+
+        return defaultOfType((Class<T>) samples.getClass().getComponentType());
     }
 }

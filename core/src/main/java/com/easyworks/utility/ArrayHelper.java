@@ -1,10 +1,11 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
-import com.easyworks.function.*;
-import com.easyworks.repository.*;
+import com.easyworks.function.BiFunctionThrowable;
+import com.easyworks.function.FunctionThrowable;
+import com.easyworks.function.TriConsumerThrowable;
+import com.easyworks.repository.SingleValuesRepository;
 import com.easyworks.tuple.Hexa;
-import com.easyworks.tuple.Quad;
 import com.easyworks.tuple.Single;
 import com.easyworks.tuple.Tuple;
 
@@ -26,83 +27,83 @@ public class ArrayHelper<T, R> {
         return (T[]) Array.newInstance(clazz, length);
     }
 
-    protected static final QuadValuesRepository<
-            Class,
-
-            Class                                  //Wrap class of the value
-            , FunctionThrowable<Integer, Object>     //Factory to create T[]
-            , BiFunctionThrowable<Object, Integer, Object>   //Get an element of T[] with Index
-            , TriConsumerThrowable<Object, Integer, Object> //Set an element of T[] at Index with value
-//            , TriFunctionThrowable<Object, Integer, Integer, Object>    //Copies the specified range of the specified array into a new array. with fromIndex and toIndex
-//            , QuadFunctionThrowable<Objects, Integer, Integer, Object, Integer>   //Search a range of specific array with a specific key
-            >
-            classArrayFactories = QuadValuesRepository.fromKey(
-            () -> new HashMap<Class, Quad<
-                    Class,
-                    FunctionThrowable<Integer, Object>,
-                    BiFunctionThrowable<Object, Integer, Object>,
-                    TriConsumerThrowable<Object, Integer, Object>>
-//                    TriFunctionThrowable<Object, Integer, Integer, Object>,
-//                    QuadFunctionThrowable.QuadFunction<Objects, Integer, Integer, Object, Integer>
-                    >() {{
-                put(int.class, Tuple.create(
-                        Integer.class,
-                        i -> new int[i],
-                        Array::getInt,
-                        (array, index, value) -> Array.setInt(array, index, (int) value))
-//                        (original, fromIndex, toIndex) -> Arrays.copyOfRange(original, fromIndex, toIndex),
-//                        (array, fromIndex, toIndex, key) -> Arrays.binarySearch(array, fromIndex, toIndex, (int)key)
-                );
-                put(char.class, Tuple.create(
-                        Character.class,
-                        i -> new char[i],
-                        Array::getChar,
-                        (array, index, value) -> Array.setChar(array, index, (char) value)));
-                put(byte.class, Tuple.create(
-                        Byte.class,
-                        i -> new byte[i],
-                        Array::getByte,
-                        (array, index, value) -> Array.setByte(array, index, (byte) value)));
-                put(boolean.class, Tuple.create(
-                        Boolean.class,
-                        i -> new boolean[i],
-                        Array::getBoolean,
-                        (array, index, value) -> Array.setBoolean(array, index, (boolean) value)));
-                put(short.class, Tuple.create(
-                        Short.class,
-                        i -> new short[i],
-                        Array::getShort,
-                        (array, index, value) -> Array.setShort(array, index, (short) value)));
-                put(long.class, Tuple.create(
-                        Long.class,
-                        i -> new long[i],
-                        Array::getLong,
-                        (array, index, value) -> Array.setLong(array, index, (long) value)));
-                put(float.class, Tuple.create(
-                        Float.class,
-                        i -> new float[i],
-                        Array::getFloat,
-                        (array, index, value) -> Array.setFloat(array, index, (float) value)));
-                put(double.class, Tuple.create(
-                        Double.class,
-                        i -> new double[i],
-                        Array::getDouble,
-                        (array, index, value) -> Array.setDouble(array, index, (double) value)));
-                put(Object[].class, Tuple.create(
-                        Object.class,
-                        i -> new Object[i],
-                        Array::get,
-                        Array::set));
-            }},
-            null,
-            clazz -> Tuple.create(
-                    clazz
-                    , (Integer length) -> Array.newInstance(clazz, length)
-                    , Array::get
-                    , Array::set
-//                    , (Object array, Integer fromIndex, Integer toIndex) -> Arrays.copyOfRange((T[])array, fromIndex, toIndex)
-            )
-    );
+//    protected static final QuadValuesRepository<
+//            Class,
+//
+//            Class                                  //Wrap class of the value
+//            , FunctionThrowable<Integer, Object>     //Factory to create T[]
+//            , BiFunctionThrowable<Object, Integer, Object>   //Get an element of T[] with Index
+//            , TriConsumerThrowable<Object, Integer, Object> //Set an element of T[] at Index with value
+////            , TriFunctionThrowable<Object, Integer, Integer, Object>    //Copies the specified range of the specified array into a new array. with fromIndex and toIndex
+////            , QuadFunctionThrowable<Objects, Integer, Integer, Object, Integer>   //Search a range of specific array with a specific key
+//            >
+//            classArrayFactories = QuadValuesRepository.fromKey(
+//            () -> new HashMap<Class, Quad<
+//                    Class,
+//                    FunctionThrowable<Integer, Object>,
+//                    BiFunctionThrowable<Object, Integer, Object>,
+//                    TriConsumerThrowable<Object, Integer, Object>>
+////                    TriFunctionThrowable<Object, Integer, Integer, Object>,
+////                    QuadFunctionThrowable.QuadFunction<Objects, Integer, Integer, Object, Integer>
+//                    >() {{
+//                put(int.class, Tuple.create(
+//                        Integer.class,
+//                        i -> new int[i],
+//                        Array::getInt,
+//                        (array, index, value) -> Array.setInt(array, index, (int) value))
+////                        (original, fromIndex, toIndex) -> Arrays.copyOfRange(original, fromIndex, toIndex),
+////                        (array, fromIndex, toIndex, key) -> Arrays.binarySearch(array, fromIndex, toIndex, (int)key)
+//                );
+//                put(char.class, Tuple.create(
+//                        Character.class,
+//                        i -> new char[i],
+//                        Array::getChar,
+//                        (array, index, value) -> Array.setChar(array, index, (char) value)));
+//                put(byte.class, Tuple.create(
+//                        Byte.class,
+//                        i -> new byte[i],
+//                        Array::getByte,
+//                        (array, index, value) -> Array.setByte(array, index, (byte) value)));
+//                put(boolean.class, Tuple.create(
+//                        Boolean.class,
+//                        i -> new boolean[i],
+//                        Array::getBoolean,
+//                        (array, index, value) -> Array.setBoolean(array, index, (boolean) value)));
+//                put(short.class, Tuple.create(
+//                        Short.class,
+//                        i -> new short[i],
+//                        Array::getShort,
+//                        (array, index, value) -> Array.setShort(array, index, (short) value)));
+//                put(long.class, Tuple.create(
+//                        Long.class,
+//                        i -> new long[i],
+//                        Array::getLong,
+//                        (array, index, value) -> Array.setLong(array, index, (long) value)));
+//                put(float.class, Tuple.create(
+//                        Float.class,
+//                        i -> new float[i],
+//                        Array::getFloat,
+//                        (array, index, value) -> Array.setFloat(array, index, (float) value)));
+//                put(double.class, Tuple.create(
+//                        Double.class,
+//                        i -> new double[i],
+//                        Array::getDouble,
+//                        (array, index, value) -> Array.setDouble(array, index, (double) value)));
+//                put(Object[].class, Tuple.create(
+//                        Object.class,
+//                        i -> new Object[i],
+//                        Array::get,
+//                        Array::set));
+//            }},
+//            null,
+//            clazz -> Tuple.create(
+//                    clazz
+//                    , (Integer length) -> Array.newInstance(clazz, length)
+//                    , Array::get
+//                    , Array::set
+////                    , (Object array, Integer fromIndex, Integer toIndex) -> Arrays.copyOfRange((T[])array, fromIndex, toIndex)
+//            )
+//    );
 
     public static Class getComponentType(Object array) {
         if (array == null) return null;
@@ -114,9 +115,10 @@ public class ArrayHelper<T, R> {
     }
 
     public static Class objectify(Class clazz) {
-        if (clazz == null)
-            return null;
-        return classArrayFactories.containsKey(clazz) ? classArrayFactories.getFirstValue(clazz) : clazz;
+        if (clazz == null || !clazz.isPrimitive())
+            return clazz;
+
+        return TypeHelper.getEquivalentClass(clazz);
     }
 
     public static Class[] objectify(Class[] classes) {
@@ -133,18 +135,10 @@ public class ArrayHelper<T, R> {
 
 
     public static Object getNewArray(Class clazz, int length) {
-        FunctionThrowable<Integer, Object> factory = classArrayFactories.getSecondValue(clazz);
-        return Functions.Default.apply(factory, length);
+        FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(clazz);
+        return factory.orElse(null).apply(length);
     }
 
-    public static Object getNewArray(Class clazz, int length, FunctionThrowable<Integer, Object> elementAtIndexFactory) {
-        FunctionThrowable<Integer, Object> factory = classArrayFactories.getSecondValue(clazz);
-        return Functions.Default.apply(factory, length);
-    }
-
-    public static TriConsumerThrowable<Object, Integer, Object> getArraySetter(Class clazz){
-        return classArrayFactories.getFourthValue(clazz);
-    }
 
 
     public static final SingleValuesRepository.HexaKeys<
@@ -228,9 +222,9 @@ public class ArrayHelper<T, R> {
 
         //Use default getElementOfFromArrayByIndex, setElementOfToArrayByIndex if they are not provided
         final BiFunctionThrowable<Object, Integer, Object> getElement = getFromArrayAtIndex != null ?
-                getFromArrayAtIndex : classArrayFactories.getThirdValue(fromClass);
+                getFromArrayAtIndex : TypeHelper.classOperators.getFourthValue(fromClass);
         final TriConsumerThrowable<Object, Integer, Object> setElement = setToArrayAtIndex != null ?
-                setToArrayAtIndex : classArrayFactories.getFourthValue(toClass);
+                setToArrayAtIndex : TypeHelper.classOperators.getFifthValue(toClass);
 
         if (null == parallelRequired) {
             return array -> {
@@ -333,7 +327,7 @@ public class ArrayHelper<T, R> {
         if (!valueType.isPrimitive())
             return array;
 
-        Class objectType = classArrayFactories.getFirstValue(valueType);
+        Class objectType = TypeHelper.getEquivalentClass(valueType);
         Function<Object, Object> toArrayConverter =
                 arrayConverters.getFirst(valueType, objectType, null, null, null, null);
         return toArrayConverter.apply(array);
