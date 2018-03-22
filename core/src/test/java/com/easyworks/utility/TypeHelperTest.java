@@ -1,6 +1,7 @@
 package com.easyworks.utility;
 
 import com.easyworks.function.*;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
@@ -241,10 +242,47 @@ public class TypeHelperTest {
         assertEquals(boolean.class, getEquivalentClass(Boolean.class));
         assertEquals(double.class, getEquivalentClass(Double.class));
         assertEquals(float.class, getEquivalentClass(Float.class));
+
+        assertEquals(null, getEquivalentClass(Object.class));
+        assertEquals(null, getEquivalentClass(Comparable.class));
+        assertEquals(null, getEquivalentClass(String.class));
+        assertEquals(null, getEquivalentClass(Function.class));
+        assertEquals(null, getEquivalentClass(A.class));
+        assertEquals(null, getEquivalentClass(ITest1.class));
     }
 
     @Test
-    public void getToEquivalentConverter() {
+    public void getEquivalentClass_withArrayClass_getExpectedResults() {
+        assertEquals(Integer[].class, getEquivalentClass(int[].class));
+        assertEquals(Character[].class, getEquivalentClass(char[].class));
+        assertEquals(Short[].class, getEquivalentClass(short[].class));
+        assertEquals(Long[].class, getEquivalentClass(long[].class));
+        assertEquals(Byte[][].class, getEquivalentClass(byte[][].class));
+        assertEquals(Boolean[][].class, getEquivalentClass(boolean[][].class));
+        assertEquals(Double[][].class, getEquivalentClass(double[][].class));
+        assertEquals(Float[][].class, getEquivalentClass(float[][].class));
+
+        assertEquals(int[][].class, getEquivalentClass(Integer[][].class));
+        assertEquals(char[][].class, getEquivalentClass(Character[][].class));
+        assertEquals(short[][].class, getEquivalentClass(Short[][].class));
+        assertEquals(long[][].class, getEquivalentClass(Long[][].class));
+        assertEquals(byte[].class, getEquivalentClass(Byte[].class));
+        assertEquals(boolean[].class, getEquivalentClass(Boolean[].class));
+        assertEquals(double[].class, getEquivalentClass(Double[].class));
+        assertEquals(float[].class, getEquivalentClass(Float[].class));
+
+        assertEquals(null, getEquivalentClass(Object[].class));
+        assertEquals(null, getEquivalentClass(Comparable[].class));
+        assertEquals(null, getEquivalentClass(String[][].class));
+        assertEquals(null, getEquivalentClass(Function[].class));
+        assertEquals(null, getEquivalentClass(A[].class));
+        assertEquals(null, getEquivalentClass(ITest1[].class));
+    }
+
+    @Test
+    public void getToEquivalentConverter_withSimpleClass_getExpectedResults() {
+        assertEquals(100, TypeHelper.getToEquivalentConverter(int.class).apply(100));
+        assertEquals(100L, TypeHelper.getToEquivalentConverter(long.class).apply(100L));
     }
 
     interface ITest1 {}

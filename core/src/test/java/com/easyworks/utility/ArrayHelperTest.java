@@ -1,5 +1,6 @@
 package com.easyworks.utility;
 
+import com.easyworks.function.BiConsumerThrowable;
 import com.easyworks.tuple.Tuple;
 import org.junit.Test;
 
@@ -7,6 +8,7 @@ import java.lang.reflect.Array;
 import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.*;
+import java.util.function.Function;
 
 import static org.junit.Assert.*;
 
@@ -275,5 +277,15 @@ public class ArrayHelperTest {
         assertTrue(Arrays.deepEquals(new Object[]{1L,2L,3L}, ArrayHelper.asObjects(new long[]{1,2,3})));
         long[] values = null;
         assertTrue(Arrays.deepEquals(null, ArrayHelper.asObjects(values)));
+    }
+
+    @Test
+    public void getParallelSetAll_withPrimitiveTypes_getArraySet() {
+        BiConsumerThrowable<Object, Function<Integer, Object>> parallelSetAll;
+
+        parallelSetAll = ArrayHelper.getParallelSetAll(int.class);
+        int[] ints = new int[10];
+        parallelSetAll.orElse(null).accept(ints, i->i);
+        assertTrue(ArrayHelper.deepEquals(new int[]{0,1,2,3,4,5,6,7,8,9}, ints));
     }
 }

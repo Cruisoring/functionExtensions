@@ -1,11 +1,9 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
-import com.easyworks.function.BiFunctionThrowable;
-import com.easyworks.function.FunctionThrowable;
-import com.easyworks.function.TriConsumerThrowable;
-import com.easyworks.function.TriFunctionThrowable;
+import com.easyworks.function.*;
 import com.easyworks.repository.HeptaValuesRepository;
+import com.easyworks.repository.PentaValuesRepository;
 import com.easyworks.repository.QuadValuesRepository;
 import com.easyworks.tuple.Hepta;
 import com.easyworks.tuple.Quad;
@@ -19,6 +17,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 public class TypeHelper {
     private static boolean EMPTY_ARRAY_AS_DEFAULT = true;
@@ -214,7 +213,7 @@ public class TypeHelper {
                     put(Double.class, Tuple.create(
                             clazz -> double.class.equals(clazz) || Double.class.equals(clazz)
                             , i -> new Double[i]
-                            , double[].class
+                            , Double[].class
                             , Array::get
                             , Array::set
                             , (array, from, to) -> Arrays.copyOfRange((Double[])array, from, to)
@@ -341,14 +340,15 @@ public class TypeHelper {
     }
 
     private static final QuadValuesRepository<
-            Class,      // original Class of the concerned object
+                Class,      // original Class of the concerned object
 
-            Boolean     // isPrmitiveType, when the original class is primitive type, or it is array of primitive type
-            , Object    // default value of the concerned class
-            , Class     // equivalent class: could be the wrapper if original class is primitive,
-            // or primitive type if original class is wrapper
-            , Function<Object, Object>  // convert the value of original class to equivalent class
-    > primitiveTypeConverters = QuadValuesRepository.fromKey(
+                Boolean     // isPrmitiveType, when the original class is primitive type, or it is array of primitive type
+                , Object    // default value of the concerned class
+//                , BiConsumerThrowable<Object, Function<Integer, Objects>> //parallelSetAll
+                , Class     // equivalent class: could be the wrapper if original class is primitive,
+                            // or primitive type if original class is wrapper
+                , Function<Object, Object>  // convert the value of original class to equivalent class
+        > primitiveTypeConverters = QuadValuesRepository.fromKey(
             () -> new HashMap<Class, Quad<Boolean, Object, Class, Function<Object,Object>>>(){{
                 put(boolean.class, Tuple.create(
                         true
@@ -428,7 +428,7 @@ public class TypeHelper {
                 put(Short.class, Tuple.create(
                         false
                         , (short)0
-                        , Short.class
+                        , short.class
                         , s -> short.class.cast(s)));
 
             }},
@@ -444,8 +444,26 @@ public class TypeHelper {
                 Object defaultValue = EMPTY_ARRAY_AS_DEFAULT ? ArrayHelper.getNewArray(componentClass, 0) : null;
                 Class equivalentComponentClass = getEquivalentClass(componentClass);
                 Class equivalentClass = classOperators.getThirdValue(equivalentComponentClass);
+                Function<Object, Object> componentConverter = getToEquivalentConverter(componentClass);
+                BiFunctionThrowable<Object, Integer, Object> componentGetter = getArrayElementGetter(componentClass);
+                TriConsumerThrowable<Object, Integer, Object> equivalentSetter = getArrayElementSetter(equivalentClass);
 
-                Function<Object, Object> converter = ArrayHelper.arrayConverters.getFirst(componentClass, equivalentComponentClass, null, null, null, null);
+                //Three-steps to do: get original element first, convert to equivalent value, and then set to
+                // the corresponding element of the converted array
+                TriConsumerThrowable<Object, Object, Integer> setElementConvertedFromGetter = (arrayFrom, arrayTo, i) -> {
+                    //Get original element
+                    Object fromElement = componentGetter.apply(arrayFrom, i);
+                    //Set the converted value
+                    equivalentSetter.accept(arrayTo, i, componentConverter.apply(fromElement));
+                };
+                Function<Object, Object> converter = fromArray -> {
+                    int length = Array.getLength(fromArray);
+                    Object toArray = ArrayHelper.getNewArray(equivalentClass, length);
+                    //copy the logic of Arrays.parallelSetAll(T[] array, IntFunction<? extends T> generator)
+                    IntStream.range(0, length).parallel().forEach(i ->
+                        setElementConvertedFromGetter.orElse(null).accept(fromArray, toArray, i));
+                    return toArray;
+                };
                 Quad<Boolean, Object, Class, FunctionThrowable<Object, Object>> componentTuple = null;
 
                 return Tuple.create(isPrimitive, defaultValue, equivalentClass, converter);

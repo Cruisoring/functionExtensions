@@ -1,6 +1,7 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
+import com.easyworks.function.BiConsumerThrowable;
 import com.easyworks.function.BiFunctionThrowable;
 import com.easyworks.function.FunctionThrowable;
 import com.easyworks.function.TriConsumerThrowable;
@@ -663,5 +664,24 @@ public class ArrayHelper<T, R> {
             }
         }
         return true;
+    }
+
+    public static <T> BiConsumerThrowable<Object, Function<Integer, Object>> getParallelSetAll(Class<T> clazz){
+        Objects.requireNonNull(clazz);
+        return (Object array, Function<Integer, Object> generator) -> {
+            Objects.requireNonNull(array);
+            Objects.requireNonNull(generator);
+            int length = Array.getLength(array);
+            Class<T> componentType = (Class<T>) array.getClass().getComponentType();
+            TriConsumerThrowable<Object, Integer, Object> elementSetter = TypeHelper.getArrayElementSetter(componentType);
+            //Split the "i -> elementSetter.accept(array, i, generator.apply(i))" to two steps to avoid
+            // "Unhandled Exception: java.lang.Exception" warning
+            BiConsumerThrowable<Object, Integer> setElementAtIndex = (theArray, index) -> {
+                Object value = generator.apply(index);
+                elementSetter.accept(theArray, index, value);
+            };
+
+            IntStream.range(0, length).parallel().forEach(i -> setElementAtIndex.orElse(null).accept(array, i));
+        };
     }
 }
