@@ -1,12 +1,12 @@
 package com.easyworks.utility;
 
 import com.easyworks.function.*;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
 import java.time.DayOfWeek;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -281,8 +281,84 @@ public class TypeHelperTest {
 
     @Test
     public void getToEquivalentConverter_withSimpleClass_getExpectedResults() {
-        assertEquals(100, TypeHelper.getToEquivalentConverter(int.class).apply(100));
-        assertEquals(100L, TypeHelper.getToEquivalentConverter(long.class).apply(100L));
+        assertTrue(Integer.valueOf(100) ==  TypeHelper.getToEquivalentConverter(int.class).apply(100));
+        assertTrue(Long.valueOf(100L) == TypeHelper.getToEquivalentConverter(long.class).apply(100L));
+        assertTrue(Character.valueOf('a') == TypeHelper.getToEquivalentConverter(char.class).apply('a'));
+        assertTrue(Byte.valueOf((byte)33) == TypeHelper.getToEquivalentConverter(byte.class).apply((byte)33));
+        assertTrue(Boolean.valueOf(true) == TypeHelper.getToEquivalentConverter(boolean.class).apply(true));
+        assertTrue(Short.valueOf((short)45) == TypeHelper.getToEquivalentConverter(short.class).apply((short)45));
+        //Surprise, following two assertion of Float and Double would fail in Java 8
+//        assertTrue(Float.valueOf(0f) == Float.valueOf(0f));
+//        assertTrue(Double.valueOf(99.6d) == Double.valueOf(99.6d));
+        assertTrue(1f == ((Float)TypeHelper.getToEquivalentConverter(float.class).apply(1f)));
+        assertTrue(99.6d == ((Double)TypeHelper.getToEquivalentConverter(double.class).apply(99.6d)));
+
+        assertTrue(-1 ==  (int)TypeHelper.getToEquivalentConverter(Integer.class).apply(Integer.valueOf(-1)));
+        assertTrue((100L) == (long)TypeHelper.getToEquivalentConverter(Long.class).apply(Long.valueOf(100L)));
+        assertTrue(('a') == (char)TypeHelper.getToEquivalentConverter(Character.class).apply(Character.valueOf('a')));
+        assertTrue(((byte)33) == (byte)TypeHelper.getToEquivalentConverter(Byte.class).apply(Byte.valueOf((byte)33)));
+        assertTrue((true) == (boolean)TypeHelper.getToEquivalentConverter(Boolean.class).apply(Boolean.valueOf(true)));
+        assertTrue(((short)45) == (short)TypeHelper.getToEquivalentConverter(Short.class).apply(Short.valueOf((short)45)));
+        assertTrue((-72.3d) == (double)TypeHelper.getToEquivalentConverter(Double.class).apply(Double.valueOf(-72.3d)));
+        assertTrue((-0.03f) == (float)TypeHelper.getToEquivalentConverter(Float.class).apply(Float.valueOf(-0.03f)));
+
+        Object obj = new ArrayList();
+        assertTrue(obj == TypeHelper.getToEquivalentConverter(Object.class).apply(obj));
+        assertTrue("abc" == TypeHelper.getToEquivalentConverter(Object.class).apply("abc") );
+        Comparable comparable = 33;
+        assertTrue( comparable == TypeHelper.getToEquivalentConverter(Object.class).apply(comparable));
+        A newA = new A();
+        assertTrue( newA == TypeHelper.getToEquivalentConverter(A.class).apply(newA));
+        assertFalse( newA == TypeHelper.getToEquivalentConverter(A.class).apply(new A()));
+    }
+
+    @Test
+    public void getToEquivalentConverter_withArrayClass_getExpectedResults() {
+        assertTrue(TypeHelper.equals(new Integer[]{1,2,3},  TypeHelper.getToEquivalentConverter(int[].class).apply(new int[]{1,2,3})));
+        assertTrue(TypeHelper.equals(new Long[]{1L,2L,3L},  TypeHelper.getToEquivalentConverter(long[].class).apply(new long[]{1,2,3})));
+        assertTrue(TypeHelper.equals(new Short[]{1,2,3},  TypeHelper.getToEquivalentConverter(short[].class).apply(new short[]{1,2,3})));
+        assertTrue(TypeHelper.equals(new Character[]{'a','b','c'},  TypeHelper.getToEquivalentConverter(char[].class).apply(new char[]{'a','b','c'})));
+        assertFalse(TypeHelper.equals(new char[]{'a','b','c'},  TypeHelper.getToEquivalentConverter(char[].class).apply(new char[]{'a','b','c'})));
+        assertTrue(TypeHelper.equals(new Byte[]{1,2,3},  TypeHelper.getToEquivalentConverter(byte[].class).apply(new byte[]{1,2,3})));
+        assertTrue(TypeHelper.equals(new Boolean[]{true, false},  TypeHelper.getToEquivalentConverter(boolean[].class).apply(new boolean[]{true, false})));
+        assertTrue(TypeHelper.equals(new Double[]{1.1,2.2,3.3},  TypeHelper.getToEquivalentConverter(double[].class).apply(new double[]{1.1,2.2,3.3})));
+        assertTrue(TypeHelper.equals(new Float[]{-11f,-3.0f,0f},  TypeHelper.getToEquivalentConverter(float[].class).apply(new float[]{-11f,-3.0f,0f})));
+
+        assertTrue(TypeHelper.equals(new int[]{1,2,3},  TypeHelper.getToEquivalentConverter(Integer[].class).apply(new Integer[]{1,2,3})));
+        assertTrue(TypeHelper.equals(new long[]{1,2,3},  TypeHelper.getToEquivalentConverter(Long[].class).apply(new Long[]{1L,2L,3L})));
+        assertTrue(TypeHelper.equals(new short[]{1,2,3},  TypeHelper.getToEquivalentConverter(Short[].class).apply(new Short[]{1,2,3})));
+        assertTrue(TypeHelper.equals(new char[]{'a','b','c'},  TypeHelper.getToEquivalentConverter(Character[].class).apply(new Character[]{'a','b','c'})));
+        assertTrue(TypeHelper.equals(new byte[]{1,2,3},  TypeHelper.getToEquivalentConverter(Byte[].class).apply(new Byte[]{1,2,3})));
+        assertTrue(TypeHelper.equals(new boolean[]{true, false},  TypeHelper.getToEquivalentConverter(Boolean[].class).apply(new Boolean[]{true, false})));
+        assertTrue(TypeHelper.equals(new double[]{1.1,2.2,3.3},  TypeHelper.getToEquivalentConverter(Double[].class).apply(new Double[]{1.1,2.2,3.3})));
+        assertTrue(TypeHelper.equals(new float[]{-11f,-3.0f,0f},  TypeHelper.getToEquivalentConverter(Float[].class).apply(new Float[]{-11f,-3.0f,0f})));
+        assertFalse(TypeHelper.equals(new Float[]{-11f,-3.0f,0f},  TypeHelper.getToEquivalentConverter(Float[].class).apply(new Float[]{-11f,-3.0f,0f})));
+
+        //Following case may not be desirable
+        assertTrue(TypeHelper.equals(new boolean[]{true, false, false},  TypeHelper.getToEquivalentConverter(Boolean[].class).apply(new Boolean[]{true, false, null})));
+
+        assertTrue(TypeHelper.equals(new Byte[][]{new Byte[]{1,2,3}, null},  TypeHelper.getToEquivalentConverter(byte[][].class).apply(new byte[][]{new byte[]{1,2,3}, null})));
+        assertTrue(TypeHelper.equals(new Boolean[][]{new Boolean[]{true, false}, new Boolean[0], null},
+                TypeHelper.getToEquivalentConverter(boolean[][].class).apply(new boolean[][]{new boolean[]{true, false}, new boolean[0], null})));
+        assertTrue(TypeHelper.equals(new Double[][]{new Double[]{1.1}, new Double[]{2.2}, new Double[]{3.3}},
+                TypeHelper.getToEquivalentConverter(double[].class).apply((new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}))));
+        assertTrue(TypeHelper.equals(new Float[][]{null},  TypeHelper.getToEquivalentConverter(float[][].class).apply(new float[][]{null})));
+
+        assertTrue(TypeHelper.equals(new int[][]{new int[]{1,2,3}},
+                TypeHelper.getToEquivalentConverter(Integer[].class).apply(new Integer[][]{new Integer[]{1,2,3}})));
+        assertTrue(TypeHelper.equals(new long[][]{},  TypeHelper.getToEquivalentConverter(Long[][].class).apply(new Long[][]{})));
+        assertTrue(TypeHelper.equals(new short[][]{new short[]{1,2,3}},  TypeHelper.getToEquivalentConverter(Short[][].class).apply(new Short[][]{new Short[]{1,2,3}})));
+        assertTrue(TypeHelper.equals(new char[][]{null, null},  TypeHelper.getToEquivalentConverter(Character[][].class).apply(new Character[][]{null, null})));
+
+
+        Object[] objects = new Object[]{null, 0, void.class, 'a', "", null};
+        assertTrue(objects == TypeHelper.getToEquivalentConverter(Object[].class).apply(objects));
+        Comparable[] comparables = new Comparable[]{1, 33f, -2d, 'a', "abc"};
+        assertTrue( comparables == TypeHelper.getToEquivalentConverter(Comparable[].class).apply(comparables));
+        A[] newA = new A[]{};
+        assertTrue( newA == TypeHelper.getToEquivalentConverter(A.class).apply(newA));
+        String[] strings = new String[]{null, "", "   "};
+        assertTrue( strings == TypeHelper.getToEquivalentConverter(A.class).apply(strings));
     }
 
     interface ITest1 {}

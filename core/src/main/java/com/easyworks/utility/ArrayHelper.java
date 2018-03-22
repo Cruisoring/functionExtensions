@@ -1,10 +1,7 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
-import com.easyworks.function.BiConsumerThrowable;
-import com.easyworks.function.BiFunctionThrowable;
-import com.easyworks.function.FunctionThrowable;
-import com.easyworks.function.TriConsumerThrowable;
+import com.easyworks.function.*;
 import com.easyworks.repository.SingleValuesRepository;
 import com.easyworks.tuple.Hexa;
 import com.easyworks.tuple.Single;
@@ -16,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 public class ArrayHelper<T, R> {
@@ -653,17 +651,18 @@ public class ArrayHelper<T, R> {
 
         BiFunctionThrowable<Object, Integer, Object> expectedGetter = TypeHelper.getArrayElementGetter(expectedClass);
         BiFunctionThrowable<Object, Integer, Object> actualGetter = TypeHelper.getArrayElementGetter(actualClass);
-        for (int i = 0; i < expectedSize; i++) {
-            try{
+        Predicate<Integer> elementUnmatchedPredicate = i -> {
+            try {
                 Object expectedElement = expectedGetter.apply(expectedArray, i);
                 Object actualElement = actualGetter.apply(actualArray, i);
-                if(!Objects.equals(expectedElement, actualElement))
-                    return false;
-            }catch (Exception ex){
-                return false;
+                return !Objects.equals(expectedElement, actualElement);
+            }catch(Exception ex){
+                return true;
             }
-        }
-        return true;
+        };
+        boolean result = !IntStream.range(0, expectedSize).boxed().parallel()
+                .filter(elementUnmatchedPredicate).findFirst().isPresent();
+        return result;
     }
 
     public static <T> BiConsumerThrowable<Object, Function<Integer, Object>> getParallelSetAll(Class<T> clazz){
