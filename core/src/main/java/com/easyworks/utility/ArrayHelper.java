@@ -636,26 +636,25 @@ public class ArrayHelper<T, R> {
         return true;
     }
 
-    public static boolean deepEquals(Object expectedArray, Object actualArray){
-        Objects.requireNonNull(expectedArray);
-        Objects.requireNonNull(actualArray);
+    public static boolean deepEquals(Object obj1, Object obj2){
+        if(Objects.equals(obj1, obj2))
+            return true;
 
-        Class expectedClass = expectedArray.getClass();
-        Class actualClass = actualArray.getClass();
-        if(!TypeHelper.getClassPredicate(expectedClass).test(actualClass))
-            return false;       //When classes are not equivalent
-
-        int expectedSize = Array.getLength(expectedArray);
-        if(expectedSize != Array.getLength(actualArray))
+        Class class1 = obj1.getClass();
+        Class class2 = obj2.getClass();
+        if(!TypeHelper.getClassPredicate(class1).test(class2) || !class1.isArray())
             return false;
 
-        BiFunctionThrowable<Object, Integer, Object> expectedGetter = TypeHelper.getArrayElementGetter(expectedClass);
-        BiFunctionThrowable<Object, Integer, Object> actualGetter = TypeHelper.getArrayElementGetter(actualClass);
+        int expectedSize = Array.getLength(obj1);
+        if(expectedSize != Array.getLength(obj2))
+            return false;
+
+        BiFunctionThrowable<Object, Integer, Object> getter = TypeHelper.getArrayElementGetter(class1);
         Predicate<Integer> elementUnmatchedPredicate = i -> {
             try {
-                Object expectedElement = expectedGetter.apply(expectedArray, i);
-                Object actualElement = actualGetter.apply(actualArray, i);
-                return !Objects.equals(expectedElement, actualElement);
+                Object expectedElement = getter.apply(obj1, i);
+                Object actualElement = getter.apply(obj2, i);
+                return !deepEquals(expectedElement, actualElement);
             }catch(Exception ex){
                 return true;
             }

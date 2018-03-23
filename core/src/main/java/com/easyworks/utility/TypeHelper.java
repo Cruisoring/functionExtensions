@@ -30,6 +30,8 @@ public class TypeHelper {
         }
     }
 
+    private static final Function<Object, Object> returnItself = obj -> obj;
+
     private static final Method _getConstantPool = (Method) Functions.ReturnsDefaultValue.apply(() -> {
         Method method = Class.class.getDeclaredMethod("getConstantPool");
         method.setAccessible(true);
@@ -41,7 +43,7 @@ public class TypeHelper {
     }
 
 
-    private static <T> TriFunctionThrowable<Object, Integer, Integer, Object> getCopier(Class<T> componentType){
+    private static <T> TriFunctionThrowable<Object, Integer, Integer, Object> asGenericCopyOfRange(Class<T> componentType){
         return (array, from, to) -> Arrays.copyOfRange((T[])array, from, to);
     }
 
@@ -108,8 +110,9 @@ public class TypeHelper {
                     >
                 >(){{
                 //region Special cases of Primitive types and their wrappers
+                Predicate<Class> classPredicate = clazz -> int.class.equals(clazz) || Integer.class.equals(clazz);
                 put(int.class, Tuple.create(
-                            clazz -> int.class.equals(clazz) || Integer.class.equals(clazz)
+                            classPredicate
                             , i -> new int[i]
                             , int[].class
                             , (array, index) -> Array.getInt(array, index)
@@ -117,15 +120,16 @@ public class TypeHelper {
                             , (array, from, to) -> Arrays.copyOfRange((int[])array, from, to)
                             , array -> Arrays.toString((int [])array)));
                     put(Integer.class, Tuple.create(
-                            clazz -> int.class.equals(clazz) || Integer.class.equals(clazz)
+                            classPredicate
                             , i -> new Integer[i]
                             , Integer[].class
                             , Array::get
                             , Array::set
                             , (array, from, to) -> Arrays.copyOfRange((Integer[])array, from, to)
                             , array -> Arrays.toString((Integer[])array)));
+                classPredicate = clazz -> byte.class.equals(clazz) || Byte.class.equals(clazz);
                     put(byte.class, Tuple.create(
-                            clazz -> byte.class.equals(clazz) || Byte.class.equals(clazz)
+                            classPredicate
                             , i -> new byte[i]
                             , byte[].class
                             , (array, index) -> Array.getByte(array, index)
@@ -133,15 +137,16 @@ public class TypeHelper {
                             , (array, from, to) -> Arrays.copyOfRange((byte[])array, from, to)
                             , array -> Arrays.toString((byte[])array)));
                     put(Byte.class, Tuple.create(
-                            clazz -> byte.class.equals(clazz) || Byte.class.equals(clazz)
+                            classPredicate
                             , i -> new Byte[i]
                             , Byte[].class
                             , Array::get
                             , Array::set
                             , (array, from, to) -> Arrays.copyOfRange((Byte[])array, from, to)
                             , array -> Arrays.toString((Byte[])array)));
+                classPredicate = clazz -> boolean.class.equals(clazz) || Boolean.class.equals(clazz);
                     put(boolean.class, Tuple.create(
-                            clazz -> boolean.class.equals(clazz) || Boolean.class.equals(clazz)
+                            classPredicate
                             , i -> new boolean[i]
                             , boolean[].class
                             , (array, index) -> Array.getBoolean(array, index)
@@ -149,15 +154,16 @@ public class TypeHelper {
                             , (array, from, to) -> Arrays.copyOfRange((boolean[])array, from, to)
                             , array -> Arrays.toString((boolean[])array)));
                     put(Boolean.class, Tuple.create(
-                            clazz -> boolean.class.equals(clazz) || Boolean.class.equals(clazz)
+                            classPredicate
                             , i -> new Boolean[i]
                             , Boolean[].class
                             , Array::get
                             , Array::set
                             , (array, from, to) -> Arrays.copyOfRange((Boolean[])array, from, to)
                             , array -> Arrays.toString((Boolean[])array)));
+                classPredicate = clazz -> char.class.equals(clazz) || Character.class.equals(clazz);
                     put(char.class, Tuple.create(
-                            clazz -> char.class.equals(clazz) || Character.class.equals(clazz)
+                            classPredicate
                             , i -> new char[i]
                             , char[].class
                             , (array, index) -> Array.getChar(array, index)
@@ -165,15 +171,16 @@ public class TypeHelper {
                             , (array, from, to) -> Arrays.copyOfRange((char[])array, from, to)
                             , array -> Arrays.toString((char[])array)));
                     put(Character.class, Tuple.create(
-                            clazz -> char.class.equals(clazz) || Character.class.equals(clazz)
+                            classPredicate
                             , i -> new Character[i]
                             , Character[].class
                             , Array::get
                             , Array::set
                             , (array, from, to) -> Arrays.copyOfRange((Character[])array, from, to)
                             , array -> Arrays.toString((Character[])array)));
+                classPredicate = clazz -> short.class.equals(clazz) || Short.class.equals(clazz);
                     put(short.class, Tuple.create(
-                            clazz -> short.class.equals(clazz) || Short.class.equals(clazz)
+                            classPredicate
                             , i -> new short[i]
                             , short[].class
                             , (array, index) -> Array.getShort(array, index)
@@ -181,15 +188,16 @@ public class TypeHelper {
                             , (array, from, to) -> Arrays.copyOfRange((short[])array, from, to)
                             , array -> Arrays.toString((short[])array)));
                     put(Short.class, Tuple.create(
-                            clazz -> short.class.equals(clazz) || Short.class.equals(clazz)
+                            classPredicate
                             , i -> new Short[i]
                             , Short[].class
                             , Array::get
                             , Array::set
                             , (array, from, to) -> Arrays.copyOfRange((Short[])array, from, to)
                             , array -> Arrays.toString((Short[])array)));
+                classPredicate = clazz -> long.class.equals(clazz) || Long.class.equals(clazz);
                     put(long.class, Tuple.create(
-                            clazz -> long.class.equals(clazz) || Long.class.equals(clazz)
+                            classPredicate
                             , i -> new long[i]
                             , long[].class
                             , (array, index) -> Array.getLong(array, index)
@@ -197,15 +205,16 @@ public class TypeHelper {
                             , (array, from, to) -> Arrays.copyOfRange((long[])array, from, to)
                             , array -> Arrays.toString((long[])array)));
                     put(Long.class, Tuple.create(
-                            clazz -> long.class.equals(clazz) || Long.class.equals(clazz)
+                            classPredicate
                             , i -> new Long[i]
                             , Long[].class
                             , Array::get
                             , Array::set
                             , (array, from, to) -> Arrays.copyOfRange((Long[])array, from, to)
                             , array -> Arrays.toString((Long[])array)));
+                classPredicate = clazz -> double.class.equals(clazz) || Double.class.equals(clazz);
                     put(double.class, Tuple.create(
-                            clazz -> double.class.equals(clazz) || Double.class.equals(clazz)
+                            classPredicate
                             , i -> new double[i]
                             , double[].class
                             , (array, index) -> Array.getDouble(array, index)
@@ -213,15 +222,16 @@ public class TypeHelper {
                             , (array, from, to) -> Arrays.copyOfRange((double[])array, from, to)
                             , array -> Arrays.toString((double[])array)));
                     put(Double.class, Tuple.create(
-                            clazz -> double.class.equals(clazz) || Double.class.equals(clazz)
+                            classPredicate
                             , i -> new Double[i]
                             , Double[].class
                             , Array::get
                             , Array::set
                             , (array, from, to) -> Arrays.copyOfRange((Double[])array, from, to)
                             , array -> Arrays.toString((Double[])array)));
+                classPredicate = clazz -> float.class.equals(clazz) || Float.class.equals(clazz);
                     put(float.class, Tuple.create(
-                            clazz -> float.class.equals(clazz) || Float.class.equals(clazz)
+                            classPredicate
                             , i -> new float[i]
                             , float[].class
                             , (array, index) -> Array.getFloat(array, index)
@@ -229,7 +239,7 @@ public class TypeHelper {
                             , (array, from, to) -> Arrays.copyOfRange((float[])array, from, to)
                             , array -> Arrays.toString((float[])array)));
                     put(Float.class, Tuple.create(
-                            clazz -> float.class.equals(clazz) || Float.class.equals(clazz)
+                            classPredicate
                             , i -> new Float[i]
                             , Float[].class
                             , Array::get
@@ -256,7 +266,7 @@ public class TypeHelper {
                 Class arrayClass = arrayFactory.apply(0).getClass();
                 BiFunctionThrowable<Object, Integer, Object> getElement = Array::get;
                 TriConsumerThrowable<Object, Integer, Object> setElement = Array::set;
-                TriFunctionThrowable<Object, Integer, Integer, Object> copyOfRange = getCopier(clazz);
+                TriFunctionThrowable<Object, Integer, Integer, Object> copyOfRange = asGenericCopyOfRange(clazz);
                 Function<Object, String> toString = getDeepToString(clazz);
                 return Tuple.create(cPredicate, arrayFactory, arrayClass, getElement, setElement, copyOfRange, toString);
             }
@@ -341,8 +351,6 @@ public class TypeHelper {
         return classOperators.getSeventhValue(clazz);
     }
 
-    private static final Function<Object, Object> returnItself = obj -> obj;
-
     private static final QuadValuesRepository<
                 Class,      // original Class of the concerned object
 
@@ -358,7 +366,7 @@ public class TypeHelper {
                         true
                         , false
                         , Boolean.class
-                        , fromElement -> fromElement));
+                        , returnItself));
                 put(Boolean.class, Tuple.create(
                         false
                         , false
@@ -368,7 +376,7 @@ public class TypeHelper {
                         true
                         , (byte)0
                         , Byte.class
-                        , fromElement -> fromElement));
+                        , returnItself));
                 put(Byte.class, Tuple.create(
                         false
                         , (byte)0
@@ -378,7 +386,7 @@ public class TypeHelper {
                         true
                         , (char)0
                         , Character.class
-                        , fromElement -> fromElement));
+                        , returnItself));
                 put(Character.class, Tuple.create(
                         false
                         , (char)0
@@ -388,7 +396,7 @@ public class TypeHelper {
                         true
                         , 0d
                         , Double.class
-                        , fromElement -> fromElement));
+                        , returnItself));
                 put(Double.class, Tuple.create(
                         false
                         , 0d
@@ -398,7 +406,7 @@ public class TypeHelper {
                         true
                         , 0f
                         , Float.class
-                        , fromElement -> fromElement));
+                        , returnItself));
                 put(Float.class, Tuple.create(
                         false
                         , 0f
@@ -408,7 +416,7 @@ public class TypeHelper {
                         true
                         , 0
                         , Integer.class
-                        , fromElement -> fromElement));
+                        , returnItself));
                 put(Integer.class, Tuple.create(
                         false
                         , 0
@@ -418,7 +426,7 @@ public class TypeHelper {
                         true
                         , 0L
                         , Long.class
-                        , fromElement -> fromElement));
+                        , returnItself));
                 put(Long.class, Tuple.create(
                         false
                         , 0L
@@ -428,7 +436,7 @@ public class TypeHelper {
                         true
                         , (short)0
                         , Short.class
-                        , fromElement -> fromElement));
+                        , returnItself));
                 put(Short.class, Tuple.create(
                         false
                         , (short)0
@@ -477,7 +485,6 @@ public class TypeHelper {
                         setElementConvertedFromGetter.orElse(null).accept(fromArray, toArray, i));
                     return toArray;
                 };
-                Quad<Boolean, Object, Class, FunctionThrowable<Object, Object>> componentTuple = null;
 
                 return Tuple.create(isPrimitive, defaultValue, equivalentClass, converter);
             }
