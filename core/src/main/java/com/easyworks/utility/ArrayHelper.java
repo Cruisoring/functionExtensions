@@ -1,9 +1,7 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
-import com.easyworks.function.BiFunctionThrowable;
-import com.easyworks.function.FunctionThrowable;
-import com.easyworks.function.TriConsumerThrowable;
+import com.easyworks.function.*;
 import com.easyworks.repository.SingleValuesRepository;
 import com.easyworks.tuple.Hexa;
 import com.easyworks.tuple.Single;
@@ -15,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 public class ArrayHelper<T, R> {
@@ -22,88 +21,6 @@ public class ArrayHelper<T, R> {
     public static final Class ArrayClass = Array.class;
     public static int ParalellEvaluationThreashold = 100;
     public static long ParalellEvaluationTimeoutMills = 30 * 60 * 1000;
-
-    private static <T> T[] defaultArrayFactory(Class<T> clazz, int length) {
-        return (T[]) Array.newInstance(clazz, length);
-    }
-
-//    protected static final QuadValuesRepository<
-//            Class,
-//
-//            Class                                  //Wrap class of the value
-//            , FunctionThrowable<Integer, Object>     //Factory to create T[]
-//            , BiFunctionThrowable<Object, Integer, Object>   //Get an element of T[] with Index
-//            , TriConsumerThrowable<Object, Integer, Object> //Set an element of T[] at Index with value
-////            , TriFunctionThrowable<Object, Integer, Integer, Object>    //Copies the specified range of the specified array into a new array. with fromIndex and toIndex
-////            , QuadFunctionThrowable<Objects, Integer, Integer, Object, Integer>   //Search a range of specific array with a specific key
-//            >
-//            classArrayFactories = QuadValuesRepository.fromKey(
-//            () -> new HashMap<Class, Quad<
-//                    Class,
-//                    FunctionThrowable<Integer, Object>,
-//                    BiFunctionThrowable<Object, Integer, Object>,
-//                    TriConsumerThrowable<Object, Integer, Object>>
-////                    TriFunctionThrowable<Object, Integer, Integer, Object>,
-////                    QuadFunctionThrowable.QuadFunction<Objects, Integer, Integer, Object, Integer>
-//                    >() {{
-//                put(int.class, Tuple.create(
-//                        Integer.class,
-//                        i -> new int[i],
-//                        Array::getInt,
-//                        (array, index, value) -> Array.setInt(array, index, (int) value))
-////                        (original, fromIndex, toIndex) -> Arrays.copyOfRange(original, fromIndex, toIndex),
-////                        (array, fromIndex, toIndex, key) -> Arrays.binarySearch(array, fromIndex, toIndex, (int)key)
-//                );
-//                put(char.class, Tuple.create(
-//                        Character.class,
-//                        i -> new char[i],
-//                        Array::getChar,
-//                        (array, index, value) -> Array.setChar(array, index, (char) value)));
-//                put(byte.class, Tuple.create(
-//                        Byte.class,
-//                        i -> new byte[i],
-//                        Array::getByte,
-//                        (array, index, value) -> Array.setByte(array, index, (byte) value)));
-//                put(boolean.class, Tuple.create(
-//                        Boolean.class,
-//                        i -> new boolean[i],
-//                        Array::getBoolean,
-//                        (array, index, value) -> Array.setBoolean(array, index, (boolean) value)));
-//                put(short.class, Tuple.create(
-//                        Short.class,
-//                        i -> new short[i],
-//                        Array::getShort,
-//                        (array, index, value) -> Array.setShort(array, index, (short) value)));
-//                put(long.class, Tuple.create(
-//                        Long.class,
-//                        i -> new long[i],
-//                        Array::getLong,
-//                        (array, index, value) -> Array.setLong(array, index, (long) value)));
-//                put(float.class, Tuple.create(
-//                        Float.class,
-//                        i -> new float[i],
-//                        Array::getFloat,
-//                        (array, index, value) -> Array.setFloat(array, index, (float) value)));
-//                put(double.class, Tuple.create(
-//                        Double.class,
-//                        i -> new double[i],
-//                        Array::getDouble,
-//                        (array, index, value) -> Array.setDouble(array, index, (double) value)));
-//                put(Object[].class, Tuple.create(
-//                        Object.class,
-//                        i -> new Object[i],
-//                        Array::get,
-//                        Array::set));
-//            }},
-//            null,
-//            clazz -> Tuple.create(
-//                    clazz
-//                    , (Integer length) -> Array.newInstance(clazz, length)
-//                    , Array::get
-//                    , Array::set
-////                    , (Object array, Integer fromIndex, Integer toIndex) -> Arrays.copyOfRange((T[])array, fromIndex, toIndex)
-//            )
-//    );
 
     public static Class getComponentType(Object array) {
         if (array == null) return null;
@@ -348,134 +265,6 @@ public class ArrayHelper<T, R> {
         return objects;
     }
 
-//    private static <O> Object[] toObjects(Object values, Class<O> objectClass, int size, BiFunctionThrowable<Object, Integer, O> getValueAt)
-//            throws Exception {
-//        if(values == null)
-//            return null;
-//        Object[] objects = new Object[size];
-//        for (int i = 0; i < size; i++) {
-//            objects[i] = getValueAt.apply(values, i);
-//        }
-//        return objects;
-//    }
-//
-//    private static <T> T[] toArray(Object values, Class<T> objectClass, int size, BiFunctionThrowable<Object, Integer, T> getValueAt)
-//            throws Exception {
-//        if(values == null)
-//            return null;
-//        T[] result = (T[]) Array.newInstance(objectClass, size);
-//        for (int i = 0; i < size; i++) {
-//            result[i] = getValueAt.apply(values, i);
-//        }
-//        return result;
-//    }
-
-//    private static <T> T[] asArray(Object values){
-//        if(values == null)
-//            return null;
-//
-//        Class arrayClass = values.getClass();
-//        Quad<Class, Class, FunctionThrowable<Object, Integer>, BiFunctionThrowable<Object, Integer, Object>> quad =
-//                valuesMapper.get(arrayClass);
-//        return (T[]) Functions.Default.apply(() -> toArray(values, quad.getSecond(), quad.getThird().apply(values), quad.getFourth()));
-//    }
-//
-//    public static Object[] toObjects(boolean[] values){
-//        return (Object[]) arrayConverters.getThird(boolean.class, Object.class, null, null).apply(values);
-//    }
-//
-//    public static Object[] toObjects(byte[] values){
-//        return asObjects(values);
-//    }
-//
-//    public static Object[] toObjects(int[] values){
-//        return asObjects(values);
-//    }
-//
-//    public static Object[] toObjects(char[] values){
-//        return asObjects(values);
-//    }
-//
-//    public static Object[] toObjects(short[] values){
-//        return asObjects(values);
-//    }
-//
-//    public static Object[] toObjects(long[] values){
-//        return asObjects(values);
-//    }
-//
-//    public static Object[] toObjects(float[] values){
-//        return asObjects(values);
-//    }
-//
-//    public static Object[] toObjects(double[] values){
-//        return asObjects(values);
-//    }
-//
-//    public static Character[] toArray(char[] values){
-//        if(values == null)
-//            return null;
-//
-//        return (Character[]) Functions.Default.apply(() ->
-//                toArray(values, Character.class, values.length, (a, i)->Character.valueOf(values[i])));
-//    }
-//
-//    public static Float[] toArray(float[] values){
-//        if(values == null)
-//            return null;
-//
-//        return (Float[]) Functions.Default.apply(() ->
-//                toArray(values, Float.class, values.length, (a, i)->Float.valueOf(values[i])));
-//    }
-//
-//    public static Double[] toArray(double[] values){
-//        if(values == null)
-//            return null;
-//
-//        return (Double[]) Functions.Default.apply(() ->
-//                toArray(values, Double.class, values.length, (a, i)->Double.valueOf(values[i])));
-//    }
-//
-//    public static Integer[] toArray(int[] values){
-//        if(values == null)
-//            return null;
-//
-//        return (Integer[]) Functions.Default.apply(() ->
-//                toArray(values, Integer.class, values.length, (a, i)->Integer.valueOf(values[i])));
-//    }
-//
-//    public static Short[] toArray(short[] values){
-//        if(values == null)
-//            return null;
-//
-//        return (Short[]) Functions.Default.apply(() ->
-//                toArray(values, Short.class, values.length, (a, i)->Short.valueOf(values[i])));
-//    }
-//
-//    public static Long[] toArray(long[] values){
-//        if(values == null)
-//            return null;
-//
-//        return (Long[]) Functions.Default.apply(() ->
-//                toArray(values, Long.class, values.length, (a, i)->Long.valueOf(values[i])));
-//    }
-//
-//    public static Byte[] toArray(byte[] values){
-//        if(values == null)
-//            return null;
-//
-//        return (Byte[]) Functions.Default.apply(() ->
-//                toArray(values, Byte.class, values.length, (a, i)->Byte.valueOf(values[i])));
-//    }
-//
-//    public static Boolean[] toArray(boolean[] values){
-//        if(values == null)
-//            return null;
-//
-//        return (Boolean[]) Functions.Default.apply(() ->
-//                toArray(values, Boolean.class, values.length, (a, i)->Boolean.valueOf(values[i])));
-//    }
-
     private static Function<Object, Object> toBooleanArray =
             arrayConverters.getFirst(boolean.class, Boolean.class, null, null, null, null);
 
@@ -566,32 +355,6 @@ public class ArrayHelper<T, R> {
         }
         return true;
     }
-//    public static <T> boolean matchArrays(T[] expected, Object actual) {
-//        Objects.requireNonNull(expected);
-//        Objects.requireNonNull(actual);
-//
-//        Class class1 = expected.getClass();
-//        Class class2 = actual.getClass();
-//        if(!class1.isArray() || !class2.isArray()){
-//            return false;
-//        }
-//        if(Array.getLength(expected) != Array.getLength(actual))
-//            return false;
-//
-//        Class<T> componentClass1 = class1.getComponentType();
-//        Class<T> componentClass2 = class2.getComponentType();
-//        if(!componentClass1.equals(componentClass2) && !TypeHelper.getClassPredicate(componentClass1).test(componentClass2))
-//            return false;
-//
-//        Object[] objects1 = asObjects(expected);
-//        Object[] objects2 = asObjects(actual);
-//
-//        if(!Arrays.deepEquals(objects1, objects2)){
-//            Logger.L("Expected: %s != %s", Tuple.of(expected), Tuple.of(actual));
-//            return false;
-//        }
-//        return true;
-//    }
 
     public static <T extends Comparable<T>> boolean matchArrays(Collection expected, Collection actual, Class<T[]> arrayClass) {
         int size = expected.size();
@@ -637,31 +400,50 @@ public class ArrayHelper<T, R> {
         return true;
     }
 
-    public static boolean deepEquals(Object expectedArray, Object actualArray){
-        Objects.requireNonNull(expectedArray);
-        Objects.requireNonNull(actualArray);
+    public static boolean deepEquals(Object obj1, Object obj2){
+        if(Objects.equals(obj1, obj2))
+            return true;
 
-        Class expectedClass = expectedArray.getClass();
-        Class actualClass = actualArray.getClass();
-        if(!TypeHelper.getClassPredicate(expectedClass).test(actualClass))
-            return false;       //When classes are not equivalent
-
-        int expectedSize = Array.getLength(expectedArray);
-        if(expectedSize != Array.getLength(actualArray))
+        Class class1 = obj1.getClass();
+        Class class2 = obj2.getClass();
+        if(!TypeHelper.getClassPredicate(class1).test(class2) || !class1.isArray())
             return false;
 
-        BiFunctionThrowable<Object, Integer, Object> expectedGetter = TypeHelper.getArrayElementGetter(expectedClass);
-        BiFunctionThrowable<Object, Integer, Object> actualGetter = TypeHelper.getArrayElementGetter(actualClass);
-        for (int i = 0; i < expectedSize; i++) {
-            try{
-                Object expectedElement = expectedGetter.apply(expectedArray, i);
-                Object actualElement = actualGetter.apply(actualArray, i);
-                if(!Objects.equals(expectedElement, actualElement))
-                    return false;
-            }catch (Exception ex){
-                return false;
+        int expectedSize = Array.getLength(obj1);
+        if(expectedSize != Array.getLength(obj2))
+            return false;
+
+        BiFunctionThrowable<Object, Integer, Object> getter = TypeHelper.getArrayElementGetter(class1);
+        Predicate<Integer> elementUnmatchedPredicate = i -> {
+            try {
+                Object expectedElement = getter.apply(obj1, i);
+                Object actualElement = getter.apply(obj2, i);
+                return !deepEquals(expectedElement, actualElement);
+            }catch(Exception ex){
+                return true;
             }
-        }
-        return true;
+        };
+        boolean result = !IntStream.range(0, expectedSize).boxed().parallel()
+                .filter(elementUnmatchedPredicate).findFirst().isPresent();
+        return result;
+    }
+
+    public static <T> BiConsumerThrowable<Object, Function<Integer, Object>> getParallelSetAll(Class<T> clazz){
+        Objects.requireNonNull(clazz);
+        return (Object array, Function<Integer, Object> generator) -> {
+            Objects.requireNonNull(array);
+            Objects.requireNonNull(generator);
+            int length = Array.getLength(array);
+            Class<T> componentType = (Class<T>) array.getClass().getComponentType();
+            TriConsumerThrowable<Object, Integer, Object> elementSetter = TypeHelper.getArrayElementSetter(componentType);
+            //Split the "i -> elementSetter.accept(array, i, generator.apply(i))" to two steps to avoid
+            // "Unhandled Exception: java.lang.Exception" warning
+            BiConsumerThrowable<Object, Integer> setElementAtIndex = (theArray, index) -> {
+                Object value = generator.apply(index);
+                elementSetter.accept(theArray, index, value);
+            };
+
+            IntStream.range(0, length).parallel().forEach(i -> setElementAtIndex.orElse(null).accept(array, i));
+        };
     }
 }
