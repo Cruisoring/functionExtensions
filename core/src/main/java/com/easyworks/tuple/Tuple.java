@@ -2,6 +2,7 @@ package com.easyworks.tuple;
 
 import com.easyworks.Functions;
 import com.easyworks.Lazy;
+import com.easyworks.function.BiFunctionThrowable;
 import com.easyworks.function.SupplierThrowable;
 import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.utility.ArrayHelper;
@@ -9,6 +10,7 @@ import com.easyworks.utility.Logger;
 import com.easyworks.utility.TypeHelper;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -65,28 +67,25 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
 
         try {
             Predicate<Class> predicate = TypeHelper.getClassPredicate(clazz);
+            Class equivalent = (TypeHelper.isPrimitive(clazz) && !clazz.isArray()) ? TypeHelper.getEquivalentClass(clazz) : clazz;
             Boolean isArray = clazz.isArray();
             Class<?> componentType = isArray ? clazz.getComponentType() : null;
 
             int length = getLength();
-            List<Integer> list = new ArrayList<Integer>();
+            List<T> list = new ArrayList<T>();
             for (int i = 0; i < length; i++) {
                 Object v = values[i];
                 if (v != null) {
                     Class vClass = v.getClass();
-                    if (predicate.test(vClass)) {
-                        list.add(i);
+                    if(equivalent.equals(vClass)){
+                        list.add((T)v);
+                    } else if (predicate.test(vClass)) {
+                        T t = (T) TypeHelper.getToEquivalentParallelConverter(vClass).apply(v);
+                        list.add(t);
                     }
                 }
             }
-            ;
-            length = list.size();
-            Object array = ArrayHelper.getNewArray(clazz, length);
-            TriConsumerThrowable<Object, Integer, Object> setElementAtIndex = TypeHelper.getArrayElementSetter(clazz);
-            for (int i = 0; i < length; i++) {
-                Object v = values[list.get(i)];
-                setElementAtIndex.accept(array, i, v);
-            }
+            Object[] array = list.toArray((T[])ArrayHelper.getNewArray(equivalent, list.size()));
             return setOf(clazz, (T[])array);
         }catch (Exception ex){
             return null;
@@ -200,7 +199,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         if(!other.canEqual(this))
             return false;
 
-        return Arrays.deepEquals(values, other.values);
+        return TypeHelper.deepEquals(values, other.values);
     }
 
     public boolean canEqual(Object obj) {
