@@ -86,7 +86,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
                 }
             }
             Object[] array = list.toArray((T[])ArrayHelper.getNewArray(equivalent, list.size()));
-            return setOf(clazz, (T[])array);
+            return setOf(equivalent, (T[])array);
         }catch (Exception ex){
             return null;
         }
