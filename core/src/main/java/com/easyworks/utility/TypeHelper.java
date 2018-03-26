@@ -5,10 +5,9 @@ import com.easyworks.function.BiFunctionThrowable;
 import com.easyworks.function.FunctionThrowable;
 import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.function.TriFunctionThrowable;
-import com.easyworks.repository.HeptaValuesRepository;
-import com.easyworks.repository.QuadValuesRepository;
+import com.easyworks.repository.*;
 import com.easyworks.tuple.Hepta;
-import com.easyworks.tuple.Quad;
+import com.easyworks.tuple.Penta;
 import com.easyworks.tuple.Tuple;
 import sun.reflect.ConstantPool;
 
@@ -17,6 +16,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -30,7 +30,11 @@ public class TypeHelper {
         }
     }
 
-    private static final Function<Object, Object> returnItself = obj -> obj;
+    private static final Function<Object, Object> returnsSelf = obj -> obj;
+    private static final Function<Object, Object> mapsToNull = obj -> null;
+    private static final FunctionThrowable<Object, Object> returnsSelfThrowable = obj -> obj;
+    private static final BiPredicate<Object, Object> alwaysFalse = (a, b) -> false;
+    private static final BiPredicate<Object, Object> objectsEquals = (a, b) -> Objects.equals(a, b);
 
     private static final Method _getConstantPool = (Method) Functions.ReturnsDefaultValue.apply(() -> {
         Method method = Class.class.getDeclaredMethod("getConstantPool");
@@ -351,104 +355,128 @@ public class TypeHelper {
         return classOperators.getSeventhValue(clazz);
     }
 
-    private static final QuadValuesRepository<
-                Class,      // original Class of the concerned object
+    private static final PentaValuesRepository<
+                    Class,      // original Class of the concerned object
 
-                Boolean     // isPrmitiveType, when the original class is primitive type, or it is array of primitive type
-                , Object    // default value of the concerned class
-//                , BiConsumerThrowable<Object, Function<Integer, Objects>> //parallelSetAll
-                , Class     // equivalent class: could be the wrapper if original class is primitive,
-                            // or primitive type if original class is wrapper
-                , Function<Object, Object>  // convert the value of original class to equivalent class
-        > primitiveTypeConverters = QuadValuesRepository.fromKey(
-            () -> new HashMap<Class, Quad<Boolean, Object, Class, Function<Object,Object>>>(){{
+                    Boolean     // isPrmitiveType, when the original class is primitive type, or it is array of primitive type
+                    , Object    // default value of the concerned class
+                    , Class     // equivalent class: could be the wrapper if original class is primitive,
+                                // or primitive type if original class is wrapper
+                    , Function<Object, Object>  // convert the value of original class to equivalent class parallelly
+                    , Function<Object, Object>  // convert the value of original class to equivalent class in serial
+            > primitiveTypeConverters = PentaValuesRepository.fromKey(
+            () -> new HashMap<Class, Penta<Boolean, Object, Class, Function<Object,Object>, Function<Object,Object>>>(){{
                 put(boolean.class, Tuple.create(
                         true
                         , false
                         , Boolean.class
-                        , returnItself));
+                        , returnsSelf
+                        , returnsSelf));
+                Function<Object,Object> castToWrapper = fromElement -> Boolean.class.cast(fromElement).booleanValue();
                 put(Boolean.class, Tuple.create(
                         false
                         , false
                         , boolean.class
-                        , fromElement -> Boolean.class.cast(fromElement).booleanValue()));
+                        , castToWrapper
+                        , castToWrapper));
                 put(byte.class, Tuple.create(
                         true
                         , (byte)0
                         , Byte.class
-                        , returnItself));
+                        , returnsSelf
+                        , returnsSelf));
+                castToWrapper = fromElement -> Boolean.class.cast(fromElement).booleanValue();
                 put(Byte.class, Tuple.create(
                         false
                         , (byte)0
                         , byte.class
-                        , fromElement -> Byte.class.cast(fromElement).byteValue()));
+                        , castToWrapper
+                        , castToWrapper));
                 put(char.class, Tuple.create(
                         true
                         , (char)0
                         , Character.class
-                        , returnItself));
+                        , returnsSelf
+                        , returnsSelf));
+                castToWrapper = fromElement -> Boolean.class.cast(fromElement).booleanValue();
                 put(Character.class, Tuple.create(
                         false
                         , (char)0
                         , char.class
-                        , fromElement -> Character.class.cast(fromElement).charValue()));
+                        , castToWrapper
+                        , castToWrapper));
                 put(double.class, Tuple.create(
                         true
                         , 0d
                         , Double.class
-                        , returnItself));
+                        , returnsSelf
+                        , returnsSelf));
+                castToWrapper = fromElement -> Boolean.class.cast(fromElement).booleanValue();
                 put(Double.class, Tuple.create(
                         false
                         , 0d
                         , double.class
-                        , fromElement -> Double.class.cast(fromElement).doubleValue()));
+                        , castToWrapper
+                        , castToWrapper));
                 put(float.class, Tuple.create(
                         true
                         , 0f
                         , Float.class
-                        , returnItself));
+                        , returnsSelf
+                        , returnsSelf));
+                castToWrapper = fromElement -> Float.class.cast(fromElement).floatValue();
                 put(Float.class, Tuple.create(
                         false
                         , 0f
                         , float.class
-                        , fromElement -> Float.class.cast(fromElement).floatValue()));
+                        , castToWrapper
+                        , castToWrapper));
                 put(int.class, Tuple.create(
                         true
                         , 0
                         , Integer.class
-                        , returnItself));
+                        , returnsSelf
+                        , returnsSelf));
+                castToWrapper = fromElement -> Integer.class.cast(fromElement).intValue();
                 put(Integer.class, Tuple.create(
                         false
                         , 0
                         , int.class
-                        , fromElement -> Integer.class.cast(fromElement).intValue()));
+                        , castToWrapper
+                        , castToWrapper));
                 put(long.class, Tuple.create(
                         true
                         , 0L
                         , Long.class
-                        , returnItself));
+                        , returnsSelf
+                        , returnsSelf));
+                castToWrapper = fromElement -> Long.class.cast(fromElement).longValue();
                 put(Long.class, Tuple.create(
                         false
                         , 0L
                         , long.class
-                        , fromElement -> Long.class.cast(fromElement).longValue()));
+                        , castToWrapper
+                        , castToWrapper));
                 put(short.class, Tuple.create(
                         true
                         , (short)0
                         , Short.class
-                        , returnItself));
+                        , returnsSelf
+                        , returnsSelf));
+                castToWrapper = fromElement -> Short.class.cast(fromElement).shortValue();
                 put(Short.class, Tuple.create(
                         false
                         , (short)0
                         , short.class
-                        , fromElement -> Short.class.cast(fromElement).shortValue()));
+                        , castToWrapper
+                        , castToWrapper));
 
             }},
             null,
             clazz -> {
                 Boolean isArray = clazz.isArray();
                 if(!isArray && !clazz.isPrimitive())
-                    return Tuple.create(false, null, null, returnItself);
+                    return Tuple.create(false, null, null, returnsSelf, returnsSelf);
 
                 Class componentClass = clazz.getComponentType();
                 Boolean isPrimitive = isPrimitive(componentClass);
@@ -456,28 +484,31 @@ public class TypeHelper {
                 Object defaultValue = EMPTY_ARRAY_AS_DEFAULT ? ArrayHelper.getNewArray(componentClass, 0) : null;
                 Class equivalentComponentClass = getEquivalentClass(componentClass);
                 Class equivalentClass = classOperators.getThirdValue(equivalentComponentClass);
-                Function<Object, Object> componentConverter = getToEquivalentConverter(componentClass);
+                Function<Object, Object> componentConverter = getToEquivalentParallelConverter(componentClass);
                 BiFunctionThrowable<Object, Integer, Object> componentGetter = getArrayElementGetter(componentClass);
                 TriConsumerThrowable<Object, Integer, Object> equivalentSetter = getArrayElementSetter(equivalentComponentClass);
 
-                //Three-steps to do: get original element first, convert to equivalent value, and then set to
-                // the corresponding element of the converted array
-//                TriConsumerThrowable.TriConsumer<Object, Object, Integer> setElementConvertedFromGetter = (arrayFrom, arrayTo, i) -> {
-//                    try {
-//                        equivalentSetter.accept(arrayTo, i, componentConverter.apply(componentGetter.apply(arrayFrom, i)));
-//                    } catch (Exception ex){
-//                        throw new RuntimeException(ex);
-//                    }
-//                };
-                TriConsumerThrowable<Object, Object, Integer> setElementConvertedFromGetter = (fromArray, toArray, i) -> {
-                    //Get original element
-                    Object fromElement = componentGetter.apply(fromArray, i);
-                    //Get the converted element
-                    Object toElement = componentConverter.apply(fromElement);
-                    //Set the converted value
-                    equivalentSetter.accept(toArray, i, toElement);
-                };
-                Function<Object, Object> converter = equivalentClass == null ? returnItself
+                // Depending on if fromElement need to be converted to another value, mapping the array could be 2-steps or 3-steps
+                TriConsumerThrowable<Object, Object, Integer> setElementConvertedFromGetter =
+                        componentConverter == returnsSelf ?
+                        (fromArray, toArray, i) -> {
+                            //Get original element
+                            Object fromElement = componentGetter.apply(fromArray, i);
+                            //Set the element directly
+                            equivalentSetter.accept(toArray, i, fromElement);
+                        }
+                        :
+                        //Three-steps to do: get original element first, convert to equivalent value, and then set to
+                        // the corresponding element of the converted array
+                        (fromArray, toArray, i) -> {
+                            //Get original element
+                            Object fromElement = componentGetter.apply(fromArray, i);
+                            //Get the converted element
+                            Object toElement = componentConverter.apply(fromElement);
+                            //Set the converted value
+                            equivalentSetter.accept(toArray, i, toElement);
+                        };
+                Function<Object, Object> parallelConverter = equivalentClass == null ? returnsSelf
                         : fromArray -> {
                     int length = Array.getLength(fromArray);
                     Object toArray = ArrayHelper.getNewArray(equivalentComponentClass, length);
@@ -486,7 +517,21 @@ public class TypeHelper {
                     return toArray;
                 };
 
-                return Tuple.create(isPrimitive, defaultValue, equivalentClass, converter);
+                Function<Object, Object> serailConverter = equivalentClass == null ? returnsSelf
+                        : fromArray -> {
+                    int length = Array.getLength(fromArray);
+                    Object toArray = ArrayHelper.getNewArray(equivalentComponentClass, length);
+                    try {
+                        for (int i = 0; i < length; i++) {
+                            setElementConvertedFromGetter.accept(fromArray, toArray, i);
+                        }
+                        return toArray;
+                    }catch (Exception ex){
+                        return null;
+                    }
+                };
+
+                return Tuple.create(isPrimitive, defaultValue, equivalentClass, parallelConverter, serailConverter);
             }
     );
 
@@ -541,22 +586,310 @@ public class TypeHelper {
      * @param clazz
      * @return
      */
-    public static Function<Object, Object> getToEquivalentConverter(Class clazz){
+    public static Function<Object, Object> getToEquivalentParallelConverter(Class clazz){
         return primitiveTypeConverters.getFourthValue(clazz);
     }
 
-    public static boolean equals(Object a, Object b){
-        if(Objects.equals(a, b))
+    public static Function<Object, Object> getToEquivalentSerialConverter(Class clazz){
+        return primitiveTypeConverters.getFifthValue(clazz);
+    }
+
+    private static TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> getExceptionWithMapping(
+            BiFunctionThrowable<Object, Integer, Object> fromElementGetter
+            , TriConsumerThrowable<Object, Integer, Object> toElementSetter
+            , Function<Object, Object> elementConverter){
+        if(elementConverter == returnsSelf || elementConverter == null)
+            return (fromArray, toArray, index) -> {
+                    try {
+                        Object fromElement = fromElementGetter.apply(fromArray, index);
+                        toElementSetter.accept(toArray, index, fromElement);
+                        return false;
+                    } catch (Exception ex) {
+                        return true;
+                    }
+                };
+        else
+            return (fromArray, toArray, index) -> {
+                try {
+                    Object fromElement = fromElementGetter.apply(fromArray, index);
+                    Object convertedElement = elementConverter.apply(fromElement);
+                    toElementSetter.accept(toArray, index, convertedElement);
+                    return false;
+                } catch (Exception ex) {
+                    return true;
+                }
+            };
+    }
+
+    protected static Function<Object, Object> getMapper(Class fromClass, Class toClass, Boolean parallel){
+        Objects.requireNonNull(fromClass);
+        Objects.requireNonNull(toClass);
+
+        //First, check fromClass and toClass is identical
+        if(fromClass == toClass)
+            // No mapping needed, thus returnSelf is enough
+            return returnsSelf;
+        //Second, check to see if fromClass is equivalent to toClass
+        else if(getClassPredicate(fromClass).test(toClass))
+            // Use the equivalent converter if they are
+            return getToEquivalentParallelConverter(fromClass);
+
+        boolean isFromArray = fromClass.isArray();
+        boolean isToArray = toClass.isArray();
+        //Then, since fromClass and toClass are not equivalent, check if both of them are not array class
+        if(!isFromArray && !isToArray){
+            //Third, cast the fromObj to toClass object by force, that would throw Exceptions when their types are not match
+            return toClass::cast;
+        } else if( Boolean.logicalXor(isFromArray, isToArray))
+            //Fourth, when one type is Array, another is not, mapping is not possible, return mapsToNull directly
+            return mapsToNull;
+
+        //Now both fromClass and toClass are of Array
+        Class fromComponentClass = fromClass.getComponentType();
+        Class toComponentClass = toClass.getComponentType();
+        Function<Object, Object> elementConverter = getMapper(fromComponentClass, toComponentClass, parallel);
+        //If element of the fromArray cannot be mapped to toArray, their Arrays cannot be mapped either, return mapsToNull
+        if(elementConverter == mapsToNull)
+            return mapsToNull;
+
+        boolean isFromComponentArray = fromComponentClass.isArray();
+        boolean isToComponentArray = toComponentClass.isArray();
+
+        Function<Integer, Object> factory = TypeHelper.getArrayFactory(toComponentClass).orElse(null);
+        BiFunctionThrowable<Object, Integer, Object> fromElementGetter = getArrayElementGetter(fromComponentClass);
+        TriConsumerThrowable<Object, Integer, Object> toElementSetter = getArrayElementSetter(toComponentClass);
+        FunctionThrowable<Object, Object> mapper;
+
+        if(parallel == null) {
+
+        } else if (parallel){
+            TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> elementMappingWithException =
+                    getExceptionWithMapping(fromElementGetter, toElementSetter, elementConverter);
+            mapper = (fromArray) -> {
+                int length = Array.getLength(fromArray);
+                Object toArray = factory.apply(length);
+                Integer firstIndexWithException = IntStream.range(0, length).boxed().parallel()
+                        .filter(i -> elementMappingWithException.apply(fromArray, toArray, i))
+                        .findFirst().orElse(-1);
+
+                return firstIndexWithException == -1 ? toArray : null;
+            };
+        } else {
+            if(elementConverter == returnsSelf){
+                mapper = (fromArray) -> {
+                    int length = Array.getLength(fromArray);
+                    Object toArray = factory.apply(length);
+                    for (int i = 0; i < length; i++) {
+                        toElementSetter.accept(toArray, i, fromElementGetter.apply(fromArray, i));
+                    }
+                    return toArray;
+                };
+            } else if(!isFromComponentArray && !isToComponentArray){
+                //The component converter must be Class.cast()
+                mapper = (fromArray) -> {
+                    int length = Array.getLength(fromArray);
+                    Object toArray = factory.apply(length);
+                    for (int i = 0; i < length; i++) {
+                        toElementSetter.accept(toArray, i, toComponentClass.cast(fromElementGetter.apply(fromArray, i)));
+                    }
+                    return toArray;
+                };
+            } else {
+                mapper = (fromArray) -> {
+                    int length = Array.getLength(fromArray);
+                    Object toArray = factory.apply(length);
+                    for (int i = 0; i < length; i++) {
+                        Object fromElement = fromElementGetter.apply(fromArray, i);
+                        Object convertedElement = elementConverter.apply(fromElement);
+                        toElementSetter.accept(toArray, i, convertedElement);
+                    }
+                    return toArray;
+                };
+            }
+        }
+
+        mapper = (fromArray) -> {
+            int length = Array.getLength(fromArray);
+            Object toArray = factory.apply(length);
+            for (int i = 0; i < length; i++) {
+                toElementSetter.accept(toArray, i, toComponentClass.cast(fromElementGetter.apply(fromArray, i)));
+            }
+            return toArray;
+        };
+        return mapper.orElse(null);
+    }
+
+    public static final TripleValuesRepository.DualKeys<
+            Class       //fromClass
+            ,Class      //toClass
+            ,
+            BiPredicate<Object,Object>      //Predicate of deepEquals
+            , Function<Object, Object>      //Convert the first object to another parallelly
+            , Function<Object, Object>>     //Convert the first object to another serially
+        classMappers = DualValuesRepository.fromTwoKeys(
+            (Class fromClass, Class toClass) ->{
+                Objects.requireNonNull(fromClass);
+                Objects.requireNonNull(toClass);
+
+                //First, check fromClass and toClass is identical
+                if(fromClass.equals(toClass)){
+                    // No mapping needed, thus returnSelf is enough
+                    return Tuple.create(objectsEquals, returnsSelf, returnsSelf);
+                }else if(getClassPredicate(fromClass).test(toClass)) {
+                    //Second, check to see if fromClass is equivalent to toClass
+                    // Use the equivalent converter if they are
+                    return getToEquivalentParallelConverter(fromClass);
+                }
+
+
+                if(!getClassPredicate(fromClass).test(toClass))
+                    return Tuple.create(alwaysFalse, getMapper(fromClass, toClass));
+
+                boolean isFromArray = fromClass.isArray();
+                boolean isToArray = toClass.isArray();
+                //Then, since fromClass and toClass are not equivalent, check if both of them are not array class
+                if(!isFromArray && !isToArray){
+                    //Third, cast the fromObj to toClass object by force, that would throw Exceptions when their types are not match
+                    return toClass::cast;
+                } else if( Boolean.logicalXor(isFromArray, isToArray))
+                    //Fourth, when one type is Array, another is not, mapping is not possible, return mapsToNull directly
+                    return mapsToNull;
+
+                //Now both fromClass and toClass are of Array
+                Class fromComponentClass = fromClass.getComponentType();
+                Class toComponentClass = toClass.getComponentType();
+                Function<Object, Object> elementConverter = getMapper(fromComponentClass, toComponentClass, parallel);
+                //If element of the fromArray cannot be mapped to toArray, their Arrays cannot be mapped either, return mapsToNull
+                if(elementConverter == mapsToNull)
+                    return mapsToNull;
+
+                boolean isFromComponentArray = fromComponentClass.isArray();
+                boolean isToComponentArray = toComponentClass.isArray();
+
+                Function<Integer, Object> factory = TypeHelper.getArrayFactory(toComponentClass).orElse(null);
+                BiFunctionThrowable<Object, Integer, Object> fromElementGetter = getArrayElementGetter(fromComponentClass);
+                TriConsumerThrowable<Object, Integer, Object> toElementSetter = getArrayElementSetter(toComponentClass);
+                FunctionThrowable<Object, Object> mapper;
+
+                if(parallel == null) {
+
+                } else if (parallel){
+                    TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> elementMappingWithException =
+                            getExceptionWithMapping(fromElementGetter, toElementSetter, elementConverter);
+                    mapper = (fromArray) -> {
+                        int length = Array.getLength(fromArray);
+                        Object toArray = factory.apply(length);
+                        Integer firstIndexWithException = IntStream.range(0, length).boxed().parallel()
+                                .filter(i -> elementMappingWithException.apply(fromArray, toArray, i))
+                                .findFirst().orElse(-1);
+
+                        return firstIndexWithException == -1 ? toArray : null;
+                    };
+                } else {
+                    if(elementConverter == returnsSelf){
+                        mapper = (fromArray) -> {
+                            int length = Array.getLength(fromArray);
+                            Object toArray = factory.apply(length);
+                            for (int i = 0; i < length; i++) {
+                                toElementSetter.accept(toArray, i, fromElementGetter.apply(fromArray, i));
+                            }
+                            return toArray;
+                        };
+                    } else if(!isFromComponentArray && !isToComponentArray){
+                        //The component converter must be Class.cast()
+                        mapper = (fromArray) -> {
+                            int length = Array.getLength(fromArray);
+                            Object toArray = factory.apply(length);
+                            for (int i = 0; i < length; i++) {
+                                toElementSetter.accept(toArray, i, toComponentClass.cast(fromElementGetter.apply(fromArray, i)));
+                            }
+                            return toArray;
+                        };
+                    } else {
+                        mapper = (fromArray) -> {
+                            int length = Array.getLength(fromArray);
+                            Object toArray = factory.apply(length);
+                            for (int i = 0; i < length; i++) {
+                                Object fromElement = fromElementGetter.apply(fromArray, i);
+                                Object convertedElement = elementConverter.apply(fromElement);
+                                toElementSetter.accept(toArray, i, convertedElement);
+                            }
+                            return toArray;
+                        };
+                    }
+                }
+
+                mapper = (fromArray) -> {
+                    int length = Array.getLength(fromArray);
+                    Object toArray = factory.apply(length);
+                    for (int i = 0; i < length; i++) {
+                        toElementSetter.accept(toArray, i, toComponentClass.cast(fromElementGetter.apply(fromArray, i)));
+                    }
+                    return toArray;
+                };
+                return mapper.orElse(null);
+
+
+            });
+
+//    private static boolean deepEqualsOfSameType(Class type, Object obj1, Object obj2){
+//        if(Objects.equals(obj1, obj2))
+//            return true;
+//        else if(!type.isArray())
+//            return false;
+//
+//        int length = Array.getLength(obj1);
+//        if(length != Array.getLength(obj2))
+//            return false;
+//
+//        BiFunctionThrowable<Object, Integer, Object> getter = TypeHelper.getArrayElementGetter(type);
+//
+//    }
+
+//    public static boolean equals(Object obj1, Object obj2){
+//        if(Objects.equals(obj1, obj2))
+//            return true;
+//        else if (obj1 == null || obj2 == null)
+//            return false;
+//
+//        Class class1 = obj1.getClass();
+//        Class class2 = obj2.getClass();
+//        if(class1.equals(class2))
+//            return deepEqualsOfSameType(class1, obj1, obj2);
+//        else if(getClassPredicate(class1).test(class2)){
+//            return isPrimitive(class1) ?
+//        }
+//
+//        return false;
+//    }
+
+
+    public static boolean deepEquals(Object obj1, Object obj2){
+        if(Objects.equals(obj1, obj2))
             return true;
 
-        Class classA = a.getClass();
-        Class classB = b.getClass();
-        if(!classA.equals(classB))
+        Class class1 = obj1.getClass();
+        Class class2 = obj2.getClass();
+        if(!TypeHelper.getClassPredicate(class1).test(class2) || !class1.isArray())
             return false;
 
-        if(classA.isArray() && classB.isArray())
-            return ArrayHelper.deepEquals(a, b);
+        int expectedSize = Array.getLength(obj1);
+        if(expectedSize != Array.getLength(obj2))
+            return false;
 
-        return false;
+        BiFunctionThrowable<Object, Integer, Object> getter = TypeHelper.getArrayElementGetter(class1);
+        Predicate<Integer> elementUnmatchedPredicate = i -> {
+            try {
+                Object expectedElement = getter.apply(obj1, i);
+                Object actualElement = getter.apply(obj2, i);
+                return !deepEquals(expectedElement, actualElement);
+            }catch(Exception ex){
+                return true;
+            }
+        };
+        boolean result = !IntStream.range(0, expectedSize).boxed().parallel()
+                .filter(elementUnmatchedPredicate).findFirst().isPresent();
+        return result;
     }
+
 }
