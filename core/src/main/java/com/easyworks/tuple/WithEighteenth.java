@@ -1,12 +1,12 @@
 package com.easyworks.tuple;
 
-public interface WithSeventeenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J> extends WithSixteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> {
+public interface WithEighteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K> extends WithSeventeenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J> {
 
     /**
-     * Get the 17th element of <code>J</code>
-     * @return  value of the 17th element of type <code>J</code>
+     * Get the 18th element of <code>K</code>
+     * @return  value of the 18th element of type <code>K</code>
      */
-    default J getSeventeenth() {
-        return (J)getValueAt(16);
+    default K getEighteenth() {
+        return (K)getValueAt(17);
     }
 }

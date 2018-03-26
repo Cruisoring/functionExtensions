@@ -1,7 +1,7 @@
 package com.easyworks.tuple;
 
 /**
- * Tuple type with 10 elements persisted.
+ * Tuple type with 12 elements persisted.
  * @param <T> Type of the first persisted element
  * @param <U> Type of the second persisted element
  * @param <V> Type of the third persisted element
@@ -13,12 +13,13 @@ package com.easyworks.tuple;
  * @param <B> Type of the 9th persisted element
  * @param <C> Type of the 10th persisted element
  * @param <D> Type of the 11th persisted element
+ * @param <E> Type of the 12th persisted element
  */
-public class OfEleven<T,U,V,W,X,Y,Z,A,B,C,D> extends Tuple
-        implements WithEleventh<T,U,V,W,X,Y,Z,A,B,C,D> {
+public class OfTwelve<T,U,V,W,X,Y,Z,A,B,C,D,E> extends Tuple
+        implements WithTwelfth<T,U,V,W,X,Y,Z,A,B,C,D,E> {
 
-    protected OfEleven(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d){
-        super(t, u, v, w, x, y, z, a, b, c, d);
+    protected OfTwelve(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e){
+        super(t, u, v, w, x, y, z, a, b, c, d, e);
     }
 
 }

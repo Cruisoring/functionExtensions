@@ -11,10 +11,10 @@ package com.easyworks.tuple;
  * @param <Z> Type of the seventh persisted element
  * @param <A> Type of the 8th persisted element
  */
-public class Octa<T,U,V,W,X,Y,Z,A> extends Tuple
+public class OfEight<T,U,V,W,X,Y,Z,A> extends Tuple
         implements WithEighth<T,U,V,W,X,Y,Z,A> {
 
-    protected Octa(T t, U u, V v, W w, X x, Y y, Z z, A a){
+    protected OfEight(T t, U u, V v, W w, X x, Y y, Z z, A a){
         super(t, u, v, w, x, y, z, a);
     }
 

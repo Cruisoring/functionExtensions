@@ -12,10 +12,10 @@ package com.easyworks.tuple;
  * @param <A> Type of the 8th persisted element
  * @param <B> Type of the 9th persisted element
  */
-public class Nona<T,U,V,W,X,Y,Z,A,B> extends Tuple
+public class OfNine<T,U,V,W,X,Y,Z,A,B> extends Tuple
         implements WithNinth<T,U,V,W,X,Y,Z,A,B> {
 
-    protected Nona(T t, U u, V v, W w, X x, Y y, Z z, A a, B b){
+    protected OfNine(T t, U u, V v, W w, X x, Y y, Z z, A a, B b){
         super(t, u, v, w, x, y, z, a, b);
     }
 

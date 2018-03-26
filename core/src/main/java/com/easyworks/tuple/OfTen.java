@@ -13,10 +13,10 @@ package com.easyworks.tuple;
  * @param <B> Type of the 9th persisted element
  * @param <C> Type of the 10th persisted element
  */
-public class Deca<T,U,V,W,X,Y,Z,A,B,C> extends Tuple
+public class OfTen<T,U,V,W,X,Y,Z,A,B,C> extends Tuple
         implements WithTenth<T,U,V,W,X,Y,Z,A,B,C> {
 
-    protected Deca(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c){
+    protected OfTen(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c){
         super(t, u, v, w, x, y, z, a, b, c);
     }
 

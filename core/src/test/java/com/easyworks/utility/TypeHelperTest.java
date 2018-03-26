@@ -201,25 +201,25 @@ public class TypeHelperTest {
             assertNull(getDefaultValue(Consumer[][].class));
             assertNull(getDefaultValue(List[].class));
         }else {
-            assertTrue(ArrayHelper.deepEquals(new int[0], (int[])getDefaultValue(int[].class)));
-            assertTrue(ArrayHelper.deepEquals(new short[0][], getDefaultValue(short[][].class)));
-            assertTrue(ArrayHelper.deepEquals(new long[0], getDefaultValue(long[].class)));
+            assertTrue(TypeHelper.deepEquals(new int[0], (int[])getDefaultValue(int[].class)));
+            assertTrue(TypeHelper.deepEquals(new short[0][], getDefaultValue(short[][].class)));
+            assertTrue(TypeHelper.deepEquals(new long[0], getDefaultValue(long[].class)));
 
-            assertTrue(ArrayHelper.deepEquals(new Byte[0], getDefaultValue(Byte[].class)));
-            assertTrue(ArrayHelper.deepEquals(new Character[0][], getDefaultValue(Character[][].class)));
-            assertTrue(ArrayHelper.deepEquals(new Boolean[0], getDefaultValue(Boolean[].class)));
+            assertTrue(TypeHelper.deepEquals(new Byte[0], getDefaultValue(Byte[].class)));
+            assertTrue(TypeHelper.deepEquals(new Character[0][], getDefaultValue(Character[][].class)));
+            assertTrue(TypeHelper.deepEquals(new Boolean[0], getDefaultValue(Boolean[].class)));
 
-            assertTrue(ArrayHelper.deepEquals(new Object[0], getDefaultValue(Object[].class)));
-            assertTrue(ArrayHelper.deepEquals(new String[0][][], getDefaultValue(String[][][].class)));
-            assertTrue(ArrayHelper.deepEquals(new Comparable[0], getDefaultValue(Comparable[].class)));
-            assertTrue(ArrayHelper.deepEquals(new DayOfWeek[0], getDefaultValue(DayOfWeek[].class)));
-            assertTrue(ArrayHelper.deepEquals(new A[0], getDefaultValue(A[].class)));
-            assertTrue(ArrayHelper.deepEquals(new ITest1[0], getDefaultValue(ITest1[].class)));
+            assertTrue(TypeHelper.deepEquals(new Object[0], getDefaultValue(Object[].class)));
+            assertTrue(TypeHelper.deepEquals(new String[0][][], getDefaultValue(String[][][].class)));
+            assertTrue(TypeHelper.deepEquals(new Comparable[0], getDefaultValue(Comparable[].class)));
+            assertTrue(TypeHelper.deepEquals(new DayOfWeek[0], getDefaultValue(DayOfWeek[].class)));
+            assertTrue(TypeHelper.deepEquals(new A[0], getDefaultValue(A[].class)));
+            assertTrue(TypeHelper.deepEquals(new ITest1[0], getDefaultValue(ITest1[].class)));
 
-            assertTrue(ArrayHelper.deepEquals(new Function[0], getDefaultValue(Function[].class)));
-            assertFalse(ArrayHelper.deepEquals(new Function[0], getDefaultValue(FunctionThrowable[].class)));
-            assertTrue(ArrayHelper.deepEquals(new AbstractThrowable[0], getDefaultValue(AbstractThrowable[].class)));
-            assertTrue(ArrayHelper.deepEquals(new Predicate[0][], getDefaultValue(Predicate[][].class)));
+            assertTrue(TypeHelper.deepEquals(new Function[0], getDefaultValue(Function[].class)));
+            assertFalse(TypeHelper.deepEquals(new Function[0], getDefaultValue(FunctionThrowable[].class)));
+            assertTrue(TypeHelper.deepEquals(new AbstractThrowable[0], getDefaultValue(AbstractThrowable[].class)));
+            assertTrue(TypeHelper.deepEquals(new Predicate[0][], getDefaultValue(Predicate[][].class)));
         }
     }
 
@@ -314,44 +314,42 @@ public class TypeHelperTest {
 
     @Test
     public void getToEquivalentConverter_withArrayClass_getExpectedResults() {
-        assertTrue(TypeHelper.equals(new Integer[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(int[].class).apply(new int[]{1,2,3})));
-        assertTrue(TypeHelper.equals(new Long[]{1L,2L,3L},  TypeHelper.getToEquivalentParallelConverter(long[].class).apply(new long[]{1,2,3})));
-        assertTrue(TypeHelper.equals(new Short[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(short[].class).apply(new short[]{1,2,3})));
-        assertTrue(TypeHelper.equals(new Character[]{'a','b','c'},  TypeHelper.getToEquivalentParallelConverter(char[].class).apply(new char[]{'a','b','c'})));
-        assertFalse(TypeHelper.equals(new char[]{'a','b','c'},  TypeHelper.getToEquivalentParallelConverter(char[].class).apply(new char[]{'a','b','c'})));
-        assertTrue(TypeHelper.equals(new Byte[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(byte[].class).apply(new byte[]{1,2,3})));
-        assertTrue(TypeHelper.equals(new Boolean[]{true, false},  TypeHelper.getToEquivalentParallelConverter(boolean[].class).apply(new boolean[]{true, false})));
-        assertTrue(TypeHelper.equals(new Double[]{1.1,2.2,3.3},  TypeHelper.getToEquivalentParallelConverter(double[].class).apply(new double[]{1.1,2.2,3.3})));
-        assertTrue(TypeHelper.equals(new Float[]{-11f,-3.0f,0f},  TypeHelper.getToEquivalentParallelConverter(float[].class).apply(new float[]{-11f,-3.0f,0f})));
+        assertTrue(TypeHelper.deepEquals(new Long[]{1L,2L,3L},  TypeHelper.getToEquivalentParallelConverter(long[].class).apply(new long[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new Short[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(short[].class).apply(new short[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new Character[]{'a','b','c'},  TypeHelper.getToEquivalentParallelConverter(char[].class).apply(new char[]{'a','b','c'})));
+        assertTrue(TypeHelper.deepEquals(new char[]{'a','b','c'},  TypeHelper.getToEquivalentParallelConverter(char[].class).apply(new char[]{'a','b','c'})));
+        assertTrue(TypeHelper.deepEquals(new Byte[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(byte[].class).apply(new byte[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new Boolean[]{true, false},  TypeHelper.getToEquivalentParallelConverter(boolean[].class).apply(new boolean[]{true, false})));
+        assertTrue(TypeHelper.deepEquals(new Double[]{1.1,2.2,3.3},  TypeHelper.getToEquivalentParallelConverter(double[].class).apply(new double[]{1.1,2.2,3.3})));
+        assertTrue(TypeHelper.deepEquals(new Float[]{-11f,-3.0f,0f},  TypeHelper.getToEquivalentParallelConverter(float[].class).apply(new float[]{-11f,-3.0f,0f})));
 
-        assertTrue(TypeHelper.equals(new int[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(Integer[].class).apply(new Integer[]{1,2,3})));
-        assertTrue(TypeHelper.equals(new long[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(Long[].class).apply(new Long[]{1L,2L,3L})));
-        assertTrue(TypeHelper.equals(new short[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(Short[].class).apply(new Short[]{1,2,3})));
-        assertTrue(TypeHelper.equals(new char[]{'a','b','c'},  TypeHelper.getToEquivalentParallelConverter(Character[].class).apply(new Character[]{'a','b','c'})));
-        assertTrue(TypeHelper.equals(new byte[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(Byte[].class).apply(new Byte[]{1,2,3})));
-        assertTrue(TypeHelper.equals(new boolean[]{true, false},  TypeHelper.getToEquivalentParallelConverter(Boolean[].class).apply(new Boolean[]{true, false})));
-        assertTrue(TypeHelper.equals(new double[]{1.1,2.2,3.3},  TypeHelper.getToEquivalentParallelConverter(Double[].class).apply(new Double[]{1.1,2.2,3.3})));
-        assertTrue(TypeHelper.equals(new float[]{-11f,-3.0f,0f},  TypeHelper.getToEquivalentParallelConverter(Float[].class).apply(new Float[]{-11f,-3.0f,0f})));
-        assertFalse(TypeHelper.equals(new Float[]{-11f,-3.0f,0f},  TypeHelper.getToEquivalentParallelConverter(Float[].class).apply(new Float[]{-11f,-3.0f,0f})));
+        assertTrue(TypeHelper.deepEquals(new int[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(Integer[].class).apply(new Integer[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new long[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(Long[].class).apply(new Long[]{1L,2L,3L})));
+        assertTrue(TypeHelper.deepEquals(new short[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(Short[].class).apply(new Short[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new char[]{'a','b','c'},  TypeHelper.getToEquivalentParallelConverter(Character[].class).apply(new Character[]{'a','b','c'})));
+        assertTrue(TypeHelper.deepEquals(new byte[]{1,2,3},  TypeHelper.getToEquivalentParallelConverter(Byte[].class).apply(new Byte[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new boolean[]{true, false},  TypeHelper.getToEquivalentParallelConverter(Boolean[].class).apply(new Boolean[]{true, false})));
+        assertTrue(TypeHelper.deepEquals(new double[]{1.1,2.2,3.3},  TypeHelper.getToEquivalentParallelConverter(Double[].class).apply(new Double[]{1.1,2.2,3.3})));
+        assertTrue(TypeHelper.deepEquals(new float[]{-11f,-3.0f,0f},  TypeHelper.getToEquivalentParallelConverter(Float[].class).apply(new Float[]{-11f,-3.0f,0f})));
+        assertTrue(TypeHelper.deepEquals(new Float[]{-11f,-3.0f,0f},  TypeHelper.getToEquivalentParallelConverter(Float[].class).apply(new Float[]{-11f,-3.0f,0f})));
 
-        //Following case may not be desirable
-        assertTrue(TypeHelper.equals(new boolean[]{true, false, false},  TypeHelper.getToEquivalentParallelConverter(Boolean[].class).apply(new Boolean[]{true, false, null})));
+        assertFalse(TypeHelper.deepEquals(new boolean[]{true, false, false},  TypeHelper.getToEquivalentParallelConverter(Boolean[].class).apply(new Boolean[]{true, false, null})));
 
-        assertTrue(TypeHelper.equals(
+        assertTrue(TypeHelper.deepEquals(
                 new Boolean[][]{new Boolean[]{true, false}, new Boolean[0], null},
                 TypeHelper.
                         getToEquivalentParallelConverter(boolean[][].class)
                         .apply(new boolean[][]{new boolean[]{true, false}, new boolean[0], null})));
-        assertTrue(TypeHelper.equals(new Byte[][]{new Byte[]{1,2,3}, null},  TypeHelper.getToEquivalentParallelConverter(byte[][].class).apply(new byte[][]{new byte[]{1,2,3}, null})));
-        assertTrue(TypeHelper.equals(new Double[][]{new Double[]{1.1}, new Double[]{2.2}, new Double[]{3.3}},
+        assertTrue(TypeHelper.deepEquals(new Byte[][]{new Byte[]{1,2,3}, null},  TypeHelper.getToEquivalentParallelConverter(byte[][].class).apply(new byte[][]{new byte[]{1,2,3}, null})));
+        assertTrue(TypeHelper.deepEquals(new Double[][]{new Double[]{1.1}, new Double[]{2.2}, new Double[]{3.3}},
                 TypeHelper.getToEquivalentParallelConverter(double[][].class).apply((new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}))));
-        assertTrue(TypeHelper.equals(new Float[][]{null},  TypeHelper.getToEquivalentParallelConverter(float[][].class).apply(new float[][]{null})));
+        assertTrue(TypeHelper.deepEquals(new Float[][]{null},  TypeHelper.getToEquivalentParallelConverter(float[][].class).apply(new float[][]{null})));
 
-        assertTrue(TypeHelper.equals(new int[][]{new int[]{1,2,3}},
+        assertTrue(TypeHelper.deepEquals(new int[][]{new int[]{1,2,3}},
                 TypeHelper.getToEquivalentParallelConverter(Integer[][].class).apply(new Integer[][]{new Integer[]{1,2,3}})));
-        assertTrue(TypeHelper.equals(new long[][]{},  TypeHelper.getToEquivalentParallelConverter(Long[][].class).apply(new Long[][]{})));
-        assertTrue(TypeHelper.equals(new short[][]{new short[]{1,2,3}},  TypeHelper.getToEquivalentParallelConverter(Short[][].class).apply(new Short[][]{new Short[]{1,2,3}})));
-        assertTrue(TypeHelper.equals(new char[][]{null, null},  TypeHelper.getToEquivalentParallelConverter(Character[][].class).apply(new Character[][]{null, null})));
+        assertTrue(TypeHelper.deepEquals(new long[][]{},  TypeHelper.getToEquivalentParallelConverter(Long[][].class).apply(new Long[][]{})));
+        assertTrue(TypeHelper.deepEquals(new short[][]{new short[]{1,2,3}},  TypeHelper.getToEquivalentParallelConverter(Short[][].class).apply(new Short[][]{new Short[]{1,2,3}})));
+        assertTrue(TypeHelper.deepEquals(new char[][]{null, null},  TypeHelper.getToEquivalentParallelConverter(Character[][].class).apply(new Character[][]{null, null})));
 
 
         Object[] objects = new Object[]{null, 0, void.class, 'a', "", null};
@@ -824,7 +822,7 @@ public class TypeHelperTest {
         }
 
         assertEquals(expected.getClass(), copy.getClass());
-        assertTrue(ArrayHelper.deepEquals(expected, copy));
+        assertTrue(TypeHelper.deepEquals(expected, copy));
     }
 
     @Test

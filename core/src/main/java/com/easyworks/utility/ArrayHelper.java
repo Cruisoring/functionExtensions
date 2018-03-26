@@ -376,10 +376,7 @@ public class ArrayHelper<T, R> {
 
         Arrays.sort(expectedCopy);
         Arrays.sort(actualCopy);
-        if (!Arrays.deepEquals(expectedCopy, actualCopy)) {
-            return false;
-        }
-        return true;
+        return TypeHelper.deepEquals(expectedCopy, actualCopy);
     }
 
     public static <T extends Comparable<T>> boolean matchWithoutOrder(Collection<T> expected, Collection<T> actual, Class<T[]> clazz) {
@@ -394,10 +391,7 @@ public class ArrayHelper<T, R> {
 
         Arrays.sort(expectedCopy);
         Arrays.sort(actualCopy);
-        if (!Arrays.deepEquals(expectedCopy, actualCopy)) {
-            return false;
-        }
-        return true;
+        return TypeHelper.deepEquals(expectedCopy, actualCopy);
     }
 
     public static boolean deepEquals(Object obj1, Object obj2){

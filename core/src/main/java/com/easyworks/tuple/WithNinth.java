@@ -1,6 +1,6 @@
 package com.easyworks.tuple;
 
-public interface WithNineth<T,U,V,W,X,Y,Z,A,B> extends WithEighth<T,U,V,W,X,Y,Z,A> {
+public interface WithNinth<T,U,V,W,X,Y,Z,A,B> extends WithEighth<T,U,V,W,X,Y,Z,A> {
 
     /**
      * Get the nineth element of <code>B</code>

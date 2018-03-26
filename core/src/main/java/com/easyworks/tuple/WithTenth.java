@@ -1,12 +1,12 @@
 package com.easyworks.tuple;
 
-public interface WithNineth<T,U,V,W,X,Y,Z,A,B> extends WithEighth<T,U,V,W,X,Y,Z,A> {
+public interface WithTenth<T,U,V,W,X,Y,Z,A,B,C> extends WithNinth<T,U,V,W,X,Y,Z,A,B> {
 
     /**
-     * Get the nineth element of <code>B</code>
-     * @return  value of the nineth element of type <code>B</code>
+     * Get the 10th element of <code>C</code>
+     * @return  value of the 10th element of type <code>C</code>
      */
-    default B getNineth() {
-        return (B)getValueAt(8);
+    default C getTenth() {
+        return (C)getValueAt(9);
     }
 }
