@@ -7,7 +7,6 @@ import com.easyworks.repository.PentaValuesRepository;
 import com.easyworks.repository.QuadValuesRepository;
 import com.easyworks.repository.TripleValuesRepository;
 import com.easyworks.tuple.Tuple;
-import com.easyworks.tuple.Tuple3;
 import com.easyworks.tuple.Tuple5;
 import com.easyworks.tuple.Tuple7;
 import sun.reflect.ConstantPool;
@@ -33,12 +32,15 @@ public class TypeHelper {
         }
     }
 
+    //region Common functions
     private static final Function<Object, Object> returnsSelf = obj -> obj;
     private static final Function<Object, Object> mapsToNull = obj -> null;
     private static final FunctionThrowable<Object, Object> returnsSelfThrowable = obj -> obj;
     private static final BiPredicate<Object, Object> alwaysFalse = (a, b) -> false;
     private static final BiPredicate<Object, Object> objectsEquals = (a, b) -> Objects.equals(a, b);
+    //endregion
 
+    //region Method and repository to get return type of Lambda Expression
     private static final Method _getConstantPool = (Method) Functions.ReturnsDefaultValue.apply(() -> {
         Method method = Class.class.getDeclaredMethod("getConstantPool");
         method.setAccessible(true);
@@ -88,11 +90,12 @@ public class TypeHelper {
      * @return  The type of the return value defined by the Lambda Expression.
      */
     public static Class getReturnType(AbstractThrowable aThrowable){
-        Tuple3<Boolean, Class[], Class> triple = lambdaGenericInfoRepository.retrieve(aThrowable);
-        return triple.getThird();
-//        return lambdaGenericInfoRepository.getThirdValue(aThrowable);
+        return lambdaGenericInfoRepository.getThirdValue(aThrowable);
     }
+    //endregion
 
+
+    //region Higher-order functions to create Functions
     private static <T> TriFunctionThrowable<Object, Integer, Integer, Object> asGenericCopyOfRange(Class<T> componentType){
         return (array, from, to) -> Arrays.copyOfRange((T[])array, from, to);
     }
@@ -122,6 +125,34 @@ public class TypeHelper {
         return toString;
     }
 
+    private static TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> getExceptionWithMapping(
+            BiFunctionThrowable<Object, Integer, Object> fromElementGetter
+            , TriConsumerThrowable<Object, Integer, Object> toElementSetter
+            , Function<Object, Object> elementConverter){
+        if(elementConverter == returnsSelf || elementConverter == null)
+            return (fromArray, toArray, index) -> {
+                try {
+                    Object fromElement = fromElementGetter.apply(fromArray, index);
+                    toElementSetter.accept(toArray, index, fromElement);
+                    return false;
+                } catch (Exception ex) {
+                    return true;
+                }
+            };
+        else
+            return (fromArray, toArray, index) -> {
+                try {
+                    Object fromElement = fromElementGetter.apply(fromArray, index);
+                    Object convertedElement = elementConverter.apply(fromElement);
+                    toElementSetter.accept(toArray, index, convertedElement);
+                    return false;
+                } catch (Exception ex) {
+                    return true;
+                }
+            };
+    }
+    //endregion
+
     /**
      * Repository to keep operators related with specific class that is kept as the keys of the map.
      * Relative operators are saved as a strong-typed Tuple7 with following elements:
@@ -149,15 +180,16 @@ public class TypeHelper {
             , Function<Object, String>             // Convert array to String
     > classOperators = HeptaValuesRepository.fromKey(
             () -> new HashMap<Class,
+
                     Tuple7<
-                                            Predicate<Class>,
-                                            FunctionThrowable<Integer, Object>,
-                                            Class,
-                                            BiFunctionThrowable<Object, Integer, Object>,
-                                            TriConsumerThrowable<Object, Integer, Object>,
-                                            TriFunctionThrowable<Object, Integer, Integer, Object>,
-                                            Function<Object, String>
-                                        >
+                            Predicate<Class>,
+                            FunctionThrowable<Integer, Object>,
+                            Class,
+                            BiFunctionThrowable<Object, Integer, Object>,
+                            TriConsumerThrowable<Object, Integer, Object>,
+                            TriFunctionThrowable<Object, Integer, Integer, Object>,
+                            Function<Object, String>
+                        >
                 >(){{
                 //region Special cases of Primitive types and their wrappers
                 Predicate<Class> classPredicate = clazz -> int.class.equals(clazz) || Integer.class.equals(clazz);
@@ -652,33 +684,6 @@ public class TypeHelper {
                 count ++;
         }
         return count;
-    }
-
-    private static TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> getExceptionWithMapping(
-            BiFunctionThrowable<Object, Integer, Object> fromElementGetter
-            , TriConsumerThrowable<Object, Integer, Object> toElementSetter
-            , Function<Object, Object> elementConverter){
-        if(elementConverter == returnsSelf || elementConverter == null)
-            return (fromArray, toArray, index) -> {
-                    try {
-                        Object fromElement = fromElementGetter.apply(fromArray, index);
-                        toElementSetter.accept(toArray, index, fromElement);
-                        return false;
-                    } catch (Exception ex) {
-                        return true;
-                    }
-                };
-        else
-            return (fromArray, toArray, index) -> {
-                try {
-                    Object fromElement = fromElementGetter.apply(fromArray, index);
-                    Object convertedElement = elementConverter.apply(fromElement);
-                    toElementSetter.accept(toArray, index, convertedElement);
-                    return false;
-                } catch (Exception ex) {
-                    return true;
-                }
-            };
     }
 
     public static final QuadValuesRepository.DualKeys<
