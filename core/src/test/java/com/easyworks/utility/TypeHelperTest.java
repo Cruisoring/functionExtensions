@@ -1,6 +1,8 @@
 package com.easyworks.utility;
 
 import com.easyworks.function.*;
+import com.easyworks.tuple.Tuple3;
+import com.easyworks.tuple.Tuple;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
@@ -16,6 +18,18 @@ import static com.easyworks.utility.TypeHelper.*;
 import static org.junit.Assert.*;
 
 public class TypeHelperTest {
+
+
+    @Test
+    public void getGenericInfo(){
+        FunctionThrowable<Integer, List<Integer>> listFactory = i -> new ArrayList<Integer>();
+        Tuple3<Boolean, Class[], Class> genericInfo = TypeHelper.lambdaGenericInfoRepository.retrieve(listFactory);
+        assertEquals(Tuple.create(true, new Class[]{Integer.class}, List.class), genericInfo);
+
+        BiFunctionThrowable<Integer, Integer, Boolean> func = (n1, n2) -> n1 + 12 > n2;
+        genericInfo = TypeHelper.lambdaGenericInfoRepository.retrieve(func);
+        assertEquals(Tuple.create(true, new Class[]{Integer.class, Integer.class}, Boolean.class), genericInfo);
+    }
 
     @Test
     public void getClassPredicate_withPrimitiveTypes_shallMatchCorrectly() {

@@ -5,13 +5,13 @@ import com.easyworks.tuple.*;
 /**
  * Interface for map.keys that are of <tt>Tuple</tt> of 5 elements and keep the methods to use them as strong-typed
  * values to fetch strong typed elements
- * @param <K1>  type of the first element of the Keys of the map, that are type of Penta
- * @param <K2>  type of the second element of the Keys of the map, that are type of Penta
- * @param <K3>  type of the third element of the Keys of the map, that are type of Penta
- * @param <K4>  type of the fourth element of the Keys of the map, that are type of Penta
- * @param <K5>  type of the fifth element of the Keys of the map, that are type of Penta
+ * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple5
+ * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple5
+ * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple5
+ * @param <K4>  type of the fourth element of the Keys of the map, that are type of Tuple5
+ * @param <K5>  type of the fifth element of the Keys of the map, that are type of Tuple5
  */
-public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K5>> {
+public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Tuple5<K1,K2,K3,K4,K5>> {
 
     /**
      * Get the strong-typed Tuple that matched with the actual Key of the concerned map
@@ -20,7 +20,7 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
      * @param k2    second element of actual key of the Tuple, with type of <tt>K2</tt>
      * @return  Tuple composed by the above elements to be used as the actual key of the map
      */
-    default Penta<K1,K2,K3,K4,K5> getKey(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5){
+    default Tuple5<K1,K2,K3,K4,K5> getKey(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5){
         return Tuple.create(k1, k2, k3, k4, k5);
     }
 
@@ -37,16 +37,16 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
 
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 5 elements and keep the methods to use them as strong-typed
-     * values to fetch mapped values of Tuple.Penta composed by 1 element
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Penta
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Penta
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Penta
-     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Penta
-     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Penta
+     * values to fetch mapped values of Tuple.Tuple5 composed by 1 element
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple5
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple5
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple5
+     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Tuple5
+     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Tuple5
      * @param <T>   type of the first element of the Tuple value
      */
     interface SingleValues<K1,K2,K3,K4,K5, T> extends PentaKeys<K1,K2,K3,K4,K5>,
-            com.easyworks.repository.SingleValues<Penta<K1,K2,K3,K4,K5>, T> {
+            com.easyworks.repository.SingleValues<Tuple5<K1,K2,K3,K4,K5>, T> {
 
         default Tuple retrieve(K1 k1, K2 k2, K3 k3, K4 k4, K5 k5){
             return retrieve(getKey(k1, k2, k3, k4, k5));
@@ -67,16 +67,16 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 5 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 5 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Penta
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Penta
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Penta
-     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Penta
-     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Penta
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple5
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple5
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple5
+     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Tuple5
+     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Tuple5
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      */
     interface DualValues<K1,K2,K3,K4,K5, T,U> extends SingleValues<K1,K2,K3,K4,K5, T>,
-            com.easyworks.repository.DualValues<Penta<K1,K2,K3,K4,K5>, T,U> {
+            com.easyworks.repository.DualValues<Tuple5<K1,K2,K3,K4,K5>, T,U> {
 
         /**
          * Retrieve the second element of the Tuple as type of <tt>U</tt>
@@ -93,17 +93,17 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 5 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 3 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Penta
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Penta
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Penta
-     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Penta
-     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Penta
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple5
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple5
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple5
+     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Tuple5
+     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Tuple5
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
      */
     interface TripleValues<K1,K2,K3,K4,K5, T,U,V> extends DualValues<K1,K2,K3,K4,K5, T,U>,
-            com.easyworks.repository.TripleValues<Penta<K1,K2,K3,K4,K5>, T,U,V> {
+            com.easyworks.repository.TripleValues<Tuple5<K1,K2,K3,K4,K5>, T,U,V> {
 
         /**
          * Retrieve the third element of the Tuple as type of <tt>V</tt>
@@ -120,18 +120,18 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 5 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 4 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Penta
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Penta
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Penta
-     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Penta
-     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Penta
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple5
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple5
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple5
+     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Tuple5
+     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Tuple5
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
      * @param <W>   type of the fourth element of the Tuple value
      */
     interface QuadValues<K1,K2,K3,K4,K5, T,U,V,W> extends TripleValues<K1,K2,K3,K4,K5, T,U,V>,
-            com.easyworks.repository.QuadValues<Penta<K1,K2,K3,K4,K5>, T,U,V,W> {
+            com.easyworks.repository.QuadValues<Tuple5<K1,K2,K3,K4,K5>, T,U,V,W> {
 
         /**
          * Retrieve the fourth element of the Tuple as type of <tt>W</tt>
@@ -148,11 +148,11 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 5 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 5 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Penta
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Penta
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Penta
-     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Penta
-     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Penta
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple5
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple5
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple5
+     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Tuple5
+     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Tuple5
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
@@ -160,7 +160,7 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
      * @param <X>   type of the fifth element of the Tuple value
      */
     interface PentaValues<K1,K2,K3,K4,K5, T,U,V,W,X> extends QuadValues<K1,K2,K3,K4,K5, T,U,V,W>,
-            com.easyworks.repository.PentaValues<Penta<K1,K2,K3,K4,K5>, T,U,V,W,X> {
+            com.easyworks.repository.PentaValues<Tuple5<K1,K2,K3,K4,K5>, T,U,V,W,X> {
 
         /**
          * Retrieve the fifth element of the Tuple as type of <tt>X</tt>
@@ -177,11 +177,11 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 5 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 6 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Penta
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Penta
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Penta
-     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Penta
-     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Penta
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple5
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple5
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple5
+     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Tuple5
+     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Tuple5
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
@@ -190,7 +190,7 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
      * @param <Y>   type of the sixth element of the Tuple value
      */
     interface HexaValues<K1,K2,K3,K4,K5, T,U,V,W,X,Y> extends PentaValues<K1,K2,K3,K4,K5, T,U,V,W,X>,
-            com.easyworks.repository.HexaValues<Penta<K1,K2,K3,K4,K5>, T,U,V,W,X,Y> {
+            com.easyworks.repository.HexaValues<Tuple5<K1,K2,K3,K4,K5>, T,U,V,W,X,Y> {
 
         /**
          * Retrieve the sixth element of the Tuple as type of <tt>Y</tt>
@@ -207,11 +207,11 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 5 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 7 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Penta
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Penta
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Penta
-     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Penta
-     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Penta
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple5
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple5
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple5
+     * @param <K4>  type of the fourth element of the Keys of the map, that are type of Tuple5
+     * @param <K5>  type of the fifth element of the Keys of the map, that are type of Tuple5
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
@@ -221,7 +221,7 @@ public interface PentaKeys<K1,K2,K3,K4,K5> extends TupleKeys<Penta<K1,K2,K3,K4,K
      * @param <Y>   type of the seventh element of the Tuple value
      */
     interface HeptaValues<K1,K2,K3,K4,K5, T,U,V,W,X,Y,Z> extends HexaValues<K1,K2,K3,K4,K5, T,U,V,W,X,Y>,
-            com.easyworks.repository.HeptaValues<Penta<K1,K2,K3,K4,K5>, T,U,V,W,X,Y,Z> {
+            com.easyworks.repository.HeptaValues<Tuple5<K1,K2,K3,K4,K5>, T,U,V,W,X,Y,Z> {
 
         /**
          * Retrieve the seventh element of the Tuple as type of <tt>Z</tt>

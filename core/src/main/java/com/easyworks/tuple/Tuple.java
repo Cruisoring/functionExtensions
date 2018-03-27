@@ -1,19 +1,15 @@
 package com.easyworks.tuple;
 
 import com.easyworks.Functions;
-import com.easyworks.Lazy;
-import com.easyworks.function.BiFunctionThrowable;
 import com.easyworks.function.SupplierThrowable;
-import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import com.easyworks.utility.TypeHelper;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
@@ -24,12 +20,15 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
             byte[].class, boolean[].class, char[].class, float[].class,
             int[].class, double[].class, long[].class, short[].class));
 
-    public static final Unit UNIT = new Unit();
-    public static final Single TRUE = new Single(true);
-    public static final Single FALSE = new Single(false);
+    public static final Tuple0 UNIT = new Tuple0();
+    public static final Tuple1 TRUE = new Tuple1(true);
+    public static final Tuple1 FALSE = new Tuple1(false);
+
+    protected static Function<Object, String> objectsToString;
 
     protected final Object[] values;
-    protected final Lazy<Object> pureObjectValues;
+    private Integer _hashCode;
+    private String _toString;
 
     /**
      * Protected constructor to keep the elements as a final array.
@@ -44,8 +43,6 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         for (int i=0; i<length; i++){
             values[i] = elements[i];
         }
-
-        pureObjectValues = new Lazy(() -> ArrayHelper.asPureObject(values));
     }
 
     @Override
@@ -185,7 +182,10 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(values);
+        if(_hashCode == null){
+            _hashCode = Arrays.deepHashCode(values);
+        }
+        return _hashCode;
     }
 
     @Override
@@ -208,8 +208,13 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
 
     @Override
     public String toString() {
-        return String.format("[%s]", Arrays.stream(values)
-                .map(v -> v==null?"null":v.toString()).collect(Collectors.joining(", ")));
+        if(objectsToString == null){
+            objectsToString = TypeHelper.getArrayToString(Object.class);
+        }
+        if(_toString==null){
+            _toString = objectsToString.apply(values);
+        }
+        return _toString;
     }
 
     private boolean closed = false;
@@ -250,7 +255,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param elements  The values to be saved.
      * @return  Tuple factory to create corresponding Tuple with the given set of elements.
      */
-    public static SupplierThrowable<Tuple> getTupleSupplier(Object... elements){
+    protected static SupplierThrowable<Tuple> getTupleSupplier(Object... elements){
         if (elements == null){
             return () -> create(null);
         }
@@ -268,38 +273,105 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         }
     }
 
+
     /**
-     * Crate an Unit that has no value saved, shall not be called directly.
-     * @return  The Unit object.
+     * Create a Tuple instance to keep any number of elements without caring about their Type info.
+     * @param elements  All elements to be persisted by the Tuple
+     * @return          A <tt>Tuple</tt> instance with length of the elements
      */
-    protected static Unit create(){
+    public static Tuple of(Object... elements){
+        if (elements == null){
+            return create(null);
+        }
+        int length = elements.length;
+        switch (length){
+            case 0: return UNIT;
+            case 1: return new Tuple1(elements[0]);
+            case 2: return new Tuple2(elements[0], elements[1]);
+            case 3: return new Tuple3(elements[0], elements[1], elements[2]);
+            case 4: return new Tuple4(elements[0], elements[1], elements[2], elements[3]);
+            case 5: return new Tuple5(elements[0], elements[1], elements[2], elements[3], elements[4]);
+            case 6: return new Tuple6(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
+            case 7: return new Tuple7(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6]);
+            case 8: return new Tuple8(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7]);
+            case 9: return new Tuple9(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8]);
+            case 10: return new Tuple10(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9]);
+            case 11: return new Tuple11(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10]);
+            case 12: return new Tuple12(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11]);
+            case 13: return new Tuple13(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11], elements[12]);
+            case 14: return new Tuple14(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11], elements[12], elements[13]);
+            case 15: return new Tuple15(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11], elements[12], elements[13], elements[14]);
+            case 16: return new Tuple16(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11], elements[12], elements[13], elements[14],
+                    elements[15]);
+            case 17: return new Tuple17(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11], elements[12], elements[13], elements[14],
+                    elements[15], elements[16]);
+            case 18: return new Tuple18(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11], elements[12], elements[13], elements[14],
+                    elements[15], elements[16], elements[17]);
+            case 19: return new Tuple19(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11], elements[12], elements[13], elements[14],
+                    elements[15], elements[16], elements[17], elements[18]);
+            case 20: return new Tuple20(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11], elements[12], elements[13], elements[14],
+                    elements[15], elements[16], elements[17], elements[18], elements[19]);
+
+            default: return new Tuple(elements);
+        }
+    }
+
+    /**
+     * Crate an Tuple0 that has no value saved, shall not be called directly.
+     * @return  The Tuple0 object.
+     */
+    protected static Tuple0 create(){
         return UNIT;
     }
 
     /**
-     * Create a Tuple.Single instance that contains only one value of Type T
+     * Create a Tuple1 instance that contains only one value of Type T
      * @param t     Element to be persisted by the Tuple
      * @param <T>   Type of the element <code>t</code>
      * @return      Tuple containing 6 elements that could be accessed as their original types.
      */
-    public static <T> Single<T> create(T t){
-        return new Single<>(t);
+    public static <T> Tuple1<T> create(T t){
+        return new Tuple1(t);
     }
 
     /**
-     * Create a Tuple.Dual instance that contains 2 values of Type T/U respectively
+     * Create a Tuple2 instance that contains 2 elements of Types T/U respectively
      * @param t     First element to be persisted by the Tuple
      * @param u     Second element to be persisted by the Tuple
      * @param <T>   Type of the first element <code>t</code>
      * @param <U>   Type of the second element <code>u</code>
      * @return      Tuple containing 2 elements that could be accessed as their original types.
      */
-    public static <T,U> Dual<T,U> create(T t, U u){
-        return new Dual<>(t, u);
+    public static <T,U> Tuple2<T,U> create(T t, U u){
+        return new Tuple2(t, u);
     }
 
     /**
-     * Create a Tuple.Triple instance that contains 3 values of Type T/U/V respectively
+     * Create a Tuple3 instance that contains 3 elements of Types T/U/V respectively
      * @param t     First element to be persisted by the Tuple
      * @param u     Second element to be persisted by the Tuple
      * @param v     Third element to be persisted by the Tuple
@@ -308,12 +380,12 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <V>   Type of the third element <code>v</code>
      * @return      Tuple containing 3 elements that could be accessed as their original types.
      */
-    public static <T,U,V> Triple<T,U,V> create(T t, U u, V v){
-        return new Triple<>(t, u, v);
+    public static <T,U,V> Tuple3<T,U,V> create(T t, U u, V v){
+        return new Tuple3(t, u, v);
     }
 
     /**
-     * Create a Tuple.Quad instance that contains 4 values of Type T/U/V/W respectively
+     * Create a Tuple4 instance that contains 4 elements of Types T/U/V/W respectively
      * @param t     First element to be persisted by the Tuple
      * @param u     Second element to be persisted by the Tuple
      * @param v     Third element to be persisted by the Tuple
@@ -324,12 +396,12 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <W>   Type of the fourth element <code>w</code>
      * @return      Tuple containing 4 elements that could be accessed as their original types.
      */
-    public static <T,U,V,W> Quad<T,U,V,W> create(T t, U u, V v, W w){
-        return new Quad<>(t, u, v, w);
+    public static <T,U,V,W> Tuple4<T,U,V,W> create(T t, U u, V v, W w){
+        return new Tuple4(t, u, v, w);
     }
 
     /**
-     * Create a Tuple.Penta instance that contains 5 values of Type T/U/V/W/X respectively
+     * Create a Tuple5 instance that contains 5 elements of Types T/U/V/W/X respectively
      * @param t     First element to be persisted by the Tuple
      * @param u     Second element to be persisted by the Tuple
      * @param v     Third element to be persisted by the Tuple
@@ -342,12 +414,12 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <X>   Type of the fifth element <code>x</code>
      * @return      Tuple containing 5 elements that could be accessed as their original types.
      */
-    public static <T,U,V,W,X> Penta<T,U,V,W,X> create(T t, U u, V v, W w, X x){
-        return new Penta<>(t, u, v, w, x);
+    public static <T,U,V,W,X> Tuple5<T,U,V,W,X> create(T t, U u, V v, W w, X x){
+        return new Tuple5(t, u, v, w, x);
     }
 
     /**
-     * Create a Tuple.Hexa instance that contains 6 values of Type T/U/V/W/X/Y respectively
+     * Create a Tuple6 instance that contains 6 elements of Types T/U/V/W/X/Y respectively
      * @param t     First element to be persisted by the Tuple
      * @param u     Second element to be persisted by the Tuple
      * @param v     Third element to be persisted by the Tuple
@@ -362,12 +434,12 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <Y>   Type of the sixth element <code>y</code>
      * @return      Tuple containing 6 elements that could be accessed as their original types.
      */
-    public static <T,U,V,W,X,Y> Hexa<T,U,V,W,X,Y> create(T t, U u, V v, W w, X x, Y y){
-        return new Hexa(t, u, v, w, x, y);
+    public static <T,U,V,W,X,Y> Tuple6<T,U,V,W,X,Y> create(T t, U u, V v, W w, X x, Y y){
+        return new Tuple6(t, u, v, w, x, y);
     }
 
     /**
-     * Create a Tuple.Hepta instance that contains 7 values of Type T/U/V/W/X/Y/Z respectively
+     * Create a Tuple7 instance that contains 7 elements of Types T/U/V/W/X/Y/Z respectively
      * @param t     First element to be persisted by the Tuple
      * @param u     Second element to be persisted by the Tuple
      * @param v     Third element to be persisted by the Tuple
@@ -384,8 +456,490 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <Z>   Type of the seventh element <code>z</code>
      * @return      Tuple containing seven elements that could be accessed as their original types.
      */
-    public static <T,U,V,W,X,Y,Z> Hepta<T,U,V,W,X,Y,Z> create(T t, U u, V v, W w, X x, Y y, Z z){
-        return new Hepta(t, u, v, w, x, y, z);
+    public static <T,U,V,W,X,Y,Z> Tuple7<T,U,V,W,X,Y,Z> create(T t, U u, V v, W w, X x, Y y, Z z){
+        return new Tuple7(t, u, v, w, x, y, z);
+    }
+
+    /**
+     * Create a Tuple8 instance that contains 8 elements of 8 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @return      Tuple containing 8 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A> Tuple8<T,U,V,W,X,Y,Z,A> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a){
+        return new Tuple8(t, u, v, w, x, y, z, a);
+    }
+
+    /**
+     * Create a Tuple9 instance that contains 9 elements of 9 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @return      Tuple containing 9 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B> Tuple9<T,U,V,W,X,Y,Z,A,B> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b){
+        return new Tuple9(t, u, v, w, x, y, z, a, b);
+    }
+    
+    /**
+     * Create a Tuple10 instance that contains 10 elements of 10 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @return      Tuple containing 10 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C> Tuple10<T,U,V,W,X,Y,Z,A,B,C> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c){
+        return new Tuple10(t, u, v, w, x, y, z, a, b, c);
+    }
+    
+    /**
+     * Create a Tuple11 instance that contains 11 elements of 11 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @return      Tuple containing 11 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D> Tuple11<T,U,V,W,X,Y,Z,A,B,C,D> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d){
+        return new Tuple11(t, u, v, w, x, y, z, a, b, c, d);
+    }
+
+    /**
+     * Create a Tuple12 instance that contains 12 elements of 12 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @return      Tuple containing 12 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E> Tuple12<T,U,V,W,X,Y,Z,A,B,C,D,E> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e){
+        return new Tuple12(t, u, v, w, x, y, z, a, b, c, d, e);
+    }
+
+    /**
+     * Create a Tuple13 instance that contains 13 elements of 13 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param f     Thirteenth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @param <F>   Type of the 13th element <code>f</code>
+     * @return      Tuple containing 13 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F> Tuple13<T,U,V,W,X,Y,Z,A,B,C,D,E,F> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f){
+        return new Tuple13(t, u, v, w, x, y, z, a, b, c, d, e, f);
+    }
+    
+    /**
+     * Create a Tuple14 instance that contains 14 elements of 14 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param f     Thirteenth element to be persisted by the Tuple
+     * @param g     Fourteenth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @param <F>   Type of the 13th element <code>f</code>
+     * @param <G>   Type of the 14th element <code>g</code>
+     * @return      Tuple containing 14 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G> Tuple14<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g){
+        return new Tuple14(t, u, v, w, x, y, z, a, b, c, d, e, f, g);
+    }
+
+    /**
+     * Create a Tuple15 instance that contains 15 elements of 15 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param f     Thirteenth element to be persisted by the Tuple
+     * @param g     Fourteenth element to be persisted by the Tuple
+     * @param h     Fifteenth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @param <F>   Type of the 13th element <code>f</code>
+     * @param <G>   Type of the 14th element <code>g</code>
+     * @param <H>   Type of the 15th element <code>h</code>
+     * @return      Tuple containing 15 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H> Tuple15<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h){
+        return new Tuple15(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h);
+    }
+
+
+    /**
+     * Create a Tuple16 instance that contains 16 elements of 16 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param f     Thirteenth element to be persisted by the Tuple
+     * @param g     Fourteenth element to be persisted by the Tuple
+     * @param h     Fifteenth element to be persisted by the Tuple
+     * @param i     Sixteenth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @param <F>   Type of the 13th element <code>f</code>
+     * @param <G>   Type of the 14th element <code>g</code>
+     * @param <H>   Type of the 15th element <code>h</code>
+     * @param <I>   Type of the 16th element <code>i</code>
+     * @return      Tuple containing 16 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> Tuple16<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i){
+        return new Tuple16(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i);
+    }
+
+    /**
+     * Create a Tuple17 instance that contains 17 elements of 17 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param f     Thirteenth element to be persisted by the Tuple
+     * @param g     Fourteenth element to be persisted by the Tuple
+     * @param h     Fifteenth element to be persisted by the Tuple
+     * @param i     Sixteenth element to be persisted by the Tuple
+     * @param j     Seventeenth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @param <F>   Type of the 13th element <code>f</code>
+     * @param <G>   Type of the 14th element <code>g</code>
+     * @param <H>   Type of the 15th element <code>h</code>
+     * @param <I>   Type of the 16th element <code>i</code>
+     * @param <J>   Type of the 17th element <code>j</code>
+     * @return      Tuple containing 17 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J> Tuple17<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j){
+        return new Tuple17(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j);
+    }
+
+    /**
+     * Create a Tuple18 instance that contains 18 elements of 18 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param f     Thirteenth element to be persisted by the Tuple
+     * @param g     Fourteenth element to be persisted by the Tuple
+     * @param h     Fifteenth element to be persisted by the Tuple
+     * @param i     Sixteenth element to be persisted by the Tuple
+     * @param j     Seventeenth element to be persisted by the Tuple
+     * @param k     Eighteenth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @param <F>   Type of the 13th element <code>f</code>
+     * @param <G>   Type of the 14th element <code>g</code>
+     * @param <H>   Type of the 15th element <code>h</code>
+     * @param <I>   Type of the 16th element <code>i</code>
+     * @param <J>   Type of the 17th element <code>j</code>
+     * @param <K>   Type of the 18th element <code>k</code>
+     * @return      Tuple containing 18 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K> Tuple18<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k){
+        return new Tuple18(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k);
+    }
+
+    /**
+     * Create a Tuple19 instance that contains 19 elements of 19 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param f     Thirteenth element to be persisted by the Tuple
+     * @param g     Fourteenth element to be persisted by the Tuple
+     * @param h     Fifteenth element to be persisted by the Tuple
+     * @param i     Sixteenth element to be persisted by the Tuple
+     * @param j     Seventeenth element to be persisted by the Tuple
+     * @param k     Eighteenth element to be persisted by the Tuple
+     * @param l     Nineteenth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @param <F>   Type of the 13th element <code>f</code>
+     * @param <G>   Type of the 14th element <code>g</code>
+     * @param <H>   Type of the 15th element <code>h</code>
+     * @param <I>   Type of the 16th element <code>i</code>
+     * @param <J>   Type of the 17th element <code>j</code>
+     * @param <K>   Type of the 18th element <code>k</code>
+     * @param <L>   Type of the 19th element <code>l</code>
+     * @return      Tuple containing 19 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> Tuple19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l){
+        return new Tuple19(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l);
+    }
+
+    /**
+     * Create a Tuple20 instance that contains 20 elements of 20 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param f     Thirteenth element to be persisted by the Tuple
+     * @param g     Fourteenth element to be persisted by the Tuple
+     * @param h     Fifteenth element to be persisted by the Tuple
+     * @param i     Sixteenth element to be persisted by the Tuple
+     * @param j     Seventeenth element to be persisted by the Tuple
+     * @param k     Eighteenth element to be persisted by the Tuple
+     * @param l     Nineteenth element to be persisted by the Tuple
+     * @param m     Twentieth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @param <F>   Type of the 13th element <code>f</code>
+     * @param <G>   Type of the 14th element <code>g</code>
+     * @param <H>   Type of the 15th element <code>h</code>
+     * @param <I>   Type of the 16th element <code>i</code>
+     * @param <J>   Type of the 17th element <code>j</code>
+     * @param <K>   Type of the 18th element <code>k</code>
+     * @param <L>   Type of the 19th element <code>l</code>
+     * @param <M>   Type of the 20th element <code>m</code>
+     * @return      Tuple containing 20 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> Tuple20<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m){
+        return new Tuple20(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l, m);
     }
 
     /**
@@ -423,15 +977,6 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         Objects.requireNonNull(collection);
         T[] array = (T[])collection.toArray((T[]) Array.newInstance(clazz, 0));
         return setOf(array);
-    }
-
-    /**
-     * Create a Tuple instance to keep any number of elements without caring about their Type info.
-     * @param elements  All elements to be persisted by the Tuple
-     * @return          A <tt>Tuple</tt> instance with length of the elements
-     */
-    public static Tuple of(Object... elements){
-        return new Tuple(elements);
     }
 
     //endregion Factories to create Strong-typed Tuple instances based on the number of given arguments

@@ -15,10 +15,10 @@ package com.easyworks.tuple;
  * @param <D> Type of the 11th persisted element
  * @param <E> Type of the 12th persisted element
  */
-public class OfTwelve<T,U,V,W,X,Y,Z,A,B,C,D,E> extends Tuple
+public class Tuple12<T,U,V,W,X,Y,Z,A,B,C,D,E> extends Tuple
         implements WithTwelfth<T,U,V,W,X,Y,Z,A,B,C,D,E> {
 
-    protected OfTwelve(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e){
+    protected Tuple12(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e){
         super(t, u, v, w, x, y, z, a, b, c, d, e);
     }
 

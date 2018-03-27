@@ -1,17 +1,15 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
-import com.easyworks.function.BiFunctionThrowable;
-import com.easyworks.function.FunctionThrowable;
-import com.easyworks.function.TriConsumerThrowable;
-import com.easyworks.function.TriFunctionThrowable;
-import com.easyworks.repository.DualValuesRepository;
+import com.easyworks.function.*;
 import com.easyworks.repository.HeptaValuesRepository;
 import com.easyworks.repository.PentaValuesRepository;
 import com.easyworks.repository.QuadValuesRepository;
-import com.easyworks.tuple.Hepta;
-import com.easyworks.tuple.Penta;
+import com.easyworks.repository.TripleValuesRepository;
 import com.easyworks.tuple.Tuple;
+import com.easyworks.tuple.Tuple3;
+import com.easyworks.tuple.Tuple5;
+import com.easyworks.tuple.Tuple7;
 import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Array;
@@ -31,7 +29,7 @@ public class TypeHelper {
 
     static{
         if("false".equalsIgnoreCase(System.getProperty("EMPTY_ARRAY_AS_DEFAULT"))){
-            EMPTY_ARRAY_AS_DEFAULT = true;
+            EMPTY_ARRAY_AS_DEFAULT = false;
         }
     }
 
@@ -52,6 +50,49 @@ public class TypeHelper {
     }
 
 
+    /**
+     * Repository to evaluate a Lambda expression to get its Parameter Types, and return Type.
+     *
+     * Notice: the Lambda Expression must be provided directly to calling the embedded
+     * <tt>FunctionThrowable&lt;TKey, Tuple3&lt;T,U,V&gt;&gt; valueFunction</tt>
+     */
+    public static final TripleValuesRepository<AbstractThrowable, Boolean, Class[], Class> lambdaGenericInfoRepository = TripleValuesRepository.fromKey(
+            lambda -> {
+                if(lambda == null)
+                    throw new NullPointerException();
+                Class lambdaClass = lambda.getClass();
+                ConstantPool constantPool = TypeHelper.getConstantPoolOfClass(lambdaClass);
+                Method functionInterfaceMethod = null;
+                int index = constantPool.getSize();
+                while(--index >=0) {
+                    try {
+                        functionInterfaceMethod = (Method)  constantPool.getMethodAt(index);
+                        break;
+                    } catch (Exception ex){
+                        continue;
+                    }
+                }
+                Class[] parameterClasses = functionInterfaceMethod.getParameterTypes();
+                int parameterCount = functionInterfaceMethod.getParameterCount();
+                Class returnClass = functionInterfaceMethod.getReturnType();
+
+                Class[] paraClasses = ArrayHelper.objectify(parameterClasses);
+                return Tuple.create(paraClasses.length == parameterCount, paraClasses, returnClass);
+            }
+    );
+
+    /**
+     * Helper method to get the return type of a RunnableThrowable (as void.class) or SupplierThrowable.
+     * Notice: only applicable on first-hand lambda expressions. Lambda Expressions created by Lambda would erase the return type in Java 1.8.161.
+     * @param aThrowable solid Lambda expression
+     * @return  The type of the return value defined by the Lambda Expression.
+     */
+    public static Class getReturnType(AbstractThrowable aThrowable){
+        Tuple3<Boolean, Class[], Class> triple = lambdaGenericInfoRepository.retrieve(aThrowable);
+        return triple.getThird();
+//        return lambdaGenericInfoRepository.getThirdValue(aThrowable);
+    }
+
     private static <T> TriFunctionThrowable<Object, Integer, Integer, Object> asGenericCopyOfRange(Class<T> componentType){
         return (array, from, to) -> Arrays.copyOfRange((T[])array, from, to);
     }
@@ -69,7 +110,7 @@ public class TypeHelper {
                 } else {
                     Class elementClass = element.getClass();
                     if(elementClass.isArray()){
-                        Function<Object, String> elementToString = classOperators.getSeventhValue(elementClass.getComponentType());
+                        Function<Object, String> elementToString = getArrayToString(elementClass.getComponentType());
                         strings[i] = elementToString.apply(element);
                     } else {
                         strings[i] = element.toString();
@@ -83,7 +124,7 @@ public class TypeHelper {
 
     /**
      * Repository to keep operators related with specific class that is kept as the keys of the map.
-     * Relative operators are saved as a strong-typed Hepta with following elements:
+     * Relative operators are saved as a strong-typed Tuple7 with following elements:
      *      Equivalent predicate: to evaluate if another class is regarded as equivalent to the specific class.
      *              Notice: int.class and Integer.class are regarded as equivalent in this library, their array types
      *                  int[].class and Integer[].class are also regarded as equivalent.
@@ -108,15 +149,15 @@ public class TypeHelper {
             , Function<Object, String>             // Convert array to String
     > classOperators = HeptaValuesRepository.fromKey(
             () -> new HashMap<Class,
-                    Hepta<
-                        Predicate<Class>,
-                        FunctionThrowable<Integer, Object>,
-                        Class,
-                        BiFunctionThrowable<Object, Integer, Object>,
-                        TriConsumerThrowable<Object, Integer, Object>,
-                        TriFunctionThrowable<Object, Integer, Integer, Object>,
-                        Function<Object, String>
-                    >
+                    Tuple7<
+                                            Predicate<Class>,
+                                            FunctionThrowable<Integer, Object>,
+                                            Class,
+                                            BiFunctionThrowable<Object, Integer, Object>,
+                                            TriConsumerThrowable<Object, Integer, Object>,
+                                            TriFunctionThrowable<Object, Integer, Integer, Object>,
+                                            Function<Object, String>
+                                        >
                 >(){{
                 //region Special cases of Primitive types and their wrappers
                 Predicate<Class> classPredicate = clazz -> int.class.equals(clazz) || Integer.class.equals(clazz);
@@ -370,7 +411,7 @@ public class TypeHelper {
                     , Function<Object, Object>  // convert the value of original class to equivalent class parallelly
                     , Function<Object, Object>  // convert the value of original class to equivalent class in serial
             > baseTypeConverters = PentaValuesRepository.fromKey(
-            () -> new HashMap<Class, Penta<Boolean, Object, Class, Function<Object,Object>, Function<Object,Object>>>(){{
+            () -> new HashMap<Class, Tuple5<Boolean, Object, Class, Function<Object,Object>, Function<Object,Object>>>(){{
                 Function<Object,Object> convertWithCasting = fromElement -> Boolean.valueOf((boolean)fromElement);
                 put(boolean.class, Tuple.create(
                         true
@@ -640,104 +681,6 @@ public class TypeHelper {
             };
     }
 
-    protected static Function<Object, Object> getMapper(Class fromClass, Class toClass, Boolean parallel){
-        Objects.requireNonNull(fromClass);
-        Objects.requireNonNull(toClass);
-
-        //First, check fromClass and toClass is identical
-        if(fromClass == toClass)
-            // No mapping needed, thus returnSelf is enough
-            return returnsSelf;
-        //Second, check to see if fromClass is equivalent to toClass
-        else if(getClassPredicate(fromClass).test(toClass))
-            // Use the equivalent converter if they are
-            return getToEquivalentParallelConverter(fromClass);
-
-        boolean isFromArray = fromClass.isArray();
-        boolean isToArray = toClass.isArray();
-        //Then, since fromClass and toClass are not equivalent, check if both of them are not array class
-        if(!isFromArray && !isToArray){
-            //Third, cast the fromObj to toClass object by force, that would throw Exceptions when their types are not match
-            return toClass::cast;
-        } else if( Boolean.logicalXor(isFromArray, isToArray))
-            //Fourth, when one type is Array, another is not, mapping is not possible, return mapsToNull directly
-            return mapsToNull;
-
-        //Now both fromClass and toClass are of Array
-        Class fromComponentClass = fromClass.getComponentType();
-        Class toComponentClass = toClass.getComponentType();
-        Function<Object, Object> elementConverter = getMapper(fromComponentClass, toComponentClass, parallel);
-        //If element of the fromArray cannot be mapped to toArray, their Arrays cannot be mapped either, return mapsToNull
-        if(elementConverter == mapsToNull)
-            return mapsToNull;
-
-        boolean isFromComponentArray = fromComponentClass.isArray();
-        boolean isToComponentArray = toComponentClass.isArray();
-
-        Function<Integer, Object> factory = TypeHelper.getArrayFactory(toComponentClass).orElse(null);
-        BiFunctionThrowable<Object, Integer, Object> fromElementGetter = getArrayElementGetter(fromComponentClass);
-        TriConsumerThrowable<Object, Integer, Object> toElementSetter = getArrayElementSetter(toComponentClass);
-        FunctionThrowable<Object, Object> mapper;
-
-        if(parallel == null) {
-
-        } else if (parallel){
-            TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> elementMappingWithException =
-                    getExceptionWithMapping(fromElementGetter, toElementSetter, elementConverter);
-            mapper = (fromArray) -> {
-                int length = Array.getLength(fromArray);
-                Object toArray = factory.apply(length);
-                Integer firstIndexWithException = IntStream.range(0, length).boxed().parallel()
-                        .filter(i -> elementMappingWithException.apply(fromArray, toArray, i))
-                        .findFirst().orElse(-1);
-
-                return firstIndexWithException == -1 ? toArray : null;
-            };
-        } else {
-            if(elementConverter == returnsSelf){
-                mapper = (fromArray) -> {
-                    int length = Array.getLength(fromArray);
-                    Object toArray = factory.apply(length);
-                    for (int i = 0; i < length; i++) {
-                        toElementSetter.accept(toArray, i, fromElementGetter.apply(fromArray, i));
-                    }
-                    return toArray;
-                };
-            } else if(!isFromComponentArray && !isToComponentArray){
-                //The component converter must be Class.cast()
-                mapper = (fromArray) -> {
-                    int length = Array.getLength(fromArray);
-                    Object toArray = factory.apply(length);
-                    for (int i = 0; i < length; i++) {
-                        toElementSetter.accept(toArray, i, toComponentClass.cast(fromElementGetter.apply(fromArray, i)));
-                    }
-                    return toArray;
-                };
-            } else {
-                mapper = (fromArray) -> {
-                    int length = Array.getLength(fromArray);
-                    Object toArray = factory.apply(length);
-                    for (int i = 0; i < length; i++) {
-                        Object fromElement = fromElementGetter.apply(fromArray, i);
-                        Object convertedElement = elementConverter.apply(fromElement);
-                        toElementSetter.accept(toArray, i, convertedElement);
-                    }
-                    return toArray;
-                };
-            }
-        }
-
-        mapper = (fromArray) -> {
-            int length = Array.getLength(fromArray);
-            Object toArray = factory.apply(length);
-            for (int i = 0; i < length; i++) {
-                toElementSetter.accept(toArray, i, toComponentClass.cast(fromElementGetter.apply(fromArray, i)));
-            }
-            return toArray;
-        };
-        return mapper.orElse(null);
-    }
-
     public static final QuadValuesRepository.DualKeys<
             Class       //fromClass
             ,Class      //toClass
@@ -925,6 +868,17 @@ public class TypeHelper {
         } else {
             return deepEqualsParallel(getter1, getter2, obj1, obj2);
         }
+    }
+
+    public static String deepToString(Object obj){
+        if(obj==null)
+            return "null";
+        Class objClass = obj.getClass();
+        if(!objClass.isArray())
+            return obj.toString();
+
+        Function<Object, String> arrayToString = getArrayToString(objClass.getComponentType());
+        return arrayToString.apply(obj);
     }
 
 }

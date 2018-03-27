@@ -1,7 +1,7 @@
 package com.easyworks.tuple;
 
 /**
- * Tuple type with 20 elements persisted.
+ * Tuple type with 19 elements persisted.
  * @param <T> Type of the first persisted element
  * @param <U> Type of the second persisted element
  * @param <V> Type of the third persisted element
@@ -21,13 +21,12 @@ package com.easyworks.tuple;
  * @param <J> Type of the 17th persisted element
  * @param <K> Type of the 18th persisted element
  * @param <L> Type of the 19th persisted element
- * @param <M> Type of the 20th persisted element
  */
-public class OfTwenty<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> extends Tuple
-        implements WithTwentieth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> {
+public class Tuple19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Tuple
+        implements WithNineteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> {
 
-    protected OfTwenty(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m){
-        super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l, m);
+    protected Tuple19(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l){
+        super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l);
     }
 
 }

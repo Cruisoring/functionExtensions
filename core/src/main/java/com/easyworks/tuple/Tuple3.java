@@ -6,10 +6,10 @@ package com.easyworks.tuple;
  * @param <U> Type of the second persisted element
  * @param <V> Type of the third persisted element
  */
-public class Triple<T,U,V> extends Tuple
+public class Tuple3<T,U,V> extends Tuple
     implements WithThird<T,U,V> {
 
-    protected Triple(T t, U u, V v){
+    protected Tuple3(T t, U u, V v){
         super(t, u, v);
     }
 

@@ -16,10 +16,10 @@ package com.easyworks.tuple;
  * @param <E> Type of the 12th persisted element
  * @param <F> Type of the 13th persisted element
  */
-public class OfThirteen<T,U,V,W,X,Y,Z,A,B,C,D,E,F> extends Tuple
+public class Tuple13<T,U,V,W,X,Y,Z,A,B,C,D,E,F> extends Tuple
         implements WithThirteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F> {
 
-    protected OfThirteen(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f){
+    protected Tuple13(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f){
         super(t, u, v, w, x, y, z, a, b, c, d, e, f);
     }
 

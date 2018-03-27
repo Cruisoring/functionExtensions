@@ -1,7 +1,7 @@
 package com.easyworks.tuple;
 
 /**
- * Tuple type with 18 elements persisted.
+ * Tuple type with 16 elements persisted.
  * @param <T> Type of the first persisted element
  * @param <U> Type of the second persisted element
  * @param <V> Type of the third persisted element
@@ -18,14 +18,12 @@ package com.easyworks.tuple;
  * @param <G> Type of the 14th persisted element
  * @param <H> Type of the 15th persisted element
  * @param <I> Type of the 16th persisted element
- * @param <J> Type of the 17th persisted element
- * @param <K> Type of the 18th persisted element
  */
-public class OfEighteen<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K> extends Tuple
-        implements WithEighteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K> {
+public class Tuple16<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> extends Tuple
+        implements WithSixteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> {
 
-    protected OfEighteen(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k){
-        super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k);
+    protected Tuple16(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i){
+        super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i);
     }
 
 }

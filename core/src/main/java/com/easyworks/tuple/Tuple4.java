@@ -7,10 +7,10 @@ package com.easyworks.tuple;
  * @param <V> Type of the third persisted element
  * @param <W> Type of the fourth persisted element
  */
-public class Quad<T,U,V,W> extends Tuple
+public class Tuple4<T,U,V,W> extends Tuple
         implements WithFourth<T,U,V,W> {
 
-    protected Quad(T t, U u, V v, W w){
+    protected Tuple4(T t, U u, V v, W w){
         super(t, u, v, w);
     }
 

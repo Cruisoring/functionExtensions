@@ -1,11 +1,14 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
-import com.easyworks.function.*;
+import com.easyworks.function.BiConsumerThrowable;
+import com.easyworks.function.BiFunctionThrowable;
+import com.easyworks.function.FunctionThrowable;
+import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.repository.SingleValuesRepository;
-import com.easyworks.tuple.Hexa;
-import com.easyworks.tuple.Single;
 import com.easyworks.tuple.Tuple;
+import com.easyworks.tuple.Tuple1;
+import com.easyworks.tuple.Tuple6;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -13,7 +16,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 public class ArrayHelper<T, R> {
@@ -71,8 +73,8 @@ public class ArrayHelper<T, R> {
             >
             arrayConverters = SingleValuesRepository.fromSixKeys(
             () -> new HashMap<
-                    Hexa<Class, Class, BiFunctionThrowable<Object, Integer, Object>, TriConsumerThrowable<Object, Integer, Object>, Function<Object, Object>, Boolean>,
-                    Single<Function<Object, Object>>>() {{
+                    Tuple6<Class, Class, BiFunctionThrowable<Object, Integer, Object>, TriConsumerThrowable<Object, Integer, Object>, Function<Object, Object>, Boolean>,
+                    Tuple1<Function<Object, Object>>>() {{
                 //Convert array of primitive values to corresponding array of wrapper of the primitive values
                 put(Tuple.create(boolean.class, Boolean.class, null, null, null, null),
                         Tuple.create(getArrayConverter(boolean.class, Boolean.class, null, null, null, null)));
@@ -265,11 +267,13 @@ public class ArrayHelper<T, R> {
         return objects;
     }
 
-    private static Function<Object, Object> toBooleanArray =
-            arrayConverters.getFirst(boolean.class, Boolean.class, null, null, null, null);
-
     public static Boolean[] convertArray(boolean[] values) {
-        return (Boolean[]) toBooleanArray.apply(values);
+        if(values == null)
+            return null;
+
+        int length = values.length;
+        Function<Object, Object> converter = TypeHelper.getToEquivalentParallelConverter(values.getClass());
+        return (Boolean[])converter.apply(values);
     }
 
     private static Function<Object, Object> toByteArray =
@@ -392,34 +396,6 @@ public class ArrayHelper<T, R> {
         Arrays.sort(expectedCopy);
         Arrays.sort(actualCopy);
         return TypeHelper.deepEquals(expectedCopy, actualCopy);
-    }
-
-    public static boolean deepEquals(Object obj1, Object obj2){
-        if(Objects.equals(obj1, obj2))
-            return true;
-
-        Class class1 = obj1.getClass();
-        Class class2 = obj2.getClass();
-        if(!TypeHelper.getClassPredicate(class1).test(class2) || !class1.isArray())
-            return false;
-
-        int expectedSize = Array.getLength(obj1);
-        if(expectedSize != Array.getLength(obj2))
-            return false;
-
-        BiFunctionThrowable<Object, Integer, Object> getter = TypeHelper.getArrayElementGetter(class1);
-        Predicate<Integer> elementUnmatchedPredicate = i -> {
-            try {
-                Object expectedElement = getter.apply(obj1, i);
-                Object actualElement = getter.apply(obj2, i);
-                return !deepEquals(expectedElement, actualElement);
-            }catch(Exception ex){
-                return true;
-            }
-        };
-        boolean result = !IntStream.range(0, expectedSize).boxed().parallel()
-                .filter(elementUnmatchedPredicate).findFirst().isPresent();
-        return result;
     }
 
     public static <T> BiConsumerThrowable<Object, Function<Integer, Object>> getParallelSetAll(Class<T> clazz){

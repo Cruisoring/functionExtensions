@@ -125,7 +125,7 @@ public class MultiValuesRepositoryTest {
         assertTrue(Arrays.equals(repository.getValue().values().toArray(new Tuple[2]),
                 new Tuple[]{Tuple.create(5,true, 'a', "abcd?".toCharArray(), ""), Tuple.create(11, true, '0', "0123456789?".toCharArray(), "56789?")}));
 
-        Penta tuple = repository.retrieve("A test of retrieve");
+        Tuple5 tuple = repository.retrieve("A test of retrieve");
         assertEquals(3, repository.getSize());
         assertEquals(Tuple.create(18, false, 'A', "A test of retrieve".toCharArray(), "t of retrieve"), tuple);
     }
@@ -156,7 +156,7 @@ public class MultiValuesRepositoryTest {
                 new Tuple[]{Tuple.create(5,true, '?', "?abcd".toCharArray(), "", 13),
                         Tuple.create(11, true, '?', "?0123456789".toCharArray(), "456789", 9)}));
 
-        Hexa tuple = repository.retrieve("A test of retrieve");
+        Tuple6 tuple = repository.retrieve("A test of retrieve");
         assertEquals(3, repository.getSize());
         assertEquals(Tuple.create(18, false, 'A', "A test of retrieve".toCharArray(), "t of retrieve", 14), tuple);
     }

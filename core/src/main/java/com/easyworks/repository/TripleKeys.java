@@ -5,11 +5,11 @@ import com.easyworks.tuple.*;
 /**
  * Interface for map.keys that are of <tt>Tuple</tt> of 3 elements and keep the methods to use them as strong-typed
  * values to fetch strong typed elements
- * @param <K1>  type of the first element of the Keys of the map, that are type of Triple
- * @param <K2>  type of the second element of the Keys of the map, that are type of Triple
- * @param <K3>  type of the third element of the Keys of the map, that are type of Triple
+ * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple3
+ * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple3
+ * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple3
  */
-public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
+public interface TripleKeys<K1,K2,K3> extends TupleKeys<Tuple3<K1,K2,K3>> {
 
     /**
      * Get the strong-typed Tuple that matched with the actual Key of the concerned map
@@ -18,7 +18,7 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
      * @param k2    second element of actual key of the Tuple, with type of <tt>K2</tt>
      * @return  Tuple composed by the above elements to be used as the actual key of the map
      */
-    default Triple<K1,K2,K3> getKey(K1 k1, K2 k2, K3 k3){
+    default Tuple3<K1,K2,K3> getKey(K1 k1, K2 k2, K3 k3){
         return Tuple.create(k1, k2, k3);
     }
 
@@ -35,14 +35,14 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
 
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 3 elements and keep the methods to use them as strong-typed
-     * values to fetch mapped values of Tuple.Triple composed by 1 element
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Triple
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Triple
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Triple
+     * values to fetch mapped values of Tuple.Tuple3 composed by 1 element
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple3
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple3
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple3
      * @param <T>   type of the first element of the Tuple value
      */
     interface SingleValues<K1,K2,K3, T> extends TripleKeys<K1,K2,K3>,
-            com.easyworks.repository.SingleValues<Triple<K1,K2,K3>, T> {
+            com.easyworks.repository.SingleValues<Tuple3<K1,K2,K3>, T> {
 
         default Tuple retrieve(K1 k1, K2 k2, K3 k3){
             return retrieve(getKey(k1, k2, k3));
@@ -63,14 +63,14 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 3 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 3 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Triple
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Triple
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Triple
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple3
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple3
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple3
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      */
     interface DualValues<K1,K2,K3, T,U> extends SingleValues<K1,K2,K3, T>,
-            com.easyworks.repository.DualValues<Triple<K1,K2,K3>, T,U> {
+            com.easyworks.repository.DualValues<Tuple3<K1,K2,K3>, T,U> {
 
         /**
          * Retrieve the second element of the Tuple as type of <tt>U</tt>
@@ -87,16 +87,16 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 3 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 3 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Triple
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Triple
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Triple
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Triple
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple3
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple3
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple3
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple3
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
      */
     interface TripleValues<K1,K2,K3, T,U,V> extends DualValues<K1,K2,K3, T,U>,
-            com.easyworks.repository.TripleValues<Triple<K1,K2,K3>, T,U,V> {
+            com.easyworks.repository.TripleValues<Tuple3<K1,K2,K3>, T,U,V> {
 
         /**
          * Retrieve the third element of the Tuple as type of <tt>V</tt>
@@ -113,16 +113,16 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 3 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 4 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Triple
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Triple
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Triple
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple3
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple3
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple3
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
      * @param <W>   type of the fourth element of the Tuple value
      */
     interface QuadValues<K1,K2,K3, T,U,V,W> extends TripleValues<K1,K2,K3, T,U,V>,
-            com.easyworks.repository.QuadValues<Triple<K1,K2,K3>, T,U,V,W> {
+            com.easyworks.repository.QuadValues<Tuple3<K1,K2,K3>, T,U,V,W> {
 
         /**
          * Retrieve the fourth element of the Tuple as type of <tt>W</tt>
@@ -139,9 +139,9 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 3 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 5 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Triple
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Triple
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Triple
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple3
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple3
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple3
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
@@ -149,7 +149,7 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
      * @param <X>   type of the fifth element of the Tuple value
      */
     interface PentaValues<K1,K2,K3, T,U,V,W,X> extends QuadValues<K1,K2,K3, T,U,V,W>,
-            com.easyworks.repository.PentaValues<Triple<K1,K2,K3>, T,U,V,W,X> {
+            com.easyworks.repository.PentaValues<Tuple3<K1,K2,K3>, T,U,V,W,X> {
 
         /**
          * Retrieve the fifth element of the Tuple as type of <tt>X</tt>
@@ -166,9 +166,9 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 3 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 6 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Triple
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Triple
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Triple
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple3
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple3
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple3
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
@@ -177,7 +177,7 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
      * @param <Y>   type of the sixth element of the Tuple value
      */
     interface HexaValues<K1,K2,K3, T,U,V,W,X,Y> extends PentaValues<K1,K2,K3, T,U,V,W,X>,
-            com.easyworks.repository.HexaValues<Triple<K1,K2,K3>, T,U,V,W,X,Y> {
+            com.easyworks.repository.HexaValues<Tuple3<K1,K2,K3>, T,U,V,W,X,Y> {
 
         /**
          * Retrieve the sixth element of the Tuple as type of <tt>Y</tt>
@@ -194,9 +194,9 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
     /**
      * Interface for map.keys that are of <tt>Tuple</tt> of 3 elements and keep the methods to use them as strong-typed
      * values to fetch mapped values of Tuple composed by 7 elements
-     * @param <K1>  type of the first element of the Keys of the map, that are type of Triple
-     * @param <K2>  type of the second element of the Keys of the map, that are type of Triple
-     * @param <K3>  type of the third element of the Keys of the map, that are type of Triple
+     * @param <K1>  type of the first element of the Keys of the map, that are type of Tuple3
+     * @param <K2>  type of the second element of the Keys of the map, that are type of Tuple3
+     * @param <K3>  type of the third element of the Keys of the map, that are type of Tuple3
      * @param <T>   type of the first element of the Tuple value
      * @param <U>   type of the second element of the Tuple value
      * @param <V>   type of the third element of the Tuple value
@@ -206,7 +206,7 @@ public interface TripleKeys<K1,K2,K3> extends TupleKeys<Triple<K1,K2,K3>> {
      * @param <Y>   type of the seventh element of the Tuple value
      */
     interface HeptaValues<K1,K2,K3, T,U,V,W,X,Y,Z> extends HexaValues<K1,K2,K3, T,U,V,W,X,Y>,
-            com.easyworks.repository.HeptaValues<Triple<K1,K2,K3>, T,U,V,W,X,Y,Z> {
+            com.easyworks.repository.HeptaValues<Tuple3<K1,K2,K3>, T,U,V,W,X,Y,Z> {
 
         /**
          * Retrieve the seventh element of the Tuple as type of <tt>Z</tt>

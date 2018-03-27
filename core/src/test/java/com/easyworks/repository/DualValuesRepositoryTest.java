@@ -1,12 +1,10 @@
 package com.easyworks.repository;
 
-import com.easyworks.tuple.Dual;
 import com.easyworks.tuple.Tuple;
+import com.easyworks.tuple.Tuple2;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class DualValuesRepositoryTest {
 
@@ -15,7 +13,7 @@ public class DualValuesRepositoryTest {
 
     @Test
     public void retrieve() {
-        Dual value = dualValuesRepository.retrieve("abc");
+        Tuple2 value = dualValuesRepository.retrieve("abc");
         assertNotNull(value);
         assertEquals(Integer.valueOf(3), dualValuesRepository.getFirstValue("abc"));
         assertEquals(true, dualValuesRepository.getSecondValue("abc"));
