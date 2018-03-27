@@ -153,6 +153,15 @@ public class TypeHelper {
     }
     //endregion
 
+    //region Repository with Class as the key, to keep 7 common used attributes or operators
+    //  # Class Predicate:
+    //  # Factory to create array with given size of such class instances
+    //  # Array Class:  class of the created array instance
+    //  # Getter: function to get the class instance at given index position of relavant array
+    //  # Setter: function to set a class instance to given index position of relavant array
+    //  # copyOfRange: extract part of all of the array to another array of the same type
+    //  # toString: deepToString utility to present all the embeded elements as a string
+
     /**
      * Repository to keep operators related with specific class that is kept as the keys of the map.
      * Relative operators are saved as a strong-typed Tuple7 with following elements:
@@ -191,7 +200,6 @@ public class TypeHelper {
                             Function<Object, String>
                         >
                 >(){{
-                //region Special cases of Primitive types and their wrappers
                 Predicate<Class> classPredicate = clazz -> int.class.equals(clazz) || Integer.class.equals(clazz);
                 put(int.class, Tuple.create(
                             classPredicate
@@ -328,8 +336,6 @@ public class TypeHelper {
                             , Array::set
                             , (array, from, to) -> Arrays.copyOfRange((Float[])array, from, to)
                             , array -> Arrays.toString((Float[])array)));
-                //endregion
-
             }},
             null,
             clazz -> {
@@ -353,6 +359,7 @@ public class TypeHelper {
                 return Tuple.create(cPredicate, arrayFactory, arrayClass, getElement, setElement, copyOfRange, toString);
             }
     );
+    //endregion
 
     /**
      * Retrive the class predicate of the target class to evaluate if another class is equivalent to this class
@@ -433,6 +440,8 @@ public class TypeHelper {
         return classOperators.getSeventhValue(clazz);
     }
 
+
+    //region Repository with Class as the key, to keep its default value, if composed by primitive elements, equivalent class and converters
     private static final PentaValuesRepository<
                     Class,      // original Class of the concerned object
 
@@ -444,7 +453,7 @@ public class TypeHelper {
                     , Function<Object, Object>  // convert the value of original class to equivalent class in serial
             > baseTypeConverters = PentaValuesRepository.fromKey(
             () -> new HashMap<Class, Tuple5<Boolean, Object, Class, Function<Object,Object>, Function<Object,Object>>>(){{
-                Function<Object,Object> convertWithCasting = fromElement -> Boolean.valueOf((boolean)fromElement);
+                Function<Object,Object> convertWithCasting = returnsSelf;
                 put(boolean.class, Tuple.create(
                         true
                         , false
@@ -458,7 +467,7 @@ public class TypeHelper {
                         , boolean.class
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> Byte.valueOf((byte)fromElement);
+                convertWithCasting = returnsSelf;
                 put(byte.class, Tuple.create(
                         true
                         , (byte)0
@@ -472,7 +481,7 @@ public class TypeHelper {
                         , byte.class
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> Character.valueOf((char)fromElement);
+                convertWithCasting = returnsSelf;
                 put(char.class, Tuple.create(
                         true
                         , (char)0
@@ -486,7 +495,7 @@ public class TypeHelper {
                         , char.class
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> Double.valueOf((double)fromElement);
+                convertWithCasting = returnsSelf;
                 put(double.class, Tuple.create(
                         true
                         , 0d
@@ -500,7 +509,7 @@ public class TypeHelper {
                         , double.class
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> Float.valueOf((float)fromElement);
+                convertWithCasting = returnsSelf;
                 put(float.class, Tuple.create(
                         true
                         , 0f
@@ -514,7 +523,7 @@ public class TypeHelper {
                         , float.class
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> Integer.valueOf((int)fromElement);
+                convertWithCasting = returnsSelf;
                 put(int.class, Tuple.create(
                         true
                         , 0
@@ -528,7 +537,7 @@ public class TypeHelper {
                         , int.class
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> Long.valueOf((long)fromElement);
+                convertWithCasting = returnsSelf;
                 put(long.class, Tuple.create(
                         true
                         , 0L
@@ -542,7 +551,7 @@ public class TypeHelper {
                         , long.class
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> Short.valueOf((short)fromElement);
+                convertWithCasting = returnsSelf;
                 put(short.class, Tuple.create(
                         true
                         , (short)0
@@ -615,6 +624,7 @@ public class TypeHelper {
                 return Tuple.create(isPrimitive, defaultValue, equivalentClass, parallelConverter, serialConverter);
             }
     );
+    //endregion
 
     /**
      * Evaluate if the concerned class represents a primitive type or an array of primitive type elements
