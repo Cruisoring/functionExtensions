@@ -1,10 +1,8 @@
 package com.easyworks;
 
 import com.easyworks.function.*;
-import com.easyworks.tuple.Triple;
-import com.easyworks.tuple.Tuple;
-import com.easyworks.utility.Defaults;
 import com.easyworks.utility.Logger;
+import com.easyworks.utility.TypeHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,8 +27,8 @@ public class FunctionsTest {
                 Logger.L(msg);
             },
             lambda -> {
-                Class returnType = Functions.getReturnType(lambda);
-                return Defaults.defaultOfType(returnType);
+                Class returnType = TypeHelper.getReturnType(lambda);
+                return TypeHelper.getDefaultValue(returnType);
             });
 
     @Before
@@ -51,25 +49,14 @@ public class FunctionsTest {
     @Test
     public void getReturnType() {
         ConsumerThrowable<Integer> consumerInteger = FunctionsTest::doNothing;
-        assertEquals(void.class, Functions.getReturnType(consumerInteger));
-        assertEquals(Integer.class, Functions.getReturnType((SupplierThrowable<Integer>)(()->100)));
+        assertEquals(void.class, TypeHelper.getReturnType(consumerInteger));
+        assertEquals(Integer.class, TypeHelper.getReturnType((SupplierThrowable<Integer>)(()->100)));
 
         BiFunctionThrowable<String, Integer, Integer> intFunc = FunctionsTest::sumOf;
-        assertEquals(Integer.class, Functions.getReturnType(intFunc));
-    }
+        assertEquals(Integer.class, TypeHelper.getReturnType(intFunc));
 
-    @Test
-    public void getGenericInfo(){
-        ConsumerThrowable<Integer> consumerInteger = FunctionsTest::doNothing;
-//        Triple<Class, Class[], Class> genericInfo = Functions.lambdaGenericInfoRepository.retrieve(Tuple.create(consumerInteger));
-
-        FunctionThrowable<Integer, List<Integer>> listFactory = i -> new ArrayList<Integer>();
-        Triple<Boolean, Class[], Class> genericInfo = Functions.lambdaGenericInfoRepository.retrieve(listFactory);
-        assertEquals(Tuple.create(true, new Class[]{Integer.class}, List.class), genericInfo);
-
-        BiFunctionThrowable<Integer, Integer, Boolean> func = (n1, n2) -> n1 + 12 > n2;
-        genericInfo = Functions.lambdaGenericInfoRepository.retrieve(func);
-        assertEquals(Tuple.create(true, new Class[]{Integer.class, Integer.class}, Boolean.class), genericInfo);
+        SupplierThrowable<List<String>> stringListSupplier = () -> new ArrayList<String>();
+        assertEquals(List.class, TypeHelper.getReturnType(stringListSupplier));
     }
 
     @Test
@@ -243,7 +230,11 @@ public class FunctionsTest {
         assertTrue(Arrays.deepEquals(new String[]{"true", "a", "33", ""}, result));
 
         result = (String[]) logToList.apply(f11, true, "a", 33, new String[]{});
-        assertNull(result);
+        if((System.getProperties().containsKey("EMPTY_ARRAY_AS_DEFAULT")
+                && "false".equalsIgnoreCase(System.getProperty("EMPTY_ARRAY_AS_DEFAULT"))))
+            assertNull(result);
+        else
+            assertEquals(0, result.length);
         assertTrue(logs.get(0).contains("OutOfBoundsException"));
     }
 
@@ -303,10 +294,10 @@ public class FunctionsTest {
             }
         };
         DefaultReturner defaultReturner = lambda -> {
-            final Class returnType = Functions.getReturnType(lambda);
+            final Class returnType = TypeHelper.getReturnType(lambda);
             if(returnType == Integer.class || returnType == int.class)
                 return -1;
-            return Defaults.defaultOfType(returnType);
+            return TypeHelper.getDefaultValue(returnType);
         };
 
         Functions customFunctions = Functions.buildFunctions(exHandler, defaultReturner);

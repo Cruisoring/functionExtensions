@@ -5,10 +5,10 @@ package com.easyworks.tuple;
  * @param <T> Type of the first persisted element
  * @param <U> Type of the second persisted element
  */
-public class Dual<T,U> extends Tuple
+public class Tuple2<T,U> extends Tuple
         implements WithSecond<T,U> {
 
-    protected Dual(T t, U u){
+    protected Tuple2(T t, U u){
         super(t, u);
     }
 

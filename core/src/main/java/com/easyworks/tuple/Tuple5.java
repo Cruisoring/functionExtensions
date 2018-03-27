@@ -8,10 +8,10 @@ package com.easyworks.tuple;
  * @param <W> Type of the fourth persisted element
  * @param <X> Type of the fifth persisted element
  */
-public class Penta<T,U,V,W,X> extends Tuple
+public class Tuple5<T,U,V,W,X> extends Tuple
         implements WithFifth<T,U,V,W,X> {
 
-    protected Penta(T t, U u, V v, W w, X x){
+    protected Tuple5(T t, U u, V v, W w, X x){
         super(t, u, v, w, x);
     }
 

@@ -29,7 +29,7 @@ public class ArrayHelperTest {
     public void getNewArray() {
         char[] chars = (char[]) ArrayHelper.getNewArray(char.class, 2);
         chars[1] = 'x';
-        assertTrue(Arrays.deepEquals(new Object[]{Character.valueOf((char)0), Character.valueOf('x')}, ArrayHelper.asObjects(chars)));
+        assertTrue(TypeHelper.deepEquals(new Object[]{Character.valueOf((char)0), Character.valueOf('x')}, ArrayHelper.asObjects(chars)));
 
         int[] ints = (int[])ArrayHelper.getNewArray(int.class, 10);
         assertEquals(10, ints.length);
@@ -68,10 +68,10 @@ public class ArrayHelperTest {
 
     @Test
     public void asArray() {
-        assertTrue(Arrays.deepEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new int[]{1,2,3})));
-        assertTrue(Arrays.deepEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new Integer[]{1,2,3})));
-        assertTrue(Arrays.deepEquals(new DayOfWeek[]{DayOfWeek.MONDAY}, (DayOfWeek[])ArrayHelper.asArray(new DayOfWeek[]{DayOfWeek.MONDAY})));
-        assertTrue(Arrays.deepEquals(new Tuple[]{Tuple.TRUE, Tuple.FALSE}, (Tuple[])ArrayHelper.asArray(new Tuple[]{Tuple.TRUE, Tuple.FALSE})));
+        assertTrue(TypeHelper.deepEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new int[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new Integer[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new DayOfWeek[]{DayOfWeek.MONDAY}, (DayOfWeek[])ArrayHelper.asArray(new DayOfWeek[]{DayOfWeek.MONDAY})));
+        assertTrue(TypeHelper.deepEquals(new Tuple[]{Tuple.TRUE, Tuple.FALSE}, (Tuple[])ArrayHelper.asArray(new Tuple[]{Tuple.TRUE, Tuple.FALSE})));
     }
 
     @Test
@@ -212,71 +212,71 @@ public class ArrayHelperTest {
 
     @Test
     public void intsToObjects() {
-        assertTrue(Arrays.deepEquals(new Object[0], ArrayHelper.asObjects(new int[0])));
-        assertTrue(Arrays.deepEquals(new Object[]{1,2,3}, ArrayHelper.asObjects(new int[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new Object[0], ArrayHelper.asObjects(new int[0])));
+        assertTrue(TypeHelper.deepEquals(new Object[]{1,2,3}, ArrayHelper.asObjects(new int[]{1,2,3})));
         int[] values = null;
-        assertTrue(Arrays.deepEquals(null, ArrayHelper.asObjects(values)));
+        assertTrue(TypeHelper.deepEquals(null, ArrayHelper.asObjects(values)));
 
         Integer[] integers = new Integer[]{1, 2, 3, 4, 5};
         Object[] objects = ArrayHelper.asObjects(integers);
-        assertTrue(Arrays.deepEquals(new Object[]{1,2,3,4,5}, objects));
+        assertTrue(TypeHelper.deepEquals(new Object[]{1,2,3,4,5}, objects));
     }
 
     @Test
     public void bytesToObjects() {
-        assertTrue(Arrays.deepEquals(new Object[0], ArrayHelper.asObjects(new byte[0])));
-        assertTrue(Arrays.deepEquals(new Object[]{(byte)1,(byte)2,(byte)3}, ArrayHelper.asObjects(new byte[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new Object[0], ArrayHelper.asObjects(new byte[0])));
+        assertTrue(TypeHelper.deepEquals(new Object[]{(byte)1,(byte)2,(byte)3}, ArrayHelper.asObjects(new byte[]{1,2,3})));
         byte[] values = null;
-        assertTrue(Arrays.deepEquals(null, ArrayHelper.asObjects(values)));
+        assertTrue(TypeHelper.deepEquals(null, ArrayHelper.asObjects(values)));
     }
 
     @Test
     public void booleansToObjects() {
-        assertTrue(Arrays.deepEquals(new Object[0], ArrayHelper.asObjects(new boolean[0])));
-        assertTrue(Arrays.deepEquals(new Object[]{true, false}, ArrayHelper.asObjects(new boolean[]{true, false})));
+        assertTrue(TypeHelper.deepEquals(new Object[0], ArrayHelper.asObjects(new boolean[0])));
+        assertTrue(TypeHelper.deepEquals(new Object[]{true, false}, ArrayHelper.asObjects(new boolean[]{true, false})));
         boolean[] values = null;
-        assertTrue(Arrays.deepEquals(null, ArrayHelper.asObjects(values)));
+        assertTrue(TypeHelper.deepEquals(null, ArrayHelper.asObjects(values)));
     }
 
     @Test
     public void charsToObjects() {
-        assertTrue(Arrays.deepEquals(new Object[0], ArrayHelper.asObjects(new char[0])));
-        assertTrue(Arrays.deepEquals(new Object[]{'x', 'y'}, ArrayHelper.asObjects(new char[]{'x', 'y'})));
+        assertTrue(TypeHelper.deepEquals(new Object[0], ArrayHelper.asObjects(new char[0])));
+        assertTrue(TypeHelper.deepEquals(new Object[]{'x', 'y'}, ArrayHelper.asObjects(new char[]{'x', 'y'})));
         char[] values = null;
-        assertTrue(Arrays.deepEquals(null, ArrayHelper.asObjects(values)));
+        assertTrue(TypeHelper.deepEquals(null, ArrayHelper.asObjects(values)));
     }
 
     @Test
     public void floatsToObjects() {
-        assertTrue(Arrays.deepEquals(new Object[0], ArrayHelper.asObjects(new float[0])));
-        assertTrue(Arrays.deepEquals(new Object[]{1.2f,2f,-3f}, ArrayHelper.asObjects(new float[]{1.2f, 2f, -3f})));
-        assertFalse(Arrays.deepEquals(new Object[]{1.2f,2,-3f}, ArrayHelper.asObjects(new float[]{1.2f, 2f, -3f})));
+        assertTrue(TypeHelper.deepEquals(new Object[0], ArrayHelper.asObjects(new float[0])));
+        assertTrue(TypeHelper.deepEquals(new Object[]{1.2f,2f,-3f}, ArrayHelper.asObjects(new float[]{1.2f, 2f, -3f})));
+        assertFalse(TypeHelper.deepEquals(new Object[]{1.2f,2,-3f}, ArrayHelper.asObjects(new float[]{1.2f, 2f, -3f})));
         float[] values = null;
-        assertTrue(Arrays.deepEquals(null, ArrayHelper.asObjects(values)));
+        assertTrue(TypeHelper.deepEquals(null, ArrayHelper.asObjects(values)));
     }
 
     @Test
     public void doublesToObjects() {
-        assertTrue(Arrays.deepEquals(new Object[0], ArrayHelper.asObjects(new double[0])));
-        assertTrue(Arrays.deepEquals(new Object[]{1.3,2.0,3.0}, ArrayHelper.asObjects(new double[]{1.3,2.0,3.0})));
+        assertTrue(TypeHelper.deepEquals(new Object[0], ArrayHelper.asObjects(new double[0])));
+        assertTrue(TypeHelper.deepEquals(new Object[]{1.3,2.0,3.0}, ArrayHelper.asObjects(new double[]{1.3,2.0,3.0})));
         double[] values = null;
-        assertTrue(Arrays.deepEquals(null, ArrayHelper.asObjects(values)));
+        assertTrue(TypeHelper.deepEquals(null, ArrayHelper.asObjects(values)));
     }
 
     @Test
     public void shortsToObjects() {
-        assertTrue(Arrays.deepEquals(new Object[0], ArrayHelper.asObjects(new short[0])));
-        assertTrue(Arrays.deepEquals(new Object[]{(short)1, (short)2, (short)3}, ArrayHelper.asObjects(new short[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new Object[0], ArrayHelper.asObjects(new short[0])));
+        assertTrue(TypeHelper.deepEquals(new Object[]{(short)1, (short)2, (short)3}, ArrayHelper.asObjects(new short[]{1,2,3})));
         short[] values = null;
-        assertTrue(Arrays.deepEquals(null, ArrayHelper.asObjects(values)));
+        assertTrue(TypeHelper.deepEquals(null, ArrayHelper.asObjects(values)));
     }
 
     @Test
     public void longsToObjects() {
-        assertTrue(Arrays.deepEquals(new Object[0], ArrayHelper.asObjects(new long[0])));
-        assertTrue(Arrays.deepEquals(new Object[]{1L,2L,3L}, ArrayHelper.asObjects(new long[]{1,2,3})));
+        assertTrue(TypeHelper.deepEquals(new Object[0], ArrayHelper.asObjects(new long[0])));
+        assertTrue(TypeHelper.deepEquals(new Object[]{1L,2L,3L}, ArrayHelper.asObjects(new long[]{1,2,3})));
         long[] values = null;
-        assertTrue(Arrays.deepEquals(null, ArrayHelper.asObjects(values)));
+        assertTrue(TypeHelper.deepEquals(null, ArrayHelper.asObjects(values)));
     }
 
     @Test
@@ -286,6 +286,6 @@ public class ArrayHelperTest {
         parallelSetAll = ArrayHelper.getParallelSetAll(int.class);
         int[] ints = new int[10];
         parallelSetAll.orElse(null).accept(ints, i->i);
-        assertTrue(ArrayHelper.deepEquals(new int[]{0,1,2,3,4,5,6,7,8,9}, ints));
+        assertTrue(TypeHelper.deepEquals(new int[]{0,1,2,3,4,5,6,7,8,9}, ints));
     }
 }

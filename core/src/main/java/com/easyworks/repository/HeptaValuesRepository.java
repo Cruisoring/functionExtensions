@@ -7,19 +7,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Generic repository use Tuple.Hepta as values to keep 7 elements mapped from a specific key
+ * Generic repository use Tuple.Tuple7 as values to keep 7 elements mapped from a specific key
  *
  * @param <TKey>    type of the key, can be any Type
- * @param <T>       type of the first element of the Tuple.Hepta value mapped from the key
- * @param <U>       type of the second element of the Tuple.Hepta value mapped from the key
- * @param <V>       type of the third element of the Tuple.Hepta value mapped from the key
- * @param <W>       type of the fourth element of the Tuple.Hepta value mapped from the key
- * @param <X>       type of the fifth element of the Tuple.Hepta value mapped from the key
- * @param <Y>       type of the sixth element of the Tuple.Hepta value mapped from the key
- * @param <Z>       type of the seventh element of the Tuple.Hepta value mapped from the key
+ * @param <T>       type of the first element of the Tuple.Tuple7 value mapped from the key
+ * @param <U>       type of the second element of the Tuple.Tuple7 value mapped from the key
+ * @param <V>       type of the third element of the Tuple.Tuple7 value mapped from the key
+ * @param <W>       type of the fourth element of the Tuple.Tuple7 value mapped from the key
+ * @param <X>       type of the fifth element of the Tuple.Tuple7 value mapped from the key
+ * @param <Y>       type of the sixth element of the Tuple.Tuple7 value mapped from the key
+ * @param <Z>       type of the seventh element of the Tuple.Tuple7 value mapped from the key
  */
 public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
-        extends Repository<TKey, Hepta<T,U,V,W,X,Y,Z>>
+        extends Repository<TKey, Tuple7<T,U,V,W,X,Y,Z>>
         implements HeptaValues<TKey, T,U,V,W,X,Y,Z> {
 
 
@@ -32,19 +32,19 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 7 elements
      * @param <TKey>  type of the first element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 1 key to 7 values as a Tuple
      */
     public static <TKey,T,U,V,W,X,Y,Z> HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z> fromKey(
-            SupplierThrowable<Map<TKey, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-            TriConsumerThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-            FunctionThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            SupplierThrowable<Map<TKey, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+            TriConsumerThrowable<TKey, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+            FunctionThrowable<TKey, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new HeptaValuesRepository(storageSupplier, changesConsumer, valueFunction);
     }
 
@@ -53,17 +53,17 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      *
      * @param valueFunction     Function to map 1 key to Tuple of 7 elements
      * @param <TKey>  type of the first element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 1 key to 7 values as a Tuple
      */
     public static <TKey,T,U,V,W,X,Y,Z> HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z> fromKey(
-            FunctionThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            FunctionThrowable<TKey, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new HeptaValuesRepository(valueFunction);
     }
 
@@ -75,19 +75,19 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 7 elements
      * @param <K1>  type of the first element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 1 key to 7 values as a Tuple
      */
     public static <K1, T,U,V,W,X,Y,Z> SingleKeys<K1, T,U,V,W,X,Y,Z> fromOneKeys(
-            SupplierThrowable<Map<Single<K1>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-            TriConsumerThrowable<Single<K1>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-            FunctionThrowable<K1, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            SupplierThrowable<Map<Tuple1<K1>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+            TriConsumerThrowable<Tuple1<K1>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+            FunctionThrowable<K1, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new SingleKeys(storageSupplier, changesConsumer, valueFunction);
     }
 
@@ -100,19 +100,19 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param valueFunction     Function to map 2 keys to Tuple of 7 elements
      * @param <K1>  type of the first element of the Key
      * @param <K2>  type of the second element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 2 keys to 7 values as a Tuple
      */
     public static <K1,K2, T,U,V,W,X,Y,Z> DualKeys<K1,K2, T,U,V,W,X,Y,Z> fromTwoKeys(
-            SupplierThrowable<Map<Dual<K1,K2>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-            TriConsumerThrowable<Dual<K1,K2>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-            BiFunctionThrowable<K1,K2, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            SupplierThrowable<Map<Tuple2<K1,K2>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+            TriConsumerThrowable<Tuple2<K1,K2>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+            BiFunctionThrowable<K1,K2, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new DualKeys(storageSupplier, changesConsumer, valueFunction);
     }
 
@@ -126,19 +126,19 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K1>  type of the first element of the Key
      * @param <K2>  type of the second element of the Key
      * @param <K3>  type of the third element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 3 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3, T,U,V,W,X,Y,Z> TripleKeys<K1,K2,K3, T,U,V,W,X,Y,Z> fromThreeKeys(
-            SupplierThrowable<Map<Triple<K1,K2,K3>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-            TriConsumerThrowable<Triple<K1,K2,K3>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-            TriFunctionThrowable<K1,K2,K3, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            SupplierThrowable<Map<Tuple3<K1,K2,K3>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+            TriConsumerThrowable<Tuple3<K1,K2,K3>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+            TriFunctionThrowable<K1,K2,K3, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new TripleKeys(storageSupplier, changesConsumer, valueFunction);
     }
 
@@ -153,19 +153,19 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K2>  type of the second element of the Key
      * @param <K3>  type of the third element of the Key
      * @param <K4>  type of the fourth element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 4 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3,K4, T,U,V,W,X,Y,Z> QuadKeys<K1,K2,K3,K4, T,U,V,W,X,Y,Z> fromFourKeys(
-            SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-            TriConsumerThrowable<Quad<K1,K2,K3,K4>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-            QuadFunctionThrowable<K1,K2,K3,K4, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            SupplierThrowable<Map<Tuple4<K1,K2,K3,K4>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+            TriConsumerThrowable<Tuple4<K1,K2,K3,K4>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+            QuadFunctionThrowable<K1,K2,K3,K4, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new QuadKeys(storageSupplier, changesConsumer, valueFunction);
     }
 
@@ -181,19 +181,19 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K3>  type of the third element of the Key
      * @param <K4>  type of the fourth element of the Key
      * @param <K5>  type of the fifth element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 5 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5, T,U,V,W,X,Y,Z> PentaKeys<K1,K2,K3,K4,K5, T,U,V,W,X,Y,Z> fromFiveKeys(
-            SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-            TriConsumerThrowable<Penta<K1,K2,K3,K4,K5>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-            PentaFunctionThrowable<K1,K2,K3,K4,K5, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            SupplierThrowable<Map<Tuple5<K1,K2,K3,K4,K5>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+            TriConsumerThrowable<Tuple5<K1,K2,K3,K4,K5>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+            PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new PentaKeys(storageSupplier, changesConsumer, valueFunction);
     }
 
@@ -210,19 +210,19 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K4>  type of the fourth element of the Key
      * @param <K5>  type of the fifth element of the Key
      * @param <K6>  type of the sixth element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 6 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y,Z> HexaKeys<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y,Z> fromSixKeys(
-            SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-            TriConsumerThrowable<Hexa<K1,K2,K3,K4,K5,K6>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-            HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            SupplierThrowable<Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+            TriConsumerThrowable<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+            HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new HexaKeys(storageSupplier, changesConsumer, valueFunction);
     }
 
@@ -240,19 +240,19 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K5>  type of the fifth element of the Key
      * @param <K6>  type of the sixth element of the Key
      * @param <K7>  type of the seventh element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 7 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y,Z> HeptaKeys<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y,Z> fromSevenKeys(
-            SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-            TriConsumerThrowable<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-            HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            SupplierThrowable<Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+            TriConsumerThrowable<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+            HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new HeptaKeys(storageSupplier, changesConsumer, valueFunction);
     }
 
@@ -260,17 +260,17 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * Construct a repository with evaluation logic only
      * @param valueFunction     Function to map 1 key to Tuple of 7 elements
      * @param <K1>  type of the first element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 1 key to 7 values as a Tuple
      */
     public static <K1, T,U,V,W,X,Y,Z> SingleKeys<K1, T,U,V,W,X,Y,Z> fromOneKeys(
-            FunctionThrowable<K1, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            FunctionThrowable<K1, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new SingleKeys(valueFunction);
     }
 
@@ -279,17 +279,17 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param valueFunction     Function to map 2 keys to Tuple of 7 elements
      * @param <K1>  type of the first element of the Key
      * @param <K2>  type of the second element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 2 keys to 7 values as a Tuple
      */
     public static <K1,K2, T,U,V,W,X,Y,Z> DualKeys<K1,K2, T,U,V,W,X,Y,Z> fromTwoKeys(
-            BiFunctionThrowable<K1,K2, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            BiFunctionThrowable<K1,K2, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new DualKeys(valueFunction);
     }
 
@@ -299,17 +299,17 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K1>  type of the first element of the Key
      * @param <K2>  type of the second element of the Key
      * @param <K3>  type of the third element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 3 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3, T,U,V,W,X,Y,Z> TripleKeys<K1,K2,K3, T,U,V,W,X,Y,Z> fromThreeKeys(
-            TriFunctionThrowable<K1,K2,K3, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            TriFunctionThrowable<K1,K2,K3, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new TripleKeys(valueFunction);
     }
 
@@ -320,17 +320,17 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K2>  type of the second element of the Key
      * @param <K3>  type of the third element of the Key
      * @param <K4>  type of the fourth element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 4 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3,K4, T,U,V,W,X,Y,Z> QuadKeys<K1,K2,K3,K4, T,U,V,W,X,Y,Z> fromFourKeys(
-            QuadFunctionThrowable<K1,K2,K3,K4, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            QuadFunctionThrowable<K1,K2,K3,K4, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new QuadKeys(valueFunction);
     }
 
@@ -342,17 +342,17 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K3>  type of the third element of the Key
      * @param <K4>  type of the fourth element of the Key
      * @param <K5>  type of the fifth element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 5 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5, T,U,V,W,X,Y,Z> PentaKeys<K1,K2,K3,K4,K5, T,U,V,W,X,Y,Z> fromFiveKeys(
-            PentaFunctionThrowable<K1,K2,K3,K4,K5, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new PentaKeys(valueFunction);
     }
 
@@ -365,17 +365,17 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K4>  type of the fourth element of the Key
      * @param <K5>  type of the fifth element of the Key
      * @param <K6>  type of the sixth element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 6 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y,Z> HexaKeys<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y,Z> fromSixKeys(
-            HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new HexaKeys(valueFunction);
     }
 
@@ -389,17 +389,17 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K5>  type of the fifth element of the Key
      * @param <K6>  type of the sixth element of the Key
      * @param <K7>  type of the seventh element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      * @return      Constructed Repository to map 7 keys to 7 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y,Z> HeptaKeys<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y,Z> fromSevenKeys(
-            HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+            HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         return new HeptaKeys(valueFunction);
     }
     //endregion
@@ -413,9 +413,9 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 7 elements
      */
-    protected HeptaValuesRepository(SupplierThrowable<Map<TKey, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                                    TriConsumerThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-                                    FunctionThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+    protected HeptaValuesRepository(SupplierThrowable<Map<TKey, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+                                    TriConsumerThrowable<TKey, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+                                    FunctionThrowable<TKey, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         super(storageSupplier, changesConsumer, valueFunction);
     }
 
@@ -423,35 +423,35 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * Construct a repository with evaluation logic only
      * @param valueFunction     Function to map 1 key to Tuple of 7 elements
      */
-    protected HeptaValuesRepository(FunctionThrowable<TKey, Hepta<T,U,V,W,X,Y,Z>> valueFunction){
+    protected HeptaValuesRepository(FunctionThrowable<TKey, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
         this(HashMap::new, null, valueFunction);
     }
     //endregion
 
     /**
-     * Get the strong-typed Dual&lt;T,U&gt; value mapped from the given key
-     * @param key   key to retrieve the strong-typed Dual&lt;T,U&gt; value
-     * @return      the strong-typed Dual&lt;T,U&gt; value mapped from the specific key
+     * Get the strong-typed Tuple2&lt;T,U&gt; value mapped from the given key
+     * @param key   key to retrieve the strong-typed Tuple2&lt;T,U&gt; value
+     * @return      the strong-typed Tuple2&lt;T,U&gt; value mapped from the specific key
      */
     @Override
-    public Hepta<T,U,V,W,X,Y,Z> retrieve(TKey key) {
+    public Tuple7<T,U,V,W,X,Y,Z> retrieve(TKey key) {
         return get(key, null);
     }
 
     /**
      * Generic repository use Tuple. to keep value of 2 elements mapped from a key of the Tuple
-     * Notice: the actual type of the Key is Tuple.Single wrapping the actual value of <tt>K1</tt>
+     * Notice: the actual type of the Key is Tuple.Tuple1 wrapping the actual value of <tt>K1</tt>
      *
      * @param <K1>  type of the first element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta value mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta value mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta value mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta value mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta value mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta value mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta value mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 value mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 value mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 value mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 value mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 value mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 value mapped from the key
      */
-    public static class SingleKeys<K1, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Single<K1>, T,U,V,W,X,Y,Z>
+    public static class SingleKeys<K1, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Tuple1<K1>, T,U,V,W,X,Y,Z>
             implements com.easyworks.repository.SingleKeys.HeptaValues<K1, T,U,V,W,X,Y,Z> {
 
         /**
@@ -462,9 +462,9 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 1 key to Tuple of 7 elements
          */
-        protected SingleKeys(SupplierThrowable<Map<Single<K1>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                             TriConsumerThrowable<Single<K1>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-                             FunctionThrowable<K1, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected SingleKeys(SupplierThrowable<Map<Tuple1<K1>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+                             TriConsumerThrowable<Tuple1<K1>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+                             FunctionThrowable<K1, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             super(storageSupplier, changesConsumer, single -> valueFunction.apply(single.getFirst()));
         }
 
@@ -472,26 +472,26 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * Construct a repository with evaluation logic only
          * @param valueFunction     Function to map 1 key to Tuple of 7 elements
          */
-        protected SingleKeys(FunctionThrowable<K1, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected SingleKeys(FunctionThrowable<K1, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
     }
 
     /**
-     * Generic repository use Tuple.Hepta to keep value of 2 elements mapped from a key, and keep the key as Tuple.Hepta
+     * Generic repository use Tuple.Tuple7 to keep value of 2 elements mapped from a key, and keep the key as Tuple.Tuple7
      * of 2 different elements
      *
      * @param <K1>  type of first element of the Key
      * @param <K2>  type of second element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 mapped from the key
      */
-    public static class DualKeys<K1,K2, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Dual<K1,K2>, T,U,V,W,X,Y,Z>
+    public static class DualKeys<K1,K2, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Tuple2<K1,K2>, T,U,V,W,X,Y,Z>
             implements com.easyworks.repository.DualKeys.HeptaValues<K1,K2, T,U,V,W,X,Y,Z> {
 
         /**
@@ -502,9 +502,9 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 2 keys to Tuple of 7 elements
          */
-        protected DualKeys(SupplierThrowable<Map<Dual<K1,K2>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                           TriConsumerThrowable<Dual<K1,K2>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-                           BiFunctionThrowable<K1, K2, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected DualKeys(SupplierThrowable<Map<Tuple2<K1,K2>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+                           TriConsumerThrowable<Tuple2<K1,K2>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+                           BiFunctionThrowable<K1, K2, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             super(storageSupplier, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
 
@@ -512,27 +512,27 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * Construct a repository with evaluation logic only
          * @param valueFunction     Function to map 2 keys to Tuple of 7 elements
          */
-        protected DualKeys(BiFunctionThrowable<K1, K2, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected DualKeys(BiFunctionThrowable<K1, K2, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
     }
 
     /**
-     * Generic repository use Tuple.Hepta to keep 2 elements of the value mapped from a Tuple
+     * Generic repository use Tuple.Tuple7 to keep 2 elements of the value mapped from a Tuple
      * of 3 different elements
      *
      * @param <K1>  type of first element of the Key
      * @param <K2>  type of second element of the Key
      * @param <K3>  type of third element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 mapped from the key
      */
-    public static class TripleKeys<K1,K2,K3, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Triple<K1,K2,K3>, T,U,V,W,X,Y,Z>
+    public static class TripleKeys<K1,K2,K3, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Tuple3<K1,K2,K3>, T,U,V,W,X,Y,Z>
             implements com.easyworks.repository.TripleKeys.HeptaValues<K1,K2,K3, T,U,V,W,X,Y,Z> {
 
         /**
@@ -543,9 +543,9 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 3 keys to Tuple of 7 elements
          */
-        protected TripleKeys(SupplierThrowable<Map<Triple<K1,K2,K3>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                             TriConsumerThrowable<Triple<K1,K2,K3>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-                             TriFunctionThrowable<K1, K2, K3, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected TripleKeys(SupplierThrowable<Map<Tuple3<K1,K2,K3>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+                             TriConsumerThrowable<Tuple3<K1,K2,K3>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+                             TriFunctionThrowable<K1, K2, K3, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             super(storageSupplier, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
 
@@ -553,27 +553,27 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * Construct a repository with evaluation logic only
          * @param valueFunction     Function to map 3 keys to Tuple of 7 elements
          */
-        protected TripleKeys(TriFunctionThrowable<K1, K2, K3, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected TripleKeys(TriFunctionThrowable<K1, K2, K3, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
     }
 
     /**
-     * Generic repository use Tuple.Hepta to keep value of 2 elements mapped from a key, and keep the key as Tuple.Hepta
+     * Generic repository use Tuple.Tuple7 to keep value of 2 elements mapped from a key, and keep the key as Tuple.Tuple7
      * of 4 different elements
      * @param <K1>  type of first element of the Key
      * @param <K2>  type of second element of the Key
      * @param <K3>  type of third element of the Key
      * @param <K4>  type of fourth element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 mapped from the key
      */
-    public static class QuadKeys<K1,K2,K3,K4, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Quad<K1,K2,K3,K4>, T,U,V,W,X,Y,Z>
+    public static class QuadKeys<K1,K2,K3,K4, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Tuple4<K1,K2,K3,K4>, T,U,V,W,X,Y,Z>
             implements com.easyworks.repository.QuadKeys.HeptaValues<K1,K2,K3,K4, T,U,V,W,X,Y,Z> {
 
         /**
@@ -584,9 +584,9 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 4 keys to Tuple of 7 elements
          */
-        protected QuadKeys(SupplierThrowable<Map<Quad<K1,K2,K3,K4>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                           TriConsumerThrowable<Quad<K1,K2,K3,K4>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-                           QuadFunctionThrowable<K1,K2,K3,K4, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected QuadKeys(SupplierThrowable<Map<Tuple4<K1,K2,K3,K4>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+                           TriConsumerThrowable<Tuple4<K1,K2,K3,K4>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+                           QuadFunctionThrowable<K1,K2,K3,K4, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
         }
@@ -595,28 +595,28 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * Construct a repository with evaluation logic only
          * @param valueFunction     Function to map 4 keys to Tuple of 7 elements
          */
-        protected QuadKeys(QuadFunctionThrowable<K1,K2,K3,K4, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected QuadKeys(QuadFunctionThrowable<K1,K2,K3,K4, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
     }
 
     /**
-     * Generic repository use Tuple.Hepta to keep value of 2 elements mapped from a key, and keep the key as Tuple.Hepta
+     * Generic repository use Tuple.Tuple7 to keep value of 2 elements mapped from a key, and keep the key as Tuple.Tuple7
      * of 5 different elements
      * @param <K1>  type of first element of the Key
      * @param <K2>  type of second element of the Key
      * @param <K3>  type of third element of the Key
      * @param <K4>  type of fourth element of the Key
      * @param <K5>  type of fifth element of the Key
-     * @param <T>   type of the first element of the Tuple.Hepta mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 mapped from the key
      */
-    public static class PentaKeys<K1,K2,K3,K4,K5, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Penta<K1,K2,K3,K4,K5>, T,U,V,W,X,Y,Z>
+    public static class PentaKeys<K1,K2,K3,K4,K5, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Tuple5<K1,K2,K3,K4,K5>, T,U,V,W,X,Y,Z>
             implements com.easyworks.repository.PentaKeys.HeptaValues<K1,K2,K3,K4,K5, T,U,V,W,X,Y,Z> {
 
         /**
@@ -627,9 +627,9 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 5 keys to Tuple of 7 elements
          */
-        protected PentaKeys(SupplierThrowable<Map<Penta<K1,K2,K3,K4,K5>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                            TriConsumerThrowable<Penta<K1,K2,K3,K4,K5>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-                            PentaFunctionThrowable<K1,K2,K3,K4,K5, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected PentaKeys(SupplierThrowable<Map<Tuple5<K1,K2,K3,K4,K5>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+                            TriConsumerThrowable<Tuple5<K1,K2,K3,K4,K5>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+                            PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth()));
@@ -639,13 +639,13 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * Construct a repository with evaluation logic only
          * @param valueFunction     Function to map 5 keys to Tuple of 7 elements
          */
-        protected PentaKeys(PentaFunctionThrowable<K1,K2,K3,K4,K5, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected PentaKeys(PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
     }
 
     /**
-     * Generic repository use Tuple.Hepta to keep value of 2 elements mapped from a key, and keep the key as Tuple.Hepta
+     * Generic repository use Tuple.Tuple7 to keep value of 2 elements mapped from a key, and keep the key as Tuple.Tuple7
      * of 6 different elements
      *
      * @param <K1>  type of first element of the Key
@@ -655,15 +655,15 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K5>  type of fifth element of the Key
      * @param <K6>  type of sixth element of the Key
      *
-     * @param <T>   type of the first element of the Tuple.Hepta mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 mapped from the key
      */
-    public static class HexaKeys<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Hexa<K1,K2,K3,K4,K5,K6>, T,U,V,W,X,Y,Z>
+    public static class HexaKeys<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Tuple6<K1,K2,K3,K4,K5,K6>, T,U,V,W,X,Y,Z>
             implements com.easyworks.repository.HexaKeys.HeptaValues<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y,Z> {
 
         /**
@@ -674,9 +674,9 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 6 keys to Tuple of 7 elements
          */
-        protected HexaKeys(SupplierThrowable<Map<Hexa<K1,K2,K3,K4,K5,K6>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                           TriConsumerThrowable<Hexa<K1,K2,K3,K4,K5,K6>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-                           HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected HexaKeys(SupplierThrowable<Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+                           TriConsumerThrowable<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+                           HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth()));
@@ -686,13 +686,13 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * Construct a repository with evaluation logic only
          * @param valueFunction     Function to map 6 keys to Tuple of 7 elements
          */
-        protected HexaKeys(HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected HexaKeys(HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
     }
 
     /**
-     * Generic repository use Tuple.Hepta to keep value of 2 elements mapped from a key, and keep the key as Tuple.Hepta
+     * Generic repository use Tuple.Tuple7 to keep value of 2 elements mapped from a key, and keep the key as Tuple.Tuple7
      * of 7 different elements
      *
      * @param <K1>  type of first element of the Key
@@ -703,15 +703,15 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
      * @param <K6>  type of sixth element of the Key
      * @param <K7>  type of seventh element of the Key
      *
-     * @param <T>   type of the first element of the Tuple.Hepta mapped from the key
-     * @param <U>   type of the second element of the Tuple.Hepta mapped from the key
-     * @param <V>   type of the third element of the Tuple.Hepta mapped from the key
-     * @param <W>   type of the fourth element of the Tuple.Hepta mapped from the key
-     * @param <X>   type of the fifth element of the Tuple.Hepta mapped from the key
-     * @param <Y>   type of the sixth element of the Tuple.Hepta mapped from the key
-     * @param <Z>   type of the seventh element of the Tuple.Hepta mapped from the key
+     * @param <T>   type of the first element of the Tuple.Tuple7 mapped from the key
+     * @param <U>   type of the second element of the Tuple.Tuple7 mapped from the key
+     * @param <V>   type of the third element of the Tuple.Tuple7 mapped from the key
+     * @param <W>   type of the fourth element of the Tuple.Tuple7 mapped from the key
+     * @param <X>   type of the fifth element of the Tuple.Tuple7 mapped from the key
+     * @param <Y>   type of the sixth element of the Tuple.Tuple7 mapped from the key
+     * @param <Z>   type of the seventh element of the Tuple.Tuple7 mapped from the key
      */
-    public static class HeptaKeys<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Hepta<K1,K2,K3,K4,K5,K6,K7>, T,U,V,W,X,Y,Z>
+    public static class HeptaKeys<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y,Z> extends HeptaValuesRepository<Tuple7<K1,K2,K3,K4,K5,K6,K7>, T,U,V,W,X,Y,Z>
             implements com.easyworks.repository.HeptaKeys.HeptaValues<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y,Z> {
 
         /**
@@ -722,9 +722,9 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 7 keys to Tuple of 7 elements
          */
-        protected HeptaKeys(SupplierThrowable<Map<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hepta<T,U,V,W,X,Y,Z>>> storageSupplier,
-                            TriConsumerThrowable<Hepta<K1,K2,K3,K4,K5,K6,K7>, Hepta<T,U,V,W,X,Y,Z>, Hepta<T,U,V,W,X,Y,Z>> changesConsumer,
-                            HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected HeptaKeys(SupplierThrowable<Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+                            TriConsumerThrowable<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
+                            HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             super(storageSupplier, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth(), tuple.getSeventh()));
@@ -734,7 +734,7 @@ public class HeptaValuesRepository<TKey, T,U,V,W,X,Y,Z>
          * Construct a repository with evaluation logic only
          * @param valueFunction     Function to map 7 keys to Tuple of 7 elements
          */
-        protected HeptaKeys(HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Hepta<T,U,V,W,X,Y,Z>> valueFunction) {
+        protected HeptaKeys(HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple7<T,U,V,W,X,Y,Z>> valueFunction) {
             this(HashMap::new, null, valueFunction);
         }
     }

@@ -1,16 +1,8 @@
 package com.easyworks;
 
 import com.easyworks.function.*;
-import com.easyworks.repository.TripleValuesRepository;
-import com.easyworks.tuple.Triple;
-import com.easyworks.tuple.Tuple;
-import com.easyworks.utility.ArrayHelper;
-import com.easyworks.utility.Defaults;
 import com.easyworks.utility.TypeHelper;
-import sun.reflect.ConstantPool;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,51 +19,6 @@ import java.util.stream.Stream;
  */
 public class Functions<R> {
 
-    /**
-     * Repository to evaluate a Lambda expression to get its Parameter Types, and return Type.
-     *
-     * Notice: the Lambda Expression must be provided directly to calling the embedded
-     * <tt>FunctionThrowable&lt;TKey, Triple&lt;T,U,V&gt;&gt; valueFunction</tt>
-     */
-    public static final TripleValuesRepository<AbstractThrowable, Boolean, Class[], Class> lambdaGenericInfoRepository = TripleValuesRepository.fromKey(
-            lambda -> {
-                if(lambda == null)
-                    throw new NullPointerException();
-                Class lambdaClass = lambda.getClass();
-                ConstantPool constantPool = TypeHelper.getConstantPoolOfClass(lambdaClass);
-                Method functionInterfaceMethod = null;
-                int index = constantPool.getSize();
-                while(--index >=0) {
-                    try {
-                        functionInterfaceMethod = (Method)  constantPool.getMethodAt(index);
-                        break;
-                    } catch (Exception ex){
-                        continue;
-                    }
-                }
-                Class[] parameterClasses = functionInterfaceMethod.getParameterTypes();
-                int parameterCount = functionInterfaceMethod.getParameterCount();
-                Class returnClass = functionInterfaceMethod.getReturnType();
-                Type[] parameterTypes = functionInterfaceMethod.getGenericParameterTypes();
-                Type returnType = functionInterfaceMethod.getGenericReturnType();
-
-                Class[] paraClasses = ArrayHelper.objectify(parameterClasses);
-                return Tuple.create(paraClasses.length == parameterCount, paraClasses, returnClass);
-            }
-    );
-
-    /**
-     * Helper method to get the return type of a RunnableThrowable (as void.class) or SupplierThrowable.
-     * Notice: only applicable on first-hand lambda expressions. Lambda Expressions created by Lambda would erase the return type in Java 1.8.161.
-     * @param aThrowable solid Lambda expression
-     * @return  The type of the return value defined by the Lambda Expression.
-     */
-    public static Class getReturnType(AbstractThrowable aThrowable){
-        Triple<Boolean, Class[], Class> triple = lambdaGenericInfoRepository.retrieve(aThrowable);
-        return triple.getThird();
-//        return lambdaGenericInfoRepository.getThirdValue(aThrowable);
-    }
-
 //    /**
 //     * Factory to create Functions instance with given exception handler and default value factory.
 //     * @param exeptionConsumer  Exception Handler to allow differentiated processing of different kinds of Excpeitons.
@@ -87,14 +34,14 @@ public class Functions<R> {
 
     // Static Functions instance to hidden any Exceptions by returning default values matching the given Lambda Expression
     private static <T> T returnDefaultValue(Exception ex, AbstractThrowable supplier) {
-        return          (T) Defaults.defaultOfType(getReturnType(supplier));
+        return          (T) TypeHelper.getDefaultValue(TypeHelper.getReturnType(supplier));
 
     }
 //    public static final Functions ReturnsDefaultValue = new Functions((ExceptionHandler) returnDefaultValue);
     @SuppressWarnings("unchecked")
     public static final Functions ReturnsDefaultValue = new Functions(
             ex -> {},
-            function -> Defaults.defaultOfType(getReturnType(function))
+            function -> TypeHelper.getDefaultValue(TypeHelper.getReturnType(function))
         );
 
     // Static Functions instance to simply throw RuntimeException whenever an Exception is caught.

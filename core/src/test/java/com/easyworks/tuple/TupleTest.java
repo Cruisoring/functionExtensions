@@ -3,9 +3,11 @@ package com.easyworks.tuple;
 import com.easyworks.Functions;
 import com.easyworks.function.PredicateThrowable;
 import com.easyworks.utility.Logger;
+import com.easyworks.utility.TypeHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,15 +61,15 @@ public class TupleTest {
     Tuple tuple2 = Tuple.create("Second", "2");
     Set<Boolean> boolSet2 = Tuple.setOf(true, false);
     Tuple tuple3 = Tuple.create(3, "Third", 3.33d);
-    Quad tuple4 = Tuple.create(true, null, new A("Aaa"), new A("B").getClass());
-    Penta tuple5 = Tuple.create(Progress.Working, "5", null, 5f, false);
+    Tuple4 tuple4 = Tuple.create(true, null, new A("Aaa"), new A("B").getClass());
+    Tuple5 tuple5 = Tuple.create(Progress.Working, "5", null, 5f, false);
     Tuple tuple6 = Tuple.create(6, Integer.valueOf(6), 6f, 6.0d, "six",  Progress.ofIndex(3));
 
 
-    Dual<String, Integer> dual = Tuple.create("First", 2);
-    Dual<Boolean, Boolean> nullDual = Tuple.create(null, null);
-    Hepta<Boolean, Integer, String, LocalDate, Progress, String, Double> hepta=
-            Tuple.create(false, 77, "Hepta", LocalDate.MAX, Progress.Done, "Result", 99.9d);
+    Tuple2<String, Integer> dual = Tuple.create("First", 2);
+    Tuple2<Boolean, Boolean> nullDual = Tuple.create(null, null);
+    Tuple7<Boolean, Integer, String, LocalDate, Progress, String, Double> hepta=
+            Tuple.create(false, 77, "Tuple7", LocalDate.MAX, Progress.Done, "Result", 99.9d);
     Tuple NULL = Tuple.create(null);
     Set<String> stringSet = Tuple.setOf("", null, "third", "3");
     Set<Integer> intSet = Tuple.setOf(111, 222, 3333, 4444);
@@ -113,9 +115,9 @@ public class TupleTest {
 
     @Test
     public void create0() {
-        assertTrue(tuple0 instanceof Unit);
+        assertTrue(tuple0 instanceof Tuple0);
         assertTrue(tuple0 instanceof Tuple);
-        assertFalse(tuple0 instanceof Single);
+        assertFalse(tuple0 instanceof Tuple1);
         assertFalse(tuple0 instanceof Set);
         assertEquals(tuple0, Tuple.UNIT);
         assertEquals(0, tuple0.getLength());
@@ -124,12 +126,12 @@ public class TupleTest {
     @Test
     public void create1() {
         assertEquals(1, tuple1.getLength());
-        assertTrue(tuple1 instanceof Single);
+        assertTrue(tuple1 instanceof Tuple1);
         assertFalse(tuple1 instanceof Set);
 
         Tuple _1 = Tuple.create("First");
         assertEquals(_1, tuple1);
-        Single<String> singleString = (Single)_1;
+        Tuple1<String> singleString = (Tuple1)_1;
         assertEquals(_1, singleString);
         String v = singleString.getFirst();
         assertEquals("First", v);
@@ -143,15 +145,15 @@ public class TupleTest {
         assertEquals(2, tuple2.getLength());
         assertEquals(2, boolSet2.getLength());
         assertEquals(2, boolSet2.getLength());
-        assertTrue(tuple2 instanceof Dual);
+        assertTrue(tuple2 instanceof Tuple2);
         assertFalse(tuple2 instanceof Set);
 
         assertTrue(boolSet2 instanceof Set);
         assertEquals(boolSet2, Tuple.setOf(Boolean.valueOf(true), Boolean.valueOf("false")));
         Tuple _2 = Tuple.create(null, null);
         assertEquals(2, _2.getLength());
-        assertTrue(_2 instanceof Dual);
-        Dual _dual = (Dual) _2;
+        assertTrue(_2 instanceof Tuple2);
+        Tuple2 _dual = (Tuple2) _2;
         assertTrue(_dual.getFirst() == null);
         assertTrue(_dual.getSecond() == null);
         assertTrue(nullDual.getFirst() == null);
@@ -208,7 +210,7 @@ public class TupleTest {
         assertEquals(1, tuple7.getSetOf(String.class).getLength());
         assertEquals(1, tuple7.getSetOf(int.class).getLength());
 
-        Hepta<Integer, Boolean, String, char[], Double, A<String>, PredicateThrowable<A>> hepta =
+        Tuple7<Integer, Boolean, String, char[], Double, A<String>, PredicateThrowable<A>> hepta =
                 Tuple.create(7, 7%2==0, "Seven", "Seven".toCharArray(), 7.0d, new A("Seven"),
                         (PredicateThrowable<A>) a -> ((String)(a.value)).length() > 5 );
         Integer item1 = hepta.getFirst();
@@ -263,7 +265,7 @@ public class TupleTest {
         assertEquals(0, stringSet.getSetOf(int.class).getLength());
         assertEquals(4, stringSet.getSetOf(String.class).getLength());
 
-        Hepta<Integer, Boolean, String, char[], Double, A<String>, PredicateThrowable<A>> hepta =
+        Tuple7<Integer, Boolean, String, char[], Double, A<String>, PredicateThrowable<A>> hepta =
                 Tuple.create(7, 7%2==0, "Seven", "Seven".toCharArray(), 7.0d, new A("Seven"),
                         (PredicateThrowable<A>) a -> ((String)(a.value)).length() > 5 );
 
@@ -368,7 +370,7 @@ public class TupleTest {
 
     @Test
     public void equals() {
-        Dual<Boolean, Boolean> nullDual2 = Tuple.create(null, null);
+        Tuple2<Boolean, Boolean> nullDual2 = Tuple.create(null, null);
         assertTrue(nullDual.equals(nullDual2));
         assertTrue(nullDual2.equals(nullDual));
         assertEquals(nullDual2, nullDual);
@@ -428,5 +430,69 @@ public class TupleTest {
         }
 
         assertTrue(Arrays.deepEquals(expection, closeMessages.toArray()));
+    }
+
+
+    @Test
+    public void testTuple20_ofAllAccessors_retrieveElementAsExpected(){
+        Tuple20<Integer, Character, String, Double, Float, Byte, Integer, Boolean, char[], Character[]
+                , DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> tuple20 = Tuple.create(1, 'a', "String", 3.0d, 2.1f,
+                (byte)33, Integer.valueOf(7), null, new char[]{'x'}, new Character[]{'y'},
+                DayOfWeek.FRIDAY, new A(3), new Object[0][], new AutoA(), new AutoB(),
+                new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1,2,3}, null},
+                new Short[]{1,2,3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]}
+        );
+
+        assertEquals(Integer.valueOf(1), tuple20.getFirst());
+        assertEquals(Character.valueOf('a'), tuple20.getSecond());
+        assertEquals("String", tuple20.getThird());
+        assertEquals(Double.valueOf(3.0), tuple20.getFourth());
+        assertEquals(Float.valueOf(2.1f), tuple20.getFifth());
+        assertEquals(Byte.valueOf((byte)33), tuple20.getSixth());
+        assertEquals(Integer.valueOf(7), tuple20.getSeventh());
+        assertEquals(null, tuple20.getEighth());
+        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, tuple20.getNineth()));
+        assertEquals(DayOfWeek.FRIDAY, tuple20.getEleventh());
+        assertEquals(A.class, tuple20.getTwelfth().getClass());
+        assertEquals(0, tuple20.getThirteenth().length);
+        assertEquals(AutoA.class, tuple20.getFourteenth().getClass());
+        assertEquals(AutoB.class, tuple20.getFifteenth().getClass());
+        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, tuple20.getSixteenth()[1]));
+        assertEquals(null, tuple20.getSeventeenth()[1]);
+        assertEquals(Short.valueOf("3"), tuple20.getEighteenth()[2]);
+        assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, tuple20.getNineteenth()));
+        assertEquals(0, tuple20.getTwentieth()[0].length);
+    }
+
+    @Test
+    public void testTuple20_castAfterOf_retrieveElementAsExpected(){
+        Tuple20<Integer, Character, String, Double, Float, Byte, Integer, Boolean, char[], Character[]
+                , DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> tuple20 = (Tuple20<Integer, Character, String, Double, Float, Byte, Integer, Boolean, char[], Character[]
+                , DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]>)Tuple.of(1, 'a', "String", 3.0d, 2.1f,
+                (byte)33, Integer.valueOf(7), null, new char[]{'x'}, new Character[]{'y'},
+                DayOfWeek.FRIDAY, new A(3), new Object[0][], new AutoA(), new AutoB(),
+                new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1,2,3}, null},
+                new Short[]{1,2,3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]}
+        );
+
+        assertEquals(Integer.valueOf(1), tuple20.getFirst());
+        assertEquals(Character.valueOf('a'), tuple20.getSecond());
+        assertEquals("String", tuple20.getThird());
+        assertEquals(Double.valueOf(3.0), tuple20.getFourth());
+        assertEquals(Float.valueOf(2.1f), tuple20.getFifth());
+        assertEquals(Byte.valueOf((byte)33), tuple20.getSixth());
+        assertEquals(Integer.valueOf(7), tuple20.getSeventh());
+        assertEquals(null, tuple20.getEighth());
+        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, tuple20.getNineth()));
+        assertEquals(DayOfWeek.FRIDAY, tuple20.getEleventh());
+        assertEquals(A.class, tuple20.getTwelfth().getClass());
+        assertEquals(0, tuple20.getThirteenth().length);
+        assertEquals(AutoA.class, tuple20.getFourteenth().getClass());
+        assertEquals(AutoB.class, tuple20.getFifteenth().getClass());
+        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, tuple20.getSixteenth()[1]));
+        assertEquals(null, tuple20.getSeventeenth()[1]);
+        assertEquals(Short.valueOf("3"), tuple20.getEighteenth()[2]);
+        assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, tuple20.getNineteenth()));
+        assertEquals(0, tuple20.getTwentieth()[0].length);
     }
 }
