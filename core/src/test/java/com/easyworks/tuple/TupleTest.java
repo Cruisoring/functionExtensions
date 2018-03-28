@@ -387,6 +387,11 @@ public class TupleTest {
 
         Set<String> null5 = Tuple.setOf((String)null, (String)null);
         assertEquals(null5, null4);
+
+        Tuple tuple1 = Tuple.create(1, "abc".toCharArray(), new boolean[]{true, false}, new int[]{3, 2}, new int[][]{null, new int[]{0}});
+        Tuple tuple2 = Tuple.create(Integer.valueOf(1),
+                new Character[]{'a','b','c'}, new Boolean[]{true, false}, new Integer[]{3, 2}, new Integer[][]{null, new Integer[]{0}});
+        assertEquals(tuple1, tuple2);
     }
 
     public static List<String> closeMessages = new ArrayList<>();

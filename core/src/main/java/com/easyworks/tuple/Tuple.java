@@ -63,7 +63,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         Objects.requireNonNull(clazz);
 
         try {
-            Predicate<Class> predicate = TypeHelper.getClassPredicate(clazz);
+            Predicate<Class> predicate = TypeHelper.getClassEqualitor(clazz);
             Class equivalent = (TypeHelper.isPrimitive(clazz) && !clazz.isArray()) ? TypeHelper.getEquivalentClass(clazz) : clazz;
             Boolean isArray = clazz.isArray();
             Class<?> componentType = isArray ? clazz.getComponentType() : null;
@@ -101,7 +101,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         Objects.requireNonNull(valuePredicate);
         List<T> matched = new ArrayList<>();
 
-        Predicate<Class> classPredicate = TypeHelper.getClassPredicate(clazz);
+        Predicate<Class> classPredicate = TypeHelper.getClassEqualitor(clazz);
 
         int length = getLength();
         for (int i = 0; i < length; i++) {
@@ -199,6 +199,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         if(!other.canEqual(this))
             return false;
 
+        //Calling TypeHelper.deepEquals(values, other.values) would get StackOverflowError
         return TypeHelper.arraysDeepEquals(values, other.values);
     }
 

@@ -33,42 +33,42 @@ public class TypeHelperTest {
 
     @Test
     public void getClassPredicate_withPrimitiveTypes_shallMatchCorrectly() {
-        Predicate<Class> classPredicate = getClassPredicate(int.class);
+        Predicate<Class> classPredicate = getClassEqualitor(int.class);
         assertTrue(classPredicate.test(int.class) && classPredicate.test(Integer.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(int[].class) || classPredicate.test(Integer[].class));
 
-        classPredicate = getClassPredicate(char.class);
+        classPredicate = getClassEqualitor(char.class);
         assertTrue(classPredicate.test(char.class) && classPredicate.test(Character.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(int.class) ||
                 classPredicate.test(char[].class) || classPredicate.test(Character[].class));
 
-        classPredicate = getClassPredicate(boolean.class);
+        classPredicate = getClassEqualitor(boolean.class);
         assertTrue(classPredicate.test(boolean.class) && classPredicate.test(Boolean.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(boolean[].class) || classPredicate.test(Boolean[].class));
 
-        classPredicate = getClassPredicate(byte.class);
+        classPredicate = getClassEqualitor(byte.class);
         assertTrue(classPredicate.test(byte.class) && classPredicate.test(Byte.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(byte[].class) || classPredicate.test(Byte[].class));
 
-        classPredicate = getClassPredicate(double.class);
+        classPredicate = getClassEqualitor(double.class);
         assertTrue(classPredicate.test(double.class) && classPredicate.test(Double.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(double[].class) || classPredicate.test(Double[].class));
 
-        classPredicate = getClassPredicate(float.class);
+        classPredicate = getClassEqualitor(float.class);
         assertTrue(classPredicate.test(float.class) && classPredicate.test(Float.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(float[].class) || classPredicate.test(Float[].class));
 
-        classPredicate = getClassPredicate(short.class);
+        classPredicate = getClassEqualitor(short.class);
         assertTrue(classPredicate.test(short.class) && classPredicate.test(Short.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(short[].class) || classPredicate.test(Short[].class));
 
-        classPredicate = getClassPredicate(long.class);
+        classPredicate = getClassEqualitor(long.class);
         assertTrue(classPredicate.test(long.class) && classPredicate.test(Long.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(long[].class) || classPredicate.test(Long[].class));
@@ -76,42 +76,42 @@ public class TypeHelperTest {
 
     @Test
     public void getClassPredicate_withWrapperTypes_shallMatchCorrectly() {
-        Predicate<Class> classPredicate = getClassPredicate(Integer.class);
+        Predicate<Class> classPredicate = getClassEqualitor(Integer.class);
         assertTrue(classPredicate.test(int.class) && classPredicate.test(Integer.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(int[].class) || classPredicate.test(Integer[].class));
 
-        classPredicate = getClassPredicate(Character.class);
+        classPredicate = getClassEqualitor(Character.class);
         assertTrue(classPredicate.test(char.class) && classPredicate.test(Character.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(int.class) ||
                 classPredicate.test(char[].class) || classPredicate.test(Character[].class));
 
-        classPredicate = getClassPredicate(Boolean.class);
+        classPredicate = getClassEqualitor(Boolean.class);
         assertTrue(classPredicate.test(boolean.class) && classPredicate.test(Boolean.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(boolean[].class) || classPredicate.test(Boolean[].class));
 
-        classPredicate = getClassPredicate(Byte.class);
+        classPredicate = getClassEqualitor(Byte.class);
         assertTrue(classPredicate.test(byte.class) && classPredicate.test(Byte.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(byte[].class) || classPredicate.test(Byte[].class));
 
-        classPredicate = getClassPredicate(Double.class);
+        classPredicate = getClassEqualitor(Double.class);
         assertTrue(classPredicate.test(double.class) && classPredicate.test(Double.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(double[].class) || classPredicate.test(Double[].class));
 
-        classPredicate = getClassPredicate(Float.class);
+        classPredicate = getClassEqualitor(Float.class);
         assertTrue(classPredicate.test(float.class) && classPredicate.test(Float.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(float[].class) || classPredicate.test(Float[].class));
 
-        classPredicate = getClassPredicate(Short.class);
+        classPredicate = getClassEqualitor(Short.class);
         assertTrue(classPredicate.test(short.class) && classPredicate.test(Short.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(short[].class) || classPredicate.test(Short[].class));
 
-        classPredicate = getClassPredicate(Long.class);
+        classPredicate = getClassEqualitor(Long.class);
         assertTrue(classPredicate.test(long.class) && classPredicate.test(Long.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(char.class) ||
                 classPredicate.test(long[].class) || classPredicate.test(Long[].class));
@@ -119,19 +119,19 @@ public class TypeHelperTest {
 
     @Test
     public void getClassPredicate_withPrimitiveArraysAndTheirWrappersType_shallMatchCorrectly() {
-        Predicate<Class> classPredicate = getClassPredicate(int[].class);
+        Predicate<Class> classPredicate = getClassEqualitor(int[].class);
         assertTrue(classPredicate.test(int[].class) && classPredicate.test(Integer[].class));
         assertFalse(classPredicate.test(null) || classPredicate.test(Object[].class)
                 || classPredicate.test(int.class) || classPredicate.test(Integer.class)
                 || classPredicate.test(int[][].class) || classPredicate.test(Integer[][].class));
 
-        classPredicate = getClassPredicate(Integer[].class);
+        classPredicate = getClassEqualitor(Integer[].class);
         assertTrue(classPredicate.test(int[].class) && classPredicate.test(Integer[].class));
         assertFalse(classPredicate.test(null) || classPredicate.test(Object[].class)
                 || classPredicate.test(int.class) || classPredicate.test(Integer.class)
                 || classPredicate.test(int[][].class) || classPredicate.test(Integer[][].class));
 
-        classPredicate = getClassPredicate(Integer[][].class);
+        classPredicate = getClassEqualitor(Integer[][].class);
         assertTrue(classPredicate.test(int[][].class) && classPredicate.test(Integer[][].class));
         assertFalse(classPredicate.test(null) || classPredicate.test(Object[][].class)
                 || classPredicate.test(int[].class) || classPredicate.test(Integer.class)
@@ -385,32 +385,32 @@ public class TypeHelperTest {
 
     @Test
     public void getClassPredicate_withInterfaceOrClassTypes_shallMatchCorrectly() {
-        Predicate<Class> classPredicate = getClassPredicate(ITest1.class);
+        Predicate<Class> classPredicate = getClassEqualitor(ITest1.class);
         assertTrue(classPredicate.test(A.class) && classPredicate.test(B.class)
                 && classPredicate.test(C.class) && classPredicate.test(D.class)
                 && classPredicate.test(ITest1.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(Object.class));
 
-        classPredicate = getClassPredicate(ITest2.class);
+        classPredicate = getClassEqualitor(ITest2.class);
         assertTrue(classPredicate.test(C.class) && classPredicate.test(D.class)
                 && classPredicate.test(ITest2.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(Object.class)
                 || classPredicate.test(A.class) || classPredicate.test(B.class));
 
-        classPredicate = getClassPredicate(A.class);
+        classPredicate = getClassEqualitor(A.class);
         assertTrue(classPredicate.test(A.class) && classPredicate.test(B.class)
                 && classPredicate.test(C.class));
         assertFalse(classPredicate.test(null) || classPredicate.test(Object.class)
                 || classPredicate.test(D.class) || classPredicate.test(ITest1.class) || classPredicate.test(ITest2.class));
 
-        classPredicate = getClassPredicate(ITest1[].class);
+        classPredicate = getClassEqualitor(ITest1[].class);
         assertTrue(classPredicate.test(A[].class) && classPredicate.test(B[].class)
                 && classPredicate.test(C[].class) && classPredicate.test(D[].class)
                 && classPredicate.test(ITest1[].class));
         assertFalse(classPredicate.test(null) || classPredicate.test(Object.class)
                 || classPredicate.test(A.class) || classPredicate.test(ITest1.class) || classPredicate.test(ITest2.class));
 
-        classPredicate = getClassPredicate(ITest2[].class);
+        classPredicate = getClassEqualitor(ITest2[].class);
         assertTrue(classPredicate.test(C[].class) && classPredicate.test(D[].class)
                 && classPredicate.test(ITest2[].class));
         assertFalse(classPredicate.test(null) || classPredicate.test(Object.class)
@@ -418,7 +418,7 @@ public class TypeHelperTest {
                 || classPredicate.test(A[].class) || classPredicate.test(B[].class)
                 || classPredicate.test(C.class) || classPredicate.test(D.class));
 
-        classPredicate = getClassPredicate(A[].class);
+        classPredicate = getClassEqualitor(A[].class);
         assertTrue(classPredicate.test(A[].class) && classPredicate.test(B[].class)
                 && classPredicate.test(C[].class));
         assertFalse(classPredicate.test(null) || classPredicate.test(Object.class)
