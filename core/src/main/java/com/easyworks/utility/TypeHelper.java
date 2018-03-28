@@ -994,26 +994,15 @@ public class TypeHelper {
                 return Tuple.create(mapsToNull, mapsToNull, mapsToNull,
                         alwaysFalse, alwaysFalse, alwaysFalse);
             }
-        } else if(class2.equals(OBJECT_CLASS)) {
-            return Tuple.create(returnsSelf, returnsSelf, returnsSelf, objectsEquals, objectsEquals, objectsEquals);
         }
 
         Class componentClasses1 = class1.getComponentType();
         Class componentClasses2 = class2.getComponentType();
+        BiFunctionThrowable<Object, Integer, Object> getter1 = getArrayElementGetter(componentClasses1);
+        BiFunctionThrowable<Object, Integer, Object> getter2 = getArrayElementGetter(componentClasses2);
         BiPredicate<Object, Object> componentParallelPredicate = getParallelPredicate(componentClasses1, componentClasses2);
         BiPredicate<Object, Object> componentSerialPredicate = getSerialPredicate(componentClasses1, componentClasses2);
         BiPredicate<Object, Object> componentDefaultPredicate = getDefaultPredicate(componentClasses1, componentClasses2);
-        BiFunctionThrowable<Object, Integer, Object> getter1 = getArrayElementGetter(componentClasses1);
-        BiFunctionThrowable<Object, Integer, Object> getter2 = getArrayElementGetter(componentClasses2);
-
-        int dimension1 = getDimension(class1);
-        if(getDimension(class2) != dimension1) {
-            parallelPredicate = serialPredicate = defaultPredicate = alwaysFalse;
-        } else if (dimension1 == 1){
-            parallelPredicate = serialPredicate = defaultPredicate = arraysDeepEquals;
-        } else if (!getClassEqualitor(class1).test(class2)){
-            parallelPredicate = serialPredicate = defaultPredicate = alwaysFalse;
-        }
 
         parallelPredicate = (obj1, obj2) -> {
             if(Objects.equals(obj1, obj2))
