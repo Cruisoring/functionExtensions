@@ -2,6 +2,7 @@ package com.easyworks;
 
 import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
+import com.easyworks.utility.TypeHelper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -179,7 +180,7 @@ public class LazyTest {
         inboxLazy.getValue().checkMail();
         emailLazy.reset();  //Instead of emailLazy.close() to avoid Exception try-catch
 
-        assertTrue(Arrays.deepEquals(logs.toArray(), new String[]{
+        assertTrue(TypeHelper.deepEquals(logs.toArray(), new String[]{
                 "Account created: email@test.com", "Outbox opened", "Send mail", "Inbox opened", "Check inbox",
                 "Outbox closed", "Inbox closed", "Account closed: email@test.com"
         }));

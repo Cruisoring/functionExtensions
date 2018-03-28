@@ -1,6 +1,7 @@
 package com.easyworks.repository;
 
 import com.easyworks.Functions;
+import com.easyworks.utility.TypeHelper;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -81,7 +82,7 @@ public class RepositoryTest {
         Functions.ReturnsDefaultValue.run(repository::close);
         String[] logsArray = logs.toArray(new String[logs.size()]);
         Arrays.sort(logsArray);
-        assertTrue(Arrays.deepEquals(new String[]{"Key '' closed", "Key '0123456789' closed", "Key 'a' closed", "Key 'b' closed",
+        assertTrue(TypeHelper.deepEquals(new String[]{"Key '' closed", "Key '0123456789' closed", "Key 'a' closed", "Key 'b' closed",
                 "Value 0 closed", "Value 1 closed", "Value 1 closed", "Value 10 closed"}, logsArray));
         assertEquals(0, repository.getValue().size());
     }
