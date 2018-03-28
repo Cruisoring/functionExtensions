@@ -231,7 +231,7 @@ public class TupleTest {
         assertEquals(Set.class, stringSet.getClass());
         assertEquals(stringSet.get(0), "");
         assertEquals(stringSet.get(1), null);
-        assertTrue(Arrays.deepEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray()));
+        assertTrue(TypeHelper.deepEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray()));
         Set tupleSet2 = Tuple.setOf(Tuple.create(), Tuple.create("First"));
         assertEquals(tupleSet, tupleSet2);
     }
@@ -270,10 +270,10 @@ public class TupleTest {
                         (PredicateThrowable<A>) a -> ((String)(a.value)).length() > 5 );
 
         Set<String> stringSet1 = hepta.getSetOf(String.class);
-        assertTrue(Arrays.deepEquals(new String[]{"Seven"}, stringSet1.asArray()));
+        assertTrue(TypeHelper.deepEquals(new String[]{"Seven"}, stringSet1.asArray()));
 
         Tuple t = Tuple.create(1, 2, 3, null, 4, 5);
-        assertTrue(Arrays.deepEquals(new Integer[]{1,2,3,4,5}, t.getSetOf(int.class).asArray()));
+        assertTrue(TypeHelper.deepEquals(new Integer[]{1,2,3,4,5}, t.getSetOf(int.class).asArray()));
 
         Set<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
         Set aSet1 = aSet.getSetOf(A.class);
@@ -326,7 +326,7 @@ public class TupleTest {
         Object[] elements = new Object[] {1, "ok", true};
         tuple = Tuple.of(elements);
         assertEquals(3, tuple.getLength());
-        assertTrue(Arrays.deepEquals(tuple.values, elements));
+        assertTrue(TypeHelper.deepEquals(tuple.values, elements));
 
         elements = new Object[]{1,2,3,"abc", 'a', true, Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3), 'b'};
         tuple = Tuple.of(elements);
@@ -434,7 +434,7 @@ public class TupleTest {
             Logger.L(ex.getMessage());
         }
 
-        assertTrue(Arrays.deepEquals(expection, closeMessages.toArray()));
+        assertTrue(TypeHelper.deepEquals(expection, closeMessages.toArray()));
     }
 
 

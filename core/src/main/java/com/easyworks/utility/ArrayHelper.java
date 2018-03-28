@@ -11,6 +11,7 @@ import com.easyworks.tuple.Tuple1;
 import com.easyworks.tuple.Tuple6;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
