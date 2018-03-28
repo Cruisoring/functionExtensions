@@ -148,7 +148,7 @@ public class TypeHelperTest {
                 || isPrimitive(Boolean.class) || isPrimitive(Double.class) || isPrimitive(Short.class) || isPrimitive(Long.class));
 
         assertFalse(isPrimitive(DayOfWeek.class) || isPrimitive(Object.class) || isPrimitive(Comparable.class) || isPrimitive(A.class)
-                || isPrimitive(ITest1.class) || isPrimitive(new Integer(3).getClass()) || isPrimitive(null));
+                || isPrimitive(ITest1.class) || isPrimitive(new Integer(3).getClass()));
     }
 
     @Test
