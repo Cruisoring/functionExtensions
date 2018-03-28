@@ -2,9 +2,11 @@ package com.easyworks.utility;
 
 import com.easyworks.Functions;
 import com.easyworks.function.*;
-import com.easyworks.repository.*;
+import com.easyworks.repository.HeptaValuesRepository;
+import com.easyworks.repository.HexaValuesRepository;
+import com.easyworks.repository.TripleValuesRepository;
 import com.easyworks.tuple.Tuple;
-import com.easyworks.tuple.Tuple5;
+import com.easyworks.tuple.Tuple2;
 import com.easyworks.tuple.Tuple6;
 import com.easyworks.tuple.Tuple7;
 import sun.reflect.ConstantPool;
@@ -783,6 +785,93 @@ public class TypeHelper {
         return count;
     }
 
+    public static <T,U> boolean arraysSerialDeepEquals(T[] array1, U[] array2){
+        if(Objects.equals(array1, array2))
+            return true;
+        else if(array1 == null || array2 == null)
+            return false;
+
+        int length = Array.getLength(array1);
+        if(length != Array.getLength(array2))
+            return false;
+
+        try {
+            for (int i = 0; i < length; i++) {
+                Object element1 = Array.get(array1, i);
+                Object element2 = Array.get(array2, i);
+                if(!Objects.equals(element1, element2))
+                    return false;
+            }
+            return true;
+        }catch(Exception ex){
+            return false;
+        }
+    }
+
+    public static <T,U> boolean arraysParallelDeepEquals(T[] array1, U[] array2){
+        if(Objects.equals(array1, array2))
+            return true;
+        else if(array1 == null || array2 == null)
+            return false;
+
+        int length = Array.getLength(array1);
+        if(length != Array.getLength(array2))
+            return false;
+
+        Predicate<Integer> elementEquals = i -> {
+            try {
+                Object element1 = Array.get(array1, i);
+                Object element2 = Array.get(array2, i);
+                return Objects.equals(element1, element2);
+            }catch (Exception ex){
+                return false;
+            }
+        };
+
+        boolean result = IntStream.range(0, length).boxed().parallel()
+                .allMatch(elementEquals);
+        return result;
+    }
+
+    public static <T,U> boolean arraysDeepEquals(T[] array1, U[] array2){
+        if(Objects.equals(array1, array2))
+            return true;
+        else if(array1 == null || array2 == null)
+            return false;
+
+        int length = Array.getLength(array1);
+        if(length != Array.getLength(array2))
+            return false;
+
+        if(length < PARALLEL_EVALUATION_THRESHOLD){
+            try {
+                for (int i = 0; i < length; i++) {
+                    Object element1 = Array.get(array1, i);
+                    Object element2 = Array.get(array2, i);
+                    if(!Objects.equals(element1, element2))
+                        return false;
+                }
+                return true;
+            }catch(Exception ex){
+                return false;
+            }
+        }else{
+            Predicate<Integer> elementEquals = i -> {
+                try {
+                    Object element1 = Array.get(array1, i);
+                    Object element2 = Array.get(array2, i);
+                    return Objects.equals(element1, element2);
+                }catch (Exception ex){
+                    return false;
+                }
+            };
+
+            boolean result = IntStream.range(0, length).boxed().parallel()
+                    .allMatch(elementEquals);
+            return result;
+        }
+    }
+
     //region Repository to keep deep converters and deep predicate of two classes
     /**
      * This repository use two classes as its key:
@@ -807,213 +896,74 @@ public class TypeHelper {
             , BiPredicate<Object,Object>        //Predicate of deepEquals in serial
             , BiPredicate<Object,Object>        //Predicate of deepEquals by default, in parallel or serial based on the length of the array
         > deepEvaluators = HexaValuesRepository.fromTwoKeys(
-            (Class fromClass, Class toClass) ->{
-                Objects.requireNonNull(fromClass);
-                Objects.requireNonNull(toClass);
+            () -> new HashMap<Tuple2<Class,Class>,
+                    Tuple6<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>>>(){{
+                        put(Tuple.create(Object.class, Object.class),
+                                Tuple.create(returnsSelf, returnsSelf, returnsSelf, objectsEquals, objectsEquals, objectsEquals));
 
-                BiPredicate<Object,Object> parallelPredicate, serialPredicate, defaultPredicate;
-
-                if(!fromClass.isArray() && !toClass.isArray()){
-                    if(fromClass.equals(toClass)){
-                        parallelPredicate = serialPredicate = defaultPredicate = Objects::equals;
-                        return Tuple.create(returnsSelf, returnsSelf, returnsSelf,
-                                parallelPredicate, serialPredicate, defaultPredicate);
-                    } else if (getEquivalentClass(fromClass).equals(toClass)){
-                        final Function<Object, Object> singleObjectConverter = getToEquivalentParallelConverter(fromClass);
-                        parallelPredicate = serialPredicate = defaultPredicate
-                                = (a, b) -> Objects.equals(singleObjectConverter.apply(a), b);
-                        return Tuple.create(singleObjectConverter, singleObjectConverter, singleObjectConverter,
-                                parallelPredicate, serialPredicate, defaultPredicate);
-                    } else if (toClass.isAssignableFrom(fromClass)){
-                        parallelPredicate = serialPredicate = defaultPredicate = Object::equals;
-                        return Tuple.create(returnsSelf, returnsSelf, returnsSelf,
-                                parallelPredicate, serialPredicate, defaultPredicate);
-                    } else {
-                        return Tuple.create(mapsToNull, mapsToNull, mapsToNull,
-                                alwaysFalse, alwaysFalse, alwaysFalse);
-                    }
-                } else if(toClass.equals(Object.class)) {
-                    return Tuple.create(returnsSelf, returnsSelf, returnsSelf, alwaysFalse, alwaysFalse, alwaysFalse);
-                } else if(!fromClass.isArray() || !toClass.isArray()){
-                    //One type is array, another is not
-                    return Tuple.create(mapsToNull, mapsToNull, mapsToNull, alwaysFalse, alwaysFalse, alwaysFalse);
-                }
-
-                parallelPredicate = getParallelPredicate(fromClass, toClass);
-                serialPredicate = getSerialPredicate(fromClass, toClass);
-                defaultPredicate = getDefaultPredicate(fromClass, toClass);
-                //Now both type are of array
-                //First, check fromClass and toClass is identical
-                if(fromClass.equals(toClass)){
-                    BiFunctionThrowable<Object, Integer, Object> getter1 = getArrayElementGetter(fromClass.getComponentType());
-                    return Tuple.create(returnsSelf, returnsSelf, returnsSelf, parallelPredicate, serialPredicate, defaultPredicate);
-                }else if(!getClassPredicate(fromClass).test(toClass)) {
-                    //Second, check to see if fromClass is equivalent to toClass
-                    // Use the equivalent converter if they are
-                    return Tuple.create(mapsToNull, mapsToNull, mapsToNull, alwaysFalse, alwaysFalse, alwaysFalse);
-                }
-
-                Class fromComponentClass = fromClass.getComponentType();
-                Class toComponentClass = toClass.getComponentType();
-
-                FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(toComponentClass);
-                BiFunctionThrowable<Object, Integer, Object> fromElementGetter = getArrayElementGetter(fromComponentClass);
-                TriConsumerThrowable<Object, Integer, Object> toElementSetter = getArrayElementSetter(toComponentClass);
-
-                Function<Object, Object> parallelElementConverter = getToEquivalentParallelConverter(fromComponentClass);
-                Function<Object, Object> serialElementConverter = getToEquivalentSerialConverter(fromComponentClass);
-
-                TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> elementMappingWithException =
-                        getExceptionWithMapping(fromElementGetter, toElementSetter, parallelElementConverter);
-
-                Function<Object, Object> parallelConverter = (fromArray) -> {
-                    if (fromArray == null) return null;
-                    try {
-                        int length = Array.getLength(fromArray);
-                        Object toArray = factory.apply(length);
-                        Integer firstIndexWithException = IntStream.range(0, length).boxed().parallel()
-                                .filter(i -> elementMappingWithException.apply(fromArray, toArray, i))
-                                .findFirst().orElse(-1);
-
-                        return firstIndexWithException == -1 ? toArray : null;
-                    } catch (Exception ex) {
-                        return null;
-                    }
-                };
-
-                Function<Object, Object> serialConverter = (fromArray) -> {
-                    if (fromArray == null) return null;
-                    try {
-                        int length = Array.getLength(fromArray);
-                        Object toArray = factory.apply(length);
-                        for (int i = 0; i < length; i++) {
-                            Object fromElement = fromElementGetter.apply(fromArray, i);
-                            Object convertedElement = serialElementConverter.apply(fromElement);
-                            toElementSetter.accept(toArray, i, convertedElement);
-                        }
-                        return toArray;
-                    } catch (Exception ex) {
-                        return null;
-                    }
-                };
-
-                Function<Object, Object> defaultConverter = (fromArray) -> {
-                    if (fromArray == null) return null;
-                    int length = Array.getLength(fromArray);
-                    try {
-                        Object toArray = factory.apply(length);
-                        if(length < PARALLEL_EVALUATION_THRESHOLD) {
-                            for (int i = 0; i < length; i++) {
-                                Object fromElement = fromElementGetter.apply(fromArray, i);
-                                Object convertedElement = serialElementConverter.apply(fromElement);
-                                toElementSetter.accept(toArray, i, convertedElement);
-                            }
-                            return toArray;
-                        } else {
-                            Integer firstIndexWithException = IntStream.range(0, length).boxed().parallel()
-                                    .filter(i -> elementMappingWithException.apply(fromArray, toArray, i))
-                                    .findFirst().orElse(-1);
-
-                            return firstIndexWithException == -1 ? toArray : null;
-                        }
-                    } catch (Exception ex) {
-                        return null;
-                    }
-                };
-
-                parallelPredicate = getParallelPredicate(fromClass, toClass);
-                serialPredicate = getSerialPredicate(fromClass, toClass);
-                defaultPredicate = getDefaultPredicate(fromClass, toClass);
-                return Tuple.create(parallelConverter, serialConverter, defaultConverter,
-                        parallelPredicate, serialPredicate, defaultPredicate);
-            }
+                        put(Tuple.create(Object[].class, Object[].class),
+                                Tuple.create(returnsSelf, returnsSelf, returnsSelf,
+                                        (a,b)->arraysParallelDeepEquals((Object[])a, (Object[])b),
+                                        (a,b)->arraysSerialDeepEquals((Object[])a, (Object[])b),
+                                        (a,b)->arraysDeepEquals((Object[])a, (Object[])b)
+                                        ));
+            }},
+            null,
+            TypeHelper::getDeepEvaluators
         );
-    //endregion
 
-    private static boolean deepEqualsSerial(
-            BiFunctionThrowable<Object, Integer, Object> getter1,
-            BiFunctionThrowable<Object, Integer, Object> getter2,
-            Object array1,
-            Object array2){
-        if(Objects.equals(array1, array2))
-            return true;
-        else if(array1 == null || array2 == null)
-            return false;
+    private static Tuple6<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>>
+        getDeepEvaluators(Class class1, Class class2) throws Exception {
+        Objects.requireNonNull(class1);
+        Objects.requireNonNull(class2);
 
-        int length = Array.getLength(array1);
-        if(length != Array.getLength(array2))
-            return false;
+        BiPredicate<Object,Object> parallelPredicate, serialPredicate, defaultPredicate;
 
-        try {
-            for (int i = 0; i < length; i++) {
-                Object element1 = getter1.apply(array1, i);
-                Object element2 = getter2.apply(array2, i);
-                if(!deepEquals(element1, element2))
-                    return false;
+        if(!class1.isArray() && !class2.isArray()){
+            if(Objects.equals(class1, class2)){
+                parallelPredicate = serialPredicate = defaultPredicate = objectsEquals;
+                return Tuple.create(returnsSelf, returnsSelf, returnsSelf,
+                        parallelPredicate, serialPredicate, defaultPredicate);
+            } else if (getClassPredicate(class1).test(class2)){
+                final Function<Object, Object> singleObjectConverter = getToEquivalentParallelConverter(class1);
+                parallelPredicate = serialPredicate = defaultPredicate
+                        = (a, b) -> Objects.equals(singleObjectConverter.apply(a), b);
+                return Tuple.create(singleObjectConverter, singleObjectConverter, singleObjectConverter,
+                        parallelPredicate, serialPredicate, defaultPredicate);
+            } else if (class2.isAssignableFrom(class1)){
+                parallelPredicate = serialPredicate = defaultPredicate = Object::equals;
+                return Tuple.create(returnsSelf, returnsSelf, returnsSelf,
+                        parallelPredicate, serialPredicate, defaultPredicate);
+            } else {
+                return Tuple.create(mapsToNull, mapsToNull, mapsToNull,
+                        alwaysFalse, alwaysFalse, alwaysFalse);
             }
-            return true;
-        }catch(Exception ex){
-            return false;
+        } else if(class2.equals(Object.class)) {
+            return Tuple.create(returnsSelf, returnsSelf, returnsSelf, alwaysFalse, alwaysFalse, alwaysFalse);
+        } else if(!class1.isArray() || !class2.isArray()){
+            //One type is array, another is not
+            return Tuple.create(mapsToNull, mapsToNull, mapsToNull, alwaysFalse, alwaysFalse, alwaysFalse);
         }
-    }
 
-    private static BiPredicate<Object, Object> getSerialPredicate(Class class1, Class class2){
         int dimension1 = getDimension(class1);
-        if(getDimension(class2) != dimension1)
-            return alwaysFalse;
+        if(getDimension(class2) != dimension1) {
+            parallelPredicate = serialPredicate = defaultPredicate = alwaysFalse;
+        }
         else if (dimension1 == 0){
-            return Objects::equals;
+            parallelPredicate = serialPredicate = defaultPredicate = objectsEquals;
         } else if (!getClassPredicate(class1).test(class2)){
-            return alwaysFalse;
+            parallelPredicate = serialPredicate = defaultPredicate = alwaysFalse;
         }
 
         Class componentClasses1 = class1.getComponentType();
         Class componentClasses2 = class2.getComponentType();
-        BiPredicate<Object, Object> componentPredicate = getSerialPredicate(componentClasses1, componentClasses2);
+        BiPredicate<Object, Object> componentParallelPredicate = getParallelPredicate(componentClasses1, componentClasses2);
+        BiPredicate<Object, Object> componentSerialPredicate = getSerialPredicate(componentClasses1, componentClasses2);
+        BiPredicate<Object, Object> componentDefaultPredicate = getDefaultPredicate(componentClasses1, componentClasses2);
         BiFunctionThrowable<Object, Integer, Object> getter1 = getArrayElementGetter(componentClasses1);
         BiFunctionThrowable<Object, Integer, Object> getter2 = getArrayElementGetter(componentClasses2);
 
-        return (obj1, obj2) -> {
-            if(Objects.equals(obj1, obj2))
-                return true;
-            else if(obj1 == null || obj2 == null)
-                return false;
-
-            int length = Array.getLength(obj1);
-            if(length != Array.getLength(obj2))
-                return false;
-
-            try {
-                for (int i = 0; i < length; i++) {
-                    Object element1 = getter1.apply(obj1, i);
-                    Object element2 = getter2.apply(obj2, i);
-                    if(!componentPredicate.test(element1, element2))
-                        return false;
-                }
-                return true;
-            }catch(Exception ex){
-                return false;
-            }
-        };
-    }
-
-    private static BiPredicate<Object, Object> getParallelPredicate(Class class1, Class class2){
-        int dimension1 = getDimension(class1);
-        if(getDimension(class2) != dimension1)
-            return alwaysFalse;
-        else if (dimension1 == 0){
-            return Objects::equals;
-        } else if (!getClassPredicate(class1).test(class2)){
-            return alwaysFalse;
-        }
-
-        Class componentClasses1 = class1.getComponentType();
-        Class componentClasses2 = class2.getComponentType();
-        BiPredicate<Object, Object> componentPredicate = getParallelPredicate(componentClasses1, componentClasses2);
-        BiFunctionThrowable<Object, Integer, Object> getter1 = getArrayElementGetter(componentClasses1);
-        BiFunctionThrowable<Object, Integer, Object> getter2 = getArrayElementGetter(componentClasses2);
-
-        return (obj1, obj2) -> {
+        parallelPredicate = (obj1, obj2) -> {
             if(Objects.equals(obj1, obj2))
                 return true;
             else if(obj1 == null || obj2 == null)
@@ -1027,7 +977,7 @@ public class TypeHelper {
                 try {
                     Object element1 = getter1.apply(obj1, i);
                     Object element2 = getter2.apply(obj2, i);
-                    return componentPredicate.test(element1, element2);
+                    return componentParallelPredicate.test(element1, element2);
                 }catch (Exception ex){
                     return false;
                 }
@@ -1037,25 +987,31 @@ public class TypeHelper {
                     .allMatch(elementEquals);
             return result;
         };
-    }
 
-    private static BiPredicate<Object, Object> getDefaultPredicate(Class class1, Class class2){
-        int dimension1 = getDimension(class1);
-        if(getDimension(class2) != dimension1)
-            return alwaysFalse;
-        else if (dimension1 == 0){
-            return Objects::equals;
-        } else if (!getClassPredicate(class1).test(class2)){
-            return alwaysFalse;
-        }
+        serialPredicate = (obj1, obj2) -> {
+            if(Objects.equals(obj1, obj2))
+                return true;
+            else if(obj1 == null || obj2 == null)
+                return false;
 
-        Class componentClasses1 = class1.getComponentType();
-        Class componentClasses2 = class2.getComponentType();
-        BiPredicate<Object, Object> elementPredicate = getDefaultPredicate(componentClasses1, componentClasses2);
-        BiFunctionThrowable<Object, Integer, Object> getter1 = getArrayElementGetter(componentClasses1);
-        BiFunctionThrowable<Object, Integer, Object> getter2 = getArrayElementGetter(componentClasses2);
+            int length = Array.getLength(obj1);
+            if(length != Array.getLength(obj2))
+                return false;
 
-        return (obj1, obj2) -> {
+            try {
+                for (int i = 0; i < length; i++) {
+                    Object element1 = getter1.apply(obj1, i);
+                    Object element2 = getter2.apply(obj2, i);
+                    if(!componentSerialPredicate.test(element1, element2))
+                        return false;
+                }
+                return true;
+            }catch(Exception ex){
+                return false;
+            }
+        };
+
+        defaultPredicate = (obj1, obj2) -> {
             if(Objects.equals(obj1, obj2))
                 return true;
             else if(obj1 == null || obj2 == null)
@@ -1070,7 +1026,7 @@ public class TypeHelper {
                     for (int i = 0; i < length; i++) {
                         Object element1 = getter1.apply(obj1, i);
                         Object element2 = getter2.apply(obj2, i);
-                        if(!elementPredicate.test(element1, element2))
+                        if(!componentDefaultPredicate.test(element1, element2))
                             return false;
                     }
                     return true;
@@ -1082,7 +1038,7 @@ public class TypeHelper {
                     try {
                         Object element1 = getter1.apply(obj1, i);
                         Object element2 = getter2.apply(obj2, i);
-                        return elementPredicate.test(element1, element2);
+                        return componentDefaultPredicate.test(element1, element2);
                     }catch (Exception ex){
                         return false;
                     }
@@ -1093,77 +1049,108 @@ public class TypeHelper {
                 return result;
             }
         };
-    }
 
-    private static boolean deepEqualsParallel(
-            BiFunctionThrowable<Object, Integer, Object> getter1,
-            BiFunctionThrowable<Object, Integer, Object> getter2,
-            Object array1,
-            Object array2){
-        if(Objects.equals(array1, array2))
-            return true;
-        else if(array1 == null || array2 == null)
-            return false;
-
-        int length = Array.getLength(array1);
-        if(length != Array.getLength(array2))
-            return false;
-
-        Predicate<Integer> elementUnmatchedPredicate = i -> {
-            try {
-                Object element1 = getter1.apply(array1, i);
-                Object element2 = getter2.apply(array2, i);
-
-                return !deepEquals(element1, element2);
-            }catch(Exception ex){
-                return true;
-            }
-        };
-        boolean result = !IntStream.range(0, length).boxed().parallel()
-                .filter(elementUnmatchedPredicate).findFirst().isPresent();
-        return result;
-    }
-
-    private static boolean deepEqualsDefault(
-            BiFunctionThrowable<Object, Integer, Object> getter1,
-            BiFunctionThrowable<Object, Integer, Object> getter2,
-            Object array1,
-            Object array2){
-        if(Objects.equals(array1, array2))
-            return true;
-        else if(array1 == null || array2 == null)
-            return false;
-
-        int length = Array.getLength(array1);
-        if(length != Array.getLength(array2))
-            return false;
-
-        if(length < PARALLEL_EVALUATION_THRESHOLD){
-            try {
-                for (int i = 0; i < length; i++) {
-                    Object element1 = getter1.apply(array1, i);
-                    Object element2 = getter2.apply(array2, i);
-                    if(!deepEquals(element1, element2))
-                        return false;
-                }
-                return true;
-            }catch(Exception ex){
-                return false;
-            }
+        //Now both type are of array
+        //First, check fromClass and toClass is identical
+        if(class1.equals(class2)){
+            return Tuple.create(returnsSelf, returnsSelf, returnsSelf, parallelPredicate, serialPredicate, defaultPredicate);
+        }else if(!getClassPredicate(class1).test(class2)) {
+            //Second, check to see if fromClass is equivalent to toClass
+            // Use the equivalent converter if they are
+            return Tuple.create(mapsToNull, mapsToNull, mapsToNull, alwaysFalse, alwaysFalse, alwaysFalse);
         }
-        Predicate<Integer> elementUnmatchedPredicate = i -> {
+
+        FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(componentClasses2);
+        BiFunctionThrowable<Object, Integer, Object> fromElementGetter = getArrayElementGetter(componentClasses1);
+        TriConsumerThrowable<Object, Integer, Object> toElementSetter = getArrayElementSetter(componentClasses2);
+
+        Function<Object, Object> parallelElementConverter = getToEquivalentParallelConverter(componentClasses1);
+        Function<Object, Object> serialElementConverter = getToEquivalentSerialConverter(componentClasses2);
+
+        TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> elementMappingWithException =
+                getExceptionWithMapping(fromElementGetter, toElementSetter, parallelElementConverter);
+
+        Function<Object, Object> parallelConverter = (fromArray) -> {
+            if (fromArray == null) return null;
             try {
-                Object element1 = getter1.apply(array1, i);
-                Object element2 = getter2.apply(array2, i);
-                return !deepEquals(element1, element2);
-            }catch(Exception ex){
-                return true;
+                int length = Array.getLength(fromArray);
+                Object toArray = factory.apply(length);
+                Integer firstIndexWithException = IntStream.range(0, length).boxed().parallel()
+                        .filter(i -> elementMappingWithException.apply(fromArray, toArray, i))
+                        .findFirst().orElse(-1);
+
+                return firstIndexWithException == -1 ? toArray : null;
+            } catch (Exception ex) {
+                return null;
             }
         };
-        boolean result = !IntStream.range(0, length).boxed().parallel()
-                .filter(elementUnmatchedPredicate).findFirst().isPresent();
-        return result;
+
+        Function<Object, Object> serialConverter = (fromArray) -> {
+            if (fromArray == null) return null;
+            try {
+                int length = Array.getLength(fromArray);
+                Object toArray = factory.apply(length);
+                for (int i = 0; i < length; i++) {
+                    Object fromElement = fromElementGetter.apply(fromArray, i);
+                    Object convertedElement = serialElementConverter.apply(fromElement);
+                    toElementSetter.accept(toArray, i, convertedElement);
+                }
+                return toArray;
+            } catch (Exception ex) {
+                return null;
+            }
+        };
+
+        Function<Object, Object> defaultConverter = (fromArray) -> {
+            if (fromArray == null) return null;
+            int length = Array.getLength(fromArray);
+            try {
+                Object toArray = factory.apply(length);
+                if(length < PARALLEL_EVALUATION_THRESHOLD) {
+                    for (int i = 0; i < length; i++) {
+                        Object fromElement = fromElementGetter.apply(fromArray, i);
+                        Object convertedElement = serialElementConverter.apply(fromElement);
+                        toElementSetter.accept(toArray, i, convertedElement);
+                    }
+                    return toArray;
+                } else {
+                    Integer firstIndexWithException = IntStream.range(0, length).boxed().parallel()
+                            .filter(i -> elementMappingWithException.apply(fromArray, toArray, i))
+                            .findFirst().orElse(-1);
+
+                    return firstIndexWithException == -1 ? toArray : null;
+                }
+            } catch (Exception ex) {
+                return null;
+            }
+        };
+
+        return Tuple.create(parallelConverter, serialConverter, defaultConverter,
+                parallelPredicate, serialPredicate, defaultPredicate);
     }
+    //endregion
+
+    public static BiPredicate<Object, Object> getParallelPredicate(Class class1, Class class2){
+        Objects.requireNonNull(class1);
+        Objects.requireNonNull(class2);
+
+        return deepEvaluators.getFourth(class1, class2);
+    }
+
+    public static BiPredicate<Object, Object> getSerialPredicate(Class class1, Class class2){
+        Objects.requireNonNull(class1);
+        Objects.requireNonNull(class2);
+
+        return deepEvaluators.getFifth(class1, class2);
+    }
+
+    public static BiPredicate<Object, Object> getDefaultPredicate(Class class1, Class class2){
+        Objects.requireNonNull(class1);
+        Objects.requireNonNull(class2);
+
+        return deepEvaluators.getSixth(class1, class2);
+    }
+
 
     public static boolean deepEquals(Object obj1, Object obj2){
         if(Objects.equals(obj1, obj2))
@@ -1173,30 +1160,32 @@ public class TypeHelper {
 
         Class class1 = obj1.getClass();
         Class class2 = obj2.getClass();
-        if( !TypeHelper.getClassPredicate(class1).test(class2))
-            return false;
-
-        if (!class1.isArray()) {
-            if(class1.isPrimitive())
-                return Objects.equals(obj1, getToEquivalentSerialConverter(class2).apply(obj2));
-            else if(class2.isPrimitive())
-                return Objects.equals(obj2, getToEquivalentSerialConverter(class1).apply(obj1));
-            else
-                return false;
-        }
-
-        int length = Array.getLength(obj1);
-        if(length != Array.getLength(obj2))
-            return false;
-
-        BiFunctionThrowable<Object, Integer, Object> getter1 = TypeHelper.getArrayElementGetter(class1.getComponentType());
-        BiFunctionThrowable<Object, Integer, Object> getter2 = TypeHelper.getArrayElementGetter(class2.getComponentType());
-
-        if(length < PARALLEL_EVALUATION_THRESHOLD){
-            return deepEqualsSerial(getter1, getter2, obj1, obj2);
-        } else {
-            return deepEqualsParallel(getter1, getter2, obj1, obj2);
-        }
+        BiPredicate<Object, Object> comparator = getDefaultPredicate(class1, class2);
+        return comparator.test(obj1, obj2);
+//        if( !TypeHelper.getClassPredicate(class1).test(class2))
+//            return false;
+//
+//        if (!class1.isArray()) {
+//            if(class1.isPrimitive())
+//                return Objects.equals(obj1, getToEquivalentSerialConverter(class2).apply(obj2));
+//            else if(class2.isPrimitive())
+//                return Objects.equals(obj2, getToEquivalentSerialConverter(class1).apply(obj1));
+//            else
+//                return false;
+//        }
+//
+//        int length = Array.getLength(obj1);
+//        if(length != Array.getLength(obj2))
+//            return false;
+//
+//        BiFunctionThrowable<Object, Integer, Object> getter1 = TypeHelper.getArrayElementGetter(class1.getComponentType());
+//        BiFunctionThrowable<Object, Integer, Object> getter2 = TypeHelper.getArrayElementGetter(class2.getComponentType());
+//
+//        if(length < PARALLEL_EVALUATION_THRESHOLD){
+//            return deepEqualsSerial(getter1, getter2, obj1, obj2);
+//        } else {
+//            return deepEqualsParallel(getter1, getter2, obj1, obj2);
+//        }
     }
 
     public static String deepToString(Object obj){
