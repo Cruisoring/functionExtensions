@@ -19,16 +19,17 @@ import java.util.stream.IntStream;
 public class TypeHelper {
     public final static Class OBJECT_CLASS = Object.class;
 
-    private static boolean EMPTY_ARRAY_AS_DEFAULT = true;
-    private static int PARALLEL_EVALUATION_THRESHOLD = 100;
+    public final static boolean EMPTY_ARRAY_AS_DEFAULT;
+    public final static int PARALLEL_EVALUATION_THRESHOLD;
 
     static{
-        if("false".equalsIgnoreCase(System.getProperty("EMPTY_ARRAY_AS_DEFAULT"))){
-            EMPTY_ARRAY_AS_DEFAULT = false;
-        }
+        EMPTY_ARRAY_AS_DEFAULT = !("false".equalsIgnoreCase(System.getProperty("EMPTY_ARRAY_AS_DEFAULT")));
+        PARALLEL_EVALUATION_THRESHOLD = 100;
     }
 
     //region Common functions
+    private static final BiFunctionThrowable<Object, Integer, Object> arrayGet = Array::get;
+    private static final TriConsumerThrowable<Object, Integer, Object> arraySet = Array::set;
     private static final Function<Object, Object> returnsSelf = obj -> obj;
     private static final Function<Object, Object> mapsToNull = obj -> null;
     private static final BiPredicate<Object, Object> alwaysFalse = (a, b) -> false;
@@ -236,8 +237,8 @@ public class TypeHelper {
                 classPredicate
                 , i -> new Integer[i]
                 , Integer[].class
-                , Array::get
-                , Array::set
+                , arrayGet
+                , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Integer[])array, from, to)
                 , array -> Arrays.toString((Integer[])array)));
         classPredicate = clazz -> byte.class.equals(clazz) || Byte.class.equals(clazz);
@@ -253,8 +254,8 @@ public class TypeHelper {
                 classPredicate
                 , i -> new Byte[i]
                 , Byte[].class
-                , Array::get
-                , Array::set
+                , arrayGet
+                , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Byte[])array, from, to)
                 , array -> Arrays.toString((Byte[])array)));
         classPredicate = clazz -> boolean.class.equals(clazz) || Boolean.class.equals(clazz);
@@ -270,8 +271,8 @@ public class TypeHelper {
                 classPredicate
                 , i -> new Boolean[i]
                 , Boolean[].class
-                , Array::get
-                , Array::set
+                , arrayGet
+                , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Boolean[])array, from, to)
                 , array -> Arrays.toString((Boolean[])array)));
         classPredicate = clazz -> char.class.equals(clazz) || Character.class.equals(clazz);
@@ -287,8 +288,8 @@ public class TypeHelper {
                 classPredicate
                 , i -> new Character[i]
                 , Character[].class
-                , Array::get
-                , Array::set
+                , arrayGet
+                , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Character[])array, from, to)
                 , array -> Arrays.toString((Character[])array)));
         classPredicate = clazz -> short.class.equals(clazz) || Short.class.equals(clazz);
@@ -304,8 +305,8 @@ public class TypeHelper {
                 classPredicate
                 , i -> new Short[i]
                 , Short[].class
-                , Array::get
-                , Array::set
+                , arrayGet
+                , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Short[])array, from, to)
                 , array -> Arrays.toString((Short[])array)));
         classPredicate = clazz -> long.class.equals(clazz) || Long.class.equals(clazz);
@@ -321,8 +322,8 @@ public class TypeHelper {
                 classPredicate
                 , i -> new Long[i]
                 , Long[].class
-                , Array::get
-                , Array::set
+                , arrayGet
+                , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Long[])array, from, to)
                 , array -> Arrays.toString((Long[])array)));
         classPredicate = clazz -> double.class.equals(clazz) || Double.class.equals(clazz);
@@ -338,8 +339,8 @@ public class TypeHelper {
                 classPredicate
                 , i -> new Double[i]
                 , Double[].class
-                , Array::get
-                , Array::set
+                , arrayGet
+                , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Double[])array, from, to)
                 , array -> Arrays.toString((Double[])array)));
         classPredicate = clazz -> float.class.equals(clazz) || Float.class.equals(clazz);
@@ -355,8 +356,8 @@ public class TypeHelper {
                 classPredicate
                 , i -> new Float[i]
                 , Float[].class
-                , Array::get
-                , Array::set
+                , arrayGet
+                , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Float[])array, from, to)
                 , array -> Arrays.toString((Float[])array)));
         return map;
@@ -384,8 +385,8 @@ public class TypeHelper {
         }
 
         Class arrayClass = arrayFactory.apply(0).getClass();
-        BiFunctionThrowable<Object, Integer, Object> getElement = Array::get;
-        TriConsumerThrowable<Object, Integer, Object> setElement = Array::set;
+        BiFunctionThrowable<Object, Integer, Object> getElement = arrayGet;
+        TriConsumerThrowable<Object, Integer, Object> setElement = arraySet;
         TriFunctionThrowable<Object, Integer, Integer, Object> copyOfRange = asGenericCopyOfRange(clazz);
         Function<Object, String> toString = getDeepToString(clazz);
         return Tuple.create(cPredicate, arrayFactory, arrayClass, getElement, setElement, copyOfRange, toString);
@@ -402,6 +403,13 @@ public class TypeHelper {
         if(clazz == null) return null;
 
         return classOperators.getFirstValue(clazz);
+    }
+
+    public static boolean areEquivalent(Class class1, Class class2){
+        Objects.requireNonNull(class1);
+        Objects.requireNonNull(class2);
+
+        return classOperators.getFirstValue(class1).test(class2);
     }
 
     /**

@@ -448,23 +448,23 @@ public class TupleTest {
                 new Short[]{1,2,3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]}
         );
 
-//        assertEquals(Integer.valueOf(1), tuple20.getFirst());
-//        assertEquals(Character.valueOf('a'), tuple20.getSecond());
-//        assertEquals("String", tuple20.getThird());
-//        assertEquals(Double.valueOf(3.0), tuple20.getFourth());
-//        assertEquals(Float.valueOf(2.1f), tuple20.getFifth());
-//        assertEquals(Byte.valueOf((byte)33), tuple20.getSixth());
-//        assertEquals(Integer.valueOf(7), tuple20.getSeventh());
-//        assertEquals(null, tuple20.getEighth());
-//        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, tuple20.getNineth()));
-//        assertEquals(DayOfWeek.FRIDAY, tuple20.getEleventh());
-//        assertEquals(A.class, tuple20.getTwelfth().getClass());
-//        assertEquals(0, tuple20.getThirteenth().length);
-//        assertEquals(AutoA.class, tuple20.getFourteenth().getClass());
-//        assertEquals(AutoB.class, tuple20.getFifteenth().getClass());
-//        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, tuple20.getSixteenth()[1]));
-//        assertEquals(null, tuple20.getSeventeenth()[1]);
-//        assertEquals(Short.valueOf("3"), tuple20.getEighteenth()[2]);
+        assertEquals(Integer.valueOf(1), tuple20.getFirst());
+        assertEquals(Character.valueOf('a'), tuple20.getSecond());
+        assertEquals("String", tuple20.getThird());
+        assertEquals(Double.valueOf(3.0), tuple20.getFourth());
+        assertEquals(Float.valueOf(2.1f), tuple20.getFifth());
+        assertEquals(Byte.valueOf((byte)33), tuple20.getSixth());
+        assertEquals(Integer.valueOf(7), tuple20.getSeventh());
+        assertEquals(null, tuple20.getEighth());
+        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, tuple20.getNineth()));
+        assertEquals(DayOfWeek.FRIDAY, tuple20.getEleventh());
+        assertEquals(A.class, tuple20.getTwelfth().getClass());
+        assertEquals(0, tuple20.getThirteenth().length);
+        assertEquals(AutoA.class, tuple20.getFourteenth().getClass());
+        assertEquals(AutoB.class, tuple20.getFifteenth().getClass());
+        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, tuple20.getSixteenth()[1]));
+        assertEquals(null, tuple20.getSeventeenth()[1]);
+        assertEquals(Short.valueOf("3"), tuple20.getEighteenth()[2]);
         assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, tuple20.getNineteenth()));
         assertEquals(0, tuple20.getTwentieth()[0].length);
     }
@@ -499,5 +499,90 @@ public class TupleTest {
         assertEquals(Short.valueOf("3"), tuple20.getEighteenth()[2]);
         assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, tuple20.getNineteenth()));
         assertEquals(0, tuple20.getTwentieth()[0].length);
+    }
+
+    TuplePlus<Integer, Character, String, Double, Float, Byte, Integer, Boolean, char[], Character[]
+            , DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> TuplePlus =
+            Tuple.create(1, 'a', "String", 3.0d, 2.1f,
+                    (byte)33, Integer.valueOf(7), null, new char[]{'x'}, new Character[]{'y'},
+                    DayOfWeek.FRIDAY, new A(3), new Object[0][], new AutoA(), new AutoB(),
+                    new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1,2,3}, null},
+                    new Short[]{1,2,3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]},
+                    "The 21th", 22
+            );
+    @Test
+    public void testTuplePlus_ofAllAccessors_retrieveElementAsExpected(){
+
+        assertEquals(22, TuplePlus.getLength());
+        assertEquals(Integer.valueOf(1), TuplePlus.getFirst());
+        assertEquals(Character.valueOf('a'), TuplePlus.getSecond());
+        assertEquals("String", TuplePlus.getThird());
+        assertEquals(Double.valueOf(3.0), TuplePlus.getFourth());
+        assertEquals(Float.valueOf(2.1f), TuplePlus.getFifth());
+        assertEquals(Byte.valueOf((byte)33), TuplePlus.getSixth());
+        assertEquals(Integer.valueOf(7), TuplePlus.getSeventh());
+        assertEquals(null, TuplePlus.getEighth());
+        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, TuplePlus.getNineth()));
+        assertEquals(DayOfWeek.FRIDAY, TuplePlus.getEleventh());
+        assertEquals(A.class, TuplePlus.getTwelfth().getClass());
+        assertEquals(0, TuplePlus.getThirteenth().length);
+        assertEquals(AutoA.class, TuplePlus.getFourteenth().getClass());
+        assertEquals(AutoB.class, TuplePlus.getFifteenth().getClass());
+        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, TuplePlus.getSixteenth()[1]));
+        assertEquals(null, TuplePlus.getSeventeenth()[1]);
+        assertEquals(Short.valueOf("3"), TuplePlus.getEighteenth()[2]);
+        assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, TuplePlus.getNineteenth()));
+        assertEquals(0, TuplePlus.getTwentieth()[0].length);
+
+        assertEquals("The 21th", TuplePlus.getValueAt(20));
+        assertEquals(22, TuplePlus.getValueAt(21));
+    }
+
+    @Test
+    public void testTuplePlus_castAfterOf_retrieveElementAsExpected(){
+        TuplePlus<Integer, Character, String, Double, Float, Byte, Integer, Boolean, char[], Character[]
+                , DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> tupleOf =
+                (TuplePlus<Integer, Character, String, Double, Float, Byte, Integer, Boolean, char[], Character[], DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]>)
+                        Tuple.of(1, 'a', "String", 3.0d, 2.1f,
+                (byte)33, Integer.valueOf(7), null, new char[]{'x'}, new Character[]{'y'},
+                DayOfWeek.FRIDAY, new A(3), new Object[0][], new AutoA(), new AutoB(),
+                new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1,2,3}, null},
+                new Short[]{1,2,3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]},
+                        "The 21th", 22
+        );
+
+        assertEquals(22, tupleOf.getLength());
+        assertEquals(Integer.valueOf(1), tupleOf.getFirst());
+        assertEquals(Character.valueOf('a'), tupleOf.getSecond());
+        assertEquals("String", tupleOf.getThird());
+        assertEquals(Double.valueOf(3.0), tupleOf.getFourth());
+        assertEquals(Float.valueOf(2.1f), tupleOf.getFifth());
+        assertEquals(Byte.valueOf((byte)33), tupleOf.getSixth());
+        assertEquals(Integer.valueOf(7), tupleOf.getSeventh());
+        assertEquals(null, tupleOf.getEighth());
+        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, tupleOf.getNineth()));
+        assertEquals(DayOfWeek.FRIDAY, tupleOf.getEleventh());
+        assertEquals(A.class, tupleOf.getTwelfth().getClass());
+        assertEquals(0, tupleOf.getThirteenth().length);
+        assertEquals(AutoA.class, tupleOf.getFourteenth().getClass());
+        assertEquals(AutoB.class, tupleOf.getFifteenth().getClass());
+        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, tupleOf.getSixteenth()[1]));
+        assertEquals(null, tupleOf.getSeventeenth()[1]);
+        assertEquals(Short.valueOf("3"), tupleOf.getEighteenth()[2]);
+        assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, tupleOf.getNineteenth()));
+        assertEquals(0, tupleOf.getTwentieth()[0].length);
+
+        assertEquals("The 21th", tupleOf.getValueAt(20));
+        assertEquals(22, tupleOf.getValueAt(21));
+
+        assertNotEquals(tupleOf, TuplePlus);
+
+        Tuple tuple2 = Tuple.of(TuplePlus.getFirst(), TuplePlus.getSecond(), TuplePlus.getThird(), TuplePlus.getFourth(), TuplePlus.getFifth()
+            , TuplePlus.getSixth(), TuplePlus.getSeventh(), TuplePlus.getEighth(), TuplePlus.getNineth(), TuplePlus.getTenth()
+            , TuplePlus.getEleventh(), TuplePlus.getTwelfth(), TuplePlus.getThirteenth(), TuplePlus.getFourteenth(), TuplePlus.getFifteenth()
+                , TuplePlus.getSixteenth(), TuplePlus.getSeventeenth(), TuplePlus.getEighteenth(), TuplePlus.getNineteenth(), TuplePlus.getTwentieth()
+                , TuplePlus.getValueAt(20), TuplePlus.getValueAt(21)
+                );
+        assertEquals(tuple2, TuplePlus);
     }
 }

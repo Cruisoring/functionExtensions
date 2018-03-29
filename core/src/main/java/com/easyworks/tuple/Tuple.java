@@ -337,7 +337,10 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
                     elements[10], elements[11], elements[12], elements[13], elements[14],
                     elements[15], elements[16], elements[17], elements[18], elements[19]);
 
-            default: return new Tuple(elements);
+            default: return new TuplePlus(elements[0], elements[1], elements[2], elements[3], elements[4],
+                    elements[5], elements[6], elements[7], elements[8], elements[9],
+                    elements[10], elements[11], elements[12], elements[13], elements[14],
+                    elements[15], elements[16], elements[17], elements[18], elements[19], Arrays.copyOfRange(elements, 20, length));
         }
     }
 
@@ -941,6 +944,55 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> Tuple20<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> create(
             T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m){
         return new Tuple20(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l, m);
+    }
+
+    /**
+     * Create a TuplePlus instance that contains more than 20 elements of 20 types respectively
+     * @param t     First element to be persisted by the Tuple
+     * @param u     Second element to be persisted by the Tuple
+     * @param v     Third element to be persisted by the Tuple
+     * @param w     Fourth element to be persisted by the Tuple
+     * @param x     Fifth element to be persisted by the Tuple
+     * @param y     Sixth element to be persisted by the Tuple
+     * @param z     Seventh element to be persisted by the Tuple
+     * @param a     Eighth element to be persisted by the Tuple
+     * @param b     Ninth element to be persisted by the Tuple
+     * @param c     Tenth element to be persisted by the Tuple
+     * @param d     Eleventh element to be persisted by the Tuple
+     * @param e     Twelfth element to be persisted by the Tuple
+     * @param f     Thirteenth element to be persisted by the Tuple
+     * @param g     Fourteenth element to be persisted by the Tuple
+     * @param h     Fifteenth element to be persisted by the Tuple
+     * @param i     Sixteenth element to be persisted by the Tuple
+     * @param j     Seventeenth element to be persisted by the Tuple
+     * @param k     Eighteenth element to be persisted by the Tuple
+     * @param l     Nineteenth element to be persisted by the Tuple
+     * @param m     Twentieth element to be persisted by the Tuple
+     * @param <T>   Type of the first element <code>t</code>
+     * @param <U>   Type of the second element <code>u</code>
+     * @param <V>   Type of the third element <code>v</code>
+     * @param <W>   Type of the fourth element <code>w</code>
+     * @param <X>   Type of the fifth element <code>x</code>
+     * @param <Y>   Type of the sixth element <code>y</code>
+     * @param <Z>   Type of the seventh element <code>z</code>
+     * @param <A>   Type of the 8th element <code>a</code>
+     * @param <B>   Type of the 9th element <code>b</code>
+     * @param <C>   Type of the 10th element <code>c</code>
+     * @param <D>   Type of the 11th element <code>d</code>
+     * @param <E>   Type of the 12th element <code>e</code>
+     * @param <F>   Type of the 13th element <code>f</code>
+     * @param <G>   Type of the 14th element <code>g</code>
+     * @param <H>   Type of the 15th element <code>h</code>
+     * @param <I>   Type of the 16th element <code>i</code>
+     * @param <J>   Type of the 17th element <code>j</code>
+     * @param <K>   Type of the 18th element <code>k</code>
+     * @param <L>   Type of the 19th element <code>l</code>
+     * @param <M>   Type of the 20th element <code>m</code>
+     * @return      Tuple containing more than 20 elements that could be retrieved as their original types.
+     */
+    public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> TuplePlus<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> create(
+            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m, Object... others){
+        return new TuplePlus(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l, m, others);
     }
 
     /**
