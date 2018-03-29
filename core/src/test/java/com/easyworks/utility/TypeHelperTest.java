@@ -1,8 +1,8 @@
 package com.easyworks.utility;
 
 import com.easyworks.function.*;
-import com.easyworks.tuple.Tuple3;
 import com.easyworks.tuple.Tuple;
+import com.easyworks.tuple.Tuple3;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
@@ -10,6 +10,7 @@ import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -19,6 +20,36 @@ import static org.junit.Assert.*;
 
 public class TypeHelperTest {
 
+    private static void assertDeepEquals(Object a, Object b){
+        Logger.L(TypeHelper.deepToString(b));
+        assertTrue(Objects.deepEquals(a, b));
+    }
+
+    @Test
+    public void testGetDeepLength(){
+        Object target = null;
+        int[][] deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{0}}, deepLength);
+
+        target = 33;
+        deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{0}}, deepLength);
+
+        target = new Integer[]{null};
+        deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{0}}, deepLength);
+
+        target = new Integer[]{null, null};
+        deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{0}, new int[]{1}}, deepLength);
+
+        target = new Object[]{1, new int[]{2, 3},
+                new Object[]{null, '5', '6', new Character[]{'7', null}, null},
+                null, 11.0, new char[0], new ArrayList(), new char[0][], new int[][]{new int[0], null}};
+        deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{0,0}, new int[]{0,1}}, deepLength);
+
+    }
 
     @Test
     public void getGenericInfo(){

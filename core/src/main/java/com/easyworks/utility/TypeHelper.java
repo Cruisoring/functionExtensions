@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.IntUnaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
@@ -116,6 +117,44 @@ public class TypeHelper {
         };
     }
     //endregion
+
+    public static int[] mergeOfInts(int[] indexes, int thisIndex){
+        int length = indexes.length;
+        int[] result = new int[length+1];
+        IntUnaryOperator operator = i -> i == length ? thisIndex : indexes[i];
+        if(length < TypeHelper.PARALLEL_EVALUATION_THRESHOLD)
+            Arrays.setAll(result, operator);
+        else
+            Arrays.parallelSetAll(result, operator);
+        return result;
+    }
+
+    public static int[][] getDeepLength(Object object){
+        return getDeepLength(object, null);
+    }
+
+
+    public static int[][] getDeepLength(Object object, int[] indexes){
+        if(object == null || !object.getClass().isArray()) {
+            return new int[][]{indexes == null ? new int[]{0} : indexes};
+        }
+        Class objectClass = object.getClass();
+        if(!objectClass.isArray()) {
+            return new int[][]{indexes == null ? new int[]{0} : indexes};
+        }
+
+        int length = Array.getLength(object);
+        if(length == 0)
+            return new int[][]{indexes == null ? new int[]{0} : indexes};
+
+        List<int[]> list = new ArrayList<>();
+        BiFunctionThrowable<Object, Integer, Object> getter = getArrayElementGetter(objectClass.getComponentType());
+        for (int i = 0; i < length; i++) {
+            int[][] positions = getDeepLength(getter.orElse(null).apply(object, i), new int[i]);
+            list.addAll(Arrays.asList(positions));
+        }
+        return list.toArray(new int[list.size()][]);
+    }
 
     //region Method and repository to get return type of Lambda Expression
     private static final Method _getConstantPool = (Method) Functions.ReturnsDefaultValue.apply(() -> {
