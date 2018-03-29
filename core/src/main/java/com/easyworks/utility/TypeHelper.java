@@ -150,7 +150,8 @@ public class TypeHelper {
         List<int[]> list = new ArrayList<>();
         BiFunctionThrowable<Object, Integer, Object> getter = getArrayElementGetter(objectClass.getComponentType());
         for (int i = 0; i < length; i++) {
-            int[][] positions = getDeepLength(getter.orElse(null).apply(object, i), new int[i]);
+            Object element = getter.orElse(null).apply(object, i);
+            int[][] positions = getDeepLength(element, new int[i]);
             list.addAll(Arrays.asList(positions));
         }
         return list.toArray(new int[list.size()][]);
