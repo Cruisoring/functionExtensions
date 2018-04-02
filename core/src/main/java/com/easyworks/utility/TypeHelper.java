@@ -19,13 +19,31 @@ import java.util.stream.IntStream;
 public class TypeHelper {
     public final static Class OBJECT_CLASS = Object.class;
 
+    public final static int NORMAL_VALUE_NODE = 0;
+    public final static int NULL_NODE = -1;
+    public final static int EMPTY_ARRAY_NODE = -2;
+
     public final static boolean EMPTY_ARRAY_AS_DEFAULT;
     public final static int PARALLEL_EVALUATION_THRESHOLD;
+    public final static ValueEquality VALUE_EQUALITY;
+    public final static EmptyArrayEquality EMPTY_ARRAY_EQUALITY;
+    public final static NullEquality NULL_EQUALITY;
 
+    private static <E> E tryGetEnum(Class<E> enumClass){
+        String enumKey = enumClass.getSimpleName();
+        return parseEnum(enumClass, System.getProperty(enumKey));
+    }
     static{
         EMPTY_ARRAY_AS_DEFAULT = !("false".equalsIgnoreCase(System.getProperty("EMPTY_ARRAY_AS_DEFAULT")));
-        PARALLEL_EVALUATION_THRESHOLD = 100;
+        PARALLEL_EVALUATION_THRESHOLD = 20;
+        VALUE_EQUALITY = tryGetEnum(ValueEquality.class);
+        EMPTY_ARRAY_EQUALITY = tryGetEnum(EmptyArrayEquality.class);
+        NULL_EQUALITY = tryGetEnum(NullEquality.class);
     }
+
+    public enum NullEquality{ TypeIgnored, BetweenAssignableTypes, SameTypeOnly };
+    public enum EmptyArrayEquality {TypeIgnored, BetweenAssignableTypes, SameTypeOnly};
+    public enum ValueEquality {BetweenAssignableTypes, SameTypeOnly}
 
     //region Common functions
     private static final BiFunctionThrowable<Object, Integer, Object> arrayGet = Array::get;
@@ -116,6 +134,189 @@ public class TypeHelper {
         };
     }
     //endregion
+
+    public static <E> E parseEnum(Class<E> enumClass, String enumString){
+        E[] enumValues = enumClass.getEnumConstants();
+        E matchedOrFirst = Arrays.stream(enumValues)
+                .filter(e -> e.toString().equalsIgnoreCase(enumString))
+                .findFirst()
+                .orElse(enumValues[0]);
+        return matchedOrFirst;
+    }
+
+    public static int[] mergeOfInts(int[] fromRoot, int... selfIndexes){
+        int fromLength = fromRoot.length;
+        int selfLength = selfIndexes.length;
+        int[] fullPath = Arrays.copyOfRange(fromRoot, 0, fromLength + selfLength);
+
+        for (int i = 0, j=fromLength; i < selfLength; i++) {
+            fullPath[j+i] = selfIndexes[i];
+        }
+        return fullPath;
+    }
+
+    public static int[][] getDeepLength(Object object){
+        return getDeepLength(object, new int[0]);
+    }
+
+    private static int[][] getDeepLength(Object object, int[] indexes){
+        if(object == null) {
+            return new int[][]{mergeOfInts(indexes, NULL_NODE)};
+        }else if(!object.getClass().isArray()) {
+            return new int[][]{mergeOfInts(indexes, NORMAL_VALUE_NODE)};
+        }
+        Class objectClass = object.getClass();
+        int length = Array.getLength(object);
+        if(length == 0)
+            return new int[][]{mergeOfInts(indexes, EMPTY_ARRAY_NODE)};
+
+        List<int[]> list = new ArrayList<>();
+        BiFunctionThrowable<Object, Integer, Object> getter = getArrayElementGetter(objectClass.getComponentType());
+        for (int i = 0; i < length; i++) {
+            Object element = getter.orElse(null).apply(object, i);
+            int[][] positions = getDeepLength(element, mergeOfInts(indexes, i));
+            list.addAll(Arrays.asList(positions));
+        }
+        return list.toArray(new int[0][]);
+    }
+
+    private static Object getNodeParent(Object obj, int[] indexes){
+        int depth = indexes.length;
+        Object result = obj;
+        for (int i = 0; i < depth-1; i++) {
+            result = Array.get(result, indexes[i]);
+        }
+        return result;
+    }
+
+    private static Object getNode(Object obj, int[] indexes){
+        int depth = indexes.length;
+        Object result = obj;
+        for (int i = 0; i < depth-1; i++) {
+            result = Array.get(result, indexes[i]);
+        }
+        return result;
+    }
+
+    private static boolean nodeEquals(Object obj1, Object obj2, int[] indexes){
+        int depth = indexes.length;
+        int last = indexes[depth-1];
+        if(last == NULL_NODE){
+            if(NULL_EQUALITY == NullEquality.TypeIgnored)
+                return true;
+            Object parent1 = getNodeParent(obj1, indexes);
+            Object parent2 = getNodeParent(obj2, indexes);
+            Class class1 = parent1.getClass();
+            Class class2 = parent2.getClass();
+            if(NULL_EQUALITY == NullEquality.SameTypeOnly)
+                return class1.equals(class2);
+            return areEquivalent(class1, class2)
+                    || class1.isAssignableFrom(class2)
+                    || class2.isAssignableFrom(class1);
+        } else if(last == EMPTY_ARRAY_NODE) {
+            if(EMPTY_ARRAY_EQUALITY == EmptyArrayEquality.TypeIgnored)
+                return true;
+            Object node1 = getNode(obj1, indexes);
+            Object node2 = getNode(obj2, indexes);
+            Class class1 = node1.getClass();
+            Class class2 = node2.getClass();
+            if(NULL_EQUALITY == NullEquality.SameTypeOnly)
+                return class1.equals(class2);
+            return areEquivalent(class1, class2)
+                    || class1.isAssignableFrom(class2)
+                    || class2.isAssignableFrom(class1);
+        } else {
+            Object node1 = getNode(obj1, indexes);
+            Object node2 = getNode(obj2, indexes);
+            if(node1 == null || node2 == null)
+                throw new NullPointerException();
+            if(node1.equals(node2))
+                return true;
+            Class class1 = node1.getClass();
+            Class class2 = node2.getClass();
+            if(!areEquivalent(class1, class2))
+                return false;
+            return Objects.equals(getToEquivalentConverter(class1).apply(node1), node2);
+        }
+    }
+
+    private static boolean equalsByDeepLength(Object obj1, Object obj2){
+        int[][] deepLength1 = getDeepLength(obj1);
+        int[][] deepLength2 = getDeepLength(obj2);
+        int length = deepLength1.length;
+        if(length != deepLength2.length)
+            return false;
+        if(length < PARALLEL_EVALUATION_THRESHOLD){
+            if(!Arrays.deepEquals(deepLength1, deepLength2))
+                return false;
+            for (int i = 0; i < length; i++) {
+                int[] indexes = deepLength1[i];
+                if(!nodeEquals(obj1, obj2, indexes))
+                    return false;
+            }
+            return true;
+        } else {
+            boolean allEquals = IntStream.range(0, length).boxed().parallel()
+                    .allMatch(i -> Arrays.equals(deepLength1[i], deepLength2[i]));
+            if(!allEquals)
+                return false;
+            allEquals = IntStream.range(0, length).boxed().parallel()
+                    .allMatch(i -> nodeEquals(obj1, obj2, deepLength1[i]));
+            return allEquals;
+        }
+    }
+
+    public static boolean deepEquals(Object obj1, Object obj2){
+        if(obj1 == obj2 || (obj1 != null && obj1.equals(obj2)))
+            return true;
+        else if(obj1 == null || obj2 == null)
+            return false;
+
+        Class class1 = obj1.getClass();
+        Class class2 = obj2.getClass();
+        Class equivalentClass1 = getEquivalentClass(class1);
+        boolean isArray1 = class1.isArray();
+        boolean isArray2 = class2.isArray();
+        if(!isArray1 && !isArray2){
+            if(class1.equals(class2))
+                return false;
+            else if (Objects.equals(equivalentClass1, class2)){
+                //One class is primitive, another is its wrapper, so use corresponding converter
+                final Function<Object, Object> singleObjectConverter = getToEquivalentConverter(class2);
+                return obj1.equals(singleObjectConverter.apply(obj2));
+            }
+        }
+
+        if(equivalentClass1 != class2 && !class1.isAssignableFrom(class2) && !class2.isAssignableFrom(class1))
+            return false;
+
+        return equalsByDeepLength(obj1, obj2);
+//        if( !TypeHelper.getClassPredicate(class1).test(class2))
+//            return false;
+//
+//        if (!class1.isArray()) {
+//            if(class1.isPrimitive())
+//                return Objects.equals(obj1, getToEquivalentSerialConverter(class2).apply(obj2));
+//            else if(class2.isPrimitive())
+//                return Objects.equals(obj2, getToEquivalentSerialConverter(class1).apply(obj1));
+//            else
+//                return false;
+//        }
+//
+//        int length = Array.getLength(obj1);
+//        if(length != Array.getLength(obj2))
+//            return false;
+//
+//        BiFunctionThrowable<Object, Integer, Object> getter1 = TypeHelper.getArrayElementGetter(class1.getComponentType());
+//        BiFunctionThrowable<Object, Integer, Object> getter2 = TypeHelper.getArrayElementGetter(class2.getComponentType());
+//
+//        if(length < PARALLEL_EVALUATION_THRESHOLD){
+//            return deepEqualsSerial(getter1, getter2, obj1, obj2);
+//        } else {
+//            return deepEqualsParallel(getter1, getter2, obj1, obj2);
+//        }
+    }
+
 
     //region Method and repository to get return type of Lambda Expression
     private static final Method _getConstantPool = (Method) Functions.ReturnsDefaultValue.apply(() -> {
@@ -1198,43 +1399,6 @@ public class TypeHelper {
         Objects.requireNonNull(class2);
 
         return deepEvaluators.getSixth(class1, class2);
-    }
-
-
-    public static boolean deepEquals(Object obj1, Object obj2){
-        if(Objects.equals(obj1, obj2))
-            return true;
-        else if(obj1 == null || obj2 == null)
-            return false;
-
-        Class class1 = obj1.getClass();
-        Class class2 = obj2.getClass();
-        BiPredicate<Object, Object> comparator = getDefaultPredicate(class1, class2);
-        return comparator.test(obj1, obj2);
-//        if( !TypeHelper.getClassPredicate(class1).test(class2))
-//            return false;
-//
-//        if (!class1.isArray()) {
-//            if(class1.isPrimitive())
-//                return Objects.equals(obj1, getToEquivalentSerialConverter(class2).apply(obj2));
-//            else if(class2.isPrimitive())
-//                return Objects.equals(obj2, getToEquivalentSerialConverter(class1).apply(obj1));
-//            else
-//                return false;
-//        }
-//
-//        int length = Array.getLength(obj1);
-//        if(length != Array.getLength(obj2))
-//            return false;
-//
-//        BiFunctionThrowable<Object, Integer, Object> getter1 = TypeHelper.getArrayElementGetter(class1.getComponentType());
-//        BiFunctionThrowable<Object, Integer, Object> getter2 = TypeHelper.getArrayElementGetter(class2.getComponentType());
-//
-//        if(length < PARALLEL_EVALUATION_THRESHOLD){
-//            return deepEqualsSerial(getter1, getter2, obj1, obj2);
-//        } else {
-//            return deepEqualsParallel(getter1, getter2, obj1, obj2);
-//        }
     }
 
     public static String deepToString(Object obj){

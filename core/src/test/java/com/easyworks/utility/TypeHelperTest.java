@@ -1,8 +1,8 @@
 package com.easyworks.utility;
 
 import com.easyworks.function.*;
-import com.easyworks.tuple.Tuple3;
 import com.easyworks.tuple.Tuple;
+import com.easyworks.tuple.Tuple3;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
@@ -10,6 +10,7 @@ import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -19,6 +20,52 @@ import static org.junit.Assert.*;
 
 public class TypeHelperTest {
 
+    private static void assertDeepEquals(Object a, Object b){
+        Logger.L(TypeHelper.deepToString(b));
+        assertTrue(Objects.deepEquals(a, b));
+    }
+
+    @Test
+    public void testGetDeepLength(){
+        Object target = null;
+        int[][] deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{-1}}, deepLength);
+
+        target = 33;
+        deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{0}}, deepLength);
+
+        target = new Integer[]{null};
+        deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{0, -1}}, deepLength);
+
+        target = new Integer[]{null, null};
+        deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{0, -1}, new int[]{1, -1}}, deepLength);
+
+        target = new Object[]{1,
+                new int[]{2, 3},
+                new Object[]{null, '5', '6', new Character[]{'7', null}, null},
+                null,
+                11.0,
+                new char[0],
+                new ArrayList(),
+                new char[0][],
+                new int[][]{new int[0], null}};
+        deepLength = TypeHelper.getDeepLength(target);
+        assertDeepEquals(new int[][]{new int[]{0,0}, new int[]{1,0,0}, new int[]{1,1,0}, new int[]{2,0,-1}, new int[]{2,1,0},
+            new int[]{2,2,0}, new int[]{2,3,0,0}, new int[]{2,3,1,-1}, new int[]{2,4,-1}, new int[]{3,-1}, new int[]{4,0}
+            , new int[]{5,-2}, new int[]{6,0}, new int[]{7,-2}, new int[]{8,0,-2}, new int[]{8,1,-1}}, deepLength);
+        assertEquals(16, deepLength.length);
+    }
+
+    @Test
+    public void testDeepEquals_withTwoArrays(){
+        int[] array1 = new int[]{1,2,3};
+        Integer[] array2 = new Integer[]{1,2,3};
+
+        assertTrue(TypeHelper.deepEquals(array1, array2));
+    }
 
     @Test
     public void getGenericInfo(){
