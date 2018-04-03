@@ -1,7 +1,6 @@
 package com.easyworks;
 
 import com.easyworks.function.*;
-import com.easyworks.utility.TypeHelper;
 
 import java.util.ArrayList;
 import java.util.List;

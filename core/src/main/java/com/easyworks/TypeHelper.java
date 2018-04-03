@@ -1,11 +1,11 @@
-package com.easyworks.utility;
+package com.easyworks;
 
-import com.easyworks.Functions;
 import com.easyworks.function.*;
 import com.easyworks.repository.HeptaValuesRepository;
 import com.easyworks.repository.HexaValuesRepository;
 import com.easyworks.repository.TripleValuesRepository;
 import com.easyworks.tuple.*;
+import com.easyworks.utility.ArrayHelper;
 import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Array;

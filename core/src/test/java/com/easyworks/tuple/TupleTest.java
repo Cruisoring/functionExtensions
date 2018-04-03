@@ -3,7 +3,7 @@ package com.easyworks.tuple;
 import com.easyworks.Functions;
 import com.easyworks.function.PredicateThrowable;
 import com.easyworks.utility.Logger;
-import com.easyworks.utility.TypeHelper;
+import com.easyworks.TypeHelper;
 import org.junit.Assert;
 import org.junit.Test;
 

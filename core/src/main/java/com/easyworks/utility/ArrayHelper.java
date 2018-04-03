@@ -1,6 +1,7 @@
 package com.easyworks.utility;
 
 import com.easyworks.Functions;
+import com.easyworks.TypeHelper;
 import com.easyworks.function.*;
 import com.easyworks.repository.SingleValuesRepository;
 import com.easyworks.repository.TripleValuesRepository;

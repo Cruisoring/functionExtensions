@@ -4,7 +4,7 @@ import com.easyworks.Functions;
 import com.easyworks.function.SupplierThrowable;
 import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
-import com.easyworks.utility.TypeHelper;
+import com.easyworks.TypeHelper;
 
 import java.lang.reflect.Array;
 import java.util.*;

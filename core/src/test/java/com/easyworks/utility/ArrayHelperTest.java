@@ -1,5 +1,6 @@
 package com.easyworks.utility;
 
+import com.easyworks.TypeHelper;
 import com.easyworks.function.BiConsumerThrowable;
 import com.easyworks.tuple.Tuple;
 import org.junit.Test;

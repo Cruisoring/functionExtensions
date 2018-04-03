@@ -1,7 +1,7 @@
 package com.easyworks.repository;
 
 import com.easyworks.tuple.*;
-import com.easyworks.utility.TypeHelper;
+import com.easyworks.TypeHelper;
 import org.junit.Before;
 import org.junit.Test;
 

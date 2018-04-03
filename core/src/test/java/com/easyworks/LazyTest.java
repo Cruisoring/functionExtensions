@@ -2,12 +2,10 @@ package com.easyworks;
 
 import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
-import com.easyworks.utility.TypeHelper;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;

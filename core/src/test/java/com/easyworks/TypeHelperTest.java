@@ -1,8 +1,9 @@
-package com.easyworks.utility;
+package com.easyworks;
 
 import com.easyworks.function.*;
 import com.easyworks.tuple.Tuple;
 import com.easyworks.tuple.Tuple3;
+import com.easyworks.utility.Logger;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
@@ -15,7 +16,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.easyworks.utility.TypeHelper.*;
+import static com.easyworks.TypeHelper.*;
 import static org.junit.Assert.*;
 
 public class TypeHelperTest {

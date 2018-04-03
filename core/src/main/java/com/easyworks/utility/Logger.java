@@ -3,6 +3,7 @@ package com.easyworks.utility;
 import com.easyworks.Functions;
 import com.easyworks.Loggable;
 import com.easyworks.function.ConsumerThrowable;
+import com.easyworks.function.RunnableThrowable;
 
 public class Logger implements Loggable {
 
@@ -26,4 +27,5 @@ public class Logger implements Loggable {
             Functions.Default.run(() -> _logging.accept(String.format(message, arguments)));
         }
     }
+
 }

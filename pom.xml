@@ -17,6 +17,6 @@
 
 	<modules>
 		<module>core</module>
-	</modules>
+    </modules>
 
 </project>

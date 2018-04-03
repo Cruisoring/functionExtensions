@@ -2,14 +2,12 @@ package com.easyworks;
 
 import com.easyworks.function.*;
 import com.easyworks.utility.Logger;
-import com.easyworks.utility.TypeHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 

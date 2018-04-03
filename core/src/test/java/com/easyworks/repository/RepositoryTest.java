@@ -1,7 +1,7 @@
 package com.easyworks.repository;
 
 import com.easyworks.Functions;
-import com.easyworks.utility.TypeHelper;
+import com.easyworks.TypeHelper;
 import org.junit.Test;
 
 import java.util.ArrayList;
