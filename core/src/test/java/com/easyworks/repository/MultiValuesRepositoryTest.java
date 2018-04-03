@@ -98,7 +98,7 @@ public class MultiValuesRepositoryTest {
         assertTrue(repository.containsKey("0123456789?"));
         assertFalse(repository.containsKey(' '));
         assertTrue(Arrays.equals(repository.getValue().keySet().toArray(new String[2]), new String[]{" ", "0123456789?"}));
-        assertTrue(TypeHelper.deepEquals(repository.getValue().values().toArray(new Tuple[2]),
+        assertTrue(TypeHelper.valueEquals(repository.getValue().values().toArray(new Tuple[2]),
                 new Tuple[]{Tuple.create(1, false, ' ', new char[]{' '}), Tuple.create(11, true, '0', "0123456789?".toCharArray())}));
     }
 

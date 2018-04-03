@@ -521,7 +521,7 @@ public class ArrayHelper<T, R> {
 
         Arrays.sort(expectedCopy);
         Arrays.sort(actualCopy);
-        return TypeHelper.deepEquals(expectedCopy, actualCopy);
+        return TypeHelper.valueEquals(expectedCopy, actualCopy);
     }
 
     public static <T extends Comparable<T>> boolean matchWithoutOrder(Collection<T> expected, Collection<T> actual, Class<T[]> clazz) {
@@ -536,7 +536,7 @@ public class ArrayHelper<T, R> {
 
         Arrays.sort(expectedCopy);
         Arrays.sort(actualCopy);
-        return TypeHelper.deepEquals(expectedCopy, actualCopy);
+        return TypeHelper.valueEquals(expectedCopy, actualCopy);
     }
 
     public static <T> BiConsumerThrowable<Object, Function<Integer, Object>> getParallelSetAll(Class<T> clazz){

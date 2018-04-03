@@ -225,7 +225,7 @@ public class FunctionsTest {
     @Test
     public void apply4() {
         String[] result = (String[]) Functions.ThrowsRuntimeException.apply(f11, true, "a", 33, new String[]{"", "b"});
-        assertTrue(TypeHelper.deepEquals(new String[]{"true", "a", "33", ""}, result));
+        assertTrue(TypeHelper.valueEquals(new String[]{"true", "a", "33", ""}, result));
 
         result = (String[]) logToList.apply(f11, true, "a", 33, new String[]{});
         if((System.getProperties().containsKey("EMPTY_ARRAY_AS_DEFAULT")

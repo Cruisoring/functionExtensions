@@ -231,7 +231,7 @@ public class TupleTest {
         assertEquals(Set.class, stringSet.getClass());
         assertEquals(stringSet.get(0), "");
         assertEquals(stringSet.get(1), null);
-        assertTrue(TypeHelper.deepEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray()));
+        assertTrue(TypeHelper.valueEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray()));
         Set tupleSet2 = Tuple.setOf(Tuple.create(), Tuple.create("First"));
         assertEquals(tupleSet, tupleSet2);
     }
@@ -270,10 +270,10 @@ public class TupleTest {
                         (PredicateThrowable<A>) a -> ((String)(a.value)).length() > 5 );
 
         Set<String> stringSet1 = hepta.getSetOf(String.class);
-        assertTrue(TypeHelper.deepEquals(new String[]{"Seven"}, stringSet1.asArray()));
+        assertTrue(TypeHelper.valueEquals(new String[]{"Seven"}, stringSet1.asArray()));
 
         Tuple t = Tuple.create(1, 2, 3, null, 4, 5);
-        assertTrue(TypeHelper.deepEquals(new Integer[]{1,2,3,4,5}, t.getSetOf(int.class).asArray()));
+        assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3,4,5}, t.getSetOf(int.class).asArray()));
 
         Set<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
         Set aSet1 = aSet.getSetOf(A.class);
@@ -326,7 +326,7 @@ public class TupleTest {
         Object[] elements = new Object[] {1, "ok", true};
         tuple = Tuple.of(elements);
         assertEquals(3, tuple.getLength());
-        assertTrue(TypeHelper.deepEquals(tuple.values, elements));
+        assertTrue(TypeHelper.valueEquals(tuple.values, elements));
 
         elements = new Object[]{1,2,3,"abc", 'a', true, Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3), 'b'};
         tuple = Tuple.of(elements);
@@ -434,7 +434,7 @@ public class TupleTest {
             Logger.L(ex.getMessage());
         }
 
-        assertTrue(TypeHelper.deepEquals(expection, closeMessages.toArray()));
+        assertTrue(TypeHelper.valueEquals(expection, closeMessages.toArray()));
     }
 
 
@@ -456,16 +456,16 @@ public class TupleTest {
         assertEquals(Byte.valueOf((byte)33), tuple20.getSixth());
         assertEquals(Integer.valueOf(7), tuple20.getSeventh());
         assertEquals(null, tuple20.getEighth());
-        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, tuple20.getNineth()));
+        assertTrue(TypeHelper.valueEquals(new char[]{'x'}, tuple20.getNineth()));
         assertEquals(DayOfWeek.FRIDAY, tuple20.getEleventh());
         assertEquals(A.class, tuple20.getTwelfth().getClass());
         assertEquals(0, tuple20.getThirteenth().length);
         assertEquals(AutoA.class, tuple20.getFourteenth().getClass());
         assertEquals(AutoB.class, tuple20.getFifteenth().getClass());
-        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, tuple20.getSixteenth()[1]));
+        assertTrue(TypeHelper.valueEquals(new double[]{2.2}, tuple20.getSixteenth()[1]));
         assertEquals(null, tuple20.getSeventeenth()[1]);
         assertEquals(Short.valueOf("3"), tuple20.getEighteenth()[2]);
-        assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, tuple20.getNineteenth()));
+        assertTrue(TypeHelper.valueEquals(new Object[]{1, 'a'}, tuple20.getNineteenth()));
         assertEquals(0, tuple20.getTwentieth()[0].length);
     }
 
@@ -488,16 +488,16 @@ public class TupleTest {
         assertEquals(Byte.valueOf((byte)33), tuple20.getSixth());
         assertEquals(Integer.valueOf(7), tuple20.getSeventh());
         assertEquals(null, tuple20.getEighth());
-        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, tuple20.getNineth()));
+        assertTrue(TypeHelper.valueEquals(new char[]{'x'}, tuple20.getNineth()));
         assertEquals(DayOfWeek.FRIDAY, tuple20.getEleventh());
         assertEquals(A.class, tuple20.getTwelfth().getClass());
         assertEquals(0, tuple20.getThirteenth().length);
         assertEquals(AutoA.class, tuple20.getFourteenth().getClass());
         assertEquals(AutoB.class, tuple20.getFifteenth().getClass());
-        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, tuple20.getSixteenth()[1]));
+        assertTrue(TypeHelper.valueEquals(new double[]{2.2}, tuple20.getSixteenth()[1]));
         assertEquals(null, tuple20.getSeventeenth()[1]);
         assertEquals(Short.valueOf("3"), tuple20.getEighteenth()[2]);
-        assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, tuple20.getNineteenth()));
+        assertTrue(TypeHelper.valueEquals(new Object[]{1, 'a'}, tuple20.getNineteenth()));
         assertEquals(0, tuple20.getTwentieth()[0].length);
     }
 
@@ -522,16 +522,16 @@ public class TupleTest {
         assertEquals(Byte.valueOf((byte)33), TuplePlus.getSixth());
         assertEquals(Integer.valueOf(7), TuplePlus.getSeventh());
         assertEquals(null, TuplePlus.getEighth());
-        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, TuplePlus.getNineth()));
+        assertTrue(TypeHelper.valueEquals(new char[]{'x'}, TuplePlus.getNineth()));
         assertEquals(DayOfWeek.FRIDAY, TuplePlus.getEleventh());
         assertEquals(A.class, TuplePlus.getTwelfth().getClass());
         assertEquals(0, TuplePlus.getThirteenth().length);
         assertEquals(AutoA.class, TuplePlus.getFourteenth().getClass());
         assertEquals(AutoB.class, TuplePlus.getFifteenth().getClass());
-        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, TuplePlus.getSixteenth()[1]));
+        assertTrue(TypeHelper.valueEquals(new double[]{2.2}, TuplePlus.getSixteenth()[1]));
         assertEquals(null, TuplePlus.getSeventeenth()[1]);
         assertEquals(Short.valueOf("3"), TuplePlus.getEighteenth()[2]);
-        assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, TuplePlus.getNineteenth()));
+        assertTrue(TypeHelper.valueEquals(new Object[]{1, 'a'}, TuplePlus.getNineteenth()));
         assertEquals(0, TuplePlus.getTwentieth()[0].length);
 
         assertEquals("The 21th", TuplePlus.getValueAt(20));
@@ -560,16 +560,16 @@ public class TupleTest {
         assertEquals(Byte.valueOf((byte)33), tupleOf.getSixth());
         assertEquals(Integer.valueOf(7), tupleOf.getSeventh());
         assertEquals(null, tupleOf.getEighth());
-        assertTrue(TypeHelper.deepEquals(new char[]{'x'}, tupleOf.getNineth()));
+        assertTrue(TypeHelper.valueEquals(new char[]{'x'}, tupleOf.getNineth()));
         assertEquals(DayOfWeek.FRIDAY, tupleOf.getEleventh());
         assertEquals(A.class, tupleOf.getTwelfth().getClass());
         assertEquals(0, tupleOf.getThirteenth().length);
         assertEquals(AutoA.class, tupleOf.getFourteenth().getClass());
         assertEquals(AutoB.class, tupleOf.getFifteenth().getClass());
-        assertTrue(TypeHelper.deepEquals(new double[]{2.2}, tupleOf.getSixteenth()[1]));
+        assertTrue(TypeHelper.valueEquals(new double[]{2.2}, tupleOf.getSixteenth()[1]));
         assertEquals(null, tupleOf.getSeventeenth()[1]);
         assertEquals(Short.valueOf("3"), tupleOf.getEighteenth()[2]);
-        assertTrue(TypeHelper.deepEquals(new Object[]{1, 'a'}, tupleOf.getNineteenth()));
+        assertTrue(TypeHelper.valueEquals(new Object[]{1, 'a'}, tupleOf.getNineteenth()));
         assertEquals(0, tupleOf.getTwentieth()[0].length);
 
         assertEquals("The 21th", tupleOf.getValueAt(20));

@@ -178,7 +178,7 @@ public class LazyTest {
         inboxLazy.getValue().checkMail();
         emailLazy.reset();  //Instead of emailLazy.close() to avoid Exception try-catch
 
-        assertTrue(TypeHelper.deepEquals(logs.toArray(), new String[]{
+        assertTrue(TypeHelper.valueEquals(logs.toArray(), new String[]{
                 "Account created: email@test.com", "Outbox opened", "Send mail", "Inbox opened", "Check inbox",
                 "Outbox closed", "Inbox closed", "Account closed: email@test.com"
         }));
