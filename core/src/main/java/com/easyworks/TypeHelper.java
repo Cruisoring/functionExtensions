@@ -724,6 +724,38 @@ public class TypeHelper {
     }
 
     /**
+     * Copies the specified range of the specified array into a new array.
+     * The initial index of the range (<tt>from</tt>) must lie between zero
+     * and <tt>original.length</tt>, inclusive.  The value at
+     * <tt>original[from]</tt> is placed into the initial element of the copy
+     * (unless <tt>from == original.length</tt> or <tt>from == to</tt>).
+     * Values from subsequent elements in the original array are placed into
+     * subsequent elements in the copy.  The final index of the range
+     * (<tt>to</tt>), which must be greater than or equal to <tt>from</tt>,
+     * may be greater than <tt>original.length</tt>, in which case
+     * <tt>0f</tt> is placed in all elements of the copy whose index is
+     * greater than or equal to <tt>original.length - from</tt>.  The length
+     * of the returned array will be <tt>to - from</tt>.
+     *
+     * @param array the array from which a range is to be copied
+     * @param from the initial index of the range to be copied, inclusive
+     * @param to the final index of the range to be copied, exclusive.
+     *     (This index may lie outside the array.)
+     * @return a new array containing the specified range from the original array,
+     *     truncated or padded with zeros to obtain the required length; null if anything wrong
+     */
+    public static Object copyOfRange(Object array, int from, int to){
+        try{
+            if(array == null) return null;
+            TriFunctionThrowable<Object, Integer, Integer, Object> copier = getArrayRangeCopier(array.getClass().getComponentType());
+            Object newArray = copier.apply(array, from, to);
+            return newArray;
+        }catch (Exception ex){
+            return null;
+        }
+    }
+
+    /**
      * get the deep toString operator to compose a String reflect all values of the elements, calling the corresponding
      * deep toString operator of the elements if they are arays
      * @param clazz type of the elements composing the concerned array

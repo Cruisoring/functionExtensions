@@ -129,7 +129,7 @@ public class ArrayHelperTest {
         assertEquals(4, aArray.length);
     }
 
-        @Test
+    @Test
     public void toIntegerArray() {
         int[] ints = new int[]{1, 2, 3};
         Integer[] integers = ArrayHelper.convertArray(ints);
@@ -143,6 +143,7 @@ public class ArrayHelperTest {
         integers = ArrayHelper.convertArray(ints);
         assertNull(integers);
     }
+
 
     @Test
     public void toCharacterArray() {

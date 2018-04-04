@@ -976,6 +976,19 @@ public class TypeHelperTest {
         assertCopying(null, copier, tests, 3, 2);
     }
 
+    @Test
+    public void rangeCopyOf_primitiveTypes_getPrimitiveArray(){
+        assertValueEquals(new int[]{1,2,0,0}, (int[])TypeHelper.copyOfRange(new int[]{1,2}, 0, 4));
+        assertValueEquals(new char[]{'a', 'b'}, TypeHelper.copyOfRange(new char[]{'a', 'b', 'c'}, 0, 2));
+        assertValueEquals(new byte[]{}, TypeHelper.copyOfRange(new byte[]{1,2}, 0, 0));
+        assertValueEquals(new float[]{1f,2f}, TypeHelper.copyOfRange(new float[]{0f, 1f,2f, 3f}, 1, 3));
+        assertValueEquals(new boolean[]{false, true, false, false}, TypeHelper.copyOfRange(
+                new boolean[]{true, true, false, false, true, false}, 3, 7));
+        assertValueEquals(new byte[]{}, TypeHelper.copyOfRange(new byte[]{1,2}, 0, 0));
+        assertValueEquals(new long[]{1L, 2L}, TypeHelper.copyOfRange(new long[]{0L,1L,2L}, 1, 3));
+        assertValueEquals(new short[]{3,4,0}, TypeHelper.copyOfRange(new short[]{1,2,3,4}, 2, 5));
+    }
+
     private void assertToString(String expected, Function<Object, String> toString, Object array){
         String arrayString = toString.apply(array);
 

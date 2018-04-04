@@ -20,14 +20,102 @@ import java.util.stream.IntStream;
 
 public class ArrayHelper<T, R> {
     public static final Class ObjectClass = Object.class;
-    public static final Class ArrayClass = Array.class;
     public static int ParalellEvaluationThreashold = 100;
-    public static long ParalellEvaluationTimeoutMills = 30 * 60 * 1000;
 
     @FunctionalInterface
     public interface ArraySetAll{
         Object setAll(Object array, FunctionThrowable<Integer, Object> generator) throws Exception;
     }
+
+    /**
+     * Create an array of specific element type and length
+     * @param clazz     Type of the elements of the array
+     * @param length    Length of the array
+     * @return          Array of the specific length of the specific elements if <code>clazz</code> and <code>length</code>
+     *                  are set correctly; otherwise returns null
+     */
+    public static Object getNewArray(Class clazz, int length) {
+        FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(clazz);
+        return factory.orElse(null).apply(length);
+    }
+
+    /**
+     * Get the element type if the concerned Object is an array
+     * @param array     Concerned array
+     * @return          type of the elements of the array, or null if it is null or not an array
+     */
+    public static Class getComponentType(Object array) {
+        if (array == null) return null;
+        Class arrayClass = array.getClass();
+        if (!arrayClass.isArray())
+            return null;
+
+        return arrayClass.getComponentType();
+    }
+
+    public static <T> T[] mergeOf(Class<T> componentClass, T[] array, T... others){
+        Objects.requireNonNull(componentClass);
+        Objects.requireNonNull(array);
+        Objects.requireNonNull(others);
+
+        int length1 = array.length;
+        int length2 = others.length;
+        T[] newArray = (T[]) TypeHelper.copyOfRange(array, 0, length1+length2);
+        for (int i = length1; i < length1+length2; i++) {
+            newArray[i] = (T)Array.get(others, i-length1);
+        }
+        return newArray;
+    }
+
+    public static Object mergeOf(Object array, Object... others){
+        Objects.requireNonNull(array);
+        Objects.requireNonNull(others);
+
+        Class class1 = array.getClass();
+        boolean isPremitive1 = TypeHelper.isPrimitive(class1);
+        int length1 = class1.isArray() ? Array.getLength(array) : 1;
+        int length2 = Array.getLength(others);
+
+        if(length2 == 0){
+            if(class1.isArray()){
+                Class componentClass = class1.getComponentType();
+                TriFunctionThrowable<Object, Integer, Integer, Object> copier = TypeHelper.getArrayRangeCopier(componentClass);
+                return copier.orElse(null).apply(array, 0, length1);
+            } else {
+                try {
+                    Object resultArray = TypeHelper.getArrayFactory(class1).apply(1);
+                    TriConsumerThrowable<Object, Integer, Object> elementSetter = TypeHelper.getArrayElementSetter(class1);
+                    elementSetter.accept(resultArray, 0, array);
+                    return resultArray;
+                }catch (Exception ex){
+                    return null;
+                }
+            }
+        }
+
+        Class class2 = others.getClass();
+        boolean isPremitive2 = TypeHelper.isPrimitive(class2);
+        Class componentClass1 = class1.getComponentType();
+        Class componentClass2 = class2.getComponentType();
+        FunctionThrowable<Integer, Object> elementGetter = i -> (i<length1) ? Array.get(array, i) : Array.get(others, i -length1);
+        Object resultArray;
+        Class resultComponentClass;
+        if(Objects.equals(class1, class2) || TypeHelper.areEquivalent(class1, class2)){
+            resultComponentClass = (isPremitive1 && !isPremitive2) ? componentClass2:componentClass1;
+        } else if(!isPremitive1 && componentClass1.isAssignableFrom(componentClass2)){
+            resultComponentClass = componentClass1;
+        } else if(!isPremitive2 && componentClass2.isAssignableFrom(componentClass1)){
+            resultComponentClass = componentClass2;
+        } else {
+            resultComponentClass = Object.class;
+        }
+        resultArray = TypeHelper.getArrayFactory(resultComponentClass)
+                .orElse(null).apply(length1+length2);
+        BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object> arraySetAll = getArraySetAll(resultComponentClass);
+        return arraySetAll.orElse(null).apply(resultArray, elementGetter);
+    }
+
+
 
     private static final TripleValuesRepository<Class,
 
@@ -107,71 +195,6 @@ public class ArrayHelper<T, R> {
         return arraySetters.getThirdValue(clazz);
     }
 
-    public static <T> T[] mergeOf(Class<T> componentClass, T[] array, T... others){
-        Objects.requireNonNull(componentClass);
-        Objects.requireNonNull(array);
-        Objects.requireNonNull(others);
-
-        return (T[]) mergeOf(array, others);
-    }
-
-    public static Object mergeOf(Object array, Object... others){
-        Objects.requireNonNull(array);
-        Objects.requireNonNull(others);
-
-        Class class1 = array.getClass();
-        boolean isPremitive1 = TypeHelper.isPrimitive(class1);
-        int length1 = class1.isArray() ? Array.getLength(array) : 1;
-        int length2 = Array.getLength(others);
-
-        if(length2 == 0){
-            if(class1.isArray()){
-                Class componentClass = class1.getComponentType();
-                TriFunctionThrowable<Object, Integer, Integer, Object> copier = TypeHelper.getArrayRangeCopier(componentClass);
-                return copier.orElse(null).apply(array, 0, length1);
-            } else {
-                try {
-                    Object resultArray = TypeHelper.getArrayFactory(class1).apply(1);
-                    TriConsumerThrowable<Object, Integer, Object> elementSetter = TypeHelper.getArrayElementSetter(class1);
-                    elementSetter.accept(resultArray, 0, array);
-                    return resultArray;
-                }catch (Exception ex){
-                    return null;
-                }
-            }
-        }
-
-        Class class2 = others.getClass();
-        boolean isPremitive2 = TypeHelper.isPrimitive(class2);
-        Class componentClass1 = class1.getComponentType();
-        Class componentClass2 = class2.getComponentType();
-        FunctionThrowable<Integer, Object> elementGetter = i -> (i<length1) ? Array.get(array, i) : Array.get(others, i -length1);
-        Object resultArray;
-        Class resultComponentClass;
-        if(Objects.equals(class1, class2) || TypeHelper.areEquivalent(class1, class2)){
-            resultComponentClass = (isPremitive1 && !isPremitive2) ? componentClass2:componentClass1;
-        } else if(!isPremitive1 && componentClass1.isAssignableFrom(componentClass2)){
-            resultComponentClass = componentClass1;
-        } else if(!isPremitive2 && componentClass2.isAssignableFrom(componentClass1)){
-            resultComponentClass = componentClass2;
-        } else {
-            resultComponentClass = Object.class;
-        }
-        resultArray = TypeHelper.getArrayFactory(resultComponentClass)
-                .orElse(null).apply(length1+length2);
-        BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object> arraySetAll = getArraySetAll(resultComponentClass);
-        return arraySetAll.orElse(null).apply(resultArray, elementGetter);
-    }
-
-    public static Class getComponentType(Object array) {
-        if (array == null) return null;
-        Class arrayClass = array.getClass();
-        if (!arrayClass.isArray())
-            return null;
-
-        return arrayClass.getComponentType();
-    }
-
     public static Class objectify(Class clazz) {
         if (clazz == null || !clazz.isPrimitive())
             return clazz;
@@ -191,11 +214,6 @@ public class ArrayHelper<T, R> {
         return result;
     }
 
-
-    public static Object getNewArray(Class clazz, int length) {
-        FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(clazz);
-        return factory.orElse(null).apply(length);
-    }
 
 
 
