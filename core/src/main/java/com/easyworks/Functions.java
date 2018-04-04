@@ -50,7 +50,7 @@ public class Functions<R> {
     // when debugging, while ReturnsDefaultValue when releasing.
     public static Functions Default = ReturnsDefaultValue;
 
-    private static Integer coreNumber;
+    private static Integer processorNumber;
 
     /**
      * For each of the inputs, apply function parallelly to try to get output within timeout specified by timeoutMillis
@@ -107,14 +107,13 @@ public class Functions<R> {
         if(length<1)
             throw new IllegalArgumentException("length must be greater than 0");
 
-        if(coreNumber == null) {
-            coreNumber = Runtime.getRuntime().availableProcessors();
+        if(processorNumber == null) {
+            processorNumber = Runtime.getRuntime().availableProcessors();
         }
 
-        int threadNumer = Integer.min(coreNumber*2, length/10);
+        int threadNumer = Integer.min(processorNumber, length/10);
         ExecutorService EXEC = Executors.newFixedThreadPool(threadNumer);
         
-//        int taskNumber = threadNumer * 2;
         int step = length/threadNumer;
         List<Callable<Void>> callables = new ArrayList<>();
         try {
