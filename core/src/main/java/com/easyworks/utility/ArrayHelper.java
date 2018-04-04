@@ -145,9 +145,7 @@ public class ArrayHelper<T, R> {
         boolean isPremitive2 = TypeHelper.isPrimitive(class2);
         Class componentClass1 = class1.getComponentType();
         Class componentClass2 = class2.getComponentType();
-        BiFunctionThrowable<Object, Integer, Object> getter1 = TypeHelper.getArrayElementGetter(componentClass1);
-        BiFunctionThrowable<Object, Integer, Object> getter2 = TypeHelper.getArrayElementGetter(componentClass2);
-        FunctionThrowable<Integer, Object> elementGetter = i -> (i<length1) ? getter1.apply(array, i) : getter1.apply(others, i -length1);
+        FunctionThrowable<Integer, Object> elementGetter = i -> (i<length1) ? Array.get(array, i) : Array.get(others, i -length1);
         Object resultArray;
         Class resultComponentClass;
         if(Objects.equals(class1, class2) || TypeHelper.areEquivalent(class1, class2)){
@@ -281,10 +279,8 @@ public class ArrayHelper<T, R> {
         }
 
         //Use default getElementOfFromArrayByIndex, setElementOfToArrayByIndex if they are not provided
-        final BiFunctionThrowable<Object, Integer, Object> getElement = getFromArrayAtIndex != null ?
-                getFromArrayAtIndex : TypeHelper.classOperators.getFourthValue(fromClass);
         final TriConsumerThrowable<Object, Integer, Object> setElement = setToArrayAtIndex != null ?
-                setToArrayAtIndex : TypeHelper.classOperators.getFifthValue(toClass);
+                setToArrayAtIndex : TypeHelper.classOperators.getFourthValue(toClass);
 
         if (null == parallelRequired) {
             return array -> {
@@ -294,14 +290,14 @@ public class ArrayHelper<T, R> {
                     final Object toArray = getNewArray(toClass, length);
                     if (length < ParalellEvaluationThreashold) {
                         for (int i = 0; i < length; i++) {
-                            Object fromElement = getElement.apply(array, i);
+                            Object fromElement = Array.get(array, i);
                             Object toElement = elementConverter == null ? fromElement : elementConverter.apply(fromElement);
                             setElement.accept(toArray, i, toElement);
                         }
                     } else {
                         Functions.runParallel(
                                 (Integer i) -> {
-                                    Object fromElement = getElement.apply(array, i);
+                                    Object fromElement = Array.get(array, i);
                                     Object toElement = elementConverter == null ? fromElement : elementConverter.apply(fromElement);
                                     setElement.accept(toArray, i, toElement);
                                 },
@@ -322,7 +318,7 @@ public class ArrayHelper<T, R> {
                     final Object toArray = getNewArray(toClass, length);
                     Functions.runParallel(
                             (Integer i) -> {
-                                Object fromElement = getElement.apply(array, i);
+                                Object fromElement = Array.get(array, i);
                                 Object toElement = elementConverter == null ? fromElement : elementConverter.apply(fromElement);
                                 setElement.accept(toArray, i, toElement);
                             },
@@ -340,7 +336,7 @@ public class ArrayHelper<T, R> {
                     int length = Array.getLength(array);
                     final Object toArray = getNewArray(toClass, length);
                     for (int i = 0; i < length; i++) {
-                        Object fromElement = getElement.apply(array, i);
+                        Object fromElement = Array.get(array, i);
                         Object toElement = elementConverter == null ? fromElement : elementConverter.apply(fromElement);
                         setElement.accept(toArray, i, toElement);
                     }

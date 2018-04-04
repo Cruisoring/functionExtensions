@@ -50,6 +50,8 @@ public class Functions<R> {
     // when debugging, while ReturnsDefaultValue when releasing.
     public static Functions Default = ReturnsDefaultValue;
 
+    private static Integer coreNumber;
+
     /**
      * For each of the inputs, apply function parallelly to try to get output within timeout specified by timeoutMillis
      * @param function      Function to get result of type <code>R</code> with input of type <code>T</code>
@@ -98,6 +100,39 @@ public class Functions<R> {
         } catch (InterruptedException e) {
         } finally{
             EXEC.shutdown();
+        }
+    }
+
+    public static void runParallel(ConsumerThrowable<Integer> consumerThrowable, int length){
+        if(length<1)
+            throw new IllegalArgumentException("length must be greater than 0");
+
+        if(coreNumber == null) {
+            coreNumber = Runtime.getRuntime().availableProcessors();
+        }
+
+        int threadNumer = Integer.min(coreNumber*2, length/10);
+        ExecutorService EXEC = Executors.newFixedThreadPool(threadNumer);
+        
+//        int taskNumber = threadNumer * 2;
+        int step = length/threadNumer;
+        List<Callable<Void>> callables = new ArrayList<>();
+        try {
+            for (int i = 0; i < threadNumer; i++) {
+                final int start = i*step;
+                final int end = Integer.min(length, (i+1)*step);
+                callables.add(() -> {
+                    for(int j=start; j<end; j++){
+                        consumerThrowable.accept(j);
+                    }
+                    return null;
+                });
+            }
+
+            EXEC.invokeAll(callables);
+        } catch (InterruptedException e) {
+        } finally{
+            EXEC.shutdownNow();
         }
     }
 

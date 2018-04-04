@@ -1,10 +1,12 @@
 package com.easyworks;
 
 import com.easyworks.function.*;
-import com.easyworks.repository.HeptaValuesRepository;
 import com.easyworks.repository.HexaValuesRepository;
 import com.easyworks.repository.TripleValuesRepository;
-import com.easyworks.tuple.*;
+import com.easyworks.tuple.Tuple;
+import com.easyworks.tuple.Tuple2;
+import com.easyworks.tuple.Tuple3;
+import com.easyworks.tuple.Tuple6;
 import com.easyworks.utility.ArrayHelper;
 import sun.reflect.ConstantPool;
 
@@ -23,22 +25,25 @@ public class TypeHelper {
     public final static int NULL_NODE = -1;
     public final static int EMPTY_ARRAY_NODE = -2;
 
+    private final static int _defaultParallelEvaluationThread = 10000;
+
     public final static boolean EMPTY_ARRAY_AS_DEFAULT;
     public final static int PARALLEL_EVALUATION_THRESHOLD;
     public final static ValueEquality VALUE_EQUALITY;
     public final static EmptyArrayEquality EMPTY_ARRAY_EQUALITY;
     public final static NullEquality NULL_EQUALITY;
 
-    private static <E> E tryGetEnum(Class<E> enumClass){
+    private static <E extends Enum<E>> E tryParse(E defaultEnum){
+        Class enumClass = defaultEnum.getClass();
         String enumKey = enumClass.getSimpleName();
-        return parseEnum(enumClass, System.getProperty(enumKey));
+        return parseEnumWithDefault(System.getProperty(enumKey), defaultEnum);
     }
     static{
         EMPTY_ARRAY_AS_DEFAULT = !("false".equalsIgnoreCase(System.getProperty("EMPTY_ARRAY_AS_DEFAULT")));
-        PARALLEL_EVALUATION_THRESHOLD = 20;
-        VALUE_EQUALITY = tryGetEnum(ValueEquality.class);
-        EMPTY_ARRAY_EQUALITY = tryGetEnum(EmptyArrayEquality.class);
-        NULL_EQUALITY = tryGetEnum(NullEquality.class);
+        PARALLEL_EVALUATION_THRESHOLD = _defaultParallelEvaluationThread;
+        VALUE_EQUALITY = tryParse(ValueEquality.BetweenAssignableTypes);
+        EMPTY_ARRAY_EQUALITY =tryParse(EmptyArrayEquality.TypeIgnored);
+        NULL_EQUALITY = tryParse(NullEquality.TypeIgnored);
     }
 
     public enum NullEquality{ TypeIgnored, BetweenAssignableTypes, SameTypeOnly };
@@ -87,13 +92,12 @@ public class TypeHelper {
     }
 
     private static TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> getExceptionWithMapping(
-            BiFunctionThrowable<Object, Integer, Object> fromElementGetter
-            , TriConsumerThrowable<Object, Integer, Object> toElementSetter
+            TriConsumerThrowable<Object, Integer, Object> toElementSetter
             , Function<Object, Object> elementConverter){
         if(elementConverter == returnsSelf || elementConverter == null)
             return (fromArray, toArray, index) -> {
                 try {
-                    Object fromElement = fromElementGetter.apply(fromArray, index);
+                    Object fromElement = Array.get(fromArray, index);
                     toElementSetter.accept(toArray, index, fromElement);
                     return false;
                 } catch (Exception ex) {
@@ -103,40 +107,25 @@ public class TypeHelper {
         else
             return (fromArray, toArray, index) -> {
                 try {
-                    Object fromElement = fromElementGetter.apply(fromArray, index);
-                    Object convertedElement = elementConverter.apply(fromElement);
-                    toElementSetter.accept(toArray, index, convertedElement);
+                    Object fromElement = Array.get(fromArray, index);
+                    toElementSetter.accept(toArray, index, elementConverter.apply(fromElement));
                     return false;
                 } catch (Exception ex) {
                     return true;
                 }
             };
     }
-
-    private static TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> getExceptionWithEquals(
-            BiFunctionThrowable<Object, Integer, Object> getter1
-            , BiFunctionThrowable<Object, Integer, Object> getter2){
-        return (array1, array2, index) -> {
-            try {
-                Object element1 = getter1.apply(array1, index);
-                Object element2 = getter2.apply(array1, index);
-                if(Objects.equals(element1, element2))
-                    return true;
-                else if(element1 == null || element2 == null)
-                    return false;
-                Class c1 = element1.getClass();
-                Class c2 = element2.getClass();
-
-                return false;
-            } catch (Exception ex) {
-                return true;
-            }
-        };
-    }
     //endregion
 
-    public static <E> E parseEnum(Class<E> enumClass, String enumString){
-        E[] enumValues = enumClass.getEnumConstants();
+    /**
+     * Try to convert the String to specific Enum type, returns the converted Enum value if success or the first Enum value if conversion failed
+     * @param enumString    String to be converted
+     * @param defaultEnum   default Enum value to be returned if parsing failed
+     * @param <E>           Type of the concerned Enum
+     * @return              the converted Enum value if success or the first Enum value if conversion failed
+     */
+    public static <E extends Enum<E>> E parseEnumWithDefault(String enumString, E defaultEnum){
+        E[] enumValues = (E[]) defaultEnum.getClass().getEnumConstants();
         E matchedOrFirst = Arrays.stream(enumValues)
                 .filter(e -> e.toString().equalsIgnoreCase(enumString))
                 .findFirst()
@@ -144,7 +133,13 @@ public class TypeHelper {
         return matchedOrFirst;
     }
 
-    public static int[] mergeOfInts(int[] fromRoot, int... selfIndexes){
+    /**
+     * Merge any numbers of int values with an int array and return the merged copy, used by getDeepLength0()
+     * @param fromRoot      An existing int array
+     * @param selfIndexes   new int values to be included
+     * @return              A new int array containing all int values in order
+     */
+    private static int[] mergeOfInts(int[] fromRoot, int... selfIndexes){
         int fromLength = fromRoot.length;
         int selfLength = selfIndexes.length;
         int[] fullPath = Arrays.copyOfRange(fromRoot, 0, fromLength + selfLength);
@@ -164,10 +159,10 @@ public class TypeHelper {
      *              The other int values of the int[] are indexes of the node element or its parent array in their container arrays.
      */
     public static int[][] getDeepLength(Object object){
-        return getDeepLength(object, new int[0]);
+        return getDeepLength0(object, new int[0]);
     }
 
-    private static int[][] getDeepLength(Object object, int[] indexes){
+    private static int[][] getDeepLength0(Object object, int[] indexes){
         if(object == null) {
             return new int[][]{mergeOfInts(indexes, NULL_NODE)};
         }else if(!object.getClass().isArray()) {
@@ -179,15 +174,23 @@ public class TypeHelper {
             return new int[][]{mergeOfInts(indexes, EMPTY_ARRAY_NODE)};
 
         List<int[]> list = new ArrayList<>();
-        BiFunctionThrowable<Object, Integer, Object> getter = getArrayElementGetter(objectClass.getComponentType());
         for (int i = 0; i < length; i++) {
-            Object element = getter.orElse(null).apply(object, i);
-            int[][] positions = getDeepLength(element, mergeOfInts(indexes, i));
+            Object element = Array.get(object, i);
+            int[][] positions = getDeepLength0(element, mergeOfInts(indexes, i));
             list.addAll(Arrays.asList(positions));
         }
         return list.toArray(new int[0][]);
     }
 
+    /**
+     * Get the node as an Object with all indexes of its parent arrays
+     * @param obj       root Object to get the specific node
+     * @param indexes   array indexes if the specific node is kept as element of an array, or empty if the root Object
+     *                  is the specific node
+     * @return          the root Object itself if the indexes is empty; or the element in an array
+     *      Notice: the returned value is converted to Object automatically. For an element of an int[], the returned
+     *      value would be the corresponding Integer
+     */
     private static Object getNode(Object obj, int[] indexes){
         int depth = indexes.length;
         Object result = obj;
@@ -197,6 +200,14 @@ public class TypeHelper {
         return result;
     }
 
+    /**
+     * Compare the two nodes of two Objects that share the same indexes to retrieve
+     * @param obj1      First Object to be compared
+     * @param obj2      Second Object to be compared
+     * @param indexes   array indexes if the specific node is kept as element of an array, or empty if the root Object
+     *                  is the specific node
+     * @return          <code>true</code> if the two nodes are identical, otherwise <code>false</code>
+     */
     private static boolean nodeEquals(Object obj1, Object obj2, int[] indexes){
         int depth = indexes.length;
         int last = indexes[depth-1];
@@ -205,6 +216,7 @@ public class TypeHelper {
                 || (last == EMPTY_ARRAY_NODE && EMPTY_ARRAY_EQUALITY == EmptyArrayEquality.TypeIgnored))
             return true;
 
+        //node1 and node2 shall not be null
         Object node1 = getNode(obj1, indexes);
         Object node2 = getNode(obj2, indexes);
         Class class1 = node1.getClass();
@@ -222,14 +234,17 @@ public class TypeHelper {
                     || class1.isAssignableFrom(class2)
                     || class2.isAssignableFrom(class1);
         } else {
-            if(node1.equals(node2))
-                return true;
-            if(!areEquivalent(class1, class2))
-                return false;
-            return Objects.equals(getToEquivalentConverter(class1).apply(node1), node2);
+            return node1.equals(node2);
         }
     }
 
+    /**
+     * Helper method to validate if the 2 Objects are equal by comparing their deepLength first, then using their deepLength
+     * to compare their node values either serially or parallelly based on how many nodes they have
+     * @param obj1      First Object to be compared
+     * @param obj2      Second Object to be compared
+     * @return          <code>true</code> if they have same set of values, otherwise <code>false</code>
+     */
     private static boolean deepLengthEquals(Object obj1, Object obj2){
         int[][] deepLength1 = getDeepLength(obj1);
         int[][] deepLength2 = getDeepLength(obj2);
@@ -256,6 +271,13 @@ public class TypeHelper {
         }
     }
 
+    /**
+     * Helper method to validate if the 2 Objects are equal by comparing their deepLength first, then using their deepLength
+     * to compare their node values parallelly
+     * @param obj1      First Object to be compared
+     * @param obj2      Second Object to be compared
+     * @return          <code>true</code> if they have same set of values, otherwise <code>false</code>
+     */
     private static boolean deepLengthEqualsParallel(Object obj1, Object obj2){
         int[][] deepLength1 = getDeepLength(obj1);
         int[][] deepLength2 = getDeepLength(obj2);
@@ -271,6 +293,13 @@ public class TypeHelper {
         return allEquals;
     }
 
+    /**
+     * Helper method to validate if the 2 Objects are equal by comparing their deepLength first, then using their deepLength
+     * to compare their node values either serially
+     * @param obj1      First Object to be compared
+     * @param obj2      Second Object to be compared
+     * @return          <code>true</code> if they have same set of values, otherwise <code>false</code>
+     */
     private static boolean deepLengthEqualsSerial(Object obj1, Object obj2){
         int[][] deepLength1 = getDeepLength(obj1);
         int[][] deepLength2 = getDeepLength(obj2);
@@ -287,6 +316,12 @@ public class TypeHelper {
         return true;
     }
 
+    /**
+     * This method compare two Objects that are not arrays or are both empty arrays
+     * @param obj1  first Object to be compared
+     * @param obj2  second Object to be compared
+     * @return  <code>true</code> if they are equal, <code>false</code> if they are not equal, otherwise <code>null</code>
+     */
     private static Boolean simpleValueEquals(Object obj1, Object obj2) {
         if(obj1 == obj2 || (obj1 != null && obj1.equals(obj2)))
             return true;
@@ -297,27 +332,23 @@ public class TypeHelper {
         Class class2 = obj2.getClass();
         boolean isArray1 = class1.isArray();
         boolean isArray2 = class2.isArray();
-        Class equivalentClass1 = getEquivalentClass(class1);
         if(!isArray1 && !isArray2){
-            if(class1.equals(class2))
-                return false;
-            else if (Objects.equals(equivalentClass1, class2)){
-                //One class is primitive, another is its wrapper, so use corresponding converter
-                final Function<Object, Object> singleObjectConverter = getToEquivalentConverter(class2);
-                return obj1.equals(singleObjectConverter.apply(obj2));
-            }
+            return  obj1.equals(obj2);
         }
 
+        Class equivalentClass1 = getEquivalentClass(class1);
         if(equivalentClass1 != class2 && !class1.isAssignableFrom(class2) && !class2.isAssignableFrom(class1))
             return false;
         return null;
     }
 
     /**
-     * 
-     * @param obj1
-     * @param obj2
-     * @return
+     * Comparing two objects by comparing their actual values.
+     * First by treating them as Non-Array Objects or Empty arrays, then compare them by deepDepth either serial or parallel
+     *  Note: primitive types are converted to their corresponding wrappers automatically
+     * @param obj1  first object to be compared
+     * @param obj2  second object to be compared
+     * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEquals(Object obj1, Object obj2){
         final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2);
@@ -327,6 +358,14 @@ public class TypeHelper {
         return deepLengthEquals(obj1, obj2);
     }
 
+    /**
+     * Comparing two objects by comparing their actual values.
+     * First by treating them as Non-Array Objects or Empty arrays, then compare them by deepDepth parallelly
+     *  Note: primitive types are converted to their corresponding wrappers automatically
+     * @param obj1  first object to be compared
+     * @param obj2  second object to be compared
+     * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
+     */
     public static boolean valueEqualsParallel(Object obj1, Object obj2){
         final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2);
         if (singleObjectConverter != null)
@@ -335,99 +374,20 @@ public class TypeHelper {
         return deepLengthEqualsParallel(obj1, obj2);
     }
 
+    /**
+     * Comparing two objects by comparing their actual values.
+     * First by treating them as Non-Array Objects or Empty arrays, then compare them by deepDepth either serially
+     *  Note: primitive types are converted to their corresponding wrappers automatically
+     * @param obj1  first object to be compared
+     * @param obj2  second object to be compared
+     * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
+     */
     public static boolean valueEqualsSerial(Object obj1, Object obj2){
         final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2);
         if (singleObjectConverter != null)
             return singleObjectConverter;
 
         return deepLengthEqualsSerial(obj1, obj2);
-    }
-
-    public static <T,U> boolean arraysSerialDeepEquals(T[] array1, U[] array2){
-        if(Objects.equals(array1, array2))
-            return true;
-        else if(array1 == null || array2 == null)
-            return false;
-
-        int length = Array.getLength(array1);
-        if(length != Array.getLength(array2))
-            return false;
-
-        try {
-            for (int i = 0; i < length; i++) {
-                Object element1 = Array.get(array1, i);
-                Object element2 = Array.get(array2, i);
-                if(!Objects.equals(element1, element2))
-                    return false;
-            }
-            return true;
-        }catch(Exception ex){
-            return false;
-        }
-    }
-
-    public static <T,U> boolean arraysParallelDeepEquals(T[] array1, U[] array2){
-        if(Objects.equals(array1, array2))
-            return true;
-        else if(array1 == null || array2 == null)
-            return false;
-
-        int length = Array.getLength(array1);
-        if(length != Array.getLength(array2))
-            return false;
-
-        Predicate<Integer> elementEquals = i -> {
-            try {
-                Object element1 = Array.get(array1, i);
-                Object element2 = Array.get(array2, i);
-                return Objects.equals(element1, element2);
-            }catch (Exception ex){
-                return false;
-            }
-        };
-
-        boolean result = IntStream.range(0, length).boxed().parallel()
-                .allMatch(elementEquals);
-        return result;
-    }
-
-    public static <T,U> boolean arraysDeepEquals(T[] array1, U[] array2){
-        if(Objects.equals(array1, array2))
-            return true;
-        else if(array1 == null || array2 == null)
-            return false;
-
-        int length = Array.getLength(array1);
-        if(length != Array.getLength(array2))
-            return false;
-
-        if(length < PARALLEL_EVALUATION_THRESHOLD){
-            try {
-                for (int i = 0; i < length; i++) {
-                    Object element1 = Array.get(array1, i);
-                    Object element2 = Array.get(array2, i);
-                    if(!valueEquals(element1, element2))
-                        return false;
-                }
-                return true;
-            }catch(Exception ex){
-                return false;
-            }
-        }else{
-            Predicate<Integer> elementEquals = i -> {
-                try {
-                    Object element1 = Array.get(array1, i);
-                    Object element2 = Array.get(array2, i);
-                    return valueEquals(element1, element2);
-                }catch (Exception ex){
-                    return false;
-                }
-            };
-
-            boolean result = IntStream.range(0, length).boxed().parallel()
-                    .allMatch(elementEquals);
-            return result;
-        }
     }
 
 
@@ -496,43 +456,39 @@ public class TypeHelper {
      *                  int[].class and Integer[].class are also regarded as equivalent.
      *      ArrayFactory: given the length of the new array, the factory would create a new array with elements of the specific class.
      *      ArrayClass:     class of the array containing elements of the specific class
-     *      ArrayElementGetter: getter of the element of the array with its index
      *      ArrayElementSetter: setter of the array with target index and element to be set
      *      CopyOfRange:    method to copy part of the original array to a new array of the same type, while its length
      *              is determined by the from and to indexes
      *      ConvertToString:    convert the array to a string by recursively applying the deep toString() on every elements
      *              of the array
      */
-    public static final HeptaValuesRepository<
-            Class,              //concerned Class
+    public static final HexaValuesRepository<
+                Class,              //concerned Class
 
-            Predicate<Class> //Equivalent predicate to check if another class is regarded as equal with the concerned class
-            , FunctionThrowable<Integer, Object>             //Array factory
-            , Class              //Class of its array
-            , BiFunctionThrowable<Object, Integer, Object>//Function to get the Element as index of its array
-            , TriConsumerThrowable<Object, Integer, Object>//Function to set the Element at Index of its array
-            , TriFunctionThrowable<Object, Integer, Integer, Object>//copyOfRange(original, from, to) -> new array
-            , Function<Object, String>             // Convert array to String
-    > classOperators = HeptaValuesRepository.fromKey(
+                Predicate<Class> //Equivalent predicate to check if another class is regarded as equal with the concerned class
+                , FunctionThrowable<Integer, Object>             //Array factory
+                , Class              //Class of its array
+                , TriConsumerThrowable<Object, Integer, Object>//Function to set the Element at Index of its array
+                , TriFunctionThrowable<Object, Integer, Integer, Object>//copyOfRange(original, from, to) -> new array
+                , Function<Object, String>             // Convert array to String
+        > classOperators = HexaValuesRepository.fromKey(
             TypeHelper::getReservedClassOperators,
             null,
             TypeHelper::makeClassOperators
     );
 
-    private static Map<Class, Tuple7<
+    private static Map<Class, Tuple6<
                 Predicate<Class>,
                 FunctionThrowable<Integer, Object>,
                 Class,
-                BiFunctionThrowable<Object, Integer, Object>,
                 TriConsumerThrowable<Object, Integer, Object>,
                 TriFunctionThrowable<Object, Integer, Integer, Object>,
                 Function<Object, String>
                 >> getReservedClassOperators() {
-        Map<Class, Tuple7<
+        Map<Class, Tuple6<
                 Predicate<Class>,
                 FunctionThrowable<Integer, Object>,
                 Class,
-                BiFunctionThrowable<Object, Integer, Object>,
                 TriConsumerThrowable<Object, Integer, Object>,
                 TriFunctionThrowable<Object, Integer, Integer, Object>,
                 Function<Object, String>
@@ -543,15 +499,14 @@ public class TypeHelper {
                 classPredicate
                 , i -> new int[i]
                 , int[].class
-                , (array, index) -> Array.getInt(array, index)
-                , (array, index, value) -> Array.setInt(array, index.intValue(), Integer.class.cast(value).intValue())
+                , (array, index, value) -> ((int[])array)[index] = ((Integer)value).intValue()
+//                , (array, index, value) -> Array.setInt(array, index.intValue(), Integer.class.cast(value).intValue())
                 , (array, from, to) -> Arrays.copyOfRange((int[])array, from, to)
                 , array -> Arrays.toString((int [])array)));
         map.put(Integer.class, Tuple.create(
                 classPredicate
                 , i -> new Integer[i]
                 , Integer[].class
-                , arrayGet
                 , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Integer[])array, from, to)
                 , array -> Arrays.toString((Integer[])array)));
@@ -560,15 +515,14 @@ public class TypeHelper {
                 classPredicate
                 , i -> new byte[i]
                 , byte[].class
-                , (array, index) -> Array.getByte(array, index)
-                , (array, index, value) -> Array.setByte(array, index.intValue(), Byte.class.cast(value).byteValue())
+                , (array, index, value) -> ((byte[])array)[index] = ((Byte)value).byteValue()
+//                , (array, index, value) -> Array.setByte(array, index.intValue(), Byte.class.cast(value).byteValue())
                 , (array, from, to) -> Arrays.copyOfRange((byte[])array, from, to)
                 , array -> Arrays.toString((byte[])array)));
         map.put(Byte.class, Tuple.create(
                 classPredicate
                 , i -> new Byte[i]
                 , Byte[].class
-                , arrayGet
                 , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Byte[])array, from, to)
                 , array -> Arrays.toString((Byte[])array)));
@@ -577,15 +531,14 @@ public class TypeHelper {
                 classPredicate
                 , i -> new boolean[i]
                 , boolean[].class
-                , (array, index) -> Array.getBoolean(array, index)
-                , (array, index, value) -> Array.setBoolean(array, index.intValue(), Boolean.class.cast(value).booleanValue())
+                , (array, index, value) -> ((boolean[])array)[index] = ((Boolean)value).booleanValue()
+//                , (array, index, value) -> Array.setBoolean(array, index.intValue(), Boolean.class.cast(value).booleanValue())
                 , (array, from, to) -> Arrays.copyOfRange((boolean[])array, from, to)
                 , array -> Arrays.toString((boolean[])array)));
         map.put(Boolean.class, Tuple.create(
                 classPredicate
                 , i -> new Boolean[i]
                 , Boolean[].class
-                , arrayGet
                 , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Boolean[])array, from, to)
                 , array -> Arrays.toString((Boolean[])array)));
@@ -594,15 +547,14 @@ public class TypeHelper {
                 classPredicate
                 , i -> new char[i]
                 , char[].class
-                , (array, index) -> Array.getChar(array, index)
-                , (array, index, value) -> Array.setChar(array, index, Character.class.cast(value).charValue())
+                , (array, index, value) -> ((char[])array)[index] = ((Character)value).charValue()
+//                , (array, index, value) -> Array.setChar(array, index, Character.class.cast(value).charValue())
                 , (array, from, to) -> Arrays.copyOfRange((char[])array, from, to)
                 , array -> Arrays.toString((char[])array)));
         map.put(Character.class, Tuple.create(
                 classPredicate
                 , i -> new Character[i]
                 , Character[].class
-                , arrayGet
                 , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Character[])array, from, to)
                 , array -> Arrays.toString((Character[])array)));
@@ -611,15 +563,14 @@ public class TypeHelper {
                 classPredicate
                 , i -> new short[i]
                 , short[].class
-                , (array, index) -> Array.getShort(array, index)
-                , (array, index, value) -> Array.setShort(array, index, Short.class.cast(value).shortValue())
+                , (array, index, value) -> ((short[])array)[index] = ((Short)value).shortValue()
+//                , (array, index, value) -> Array.setShort(array, index, Short.class.cast(value).shortValue())
                 , (array, from, to) -> Arrays.copyOfRange((short[])array, from, to)
                 , array -> Arrays.toString((short[])array)));
         map.put(Short.class, Tuple.create(
                 classPredicate
                 , i -> new Short[i]
                 , Short[].class
-                , arrayGet
                 , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Short[])array, from, to)
                 , array -> Arrays.toString((Short[])array)));
@@ -628,15 +579,14 @@ public class TypeHelper {
                 classPredicate
                 , i -> new long[i]
                 , long[].class
-                , (array, index) -> Array.getLong(array, index)
-                , (array, index, value) -> Array.setLong(array, index, Long.class.cast(value).longValue())
+                , (array, index, value) -> ((long[])array)[index] = ((Long)value).longValue()
+//                , (array, index, value) -> Array.setLong(array, index, Long.class.cast(value).longValue())
                 , (array, from, to) -> Arrays.copyOfRange((long[])array, from, to)
                 , array -> Arrays.toString((long[])array)));
         map.put(Long.class, Tuple.create(
                 classPredicate
                 , i -> new Long[i]
                 , Long[].class
-                , arrayGet
                 , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Long[])array, from, to)
                 , array -> Arrays.toString((Long[])array)));
@@ -645,15 +595,14 @@ public class TypeHelper {
                 classPredicate
                 , i -> new double[i]
                 , double[].class
-                , (array, index) -> Array.getDouble(array, index)
-                , (array, index, value) -> Array.setDouble(array, index, Double.class.cast(value).doubleValue())
+                , (array, index, value) -> ((double[])array)[index] = ((Double)value).doubleValue()
+//                , (array, index, value) -> Array.setDouble(array, index, Double.class.cast(value).doubleValue())
                 , (array, from, to) -> Arrays.copyOfRange((double[])array, from, to)
                 , array -> Arrays.toString((double[])array)));
         map.put(Double.class, Tuple.create(
                 classPredicate
                 , i -> new Double[i]
                 , Double[].class
-                , arrayGet
                 , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Double[])array, from, to)
                 , array -> Arrays.toString((Double[])array)));
@@ -662,26 +611,24 @@ public class TypeHelper {
                 classPredicate
                 , i -> new float[i]
                 , float[].class
-                , (array, index) -> Array.getFloat(array, index)
-                , (array, index, value) -> Array.setFloat(array, index, Float.class.cast(value).floatValue())
+                , (array, index, value) -> ((float[])array)[index] = ((Float)value).floatValue()
+//                , (array, index, value) -> Array.setFloat(array, index, Float.class.cast(value).floatValue())
                 , (array, from, to) -> Arrays.copyOfRange((float[])array, from, to)
                 , array -> Arrays.toString((float[])array)));
         map.put(Float.class, Tuple.create(
                 classPredicate
                 , i -> new Float[i]
                 , Float[].class
-                , arrayGet
                 , arraySet
                 , (array, from, to) -> Arrays.copyOfRange((Float[])array, from, to)
                 , array -> Arrays.toString((Float[])array)));
         return map;
     }
 
-    private static Tuple7<
+    private static Tuple6<
             Predicate<Class>,
             FunctionThrowable<Integer, Object>,
             Class,
-            BiFunctionThrowable<Object, Integer, Object>,
             TriConsumerThrowable<Object, Integer, Object>,
             TriFunctionThrowable<Object, Integer, Integer, Object>,
             Function<Object, String>
@@ -699,11 +646,10 @@ public class TypeHelper {
         }
 
         Class arrayClass = arrayFactory.apply(0).getClass();
-        BiFunctionThrowable<Object, Integer, Object> getElement = arrayGet;
         TriConsumerThrowable<Object, Integer, Object> setElement = arraySet;
         TriFunctionThrowable<Object, Integer, Integer, Object> copyOfRange = asGenericCopyOfRange(clazz);
         Function<Object, String> toString = getDeepToString(clazz);
-        return Tuple.create(cPredicate, arrayFactory, arrayClass, getElement, setElement, copyOfRange, toString);
+        return Tuple.create(cPredicate, arrayFactory, arrayClass, setElement, copyOfRange, toString);
 
     }
     //endregion
@@ -719,6 +665,12 @@ public class TypeHelper {
         return classOperators.getFirstValue(clazz);
     }
 
+    /**
+     * Evalueate if two classes are identical or one is wrapper of another
+     * @param class1    first class to be evaluated
+     * @param class2    second class to be evaluated
+     * @return      <code>true</code> if they are equivalent, otherwise <code>false</code>
+     */
     public static boolean areEquivalent(Class class1, Class class2){
         Objects.requireNonNull(class1);
         Objects.requireNonNull(class2);
@@ -749,17 +701,6 @@ public class TypeHelper {
     }
 
     /**
-     * get the getter operator to get element at specific position of concerned array
-     * @param clazz type of the elements to compose the array
-     * @return      operator with 2 input arguments of the arra and the index, and returns the element at that position
-     */
-    public static BiFunctionThrowable<Object, Integer, Object> getArrayElementGetter(Class clazz){
-        if(clazz == null) return null;
-
-        return classOperators.getFourthValue(clazz);
-    }
-
-    /**
      * get the setter operator to set element at specific position of concerned array with given value
      * @param clazz type of the elements to compose the array
      * @return      operator receiving 3 arguments (array, index, value) and set the element at index of the array with the given value
@@ -767,7 +708,7 @@ public class TypeHelper {
     public static TriConsumerThrowable<Object, Integer, Object> getArrayElementSetter(Class clazz){
         if(clazz == null) return null;
 
-        return classOperators.getFifthValue(clazz);
+        return classOperators.getFourthValue(clazz);
     }
 
     /**
@@ -779,7 +720,7 @@ public class TypeHelper {
     public static TriFunctionThrowable<Object, Integer, Integer, Object> getArrayRangeCopier(Class clazz){
         if(clazz == null) return null;
 
-        return classOperators.getSixthValue(clazz);
+        return classOperators.getFifthValue(clazz);
     }
 
     /**
@@ -791,7 +732,7 @@ public class TypeHelper {
     public static Function<Object, String> getArrayToString(Class clazz){
         if(clazz == null) return null;
 
-        return classOperators.getSeventhValue(clazz);
+        return classOperators.getSixthValue(clazz);
     }
 
 
@@ -988,13 +929,11 @@ public class TypeHelper {
         Class equivalentComponentClass = getEquivalentClass(componentClass);
 
         Class equivalentClass = classOperators.getThirdValue(equivalentComponentClass);
-        Function<Object, Object> componentParallelConverter = getToEquivalentParallelConverter(componentClass);
-        Function<Object, Object> componentSerialConverter = getToEquivalentSerialConverter(componentClass);
-        BiFunctionThrowable<Object, Integer, Object> componentGetter = getArrayElementGetter(componentClass);
+        Function<Object, Object> componentConverter = getToEquivalentSerialConverter(componentClass);
         TriConsumerThrowable<Object, Integer, Object> equivalentSetter = getArrayElementSetter(equivalentComponentClass);
 
         TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> getExceptionWhileMapping =
-                getExceptionWithMapping(componentGetter, equivalentSetter, componentParallelConverter);
+                getExceptionWithMapping(equivalentSetter, componentConverter);
 
         Function<Object, Object> parallelConverter =
                 equivalentClass == null ? returnsSelf
@@ -1022,11 +961,10 @@ public class TypeHelper {
                     //Three-steps to do: get original element first, convert to equivalent value, and then set to
                     // the corresponding element of the converted array
                     //Get original element
-                    Object fromElement = componentGetter.apply(fromArray, i);
+                    Object fromElement = Array.get(fromArray, i);
                     //Get the converted element
-                    Object toElement = componentSerialConverter.apply(fromElement);
-                    //Set the converted value
-                    equivalentSetter.accept(toArray, i, toElement);
+                    //Set the converted value to the target array
+                    equivalentSetter.accept(toArray, i, componentConverter.apply(fromElement));
                 }
                 return toArray;
             }catch (Exception ex){
@@ -1046,11 +984,10 @@ public class TypeHelper {
                         //Three-steps to do: get original element first, convert to equivalent value, and then set to
                         // the corresponding element of the converted array
                         //Get original element
-                        Object fromElement = componentGetter.apply(fromArray, i);
+                        Object fromElement = Array.get(fromArray, i);
                         //Get the converted element
-                        Object toElement = componentSerialConverter.apply(fromElement);
-                        //Set the converted value
-                        equivalentSetter.accept(toArray, i, toElement);
+                        //Set the converted value to the target array
+                        equivalentSetter.accept(toArray, i, componentConverter.apply(fromElement));
                     }
                     return toArray;
                 }catch (Exception ex){
@@ -1165,7 +1102,7 @@ public class TypeHelper {
         > deepEvaluators = HexaValuesRepository.fromTwoKeys(
             () -> new HashMap<Tuple2<Class,Class>,
                     Tuple6<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>>>(){{
-                        put(Tuple.create(Object.class, Object.class),
+                        put(Tuple.create(OBJECT_CLASS, OBJECT_CLASS),
                                 Tuple.create(returnsSelf, returnsSelf, returnsSelf, objectsEquals, objectsEquals, objectsEquals));
 
                         put(Tuple.create(Object[].class, Object[].class),
@@ -1222,8 +1159,6 @@ public class TypeHelper {
 
         Class componentClasses1 = class1.getComponentType();
         Class componentClasses2 = class2.getComponentType();
-        BiFunctionThrowable<Object, Integer, Object> getter1 = getArrayElementGetter(componentClasses1);
-        BiFunctionThrowable<Object, Integer, Object> getter2 = getArrayElementGetter(componentClasses2);
         BiPredicate<Object, Object> componentParallelPredicate = getParallelPredicate(componentClasses1, componentClasses2);
         BiPredicate<Object, Object> componentSerialPredicate = getSerialPredicate(componentClasses1, componentClasses2);
         BiPredicate<Object, Object> componentDefaultPredicate = getDefaultPredicate(componentClasses1, componentClasses2);
@@ -1240,8 +1175,8 @@ public class TypeHelper {
 
             Predicate<Integer> elementEquals = i -> {
                 try {
-                    Object element1 = getter1.apply(obj1, i);
-                    Object element2 = getter2.apply(obj2, i);
+                    Object element1 = Array.get(obj1, i);
+                    Object element2 = Array.get(obj2, i);
                     return componentParallelPredicate.test(element1, element2);
                 }catch (Exception ex){
                     return false;
@@ -1265,8 +1200,8 @@ public class TypeHelper {
 
             try {
                 for (int i = 0; i < length; i++) {
-                    Object element1 = getter1.apply(obj1, i);
-                    Object element2 = getter2.apply(obj2, i);
+                    Object element1 = Array.get(obj1, i);
+                    Object element2 = Array.get(obj2, i);
                     if(!componentSerialPredicate.test(element1, element2))
                         return false;
                 }
@@ -1289,8 +1224,8 @@ public class TypeHelper {
             if(length < PARALLEL_EVALUATION_THRESHOLD){
                 try {
                     for (int i = 0; i < length; i++) {
-                        Object element1 = getter1.apply(obj1, i);
-                        Object element2 = getter2.apply(obj2, i);
+                        Object element1 = Array.get(obj1, i);
+                        Object element2 = Array.get(obj2, i);
                         if(!componentDefaultPredicate.test(element1, element2))
                             return false;
                     }
@@ -1301,8 +1236,8 @@ public class TypeHelper {
             }else{
                 Predicate<Integer> elementEquals = i -> {
                     try {
-                        Object element1 = getter1.apply(obj1, i);
-                        Object element2 = getter2.apply(obj2, i);
+                        Object element1 = Array.get(obj1, i);
+                        Object element2 = Array.get(obj2, i);
                         return componentDefaultPredicate.test(element1, element2);
                     }catch (Exception ex){
                         return false;
@@ -1326,14 +1261,12 @@ public class TypeHelper {
         }
 
         FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(componentClasses2);
-        BiFunctionThrowable<Object, Integer, Object> fromElementGetter = getArrayElementGetter(componentClasses1);
         TriConsumerThrowable<Object, Integer, Object> toElementSetter = getArrayElementSetter(componentClasses2);
 
-        Function<Object, Object> parallelElementConverter = getToEquivalentParallelConverter(componentClasses1);
-        Function<Object, Object> serialElementConverter = getToEquivalentSerialConverter(componentClasses2);
+        Function<Object, Object> serialElementConverter = getToEquivalentSerialConverter(componentClasses1);
 
         TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> elementMappingWithException =
-                getExceptionWithMapping(fromElementGetter, toElementSetter, parallelElementConverter);
+                getExceptionWithMapping(toElementSetter, serialElementConverter);
 
         Function<Object, Object> parallelConverter = (fromArray) -> {
             if (fromArray == null) return null;
@@ -1356,7 +1289,7 @@ public class TypeHelper {
                 int length = Array.getLength(fromArray);
                 Object toArray = factory.apply(length);
                 for (int i = 0; i < length; i++) {
-                    Object fromElement = fromElementGetter.apply(fromArray, i);
+                    Object fromElement = Array.get(fromArray, i);
                     Object convertedElement = serialElementConverter.apply(fromElement);
                     toElementSetter.accept(toArray, i, convertedElement);
                 }
@@ -1373,7 +1306,7 @@ public class TypeHelper {
                 Object toArray = factory.apply(length);
                 if(length < PARALLEL_EVALUATION_THRESHOLD) {
                     for (int i = 0; i < length; i++) {
-                        Object fromElement = fromElementGetter.apply(fromArray, i);
+                        Object fromElement = Array.get(fromArray, i);
                         Object convertedElement = serialElementConverter.apply(fromElement);
                         toElementSetter.accept(toArray, i, convertedElement);
                     }
@@ -1394,6 +1327,93 @@ public class TypeHelper {
                 parallelPredicate, serialPredicate, defaultPredicate);
     }
     //endregion
+
+    public static <T,U> boolean arraysSerialDeepEquals(T[] array1, U[] array2){
+        if(Objects.equals(array1, array2))
+            return true;
+        else if(array1 == null || array2 == null)
+            return false;
+
+        int length = Array.getLength(array1);
+        if(length != Array.getLength(array2))
+            return false;
+
+        try {
+            for (int i = 0; i < length; i++) {
+                Object element1 = Array.get(array1, i);
+                Object element2 = Array.get(array2, i);
+                if(!Objects.equals(element1, element2))
+                    return false;
+            }
+            return true;
+        }catch(Exception ex){
+            return false;
+        }
+    }
+
+    public static <T,U> boolean arraysParallelDeepEquals(T[] array1, U[] array2){
+        if(Objects.equals(array1, array2))
+            return true;
+        else if(array1 == null || array2 == null)
+            return false;
+
+        int length = Array.getLength(array1);
+        if(length != Array.getLength(array2))
+            return false;
+
+        Predicate<Integer> elementEquals = i -> {
+            try {
+                Object element1 = Array.get(array1, i);
+                Object element2 = Array.get(array2, i);
+                return Objects.equals(element1, element2);
+            }catch (Exception ex){
+                return false;
+            }
+        };
+
+        boolean result = IntStream.range(0, length).boxed().parallel()
+                .allMatch(elementEquals);
+        return result;
+    }
+
+    public static <T,U> boolean arraysDeepEquals(T[] array1, U[] array2){
+        if(Objects.equals(array1, array2))
+            return true;
+        else if(array1 == null || array2 == null)
+            return false;
+
+        int length = Array.getLength(array1);
+        if(length != Array.getLength(array2))
+            return false;
+
+        if(length < PARALLEL_EVALUATION_THRESHOLD){
+            try {
+                for (int i = 0; i < length; i++) {
+                    Object element1 = Array.get(array1, i);
+                    Object element2 = Array.get(array2, i);
+                    if(!valueEquals(element1, element2))
+                        return false;
+                }
+                return true;
+            }catch(Exception ex){
+                return false;
+            }
+        }else{
+            Predicate<Integer> elementEquals = i -> {
+                try {
+                    Object element1 = Array.get(array1, i);
+                    Object element2 = Array.get(array2, i);
+                    return valueEquals(element1, element2);
+                }catch (Exception ex){
+                    return false;
+                }
+            };
+
+            boolean result = IntStream.range(0, length).boxed().parallel()
+                    .allMatch(elementEquals);
+            return result;
+        }
+    }
 
     public static BiPredicate<Object, Object> getParallelPredicate(Class class1, Class class2){
         Objects.requireNonNull(class1);

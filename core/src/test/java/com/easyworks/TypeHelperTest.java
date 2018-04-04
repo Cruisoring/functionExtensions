@@ -11,7 +11,6 @@ import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -625,58 +624,50 @@ public class TypeHelperTest {
 
     public void getSetArrayElement_withPrimitiveArray_bothGetterSetterWorks(){
         int[] ints = new int[]{1,2,3};
-        BiFunctionThrowable<Object, Integer, Object> getter = getArrayElementGetter(ints.getClass());
         TriConsumerThrowable<Object, Integer, Object> setter = getArrayElementSetter(ints.getClass());
-        assertEquals(1, getter.orElse(null).apply(ints, 0));
+        assertEquals(1, Array.get(ints, 0));
         setter.orElse(null).accept(ints, 2, 33);
         assertEquals(33, ints[2]);
         
         long[] longs = new long[]{1,2L,3};
-        getter = getArrayElementGetter(longs.getClass());
         setter = getArrayElementSetter(longs.getClass());
-        assertEquals(1L, getter.orElse(null).apply(longs, 0));
+        assertEquals(1L, Array.get(longs, 0));
         setter.orElse(null).accept(longs, 2, 33L);
         assertEquals(33L, longs[2]);
         
         short[] shorts = new short[]{1,2,3};
-        getter = getArrayElementGetter(shorts.getClass());
         setter = getArrayElementSetter(shorts.getClass());
-        assertEquals((short)1, getter.orElse(null).apply(shorts, 0));
+        assertEquals((short)1, Array.get(shorts, 0));
         setter.orElse(null).accept(shorts, 2, (short)33);
         assertEquals((short)33, shorts[2]);
         
         char[] chars = new char[]{'a', 'b', 'c'};
-        getter = getArrayElementGetter(chars.getClass());
         setter = getArrayElementSetter(chars.getClass());
-        assertEquals('a', getter.orElse(null).apply(chars, 0));
+        assertEquals('a', Array.get(chars, 0));
         setter.orElse(null).accept(chars, 2, 'x');
         assertEquals('x', chars[2]);
         
         byte[] bytes = new byte[]{44, 45, 46};
-        getter = getArrayElementGetter(bytes.getClass());
         setter = getArrayElementSetter(bytes.getClass());
-        assertEquals((byte)44, getter.orElse(null).apply(bytes, 0));
+        assertEquals((byte)44, Array.get(bytes, 0));
         setter.orElse(null).accept(bytes, 2, (byte)55);
         assertEquals((byte)55, bytes[2]);
         
         boolean[] booleans = new boolean[]{true, false};
-        getter = getArrayElementGetter(booleans.getClass());
         setter = getArrayElementSetter(booleans.getClass());
-        assertEquals(true, getter.orElse(null).apply(booleans, 0));
+        assertEquals(true, Array.get(booleans, 0));
         setter.orElse(null).accept(booleans, 1, true);
         assertEquals(true, booleans[1]);
         
         double[] doubles = new double[]{1.0, 2.0, 3.0};
-        getter = getArrayElementGetter(doubles.getClass());
         setter = getArrayElementSetter(doubles.getClass());
-        assertEquals(1.0, getter.orElse(null).apply(doubles, 0));
+        assertEquals(1.0, Array.get(doubles, 0));
         setter.orElse(null).accept(doubles, 1, 100);
         assertEquals(100.0, doubles[1], 0);
         
         float[] floats = new float[]{1.1f, 2.2f, 3.3f};
-        getter = getArrayElementGetter(floats.getClass());
         setter = getArrayElementSetter(floats.getClass());
-        assertEquals(1.1f, getter.orElse(null).apply(floats, 0));
+        assertEquals(1.1f, Array.get(floats, 0));
         setter.orElse(null).accept(floats, 1, 101.3f);
         assertEquals(101.3f, floats[1], 0);
     }
@@ -684,58 +675,50 @@ public class TypeHelperTest {
     @Test
     public void getSetArrayElement_withWrapperArray_bothGetterSetterWorks() {
         Integer[] ints2 = new Integer[]{1,2,3};
-        BiFunctionThrowable<Object, Integer, Object> getter = getArrayElementGetter(ints2.getClass());
         TriConsumerThrowable<Object, Integer, Object> setter = getArrayElementSetter(ints2.getClass());
-        assertEquals(1, getter.orElse(null).apply(ints2, 0));
+        assertEquals(1, Array.get(ints2, 0));
         setter.orElse(null).accept(ints2, 2, 33);
         assertEquals(Integer.valueOf(33), ints2[2]);
         
         Long[] longs2 = new Long[]{1L,2L,3L};
-        getter = getArrayElementGetter(longs2.getClass());
         setter = getArrayElementSetter(longs2.getClass());
-        assertEquals(1L, getter.orElse(null).apply(longs2, 0));
+        assertEquals(1L, Array.get(longs2, 0));
         setter.orElse(null).accept(longs2, 2, 33L);
         assertEquals(Long.valueOf(33), longs2[2]);
         
         Short[] shorts2 = new Short[]{1,2,3};
-        getter = getArrayElementGetter(shorts2.getClass());
         setter = getArrayElementSetter(shorts2.getClass());
-        assertEquals(Short.valueOf((short)1), getter.orElse(null).apply(shorts2, 0));
+        assertEquals(Short.valueOf((short)1), Array.get(shorts2, 0));
         setter.orElse(null).accept(shorts2, 2, Short.valueOf((short)45));
         assertEquals(Short.valueOf((short)45), shorts2[2]);
         
         Character[] chars2 = new Character[]{'a', 'b', 'c'};
-        getter = getArrayElementGetter(chars2.getClass());
         setter = getArrayElementSetter(chars2.getClass());
-        assertEquals(Character.valueOf('a'), getter.orElse(null).apply(chars2, 0));
+        assertEquals(Character.valueOf('a'), Array.get(chars2, 0));
         setter.orElse(null).accept(chars2, 2, 'x');
         assertEquals(Character.valueOf('x'), chars2[2]);
         
         Byte[] bytes2 = new Byte[]{44, 45, 46};
-        getter = getArrayElementGetter(bytes2.getClass());
         setter = getArrayElementSetter(bytes2.getClass());
-        assertEquals(Byte.valueOf("44"), getter.orElse(null).apply(bytes2, 0));
+        assertEquals(Byte.valueOf("44"), Array.get(bytes2, 0));
         setter.orElse(null).accept(bytes2, 2, (byte)55);
         assertEquals(Byte.valueOf("55"), bytes2[2]);
         
         Boolean[] booleans2 = new Boolean[]{true, false};
-        getter = getArrayElementGetter(booleans2.getClass());
         setter = getArrayElementSetter(booleans2.getClass());
-        assertEquals(true, getter.orElse(null).apply(booleans2, 0));
+        assertEquals(true, Array.get(booleans2, 0));
         setter.orElse(null).accept(booleans2, 1, true);
         assertEquals(true, booleans2[1]);
         
         Double[] doubles2 = new Double[]{1.0, 2.0, 3.0};
-        getter = getArrayElementGetter(doubles2.getClass());
         setter = getArrayElementSetter(doubles2.getClass());
-        assertEquals(1.0, getter.orElse(null).apply(doubles2, 0));
+        assertEquals(1.0, Array.get(doubles2, 0));
         setter.orElse(null).accept(doubles2, 1, 100.0);
         assertEquals(100.0, doubles2[1], 0);
         
         Float[] floats2 = new Float[]{1.1f, 2.2f, 3.3f};
-        getter = getArrayElementGetter(floats2.getClass());
         setter = getArrayElementSetter(floats2.getClass());
-        assertEquals(1.1f, getter.orElse(null).apply(floats2, 0));
+        assertEquals(1.1f, Array.get(floats2, 0));
         setter.orElse(null).accept(floats2, 1, 101.3f);
         assertEquals(101.3f, floats2[1], 0);
     }
@@ -743,160 +726,136 @@ public class TypeHelperTest {
     @Test
     public void getSetArrayElement_withClassOrInterfaceType_bothGetterSetterWorks() {
         ITest1[] interfaces1 = new ITest1[]{null, new A(), new B(), new C(), new D()};
-        BiFunctionThrowable<Object, Integer, Object> getter = getArrayElementGetter(interfaces1.getClass());
         TriConsumerThrowable<Object, Integer, Object> setter = getArrayElementSetter(interfaces1.getClass());
-        assertEquals(null, getter.orElse(null).apply(interfaces1, 0));
-        assertEquals(A.class, getter.orElse(null).apply(interfaces1, 1).getClass());
-        assertEquals(D.class, getter.orElse(null).apply(interfaces1, 4).getClass());
+        assertEquals(null, Array.get(interfaces1, 0));
+        assertEquals(A.class, Array.get(interfaces1, 1).getClass());
+        assertEquals(D.class, Array.get(interfaces1, 4).getClass());
         setter.orElse(null).accept(interfaces1, 0, new D());
-        assertEquals(D.class, getter.orElse(null).apply(interfaces1, 0).getClass());
+        assertEquals(D.class, Array.get(interfaces1, 0).getClass());
 
         A[] aArray = new A[] { new A(), new B(), new C()};
-        getter = getArrayElementGetter(aArray.getClass());
         setter = getArrayElementSetter(aArray.getClass());
-        assertEquals(A.class, getter.orElse(null).apply(aArray, 0).getClass());
-        assertEquals(B.class, getter.orElse(null).apply(aArray, 1).getClass());
-        //Invalid operations returns null
-        assertEquals(null, getter.orElse(null).apply(aArray, -1));
-        assertEquals(null, getter.orElse(null).apply(aArray, 5));
+        assertEquals(A.class, Array.get(aArray, 0).getClass());
+        assertEquals(B.class, Array.get(aArray, 1).getClass());
+
         //Invalid setting operation would not update the element
         setter.orElse(null).accept(aArray, 1, new D());
-        assertEquals(B.class, getter.orElse(null).apply(aArray, 1).getClass());
+        assertEquals(B.class, Array.get(aArray, 1).getClass());
 
         //set element@1 to new C()
         setter.orElse(null).accept(aArray, 1, new C());
-        assertEquals(C.class, getter.orElse(null).apply(aArray, 1).getClass());
+        assertEquals(C.class, Array.get(aArray, 1).getClass());
     }
 
     @Test
     public void getSetArrayElement_withMultiDimensionArrayTypes_bothGetterSetterWorks() {
         int[][] ints = new int[][]{ new int[]{1,2,3}, null};
-        BiFunctionThrowable<Object, Integer, Object> getter = getArrayElementGetter(ints.getClass());
         TriConsumerThrowable<Object, Integer, Object> setter = getArrayElementSetter(ints.getClass());
-        assertEquals(ints[0], getter.orElse(null).apply(ints, 0));
+        assertEquals(ints[0], Array.get(ints, 0));
         setter.orElse(null).accept(ints, 1, new int[0]);
         assertEquals(0, ints[1].length);
 
         long[][] longs = new long[][]{new long[]{1,2L,3}, null};
-        getter = getArrayElementGetter(longs.getClass());
         setter = getArrayElementSetter(longs.getClass());
-        assertEquals(longs[0], getter.orElse(null).apply(longs, 0));
+        assertEquals(longs[0], Array.get(longs, 0));
         setter.orElse(null).accept(longs, 0, null);
         assertNull(longs[0]);
 
         short[][] shorts = new short[][]{new short[]{1,2,3}, null};
-        getter = getArrayElementGetter(shorts.getClass());
         setter = getArrayElementSetter(shorts.getClass());
-        assertEquals(shorts[0], getter.orElse(null).apply(shorts, 0));
+        assertEquals(shorts[0], Array.get(shorts, 0));
         setter.orElse(null).accept(shorts, 0, null);
         assertNull(shorts[0]);
 
         char[][] chars = new char[][]{new char[]{'a', 'b', 'c'}, null};
-        getter = getArrayElementGetter(chars.getClass());
         setter = getArrayElementSetter(chars.getClass());
-        assertEquals(chars[0], getter.orElse(null).apply(chars, 0));
+        assertEquals(chars[0], Array.get(chars, 0));
         setter.orElse(null).accept(chars, 0, null);
         assertNull(chars[0]);
 
         byte[][] bytes = new byte[][]{new byte[]{44, 45, 46}, null};
-        getter = getArrayElementGetter(bytes.getClass());
         setter = getArrayElementSetter(bytes.getClass());
-        assertEquals(bytes[0], getter.orElse(null).apply(bytes, 0));
+        assertEquals(bytes[0], Array.get(bytes, 0));
         setter.orElse(null).accept(bytes, 0, null);
         assertNull(bytes[0]);
 
         boolean[][] booleans = new boolean[][]{new boolean[]{true, false}, null};
-        getter = getArrayElementGetter(booleans.getClass());
         setter = getArrayElementSetter(booleans.getClass());
-        assertEquals(booleans[0], getter.orElse(null).apply(booleans, 0));
+        assertEquals(booleans[0], Array.get(booleans, 0));
         setter.orElse(null).accept(booleans, 0, null);
         assertNull(booleans[0]);
 
         double[][] doubles = new double[][]{new double[]{1.0, 2.0, 3.0}, null};
-        getter = getArrayElementGetter(doubles.getClass());
         setter = getArrayElementSetter(doubles.getClass());
-        assertEquals(doubles[0], getter.orElse(null).apply(doubles, 0));
+        assertEquals(doubles[0], Array.get(doubles, 0));
         setter.orElse(null).accept(doubles, 0, null);
         assertNull(doubles[0]);
 
         float[][] floats = new float[][]{new float[]{1.1f, 2.2f, 3.3f}, null};
-        getter = getArrayElementGetter(floats.getClass());
         setter = getArrayElementSetter(floats.getClass());
-        assertEquals(floats[0], getter.orElse(null).apply(floats, 0));
+        assertEquals(floats[0], Array.get(floats, 0));
         setter.orElse(null).accept(floats, 0, null);
         assertNull(floats[0]);
 
         Integer[][] ints2 = new Integer[][]{new Integer[]{1,2,3}, null};
-        getter = getArrayElementGetter(ints2.getClass());
         setter = getArrayElementSetter(ints2.getClass());
-        assertEquals(ints2[0], getter.orElse(null).apply(ints2, 0));
+        assertEquals(ints2[0], Array.get(ints2, 0));
         setter.orElse(null).accept(ints2, 0, null);
         assertNull(ints2[0]);
 
         Long[][] longs2 = new Long[][]{new Long[]{1L,2L,3L}, null};
-        getter = getArrayElementGetter(longs2.getClass());
         setter = getArrayElementSetter(longs2.getClass());
-        assertEquals(longs2[0], getter.orElse(null).apply(longs2, 0));
+        assertEquals(longs2[0], Array.get(longs2, 0));
         setter.orElse(null).accept(longs2, 0, null);
         assertNull(longs2[0]);
 
         Short[][] shorts2 = new Short[][]{new Short[]{1,2,3}, null};
-        getter = getArrayElementGetter(shorts2.getClass());
         setter = getArrayElementSetter(shorts2.getClass());
-        assertEquals(shorts2[0], getter.orElse(null).apply(shorts2, 0));
+        assertEquals(shorts2[0], Array.get(shorts2, 0));
         setter.orElse(null).accept(shorts2, 0, null);
         assertNull(shorts2[0]);
 
         Character[][] chars2 = new Character[][]{new Character[]{'a', 'b', 'c'}, null};
-        getter = getArrayElementGetter(chars2.getClass());
         setter = getArrayElementSetter(chars2.getClass());
-        assertEquals(chars2[0], getter.orElse(null).apply(chars2, 0));
+        assertEquals(chars2[0], Array.get(chars2, 0));
         setter.orElse(null).accept(chars2, 0, null);
         assertNull(chars2[0]);
 
         Byte[][] bytes2 = new Byte[][]{new Byte[]{44, 45, 46}, null};
-        getter = getArrayElementGetter(bytes2.getClass());
         setter = getArrayElementSetter(bytes2.getClass());
-        assertEquals(bytes2[0], getter.orElse(null).apply(bytes2, 0));
+        assertEquals(bytes2[0], Array.get(bytes2, 0));
         setter.orElse(null).accept(bytes2, 0, null);
         assertNull(bytes2[0]);
 
         Boolean[][] booleans2 = new Boolean[][]{new Boolean[]{true, false}, null};
-        getter = getArrayElementGetter(booleans2.getClass());
         setter = getArrayElementSetter(booleans2.getClass());
-        assertEquals(booleans2[0], getter.orElse(null).apply(booleans2, 0));
+        assertEquals(booleans2[0], Array.get(booleans2, 0));
         setter.orElse(null).accept(booleans2, 0, null);
         assertNull(booleans2[0]);
 
         Double[][] doubles2 = new Double[][]{new Double[]{1.0, 2.0, 3.0}, null};
-        getter = getArrayElementGetter(doubles2.getClass());
         setter = getArrayElementSetter(doubles2.getClass());
-        assertEquals(doubles2[0], getter.orElse(null).apply(doubles2, 0));
+        assertEquals(doubles2[0], Array.get(doubles2, 0));
         setter.orElse(null).accept(doubles2, 0, null);
         assertNull(doubles2[0]);
 
         Float[][] floats2 = new Float[][]{new Float[]{1.1f, 2.2f, 3.3f}, null};
-        getter = getArrayElementGetter(floats2.getClass());
         setter = getArrayElementSetter(floats2.getClass());
-        assertEquals(floats2[0], getter.orElse(null).apply(floats2, 0));
+        assertEquals(floats2[0], Array.get(floats2, 0));
         setter.orElse(null).accept(floats2, 0, null);
         assertNull(floats2[0]);
 
         ITest1[][] interfaces1 = new ITest1[][]{new ITest1[]{null, new A(), new B(), new C(), new D()}, null};
-        getter = getArrayElementGetter(interfaces1.getClass());
         setter = getArrayElementSetter(interfaces1.getClass());
-        assertEquals(interfaces1[0], getter.orElse(null).apply(interfaces1, 0));
-        assertEquals(null, getter.orElse(null).apply(interfaces1, 1));
+        assertEquals(interfaces1[0], Array.get(interfaces1, 0));
+        assertEquals(null, Array.get(interfaces1, 1));
         setter.orElse(null).accept(interfaces1, 0, null);
         assertNull(interfaces1[0]);
 
         A[][] aArray = new A[][]{ new A[] { new A(), new B(), new C()}, null };
-        getter = getArrayElementGetter(aArray.getClass());
         setter = getArrayElementSetter(aArray.getClass());
-        assertEquals(A[].class, getter.orElse(null).apply(aArray, 0).getClass());
-        //Invalid operations returns null
-        assertEquals(null, getter.orElse(null).apply(aArray, -1));
-        assertEquals(null, getter.orElse(null).apply(aArray, 5));
+        assertEquals(A[].class, Array.get(aArray, 0).getClass());
+
         //Invalid setting operation would not update the element
         setter.orElse(null).accept(aArray, 0, null);
         assertNull(aArray[0]);
