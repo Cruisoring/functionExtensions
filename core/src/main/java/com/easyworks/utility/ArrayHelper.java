@@ -11,10 +11,7 @@ import com.easyworks.tuple.Tuple3;
 import com.easyworks.tuple.Tuple6;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -53,8 +50,15 @@ public class ArrayHelper<T, R> {
         return arrayClass.getComponentType();
     }
 
-    public static <T> T[] mergeOf(Class<T> componentClass, T[] array, T... others){
-        Objects.requireNonNull(componentClass);
+    /**
+     * Merge two array of the same type together, and returned the merged array of the same type.
+     * Notice: the element type would be deducted from the first array
+     * @param array     First array to be merged
+     * @param others    Second array in form of varargs
+     * @param <T>       Type of the elements within the above two arrays
+     * @return          Merged array containing all elements of above two arrays
+     */
+    public static <T> T[] mergeTypedArray(T[] array, T... others){
         Objects.requireNonNull(array);
         Objects.requireNonNull(others);
 
@@ -67,80 +71,145 @@ public class ArrayHelper<T, R> {
         return newArray;
     }
 
-    public static Object mergeOf(Object array, Object... others){
-        Objects.requireNonNull(array);
+    /**
+     * More generic way to merge two arrays that could contain primitive elements, and the result array would be the most
+     * fitted type (object type preferred) to containing all elements of the two arrays.
+     * @param first     first array or element to be merged
+     * @param others    remaining elements to be merged
+     * @return      an array containing all elements of the given arguments
+     *      <ui>
+     *          <li>when <code>others</code> is emtpy, returns either copy of the first array when it is array,
+     *          or a new array containing only the first argument when it is not array</li>
+     *          <li>when component type of first and others are identical, retuns a array of the same type containing all their elements</li>
+     *          <li>when component type of first and others are equivalent, retuns a array of the object type containing all their elements</li>
+     *          <li>when component type of first is assignable from the second, retuns a array of same type as first containing all their elements</li>
+     *          <li>when component type of second is assignable from the first, retuns a array of same type as second containing all their elements</li>
+     *          <li>otherwise, returns either a new Object[] containing all their elements or null if something goes wrong</li>
+     *      </ui>
+     */
+    public static Object arrayOf(Object first, Object... others){
+        Objects.requireNonNull(first);
         Objects.requireNonNull(others);
 
-        Class class1 = array.getClass();
+        Class class1 = first.getClass();
+        boolean isArray1 = class1.isArray();
+        Class componentClass1 = isArray1 ? class1.getComponentType() : class1;
         boolean isPremitive1 = TypeHelper.isPrimitive(class1);
-        int length1 = class1.isArray() ? Array.getLength(array) : 1;
+        int length1 = class1.isArray() ? Array.getLength(first) : 1;
         int length2 = Array.getLength(others);
 
+        Object firstArrayElement = null;
         if(length2 == 0){
-            if(class1.isArray()){
+            if(isArray1){
                 Class componentClass = class1.getComponentType();
                 TriFunctionThrowable<Object, Integer, Integer, Object> copier = TypeHelper.getArrayRangeCopier(componentClass);
-                return copier.orElse(null).apply(array, 0, length1);
+                return copier.orElse(null).apply(first, 0, length1);
             } else {
                 try {
                     Object resultArray = TypeHelper.getArrayFactory(class1).apply(1);
                     TriConsumerThrowable<Object, Integer, Object> elementSetter = TypeHelper.getArrayElementSetter(class1);
-                    elementSetter.accept(resultArray, 0, array);
+                    elementSetter.accept(resultArray, 0, first);
                     return resultArray;
                 }catch (Exception ex){
                     return null;
                 }
             }
+        } else if (length2 == 1){
+            Object firstElement = Array.get(others, 0);
+            if(firstElement != null){
+                Class firstElementClass = firstElement.getClass();
+                if(firstElementClass.isArray()){
+                    firstArrayElement = firstElement;
+                } else {
+                    firstArrayElement = arrayOf(firstElement);
+                }
+            }
         }
 
-        Class class2 = others.getClass();
+        Object array2 = firstArrayElement == null ? others : firstArrayElement;
+        Class class2 = array2.getClass();
+        length2 = Array.getLength(array2);
         boolean isPremitive2 = TypeHelper.isPrimitive(class2);
-        Class componentClass1 = class1.getComponentType();
         Class componentClass2 = class2.getComponentType();
-        FunctionThrowable<Integer, Object> elementGetter = i -> (i<length1) ? Array.get(array, i) : Array.get(others, i -length1);
+        FunctionThrowable<Integer, Object> elementGetter = i -> (i<length1) ? ( isArray1 ? Array.get(first, i) : first)
+                : Array.get(array2, i -length1);
         Object resultArray;
         Class resultComponentClass;
-        if(Objects.equals(class1, class2) || TypeHelper.areEquivalent(class1, class2)){
-            resultComponentClass = (isPremitive1 && !isPremitive2) ? componentClass2:componentClass1;
-        } else if(!isPremitive1 && componentClass1.isAssignableFrom(componentClass2)){
+        if(Objects.equals(componentClass1, componentClass2) || TypeHelper.areEquivalent(componentClass1, componentClass2)){
+            resultComponentClass = (isPremitive1 && !isPremitive2) ? componentClass2 : componentClass1;
+        } else if(!isPremitive1 && (componentClass1.isAssignableFrom(componentClass2))
+                || (isPremitive2 && componentClass1.isAssignableFrom(TypeHelper.getEquivalentClass(componentClass2)))){
             resultComponentClass = componentClass1;
-        } else if(!isPremitive2 && componentClass2.isAssignableFrom(componentClass1)){
+        } else if(!isPremitive2 && (componentClass2.isAssignableFrom(componentClass1))
+                || (isPremitive1 && componentClass2.isAssignableFrom(TypeHelper.getEquivalentClass(componentClass1)))){
             resultComponentClass = componentClass2;
         } else {
             resultComponentClass = Object.class;
         }
         resultArray = TypeHelper.getArrayFactory(resultComponentClass)
                 .orElse(null).apply(length1+length2);
-        BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object> arraySetAll = getArraySetAll(resultComponentClass);
-        return arraySetAll.orElse(null).apply(resultArray, elementGetter);
+        BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> arraySetAll = getArraySetAll(resultComponentClass);
+        try {
+            arraySetAll.accept(resultArray, elementGetter);
+            return resultArray;
+        }catch(Exception ex){
+            return null;
+        }
     }
 
+    //region Repository of setAll functions of any array whose element type is used as the key
+    private static final TripleValuesRepository<
+            Class,  //Type of the elements of the array is used as the key
 
+            BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>,       //Parallel setAll method
+            BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>,        //Serial setAll method
+            BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>>        //Default setAll method
+            arraySetters = TripleValuesRepository.fromKey( ArrayHelper::getAssetSetter);
 
-    private static final TripleValuesRepository<Class,
+    private static Map<Class, Tuple3<
+            BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
+                , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
+                , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>>> getArraysSetAll(){
+        Map<Class, Tuple3<
+                BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
+                , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
+                , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>>> map = new HashMap();
+        BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> parallelSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
+            Arrays.parallelSetAll((int[])array, i -> ((Integer)intFunction.orElse(0).apply(i)).intValue());
+        };
+        BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> serialSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
+            Arrays.setAll((int[])array, i -> ((Integer)intFunction.orElse(0).apply(i)).intValue());
+        };
+        BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> setAll = serialSetAll;
+        map.put(int.class, Tuple.create(parallelSetAll, serialSetAll, setAll));
 
-            BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object>,
-            BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object>,
-            BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object>>
-            arraySetters = TripleValuesRepository.fromKey(
-            ArrayHelper::getAssetSetter
-    );
+        parallelSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
+            Arrays.parallelSetAll((double[])array, i -> ((Double)intFunction.orElse(0d).apply(i)).doubleValue());
+        };
+        serialSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
+            Arrays.setAll((double[])array, i -> ((Double)intFunction.orElse(0).apply(i)).doubleValue());
+        };
+        setAll = serialSetAll;
+        map.put(double.class, Tuple.create(parallelSetAll, serialSetAll, setAll));
+
+        parallelSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
+            Arrays.parallelSetAll((long[])array, i -> ((Long)intFunction.orElse(0L).apply(i)).longValue());
+        };
+        serialSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
+            Arrays.setAll((long[])array, i -> ((Long)intFunction.orElse(0L).apply(i)).longValue());
+        };
+        setAll = serialSetAll;
+        map.put(long.class, Tuple.create(parallelSetAll, serialSetAll, setAll));
+        return map;
+    }
 
     private static Tuple3<
-            BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object>
-            , BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object>
-            , BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object>> getAssetSetter(Class componentClass){
+            BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
+            , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
+            , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>> getAssetSetter(Class componentClass){
         Objects.requireNonNull(componentClass);
         TriConsumerThrowable<Object, Integer, Object> elementSetter;
-        Boolean isPrimitive = TypeHelper.isPrimitive(componentClass);
-        if(isPrimitive){
-            Class equivalentComponentClass = TypeHelper.getEquivalentClass(componentClass);
-            Function<Object,Object> converter = TypeHelper.getToEquivalentConverter(equivalentComponentClass);
-            elementSetter = (array, index, element) ->
-                    TypeHelper.getArrayElementSetter(componentClass).accept(array, index, converter.apply(element));
-        } else {
-            elementSetter = TypeHelper.getArrayElementSetter(componentClass);
-        }
+        elementSetter = TypeHelper.getArrayElementSetter(componentClass);
 
         TriFunctionThrowable.TriFunction<Object, Integer, Object, Boolean> setElementWithException =
                 (array, index, element) ->  {
@@ -151,49 +220,76 @@ public class ArrayHelper<T, R> {
                 return true;
             }
         };
-        BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object> parallelSetAll = (array, generator) -> {
+        BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> parallelSetAll = (array, generator) -> {
             int length = Array.getLength(array);
             Integer indexWithException = IntStream.range(0, length).boxed()
                     .parallel()
                     .filter(i -> setElementWithException.apply(array, i, generator.orElse(null).apply(i)))
                     .findFirst().orElse(-1);
-            return indexWithException == -1 ? array : null;
         };
 
-        BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object> serialSetAll = (array, generator) -> {
+        BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> serialSetAll = (array, generator) -> {
             int length = Array.getLength(array);
             for (int i = 0; i < length; i++) {
                 Object element = generator.apply(i);
                 elementSetter.accept(array, i, element);
             }
-            return array;
         };
 
-        BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object> defaultSetAll = (array, generator) -> {
+        BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> defaultSetAll = (array, generator) -> {
             int length = Array.getLength(array);
             if(length < TypeHelper.PARALLEL_EVALUATION_THRESHOLD) {
                 for (int i = 0; i < length; i++) {
                     Object element = generator.apply(i);
                     elementSetter.accept(array, i, element);
                 }
-                return array;
             } else {
                 Integer indexWithException = IntStream.range(0, length).boxed()
                         .parallel()
                         .filter(i -> setElementWithException.apply(array, i, generator.orElse(null).apply(i)))
                         .findFirst().orElse(-1);
-                return indexWithException == -1 ? array : null;
             }
         };
 
         return Tuple.create(parallelSetAll, serialSetAll, defaultSetAll);
     }
 
-    public static BiFunctionThrowable<Object, FunctionThrowable<Integer, Object>, Object> getArraySetAll(Class clazz){
+    public static BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> getArraySetAllParallel(Class clazz){
+        Objects.requireNonNull(clazz);
+
+        return arraySetters.getFirstValue(clazz);
+    }
+
+    public static BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> getArraySetAllSerial(Class clazz){
+        Objects.requireNonNull(clazz);
+
+        return arraySetters.getSecondValue(clazz);
+    }
+
+    public static BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> getArraySetAll(Class clazz){
         Objects.requireNonNull(clazz);
 
         return arraySetters.getThirdValue(clazz);
     }
+
+    public static void setAllParallel(Object array, FunctionThrowable<Integer, Object> generator){
+        try {
+            getArraySetAllParallel(getComponentType(array)).accept(array, generator);
+        }catch (Exception ex){}
+    }
+
+    public static void setAllSerial(Object array, FunctionThrowable<Integer, Object> generator){
+        try {
+            getArraySetAllSerial(getComponentType(array)).accept(array, generator);
+        }catch (Exception ex){}
+    }
+
+    public static void setAll(Object array, FunctionThrowable<Integer, Object> generator){
+        try {
+            getArraySetAll(getComponentType(array)).accept(array, generator);
+        }catch (Exception ex){}
+    }
+    //endregion
 
     public static Class objectify(Class clazz) {
         if (clazz == null || !clazz.isPrimitive())

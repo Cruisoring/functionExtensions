@@ -21,8 +21,7 @@ import static org.junit.Assert.*;
 public class TypeHelperTest {
 
     private static void assertValueEquals(Object a, Object b){
-        Logger.L(TypeHelper.deepToString(a));
-        Logger.L(TypeHelper.deepToString(b));
+        Logger.L("%s == %s %s", TypeHelper.deepToString(a), TypeHelper.deepToString(b), "?");
         assertTrue(TypeHelper.valueEquals(a, b));
         assertTrue(TypeHelper.valueEqualsSerial(a, b));
         assertTrue(TypeHelper.valueEqualsParallel(a, b));

@@ -15,6 +15,35 @@ import static org.junit.Assert.*;
 
 public class ArrayHelperTest {
 
+    private static int arraySize = 100;
+    private static final int[] expectedInts = new int[arraySize];
+    private static final char[] expectedChars = new char[arraySize];
+    private static final String[] expectedStrings = new String[arraySize];
+
+    static {
+        for (int i = 0; i < arraySize; i++) {
+            expectedInts[i] = i+100;
+            expectedChars[i] = (char)('a'+i);
+            expectedStrings[i] = String.valueOf(i);
+        }
+    }
+
+    private final int[] paraInts = new int[arraySize];
+    private final int[] serialInts = new int[arraySize];
+    private final int[] ints = new int[arraySize];
+
+    private static void assertValueEquals(Object a, Object b){
+        Logger.L("%s == %s %s", TypeHelper.deepToString(a), TypeHelper.deepToString(b), "?");
+        assertTrue(TypeHelper.valueEquals(a, b));
+        assertTrue(TypeHelper.valueEqualsSerial(a, b));
+        assertTrue(TypeHelper.valueEqualsParallel(a, b));
+    }
+
+    private static void assertDeepEquals(Object a, Object b){
+        Logger.L("%s ???? %s", TypeHelper.deepToString(a), TypeHelper.deepToString(b));
+        assertTrue(Objects.deepEquals(a, b));
+    }
+
     @Test
     public void getComponentType() {
         assertEquals(Object.class, ArrayHelper.getComponentType(new Object[0]));
@@ -49,6 +78,108 @@ public class ArrayHelperTest {
         lists[2] = new ArrayList();
     }
 
+    @Test
+    public void mergeTypedArray(){
+        assertValueEquals(new int[]{1,2,3,4}, ArrayHelper.mergeTypedArray(new Integer[]{1,2}, 3, 4));
+        assertValueEquals(new int[]{1,2}, ArrayHelper.mergeTypedArray(new Integer[]{1,2}));
+        assertValueEquals(new int[]{1,2,3,4}, ArrayHelper.mergeTypedArray(new Integer[]{1,2}, new Integer[]{3, 4}));
+        assertValueEquals(new int[]{1,2}, ArrayHelper.mergeTypedArray(new Integer[]{1,2}, new Integer[0]));
+        assertValueEquals(new Number[]{1,2,3,4.4}, ArrayHelper.mergeTypedArray(new Number[]{1,2}, 3, 4.4));
+
+        assertValueEquals(new Object[]{1, null}, ArrayHelper.mergeTypedArray(new Object[]{1}, new Object[]{null}));
+        assertValueEquals(new Object[]{1, null, null}, ArrayHelper.mergeTypedArray(new Object[]{1}, null, null));
+        assertValueEquals(new Object[]{null, null}, ArrayHelper.mergeTypedArray(new Object[]{}, null, null));
+    }
+
+    @Test
+    public void arrayOf(){
+        //when <code>others</code> is emtpy, returns either copy of the first array when it is array,
+        // or a new array containing only the first argument when it is not array
+        assertDeepEquals(new Integer[]{1}, ArrayHelper.arrayOf(1));
+        assertDeepEquals(new Integer[]{1}, ArrayHelper.arrayOf(new Integer[]{1}));
+        int[] ints = new int[]{1,2};
+        assertNotEquals(ints, ArrayHelper.arrayOf(ints));       //verify arrayOf() returns a new array
+        assertDeepEquals(new int[]{1,2,3}, ArrayHelper.arrayOf(new int[]{1,2,3}));
+
+        //when component type of first and others are identical, retuns a array of the same type containing all their elements
+        assertDeepEquals(new Integer[]{1,2}, ArrayHelper.arrayOf(1,2));
+        assertDeepEquals(new Integer[]{1,2}, ArrayHelper.arrayOf(new Integer[]{1},2));
+        assertDeepEquals(new Integer[]{1,2}, ArrayHelper.arrayOf(new Integer[]{1}, new Integer[]{2}));
+        assertDeepEquals(new int[]{1,2}, ArrayHelper.arrayOf(new int[]{1}, new int[]{2}));
+        assertDeepEquals(new int[]{2}, ArrayHelper.arrayOf(new int[]{}, new int[]{2}));
+        assertDeepEquals(new Integer[]{1,2,3}, ArrayHelper.arrayOf(1,2,3));
+
+        //when component type of first and others are equivalent, retuns a array of the object type containing all their elements
+        assertDeepEquals(new Integer[]{1,2,3}, ArrayHelper.arrayOf(new int[]{1,2}, 3));
+        assertDeepEquals(new Integer[]{1,2,3}, ArrayHelper.arrayOf(new int[]{1},2, 3));
+        assertDeepEquals(new Integer[]{1,2,3}, ArrayHelper.arrayOf(new int[]{},1, 2, 3));
+
+        //when component type of first is assignable from the second, retuns a array of same type as first containing all their elements
+        assertDeepEquals(new Number[]{1,2,3}, ArrayHelper.arrayOf(new Number[]{},1, 2, 3));
+        assertDeepEquals(new Number[]{1,2,3.2f}, ArrayHelper.arrayOf(new Number[]{},1, 2, 3.2f));
+        assertDeepEquals(new Number[]{1,2,3.2f}, ArrayHelper.arrayOf(new Number[]{1},2, 3.2f));
+        assertDeepEquals(new Number[]{1,2,3.2f}, ArrayHelper.arrayOf(new Number[]{1,2, 3.2f},new Integer[0]));
+        assertDeepEquals(new Number[]{1,2,3.2f, 4.4, 5.5d}, ArrayHelper.arrayOf(new Number[]{1,2, 3.2f},new Double[]{4.4, 5.5}));
+        Object array = ArrayHelper.arrayOf(new Comparable[]{'a', "OK"},new int[]{1, 2, 3});
+        assertDeepEquals(new Comparable[]{'a', "OK",1,2,3}, array);
+        assertEquals(Comparable[].class, array.getClass());
+
+        array = ArrayHelper.arrayOf(new Number[]{1, 2.2f, 3.3}, new float[]{4.4f});
+        assertEquals(Number[].class, array.getClass());
+        assertDeepEquals(new Number[]{1, 2.2f, 3.3, 4.4f}, array);
+
+        array = ArrayHelper.arrayOf(new Object[]{null, 'a'}, new Number[]{1, 2.2f, 3.3, 4.4f});
+        assertEquals(Object[].class, array.getClass());
+        assertDeepEquals(new Object[]{null, 'a', 1, 2.2f, 3.3, 4.4f}, array);
+
+        //when component type of second is assignable from the first, retuns a array of same type as second containing all their elements
+        array = ArrayHelper.arrayOf(new int[]{1, 2, 3}, new Comparable[]{'a', "OK"});
+        assertDeepEquals(new Comparable[]{1,2,3, 'a', "OK"}, array);
+        assertEquals(Comparable[].class, array.getClass());
+
+        array = ArrayHelper.arrayOf(-1.0f, new Number[]{1, 2.2f, 3.3});
+        assertEquals(Number[].class, array.getClass());
+        assertDeepEquals(new Number[]{-1.0f, 1, 2.2f, 3.3}, array);
+
+        array = ArrayHelper.arrayOf(new Number[]{1, 2.2f, 3.3, 4.4f}, new Object[]{null, 'a'});
+        assertEquals(Object[].class, array.getClass());
+        assertDeepEquals(new Object[]{1, 2.2f, 3.3, 4.4f, null, 'a'}, array);
+
+        //otherwise, returns either a new Object[] containing all their elements
+        array = ArrayHelper.arrayOf(new int[]{1, 2, 3}, new String[]{null, "OK"});
+        assertDeepEquals(new Object[]{1,2,3, null, "OK"}, array);
+        assertEquals(Object[].class, array.getClass());
+
+        Object list = new ArrayList();
+        array = ArrayHelper.arrayOf(list, new Number[]{1, 2.2f, 3.3});
+        assertEquals(Object[].class, array.getClass());
+        assertDeepEquals(new Object[]{list, 1, 2.2f, 3.3}, array);
+
+        array = ArrayHelper.arrayOf(new Object[]{1, 2.2f, 3.3, 4.4f, list}, new Object[]{null, 'a'});
+        assertEquals(Object[].class, array.getClass());
+        assertDeepEquals(new Object[]{1, 2.2f, 3.3, 4.4f, list, null, 'a'}, array);
+    }
+
+
+    @Test
+    public void setAll(){
+        ArrayHelper.setAll(ints, i -> i+100);
+        assertDeepEquals(expectedInts, ints);
+
+        ArrayHelper.setAllParallel(paraInts, i -> i+100);
+        assertDeepEquals(expectedInts, paraInts);
+
+        ArrayHelper.setAllParallel(serialInts, i -> i+100);
+        assertDeepEquals(expectedInts, serialInts);
+
+        char[] newChars = new char[arraySize];
+        ArrayHelper.setAllParallel(newChars, i -> (char)(i+'a'));
+        assertDeepEquals(expectedChars, newChars);
+
+        String[] newStrings = new String[arraySize];
+        ArrayHelper.setAll(newStrings, i -> String.valueOf(i));
+        assertDeepEquals(expectedStrings, newStrings);
+    }
 
     @Test
     public void asObjects() {
