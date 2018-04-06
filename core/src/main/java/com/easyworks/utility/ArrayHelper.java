@@ -287,25 +287,6 @@ public class ArrayHelper<T, R> {
     }
     //endregion
 
-    public static Class objectify(Class clazz) {
-        if (clazz == null || !clazz.isPrimitive())
-            return clazz;
-
-        return TypeHelper.getEquivalentClass(clazz);
-    }
-
-    public static Class[] objectify(Class[] classes) {
-        if (classes == null)
-            return null;
-
-        int size = classes.length;
-        Class[] result = new Class[size];
-        for (int i = 0; i < size; i++) {
-            result[i] = objectify(classes[i]);
-        }
-        return result;
-    }
-
 
 
 
@@ -456,18 +437,6 @@ public class ArrayHelper<T, R> {
                 }
             };
         }
-    }
-
-    public static <T> T[] copyOfRange(Object original, Integer from, Integer to) throws Exception {
-        Objects.requireNonNull(original);
-        Integer newLength = to - from;
-        if(newLength < 0)
-            throw new IllegalArgumentException(from + " > " + to);
-
-        T[] copy = (T[])getNewArray(original.getClass().getComponentType(), newLength);
-        System.arraycopy(original, from, copy, 0,
-                Math.min(Array.getLength(original) - from, newLength));
-        return copy;
     }
 
     public static Object[] asObjects(Object array) {

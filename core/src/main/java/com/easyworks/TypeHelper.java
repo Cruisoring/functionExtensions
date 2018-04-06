@@ -432,8 +432,7 @@ public class TypeHelper {
         int parameterCount = functionInterfaceMethod.getParameterCount();
         Class returnClass = functionInterfaceMethod.getReturnType();
 
-        Class[] paraClasses = ArrayHelper.objectify(parameterClasses);
-        return Tuple.create(paraClasses.length == parameterCount, paraClasses, returnClass);
+        return Tuple.create(parameterClasses.length == parameterCount, parameterClasses, returnClass);
     }
 
     /**
