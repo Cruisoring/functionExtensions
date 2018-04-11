@@ -320,7 +320,9 @@ public class TypeHelper {
      * This method compare two Objects that are not arrays or are both empty arrays
      * @param obj1  first Object to be compared
      * @param obj2  second Object to be compared
-     * @return  <code>true</code> if they are equal, <code>false</code> if they are not equal, otherwise <code>null</code>
+     * @return  <code>true</code> if they are equal,
+     *          <code>false</code> if they are not equal or cannot be assignedFrom,
+     *          otherwise <code>null</code>
      */
     private static Boolean simpleValueEquals(Object obj1, Object obj2) {
         if(obj1 == obj2 || (obj1 != null && obj1.equals(obj2)))
@@ -330,16 +332,18 @@ public class TypeHelper {
 
         Class class1 = obj1.getClass();
         Class class2 = obj2.getClass();
-        boolean isArray1 = class1.isArray();
-        boolean isArray2 = class2.isArray();
-        if(!isArray1 && !isArray2){
+        if(!class1.isArray() && !class2.isArray()){
             return  obj1.equals(obj2);
         }
 
-        Class equivalentClass1 = getEquivalentClass(class1);
-        if(equivalentClass1 != class2 && !class1.isAssignableFrom(class2) && !class2.isAssignableFrom(class1))
-            return false;
-        return null;
+        Class componentType1 = class1.getComponentType();
+        componentType1 = componentType1.isPrimitive() ? TypeHelper.getEquivalentClass(componentType1) : componentType1;
+        Class componentType2 = class2.getComponentType();
+        componentType2 = componentType2.isPrimitive() ? TypeHelper.getEquivalentClass(componentType2) : componentType2;
+        if(componentType1.isAssignableFrom(componentType2) || componentType2.isAssignableFrom(componentType1))
+            return null;
+
+        return false;
     }
 
     /**
@@ -351,9 +355,9 @@ public class TypeHelper {
      * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEquals(Object obj1, Object obj2){
-        final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2);
-        if (singleObjectConverter != null)
-            return singleObjectConverter;
+        final Boolean simpleEquals = simpleValueEquals(obj1, obj2);
+        if (simpleEquals != null)
+            return simpleEquals;
 
         return deepLengthEquals(obj1, obj2);
     }
@@ -950,7 +954,7 @@ public class TypeHelper {
     private static Tuple6<Boolean, Object, Class, Function<Object,Object>, Function<Object,Object>, Function<Object,Object>> makeBaseTypeConverters(Class clazz){
         Boolean isArray = clazz.isArray();
         if(!isArray && !clazz.isPrimitive())
-            return Tuple.create(false, null, null, returnsSelf, returnsSelf, returnsSelf);
+            return Tuple.create(false, null, OBJECT_CLASS, returnsSelf, returnsSelf, returnsSelf);
 
         Class componentClass = clazz.getComponentType();
         Boolean isPrimitive = isPrimitive(componentClass);

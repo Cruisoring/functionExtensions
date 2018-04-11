@@ -483,7 +483,7 @@ public class ArrayHelper<T, R> {
         return objects;
     }
 
-    public static Boolean[] convertArray(boolean[] values) {
+    public static Boolean[] toObject(boolean[] values) {
         if(values == null)
             return null;
 
@@ -492,53 +492,32 @@ public class ArrayHelper<T, R> {
         return (Boolean[])converter.apply(values);
     }
 
-    private static Function<Object, Object> toByteArray =
-            arrayConverters.getFirst(byte.class, Byte.class, null, null, null, null);
-
-    public static Byte[] convertArray(byte[] values) {
-        return (Byte[]) toByteArray.apply(values);
+    public static Byte[] toObject(byte[] values) {
+        return (Byte[]) TypeHelper.getToEquivalentConverter(byte[].class).apply(values);
     }
 
-    private static Function<Object, Object> toCharacterArray =
-            arrayConverters.getFirst(char.class, Character.class, null, null, null, null);
-
-    public static Character[] convertArray(char[] values) {
-        return (Character[]) toCharacterArray.apply(values);
+    public static Character[] toObject(char[] values) {
+        return (Character[]) TypeHelper.getToEquivalentConverter(char[].class).apply(values);
     }
 
-    private static Function<Object, Object> toFloatArray =
-            arrayConverters.getFirst(float.class, Float.class, null, null, null, null);
-
-    public static Float[] convertArray(float[] values) {
-        return (Float[]) toFloatArray.apply(values);
+    public static Float[] toObject(float[] values) {
+        return (Float[]) TypeHelper.getToEquivalentConverter(float[].class).apply(values);
     }
 
-    private static Function<Object, Object> toDoubleArray =
-            arrayConverters.getFirst(double.class, Double.class, null, null, null, null);
-
-    public static Double[] convertArray(double[] values) {
-        return (Double[]) toDoubleArray.apply(values);
+    public static Double[] toObject(double[] values) {
+        return (Double[]) TypeHelper.getToEquivalentConverter(double[].class).apply(values);
     }
 
-    private static Function<Object, Object> toIntegerArray =
-            arrayConverters.getFirst(int.class, Integer.class, null, null, null, null);
-
-    public static Integer[] convertArray(int[] values) {
-        return (Integer[]) toIntegerArray.apply(values);
+    public static Integer[] toObject(int[] values) {
+        return (Integer[]) TypeHelper.getToEquivalentConverter(int[].class).apply(values);
     }
 
-    private static Function<Object, Object> toShortArray =
-            arrayConverters.getFirst(short.class, Short.class, null, null, null, null);
-
-    public static Short[] convertArray(short[] values) {
-        return (Short[]) toShortArray.apply(values);
+    public static Short[] toObject(short[] values) {
+        return (Short[]) TypeHelper.getToEquivalentConverter(short[].class).apply(values);
     }
 
-    private static Function<Object, Object> toLongArray =
-            arrayConverters.getFirst(long.class, Long.class, null, null, null, null);
-
-    public static Long[] convertArray(long[] values) {
-        return (Long[]) toLongArray.apply(values);
+    public static Long[] toObject(long[] values) {
+        return (Long[]) TypeHelper.getToEquivalentConverter(long[].class).apply(values);
     }
 
     public static <T> Object mapArray(Object fromArray, Class<T> toElementType) {

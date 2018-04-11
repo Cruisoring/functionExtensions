@@ -59,7 +59,7 @@ public class ArrayHelperTest {
     public void getNewArray() {
         char[] chars = (char[]) ArrayHelper.getNewArray(char.class, 2);
         chars[1] = 'x';
-        assertTrue(TypeHelper.valueEquals(new Object[]{Character.valueOf((char)0), Character.valueOf('x')}, ArrayHelper.asObjects(chars)));
+        assertTrue(TypeHelper.valueEquals(new Object[]{Character.valueOf((char)0), Character.valueOf('x')}, chars));
 
         int[] ints = (int[])ArrayHelper.getNewArray(int.class, 10);
         assertEquals(10, ints.length);
@@ -263,15 +263,15 @@ public class ArrayHelperTest {
     @Test
     public void toIntegerArray() {
         int[] ints = new int[]{1, 2, 3};
-        Integer[] integers = ArrayHelper.convertArray(ints);
+        Integer[] integers = ArrayHelper.toObject(ints);
         assertNotNull(integers);
         assertEquals(3, integers.length);
         int[] intsBack = (int[])ArrayHelper.mapArray(integers, int.class);
 
-        integers = ArrayHelper.convertArray(new int[0]);
+        integers = ArrayHelper.toObject(new int[0]);
         assertEquals(0, integers.length);
         ints = null;
-        integers = ArrayHelper.convertArray(ints);
+        integers = ArrayHelper.toObject(ints);
         assertNull(integers);
     }
 
@@ -279,68 +279,68 @@ public class ArrayHelperTest {
     @Test
     public void toCharacterArray() {
         char[] chars = "abc".toCharArray();
-        Character[] characters = ArrayHelper.convertArray(chars);
+        Character[] characters = ArrayHelper.toObject(chars);
         assertEquals(3, characters.length);
 
-        characters = ArrayHelper.convertArray(new char[0]);
+        characters = ArrayHelper.toObject(new char[0]);
         assertEquals(0, characters.length);
         chars = null;
-        assertEquals(null, ArrayHelper.convertArray(chars));
+        assertEquals(null, ArrayHelper.toObject(chars));
     }
 
     @Test
     public void toByteArray() {
         byte[] bytes = new byte[]{3, 2};
-        Byte[] Bytes = ArrayHelper.convertArray(bytes);
+        Byte[] Bytes = ArrayHelper.toObject(bytes);
         assertEquals(2, Bytes.length);
 
-        assertEquals(0, ArrayHelper.convertArray(new byte[0]).length);
-        assertNull(ArrayHelper.convertArray(bytes=null));
+        assertEquals(0, ArrayHelper.toObject(new byte[0]).length);
+        assertNull(ArrayHelper.toObject(bytes=null));
     }
 
     @Test
     public void toBooleanArray() {
         boolean[] bools = new boolean[]{true, false, true};
-        Boolean[] booleans = ArrayHelper.convertArray(bools);
+        Boolean[] booleans = ArrayHelper.toObject(bools);
         assertEquals(3, booleans.length);
 
-        booleans = ArrayHelper.convertArray(new boolean[0]);
+        booleans = ArrayHelper.toObject(new boolean[0]);
         assertEquals(0, booleans.length);
         bools = null;
-        booleans = ArrayHelper.convertArray(bools);
+        booleans = ArrayHelper.toObject(bools);
         assertNull(booleans);
     }
 
     @Test
     public void toShortArray() {
-        assertEquals(0, ArrayHelper.convertArray(new short[0]).length);
-        assertEquals(1, ArrayHelper.convertArray(new short[]{3}).length);
+        assertEquals(0, ArrayHelper.toObject(new short[0]).length);
+        assertEquals(1, ArrayHelper.toObject(new short[]{3}).length);
         short[] shorts = null;
-        assertNull(ArrayHelper.convertArray(shorts));
+        assertNull(ArrayHelper.toObject(shorts));
     }
 
     @Test
     public void toLongArray() {
-        assertEquals(0, ArrayHelper.convertArray(new long[0]).length);
-        assertEquals(1, ArrayHelper.convertArray(new long[]{3}).length);
+        assertEquals(0, ArrayHelper.toObject(new long[0]).length);
+        assertEquals(1, ArrayHelper.toObject(new long[]{3}).length);
         long[] values = null;
-        assertNull(ArrayHelper.convertArray(values));
+        assertNull(ArrayHelper.toObject(values));
     }
 
     @Test
     public void toFloatArray() {
-        assertEquals(0, ArrayHelper.convertArray(new float[0]).length);
-        assertEquals(2, ArrayHelper.convertArray(new float[]{3f, 0.2f}).length);
+        assertEquals(0, ArrayHelper.toObject(new float[0]).length);
+        assertEquals(2, ArrayHelper.toObject(new float[]{3f, 0.2f}).length);
         float[] values = null;
-        assertNull(ArrayHelper.convertArray(values));
+        assertNull(ArrayHelper.toObject(values));
     }
 
     @Test
     public void toDoubleArray() {
-        assertEquals(0, ArrayHelper.convertArray(new double[0]).length);
-        assertEquals(2, ArrayHelper.convertArray(new double[]{3f, 0.2f}).length);
+        assertEquals(0, ArrayHelper.toObject(new double[0]).length);
+        assertEquals(2, ArrayHelper.toObject(new double[]{3f, 0.2f}).length);
         double[] values = null;
-        assertNull(ArrayHelper.convertArray(values));
+        assertNull(ArrayHelper.toObject(values));
     }
 
     @Test
