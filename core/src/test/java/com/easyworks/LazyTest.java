@@ -1,6 +1,5 @@
 package com.easyworks;
 
-import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +44,7 @@ public class LazyTest {
         }
 
         assertFalse(booleanLazy.isValueInitialized());
-        assertTrue(ArrayHelper.matchArrays(new String[]{"stringLazy changed: null -> 1234567", "integerLazy changed: null -> 44",
+        assertTrue(TypeHelper.valueEquals(new String[]{"stringLazy changed: null -> 1234567", "integerLazy changed: null -> 44",
                 "booleanLazy changed: null -> true", "booleanLazy changed: true -> null",
                 "integerLazy changed: 44 -> null", "stringLazy changed: 1234567 -> null"}, logs.toArray()));
     }

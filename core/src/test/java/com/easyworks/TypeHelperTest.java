@@ -329,12 +329,12 @@ public class TypeHelperTest {
         assertEquals(double.class, getEquivalentClass(Double.class));
         assertEquals(float.class, getEquivalentClass(Float.class));
 
-        assertEquals(null, getEquivalentClass(Object.class));
-        assertEquals(null, getEquivalentClass(Comparable.class));
-        assertEquals(null, getEquivalentClass(String.class));
-        assertEquals(null, getEquivalentClass(Function.class));
-        assertEquals(null, getEquivalentClass(A.class));
-        assertEquals(null, getEquivalentClass(ITest1.class));
+        assertEquals(Object.class, getEquivalentClass(Object.class));
+        assertEquals(Object.class, getEquivalentClass(Comparable.class));
+        assertEquals(Object.class, getEquivalentClass(String.class));
+        assertEquals(Object.class, getEquivalentClass(Function.class));
+        assertEquals(Object.class, getEquivalentClass(A.class));
+        assertEquals(Object.class, getEquivalentClass(ITest1.class));
     }
 
     @Test
@@ -357,12 +357,12 @@ public class TypeHelperTest {
         assertEquals(double[].class, getEquivalentClass(Double[].class));
         assertEquals(float[].class, getEquivalentClass(Float[].class));
 
-        assertEquals(null, getEquivalentClass(Object[].class));
-        assertEquals(null, getEquivalentClass(Comparable[].class));
-        assertEquals(null, getEquivalentClass(String[][].class));
-        assertEquals(null, getEquivalentClass(Function[].class));
-        assertEquals(null, getEquivalentClass(A[].class));
-        assertEquals(null, getEquivalentClass(ITest1[].class));
+        assertEquals(Object[].class, getEquivalentClass(Object[].class));
+        assertEquals(Object[].class, getEquivalentClass(Comparable[].class));
+        assertEquals(Object[][].class, getEquivalentClass(String[][].class));
+        assertEquals(Object[].class, getEquivalentClass(Function[].class));
+        assertEquals(Object[].class, getEquivalentClass(A[].class));
+        assertEquals(Object[].class, getEquivalentClass(ITest1[].class));
     }
 
     @Test
@@ -439,13 +439,13 @@ public class TypeHelperTest {
 
 
         Object[] objects = new Object[]{null, 0, void.class, 'a', "", null};
-        assertTrue(objects == TypeHelper.getToEquivalentParallelConverter(Object[].class).apply(objects));
+        assertTrue(TypeHelper.valueEquals(objects, TypeHelper.getToEquivalentParallelConverter(Object[].class).apply(objects)));
         Comparable[] comparables = new Comparable[]{1, 33f, -2d, 'a', "abc"};
-        assertTrue( comparables == TypeHelper.getToEquivalentParallelConverter(Comparable[].class).apply(comparables));
+        assertTrue(TypeHelper.valueEquals(comparables, TypeHelper.getToEquivalentParallelConverter(Comparable[].class).apply(comparables)));
         A[] newA = new A[]{};
-        assertTrue( newA == TypeHelper.getToEquivalentParallelConverter(A.class).apply(newA));
+        assertTrue(TypeHelper.valueEquals(newA, TypeHelper.getToEquivalentParallelConverter(A.class).apply(newA)));
         String[] strings = new String[]{null, "", "   "};
-        assertTrue( strings == TypeHelper.getToEquivalentParallelConverter(A.class).apply(strings));
+        assertTrue(TypeHelper.valueEquals(strings, TypeHelper.getToEquivalentParallelConverter(A.class).apply(strings)));
     }
 
     interface ITest1 {}
@@ -1115,5 +1115,66 @@ public class TypeHelperTest {
         String result = toString.apply(objects);
         assertTrue(classOperators.containsKey(Month.class) && classOperators.containsKey(Month[].class)
                 && classOperators.containsKey(SupplierThrowable.class) && classOperators.containsKey(SupplierThrowable[].class));
+    }
+
+    @Test
+    public void testToEquivalent(){
+        //For primitive types
+        assertEquals(Integer.valueOf(45), TypeHelper.toEquivalent(45));
+        Object converted = TypeHelper.toEquivalent(new int[]{1,2,3});
+        assertTrue(converted.getClass().equals(Integer[].class) && TypeHelper.valueEquals(new int[]{1,2,3}, converted));
+        converted = TypeHelper.toEquivalent(new int[][]{new int[]{1,2}, null, new int[]{3}});
+        assertTrue(converted.getClass().equals(Integer[][].class) &&
+                TypeHelper.valueEquals(new int[][]{new int[]{1,2}, null, new int[]{3}}, converted));
+
+        //For wrapper types
+        assertEquals(45, TypeHelper.toEquivalent(Integer.valueOf(45)));
+        assertNull(TypeHelper.toEquivalent(new Integer[]{1,2,null}));
+        converted = TypeHelper.toEquivalent(new Integer[]{1,2,3});
+        assertTrue(converted.getClass().equals(int[].class) && TypeHelper.valueEquals(new int[]{1,2,3}, converted));
+        converted = TypeHelper.toEquivalent(new Integer[][]{new Integer[]{1,2}, new Integer[]{3}, null, new Integer[]{4,5}});
+        assertTrue(converted.getClass().equals(int[][].class) &&
+                TypeHelper.valueEquals(new int[][]{new int[]{1,2}, new int[]{3}, null, new int[]{4,5}}, converted));
+
+        //Other types
+        String test = "test";
+        converted = TypeHelper.toEquivalent(test);
+        assertEquals(test, converted);
+        converted = TypeHelper.toEquivalent(new String[]{"a", "b"});
+        assertTrue(converted.getClass().equals(Object[].class) && TypeHelper.valueEquals(new String[]{"a", "b"}, converted));
+
+        Number[] numbers = new Number[]{1, 2d, 3f, 4L};
+        converted = TypeHelper.toEquivalent(numbers);
+        assertTrue(converted.getClass().equals(Object[].class) && Array.getLength(converted)==4);
+
+        Comparable[][][] comparables = new Comparable[][][]{ new Integer[][]{new Integer[0], new Integer[]{1}, new Integer[]{2,3}},
+                new String[][]{null, new String[]{"string1"}}, new Character[][]{new Character[]{'1'}}, new Boolean[][]{new Boolean[0], new Boolean[]{true, false}}};
+        converted = TypeHelper.toEquivalent(comparables);
+        assertTrue(converted.getClass().equals(Object[][][].class) && TypeHelper.valueEquals(comparables, converted));
+    }
+
+    @Test
+    public void testConvert() {
+        //For single object
+        assertEquals(Integer.valueOf(3), TypeHelper.convert(3, Integer.class));
+        assertEquals(true, TypeHelper.convert(Boolean.TRUE, boolean.class));
+
+        Object anyObject = new Object[]{1.0, 2f, 3L, 4, 5};
+        Object converted = TypeHelper.convert(anyObject, Number[].class);
+        assertTrue(converted.getClass().equals(Number[].class) && TypeHelper.valueEquals(converted, anyObject));
+        converted = TypeHelper.convert(anyObject, Comparable[].class);
+        assertTrue(converted.getClass().equals(Comparable[].class) && TypeHelper.valueEquals(converted, anyObject));
+
+        Integer[][][] integers = new Integer[][][]{new Integer[][]{new Integer[]{1}, null}, new Integer[0][]};
+        converted = TypeHelper.convert(integers, Object[].class);
+        //The Integer[][][] is converted to Object[]{Integer[][], Integer[][]}
+        assertTrue(converted.getClass().equals(Object[].class) && TypeHelper.valueEquals(converted, integers));
+
+        Number[] numbers = new Number[]{1, 2, 3, 4f, (byte)5, 6f};
+        Comparable[] comparables = TypeHelper.convertParallel(numbers, Comparable[].class);
+        assertNull(comparables);
+
+        Object[] objects = TypeHelper.convertSerial(numbers, Object[].class);
+        assertTrue(TypeHelper.valueEquals(numbers, objects));
     }
 }

@@ -332,15 +332,19 @@ public class TypeHelper {
 
         Class class1 = obj1.getClass();
         Class class2 = obj2.getClass();
-        if(!class1.isArray() && !class2.isArray()){
+        boolean isArray1 = class1.isArray();
+        boolean isArray2 = class2.isArray();
+
+        if( isArray1 != isArray2)
+            return false;
+        else if(!isArray1)
             return  obj1.equals(obj2);
-        }
 
         Class componentType1 = class1.getComponentType();
         componentType1 = componentType1.isPrimitive() ? TypeHelper.getEquivalentClass(componentType1) : componentType1;
         Class componentType2 = class2.getComponentType();
         componentType2 = componentType2.isPrimitive() ? TypeHelper.getEquivalentClass(componentType2) : componentType2;
-        if(componentType1.isAssignableFrom(componentType2) || componentType2.isAssignableFrom(componentType1))
+        if(areEquivalent(componentType1, componentType2)|| componentType1.isAssignableFrom(componentType2) || componentType2.isAssignableFrom(componentType1))
             return null;
 
         return false;
@@ -1087,7 +1091,7 @@ public class TypeHelper {
     }
 
     /**
-     * Get the converter of one class to its corresponding equivalent class
+     * Get the parallel converter of one class to its corresponding equivalent class
      * <ul>
      *     <li>when there is an equivalent class of the concerned class, the returned Function would convert value of the
      *     concerned class to value of its equivalent class (Notice: primitive types would be wrapped)</li>
@@ -1111,197 +1115,100 @@ public class TypeHelper {
         return baseTypeConverters.getSixthValue(clazz);
     }
 
-    //region Repository to keep deep converters and deep predicate of two classes
+    /**
+     * Convert an Object to its equivalent form.
+     * <ul>
+     *     <li>For primitive types, like int, byte[], char[][], the <tt>obj</tt> is converted to Integer, Byte[] and Character[][] respectively</li>
+     *     <li>For wrapper types, like Boolean, Double[], Float[][], the <tt>obj</tt> is converted to boolean, double[] and float[][] respectively</li>
+     *     <li>For other types, they would be converted to Object, Object[] based on if they are Array and their dimension</li>
+     * </ul>
+     * @param obj   Object to be converted to its equivalent form
+     * @return      Converted Object containing same values in possible different forms
+     */
+    public static Object toEquivalent(Object obj){
+        Objects.requireNonNull(obj);
+        return getToEquivalentConverter(obj.getClass()).apply(obj);
+    }
+
+    //region Repository to keep deep converters of two classes
     /**
      * This repository use two classes as its key:
-     * #    fromClass:  the class of the first value to be predicated, or the type of source value to be converted by the converters
-     * #    toClass:    the class of the second value to be predicated, or the target type to be converted to by the converters
+     * #    fromClass:  the type of source value to be converted by the converters
+     * #    toClass:    the target type to be converted to by the converters
      * to generate and cache tuple containing:
      * #    parallelConverter:  Convert the object of type fromClass to value of type toClass in parallel
      * #    serialConverter:  Convert the object of type fromClass to value of type toClass in serial
      * #    defaultConverter:  Convert the object of type fromClass to value of type toClass either in parallel or in serial based on its length
-     * #    parallelPredicate:  Predicate if value of type fromClass is equal with value of type toClass in parallel
-     * #    serialPredicate:  Predicate if value of type fromClass is equal with value of type toClass in serial
-     * #    defaultPredicate:  Predicate if value of type fromClass is equal with value of type toClass, in parallel or in serial based on its length
      */
-    public static final HexaValuesRepository.DualKeys<
-            Class       //fromClass
-            ,Class      //toClass
+    public static final TripleValuesRepository.DualKeys<
+            Class, Class   //fromClass & toClass as the keys
 
             , Function<Object, Object>          //Convert the first object to another in parallel
             , Function<Object, Object>          //Convert the first object to another serially
             , Function<Object, Object>          //Convert the first object by default, in parallel or serial based on the length of the array
-            , BiPredicate<Object,Object>        //Predicate of deepEquals in parallel
-            , BiPredicate<Object,Object>        //Predicate of deepEquals in serial
-            , BiPredicate<Object,Object>        //Predicate of deepEquals by default, in parallel or serial based on the length of the array
-        > deepEvaluators = HexaValuesRepository.fromTwoKeys(
-            () -> new HashMap<Tuple2<Class,Class>,
-                    Tuple6<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>>>(){{
-                        put(Tuple.create(OBJECT_CLASS, OBJECT_CLASS),
-                                Tuple.create(returnsSelf, returnsSelf, returnsSelf, objectsEquals, objectsEquals, objectsEquals));
+            > deepConverters = TripleValuesRepository.fromTwoKeys(TypeHelper::getDeepEvaluators);
 
-                        put(Tuple.create(Object[].class, Object[].class),
-                                Tuple.create(returnsSelf, returnsSelf, returnsSelf,
-                                        (a,b)->arraysParallelDeepEquals((Object[])a, (Object[])b),
-                                        (a,b)->arraysSerialDeepEquals((Object[])a, (Object[])b),
-                                        (a,b)->arraysDeepEquals((Object[])a, (Object[])b)
-                                        ));
-            }},
-            null,
-            TypeHelper::getDeepEvaluators
-        );
+    private static Map<Tuple2<Class, Class>, Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>> getConverterMap(){
+        return new HashMap<Tuple2<Class, Class>, Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>>();
+    }
 
-    private static Tuple6<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>, BiPredicate<Object, Object>>
-        getDeepEvaluators(Class class1, Class class2) throws Exception {
-        Objects.requireNonNull(class1);
-        Objects.requireNonNull(class2);
+    private static Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>
+        getDeepEvaluators(Class fromClass, Class toClass) throws Exception {
+        Objects.requireNonNull(fromClass);
+        Objects.requireNonNull(toClass);
 
-        BiPredicate<Object,Object> parallelPredicate, serialPredicate, defaultPredicate;
+        boolean isFromArray = fromClass.isArray();
+        boolean isToArray = toClass.isArray();
 
-        if(!class1.isArray() && !class2.isArray()){
-            if(Objects.equals(class1, class2)){
+        if(!isFromArray && !isToArray){
+            if(Objects.equals(fromClass, toClass)){
                 //They are identical classes, no converter needed, user the Objects.equals as comparator
-                parallelPredicate = serialPredicate = defaultPredicate = objectsEquals;
-                return Tuple.create(returnsSelf, returnsSelf, returnsSelf,
-                        parallelPredicate, serialPredicate, defaultPredicate);
-            } else if (Objects.equals(getEquivalentClass(class1), class2)){
+                return Tuple.create(returnsSelf, returnsSelf, returnsSelf);
+            } else if (Objects.equals(getEquivalentClass(fromClass), toClass)){
                 //One class is primitive, another is its wrapper, so use corresponding converter
-                final Function<Object, Object> singleObjectConverter = getToEquivalentConverter(class1);
-                parallelPredicate = serialPredicate = defaultPredicate
-                        = (a, b) -> Objects.equals(singleObjectConverter.apply(a), b);
-                return Tuple.create(singleObjectConverter, singleObjectConverter, singleObjectConverter,
-                        parallelPredicate, serialPredicate, defaultPredicate);
-            } else if (class2.isAssignableFrom(class1)){
+                final Function<Object, Object> singleObjectConverter = getToEquivalentConverter(fromClass);
+                return Tuple.create(singleObjectConverter, singleObjectConverter, singleObjectConverter);
+            } else if (toClass.isAssignableFrom(fromClass)){
                 //Value of type class1 can be assigned to variable of type class2 directly, like ArrayList can be assigned to List
                 final Function<Object, Object> singleObjectConverter = returnsSelf;
-                //Use the Objects.equals in case equals() is override
-                parallelPredicate = serialPredicate = defaultPredicate = objectsEquals;
-                return Tuple.create(singleObjectConverter, singleObjectConverter, singleObjectConverter,
-                        parallelPredicate, serialPredicate, defaultPredicate);
-            } else if (class1.isAssignableFrom(class2)){
+                return Tuple.create(singleObjectConverter, singleObjectConverter, singleObjectConverter);
+            } else if (fromClass.isAssignableFrom(toClass)){
                 //Value of type class1 cannot be assigned to variable of type class2, use cast
-                final Function<Object, Object> singleObjectConverter = class2::cast;
-                //Use the Objects.equals in case equals() is override
-                parallelPredicate = serialPredicate = defaultPredicate = objectsEquals;
-                return Tuple.create(singleObjectConverter, singleObjectConverter, singleObjectConverter,
-                        parallelPredicate, serialPredicate, defaultPredicate);
+                final Function<Object, Object> singleObjectConverter = toClass::cast;
+                return Tuple.create(singleObjectConverter, singleObjectConverter, singleObjectConverter);
             } else {
                 //No chance to convert or equals
-                return Tuple.create(mapsToNull, mapsToNull, mapsToNull,
-                        alwaysFalse, alwaysFalse, alwaysFalse);
+                return Tuple.create(mapsToNull, mapsToNull, mapsToNull);
             }
+        } else if(!isToArray){
+            return toClass.isAssignableFrom(fromClass) ?
+                    Tuple.create(returnsSelf, returnsSelf, returnsSelf)
+                    : Tuple.create(mapsToNull, mapsToNull, mapsToNull);
+        } else if(!isFromArray){
+            return Tuple.create(mapsToNull, mapsToNull, mapsToNull);
         }
 
-        Class componentClasses1 = class1.getComponentType();
-        Class componentClasses2 = class2.getComponentType();
-        BiPredicate<Object, Object> componentParallelPredicate = getParallelPredicate(componentClasses1, componentClasses2);
-        BiPredicate<Object, Object> componentSerialPredicate = getSerialPredicate(componentClasses1, componentClasses2);
-        BiPredicate<Object, Object> componentDefaultPredicate = getDefaultPredicate(componentClasses1, componentClasses2);
-
-        parallelPredicate = (obj1, obj2) -> {
-            if(Objects.equals(obj1, obj2))
-                return true;
-            else if(obj1 == null || obj2 == null)
-                return false;
-
-            int length = Array.getLength(obj1);
-            if(length != Array.getLength(obj2))
-                return false;
-
-            Predicate<Integer> elementEquals = i -> {
-                try {
-                    Object element1 = Array.get(obj1, i);
-                    Object element2 = Array.get(obj2, i);
-                    return componentParallelPredicate.test(element1, element2);
-                }catch (Exception ex){
-                    return false;
-                }
-            };
-
-            boolean result = IntStream.range(0, length).boxed().parallel()
-                    .allMatch(elementEquals);
-            return result;
-        };
-
-        serialPredicate = (obj1, obj2) -> {
-            if(Objects.equals(obj1, obj2))
-                return true;
-            else if(obj1 == null || obj2 == null)
-                return false;
-
-            int length = Array.getLength(obj1);
-            if(length != Array.getLength(obj2))
-                return false;
-
-            try {
-                for (int i = 0; i < length; i++) {
-                    Object element1 = Array.get(obj1, i);
-                    Object element2 = Array.get(obj2, i);
-                    if(!componentSerialPredicate.test(element1, element2))
-                        return false;
-                }
-                return true;
-            }catch(Exception ex){
-                return false;
-            }
-        };
-
-        defaultPredicate = (obj1, obj2) -> {
-            if(Objects.equals(obj1, obj2))
-                return true;
-            else if(obj1 == null || obj2 == null)
-                return false;
-
-            int length = Array.getLength(obj1);
-            if(length != Array.getLength(obj2))
-                return false;
-
-            if(length < PARALLEL_EVALUATION_THRESHOLD){
-                try {
-                    for (int i = 0; i < length; i++) {
-                        Object element1 = Array.get(obj1, i);
-                        Object element2 = Array.get(obj2, i);
-                        if(!componentDefaultPredicate.test(element1, element2))
-                            return false;
-                    }
-                    return true;
-                }catch(Exception ex){
-                    return false;
-                }
-            }else{
-                Predicate<Integer> elementEquals = i -> {
-                    try {
-                        Object element1 = Array.get(obj1, i);
-                        Object element2 = Array.get(obj2, i);
-                        return componentDefaultPredicate.test(element1, element2);
-                    }catch (Exception ex){
-                        return false;
-                    }
-                };
-
-                boolean result = IntStream.range(0, length).boxed().parallel()
-                        .allMatch(elementEquals);
-                return result;
-            }
-        };
+        Class fromComponentClass = fromClass.getComponentType();
+        Class toComponentClass = toClass.getComponentType();
 
         //Now both type are of array
         //First, check fromClass and toClass is identical
-        if(class1.equals(class2)){
-            return Tuple.create(returnsSelf, returnsSelf, returnsSelf, parallelPredicate, serialPredicate, defaultPredicate);
-        }else if(!getClassEqualitor(class1).test(class2)) {
+        if(fromComponentClass.equals(toComponentClass)){
+            return Tuple.create(returnsSelf, returnsSelf, returnsSelf);
+        }else if(!getClassEqualitor(fromComponentClass).test(toComponentClass) && !toComponentClass.isAssignableFrom(fromComponentClass)) {
             //Second, check to see if fromClass is equivalent to toClass
             // Use the equivalent converter if they are
-            return Tuple.create(mapsToNull, mapsToNull, mapsToNull, alwaysFalse, alwaysFalse, alwaysFalse);
+            return Tuple.create(mapsToNull, mapsToNull, mapsToNull);
         }
 
-        FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(componentClasses2);
-        TriConsumerThrowable<Object, Integer, Object> toElementSetter = getArrayElementSetter(componentClasses2);
+        FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(toComponentClass);
+        TriConsumerThrowable<Object, Integer, Object> toElementSetter = getArrayElementSetter(toComponentClass);
 
-        Function<Object, Object> serialElementConverter = getToEquivalentSerialConverter(componentClasses1);
+        Function<Object, Object> elementConverter = (getEquivalentClass(fromClass).equals(toClass)) ?
+                getToEquivalentSerialConverter(fromComponentClass) : returnsSelf;
 
         TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> elementMappingWithException =
-                getExceptionWithMapping(toElementSetter, serialElementConverter);
+                getExceptionWithMapping(toElementSetter, elementConverter);
 
         Function<Object, Object> parallelConverter = (fromArray) -> {
             if (fromArray == null) return null;
@@ -1325,7 +1232,7 @@ public class TypeHelper {
                 Object toArray = factory.apply(length);
                 for (int i = 0; i < length; i++) {
                     Object fromElement = Array.get(fromArray, i);
-                    Object convertedElement = serialElementConverter.apply(fromElement);
+                    Object convertedElement = elementConverter.apply(fromElement);
                     toElementSetter.accept(toArray, i, convertedElement);
                 }
                 return toArray;
@@ -1342,7 +1249,7 @@ public class TypeHelper {
                 if(length < PARALLEL_EVALUATION_THRESHOLD) {
                     for (int i = 0; i < length; i++) {
                         Object fromElement = Array.get(fromArray, i);
-                        Object convertedElement = serialElementConverter.apply(fromElement);
+                        Object convertedElement = elementConverter.apply(fromElement);
                         toElementSetter.accept(toArray, i, convertedElement);
                     }
                     return toArray;
@@ -1358,119 +1265,77 @@ public class TypeHelper {
             }
         };
 
-        return Tuple.create(parallelConverter, serialConverter, defaultConverter,
-                parallelPredicate, serialPredicate, defaultPredicate);
+        return Tuple.create(parallelConverter, serialConverter, defaultConverter);
     }
     //endregion
 
-    public static <T,U> boolean arraysSerialDeepEquals(T[] array1, U[] array2){
-        if(Objects.equals(array1, array2))
-            return true;
-        else if(array1 == null || array2 == null)
-            return false;
+    /**
+     * Convert Object to another type either parallelly
+     * @param obj       Object to be converted that can be of Array
+     * @param toClass   Target type to be converted
+     * @param <T>       Target type to be converted
+     * @return          Converted instance
+     */
+    public static <T> T convertParallel(Object obj, Class<T> toClass){
+        if(obj == null)
+            return null;
 
-        int length = Array.getLength(array1);
-        if(length != Array.getLength(array2))
-            return false;
-
-        try {
-            for (int i = 0; i < length; i++) {
-                Object element1 = Array.get(array1, i);
-                Object element2 = Array.get(array2, i);
-                if(!Objects.equals(element1, element2))
-                    return false;
-            }
-            return true;
-        }catch(Exception ex){
-            return false;
-        }
+        Class fromClass = obj.getClass();
+        Function<Object, Object> converter = deepConverters.getFirst(fromClass, toClass);
+        return (T)converter.apply(obj);
     }
 
-    public static <T,U> boolean arraysParallelDeepEquals(T[] array1, U[] array2){
-        if(Objects.equals(array1, array2))
-            return true;
-        else if(array1 == null || array2 == null)
-            return false;
+    /**
+     * Convert Object to another type serially
+     * @param obj       Object to be converted that can be of Array
+     * @param toClass   Target type to be converted
+     * @param <T>       Target type to be converted
+     * @return          Converted instance
+     */
+    public static <T> T convertSerial(Object obj, Class<T> toClass){
+        if(obj == null)
+            return null;
 
-        int length = Array.getLength(array1);
-        if(length != Array.getLength(array2))
-            return false;
-
-        Predicate<Integer> elementEquals = i -> {
-            try {
-                Object element1 = Array.get(array1, i);
-                Object element2 = Array.get(array2, i);
-                return Objects.equals(element1, element2);
-            }catch (Exception ex){
-                return false;
-            }
-        };
-
-        boolean result = IntStream.range(0, length).boxed().parallel()
-                .allMatch(elementEquals);
-        return result;
+        Class fromClass = obj.getClass();
+        Function<Object, Object> converter = deepConverters.getSecond(fromClass, toClass);
+        return (T)converter.apply(obj);
     }
 
-    public static <T,U> boolean arraysDeepEquals(T[] array1, U[] array2){
-        if(Objects.equals(array1, array2))
-            return true;
-        else if(array1 == null || array2 == null)
-            return false;
+    /**
+     * Convert Object to another type either serially or parallelly
+     * @param obj       Object to be converted that can be of Array
+     * @param toClass   Target type to be converted
+     * @param <T>       Target type to be converted
+     * @return          Converted instance
+     */
+    public static <T> T convert(Object obj, Class<T> toClass){
+        if(obj == null)
+            return null;
 
-        int length = Array.getLength(array1);
-        if(length != Array.getLength(array2))
-            return false;
-
-        if(length < PARALLEL_EVALUATION_THRESHOLD){
-            try {
-                for (int i = 0; i < length; i++) {
-                    Object element1 = Array.get(array1, i);
-                    Object element2 = Array.get(array2, i);
-                    if(!valueEquals(element1, element2))
-                        return false;
-                }
-                return true;
-            }catch(Exception ex){
-                return false;
-            }
-        }else{
-            Predicate<Integer> elementEquals = i -> {
-                try {
-                    Object element1 = Array.get(array1, i);
-                    Object element2 = Array.get(array2, i);
-                    return valueEquals(element1, element2);
-                }catch (Exception ex){
-                    return false;
-                }
-            };
-
-            boolean result = IntStream.range(0, length).boxed().parallel()
-                    .allMatch(elementEquals);
-            return result;
-        }
+        Class fromClass = obj.getClass();
+        Function<Object, Object> converter = deepConverters.getThird(fromClass, toClass);
+        return (T)converter.apply(obj);
     }
 
-    public static BiPredicate<Object, Object> getParallelPredicate(Class class1, Class class2){
-        Objects.requireNonNull(class1);
-        Objects.requireNonNull(class2);
-
-        return deepEvaluators.getFourth(class1, class2);
-    }
-
-    public static BiPredicate<Object, Object> getSerialPredicate(Class class1, Class class2){
-        Objects.requireNonNull(class1);
-        Objects.requireNonNull(class2);
-
-        return deepEvaluators.getFifth(class1, class2);
-    }
-
-    public static BiPredicate<Object, Object> getDefaultPredicate(Class class1, Class class2){
-        Objects.requireNonNull(class1);
-        Objects.requireNonNull(class2);
-
-        return deepEvaluators.getSixth(class1, class2);
-    }
-
+    /**
+     * Returns a string representation of the "deep contents" of the specified
+     * array.  If the array contains other arrays as elements, the string
+     * representation contains their contents and so on.  This method is
+     * designed for converting multidimensional arrays to strings.
+     *
+     * <p>The string representation consists of a list of the array's
+     * elements, enclosed in square brackets (<tt>"[]"</tt>).  Adjacent
+     * elements are separated by the characters <tt>", "</tt> (a comma
+     * followed by a space).  Elements are converted to strings as by
+     * <tt>String.valueOf(Object)</tt>, unless they are themselves
+     * arrays.
+     *
+     * <p>This method returns <tt>"null"</tt> if the specified array
+     * is <tt>null</tt>.
+     *
+     * @param obj the object whose string representation to be returned
+     * @return a string represeting of <tt>obj</tt>
+     */
     public static String deepToString(Object obj){
         if(obj==null)
             return "null";

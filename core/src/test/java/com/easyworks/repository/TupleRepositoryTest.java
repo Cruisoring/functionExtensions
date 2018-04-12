@@ -1,10 +1,12 @@
 package com.easyworks.repository;
 
+import com.easyworks.TypeHelper;
 import com.easyworks.tuple.Set;
 import com.easyworks.tuple.Tuple;
-import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -14,7 +16,9 @@ public class TupleRepositoryTest {
         if(tuplesExpected.length != tuples.length)
             fail("Tuple array of different length");
 
-        if(!ArrayHelper.matchWithoutOrder(tuplesExpected, tuples)){
+        Arrays.sort(tuplesExpected);
+        Arrays.sort(tuples);
+        if(!TypeHelper.valueEquals(tuplesExpected, tuples)){
             Logger.L("Expected: %s    !=   %s", Tuple.of(tuplesExpected), Tuple.of(tuples));
             fail("Failed with Arrays.deepEquals after sorting");
         }

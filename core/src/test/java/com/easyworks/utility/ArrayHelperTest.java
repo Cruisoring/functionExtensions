@@ -1,15 +1,14 @@
 package com.easyworks.utility;
 
 import com.easyworks.TypeHelper;
-import com.easyworks.function.BiConsumerThrowable;
-import com.easyworks.tuple.Tuple;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
 import java.time.DayOfWeek;
 import java.time.Month;
-import java.util.*;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -181,67 +180,49 @@ public class ArrayHelperTest {
         assertDeepEquals(expectedStrings, newStrings);
     }
 
-    @Test
-    public void asObjects() {
-        int[] ints = new int[]{1,2,3};
-        Object[] objects = ArrayHelper.asObjects(ints);
-        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, objects));
+//    @Test
+//    public void asObjects() {
+//        int[] ints = new int[]{1,2,3};
+//        Object[] objects = ArrayHelper.asObjects(ints);
+//        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, objects));
+//
+//        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, ArrayHelper.asObjects(new Integer[]{1,2,3})));
+//
+//        DayOfWeek[] days = new DayOfWeek[]{DayOfWeek.FRIDAY, DayOfWeek.MONDAY};
+//        assertTrue(ArrayHelper.matchArrays(new Object[]{DayOfWeek.FRIDAY, DayOfWeek.MONDAY}, ArrayHelper.asObjects(days)));
+//
+//        Collection[] collections = new Collection[]{new ArrayList(), new HashSet()};
+//        objects = ArrayHelper.asObjects(collections);
+//        assertEquals(ArrayList.class, objects[0].getClass());
+//        assertEquals(HashSet.class, objects[1].getClass());
+//    }
+//
+//    @Test
+//    public void asArray() {
+//        assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new int[]{1,2,3})));
+//        assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new Integer[]{1,2,3})));
+//        assertTrue(TypeHelper.valueEquals(new DayOfWeek[]{DayOfWeek.MONDAY}, (DayOfWeek[])ArrayHelper.asArray(new DayOfWeek[]{DayOfWeek.MONDAY})));
+//        assertTrue(TypeHelper.valueEquals(new Tuple[]{Tuple.TRUE, Tuple.FALSE}, (Tuple[])ArrayHelper.asArray(new Tuple[]{Tuple.TRUE, Tuple.FALSE})));
+//    }
+//
+//    @Test
+//    public void asPureObject() {
+//        Object[] complexObjects = new Object[] {null, 23, new int[]{1, 2, 3}, DayOfWeek.FRIDAY,
+//                new DayOfWeek[]{DayOfWeek.MONDAY, null}, new Collection[]{null, null, null},
+//                new char[][]{new char[0], new char[]{'a', 'b', 'c'}}};
+//
+//        Object pureObject = ArrayHelper.asPureObject(complexObjects);
+//        Object[] objects = (Object[])pureObject;
+//        assertEquals(7, objects.length);
+//        assertEquals(null, objects[0]);
+//        assertEquals(23, objects[1]);
+//        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, (Object[])objects[2]));
+//        assertEquals(DayOfWeek.FRIDAY, objects[3]);
+//        assertTrue(ArrayHelper.matchArrays(new Object[]{DayOfWeek.MONDAY, null}, (Object[])objects[4]));
+//        assertTrue(ArrayHelper.matchArrays(new Object[]{null, null, null}, (Object[])objects[5]));
+//        assertTrue(ArrayHelper.matchArrays(new Object[]{new Object[0], new Object[]{'a', 'b', 'c'}}, (Object[])objects[6]));
+//    }
 
-        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, ArrayHelper.asObjects(new Integer[]{1,2,3})));
-
-        DayOfWeek[] days = new DayOfWeek[]{DayOfWeek.FRIDAY, DayOfWeek.MONDAY};
-        assertTrue(ArrayHelper.matchArrays(new Object[]{DayOfWeek.FRIDAY, DayOfWeek.MONDAY}, ArrayHelper.asObjects(days)));
-
-        Collection[] collections = new Collection[]{new ArrayList(), new HashSet()};
-        objects = ArrayHelper.asObjects(collections);
-        assertEquals(ArrayList.class, objects[0].getClass());
-        assertEquals(HashSet.class, objects[1].getClass());
-    }
-
-    @Test
-    public void asArray() {
-        assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new int[]{1,2,3})));
-        assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new Integer[]{1,2,3})));
-        assertTrue(TypeHelper.valueEquals(new DayOfWeek[]{DayOfWeek.MONDAY}, (DayOfWeek[])ArrayHelper.asArray(new DayOfWeek[]{DayOfWeek.MONDAY})));
-        assertTrue(TypeHelper.valueEquals(new Tuple[]{Tuple.TRUE, Tuple.FALSE}, (Tuple[])ArrayHelper.asArray(new Tuple[]{Tuple.TRUE, Tuple.FALSE})));
-    }
-
-    @Test
-    public void asPureObject() {
-        Object[] complexObjects = new Object[] {null, 23, new int[]{1, 2, 3}, DayOfWeek.FRIDAY,
-                new DayOfWeek[]{DayOfWeek.MONDAY, null}, new Collection[]{null, null, null},
-                new char[][]{new char[0], new char[]{'a', 'b', 'c'}}};
-
-        Object pureObject = ArrayHelper.asPureObject(complexObjects);
-        Object[] objects = (Object[])pureObject;
-        assertEquals(7, objects.length);
-        assertEquals(null, objects[0]);
-        assertEquals(23, objects[1]);
-        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, (Object[])objects[2]));
-        assertEquals(DayOfWeek.FRIDAY, objects[3]);
-        assertTrue(ArrayHelper.matchArrays(new Object[]{DayOfWeek.MONDAY, null}, (Object[])objects[4]));
-        assertTrue(ArrayHelper.matchArrays(new Object[]{null, null, null}, (Object[])objects[5]));
-        assertTrue(ArrayHelper.matchArrays(new Object[]{new Object[0], new Object[]{'a', 'b', 'c'}}, (Object[])objects[6]));
-    }
-
-    @Test
-    public void toArray() {
-        Collection<Object> collection = Arrays.asList(3, 'a', null, "String", DayOfWeek.FRIDAY, new char[]{'a'});
-        Object[] objects = ArrayHelper.toArray(collection, Object[].class);
-        assertEquals(6, objects.length);
-        assertNull(ArrayHelper.toArray(collection, Integer[].class));
-
-        collection = Arrays.asList(new int[]{1,2}, new boolean[0], new Character[]{'x'},
-                new Tuple[]{Tuple.TRUE, Tuple.UNIT}, new Enum[]{DayOfWeek.FRIDAY, Month.APRIL},
-                new Collection[]{new ArrayList(), null});
-        objects = ArrayHelper.toArray(collection, Object[].class);
-        assertEquals(6, objects.length);
-
-
-        Collection collection2 = Arrays.asList(new ArrayList(), null, new LinkedList());
-        List[] lists = (List[])ArrayHelper.toArray(collection2, List[].class);
-        assertEquals(3, lists.length);
-    }
 
     class A{}
     class B extends A{}
@@ -250,13 +231,13 @@ public class ArrayHelperTest {
     @Test
     public void convertArray() {
         A[] array = new A[]{ new B(), new C()};
-        B[] bArray = (B[]) ArrayHelper.mapArray(array, B.class);
+        B[] bArray = TypeHelper.convert(array, B[].class);
         assertEquals(2, bArray.length);
 
-        assertNull(ArrayHelper.mapArray(array, C.class));
+        assertNull(TypeHelper.convert(array, C[].class));
 
         Object[] objects = new Object[]{new A(), new B(), new C(), new D()};
-        A[] aArray = (A[])ArrayHelper.mapArray(objects, A.class);
+        A[] aArray = TypeHelper.convert(objects, A[].class);
         assertEquals(4, aArray.length);
     }
 
@@ -266,7 +247,7 @@ public class ArrayHelperTest {
         Integer[] integers = ArrayHelper.toObject(ints);
         assertNotNull(integers);
         assertEquals(3, integers.length);
-        int[] intsBack = (int[])ArrayHelper.mapArray(integers, int.class);
+        int[] intsBack = ArrayHelper.toPrimitive(integers);
 
         integers = ArrayHelper.toObject(new int[0]);
         assertEquals(0, integers.length);
@@ -343,82 +324,73 @@ public class ArrayHelperTest {
         assertNull(ArrayHelper.toObject(values));
     }
 
-    @Test
-    public void intsToObjects() {
-        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new int[0])));
-        assertTrue(TypeHelper.valueEquals(new Object[]{1,2,3}, ArrayHelper.asObjects(new int[]{1,2,3})));
-        int[] values = null;
-        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
+//    @Test
+//    public void intsToObjects() {
+//        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new int[0])));
+//        assertTrue(TypeHelper.valueEquals(new Object[]{1,2,3}, ArrayHelper.asObjects(new int[]{1,2,3})));
+//        int[] values = null;
+//        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
+//
+//        Integer[] integers = new Integer[]{1, 2, 3, 4, 5};
+//        Object[] objects = ArrayHelper.asObjects(integers);
+//        assertTrue(TypeHelper.valueEquals(new Object[]{1,2,3,4,5}, objects));
+//    }
+//
+//    @Test
+//    public void bytesToObjects() {
+//        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new byte[0])));
+//        assertTrue(TypeHelper.valueEquals(new Object[]{(byte)1,(byte)2,(byte)3}, ArrayHelper.asObjects(new byte[]{1,2,3})));
+//        byte[] values = null;
+//        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
+//    }
+//
+//    @Test
+//    public void booleansToObjects() {
+//        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new boolean[0])));
+//        assertTrue(TypeHelper.valueEquals(new Object[]{true, false}, ArrayHelper.asObjects(new boolean[]{true, false})));
+//        boolean[] values = null;
+//        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
+//    }
+//
+//    @Test
+//    public void charsToObjects() {
+//        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new char[0])));
+//        assertTrue(TypeHelper.valueEquals(new Object[]{'x', 'y'}, ArrayHelper.asObjects(new char[]{'x', 'y'})));
+//        char[] values = null;
+//        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
+//    }
+//
+//    @Test
+//    public void floatsToObjects() {
+//        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new float[0])));
+//        assertTrue(TypeHelper.valueEquals(new Object[]{1.2f,2f,-3f}, ArrayHelper.asObjects(new float[]{1.2f, 2f, -3f})));
+//        assertFalse(TypeHelper.valueEquals(new Object[]{1.2f,2,-3f}, ArrayHelper.asObjects(new float[]{1.2f, 2f, -3f})));
+//        float[] values = null;
+//        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
+//    }
+//
+//    @Test
+//    public void doublesToObjects() {
+//        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new double[0])));
+//        assertTrue(TypeHelper.valueEquals(new Object[]{1.3,2.0,3.0}, ArrayHelper.asObjects(new double[]{1.3,2.0,3.0})));
+//        double[] values = null;
+//        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
+//    }
+//
+//    @Test
+//    public void shortsToObjects() {
+//        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new short[0])));
+//        assertTrue(TypeHelper.valueEquals(new Object[]{(short)1, (short)2, (short)3}, ArrayHelper.asObjects(new short[]{1,2,3})));
+//        short[] values = null;
+//        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
+//    }
+//
+//    @Test
+//    public void longsToObjects() {
+//        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new long[0])));
+//        assertTrue(TypeHelper.valueEquals(new Object[]{1L,2L,3L}, ArrayHelper.asObjects(new long[]{1,2,3})));
+//        long[] values = null;
+//        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
+//    }
 
-        Integer[] integers = new Integer[]{1, 2, 3, 4, 5};
-        Object[] objects = ArrayHelper.asObjects(integers);
-        assertTrue(TypeHelper.valueEquals(new Object[]{1,2,3,4,5}, objects));
-    }
-
-    @Test
-    public void bytesToObjects() {
-        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new byte[0])));
-        assertTrue(TypeHelper.valueEquals(new Object[]{(byte)1,(byte)2,(byte)3}, ArrayHelper.asObjects(new byte[]{1,2,3})));
-        byte[] values = null;
-        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
-    }
-
-    @Test
-    public void booleansToObjects() {
-        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new boolean[0])));
-        assertTrue(TypeHelper.valueEquals(new Object[]{true, false}, ArrayHelper.asObjects(new boolean[]{true, false})));
-        boolean[] values = null;
-        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
-    }
-
-    @Test
-    public void charsToObjects() {
-        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new char[0])));
-        assertTrue(TypeHelper.valueEquals(new Object[]{'x', 'y'}, ArrayHelper.asObjects(new char[]{'x', 'y'})));
-        char[] values = null;
-        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
-    }
-
-    @Test
-    public void floatsToObjects() {
-        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new float[0])));
-        assertTrue(TypeHelper.valueEquals(new Object[]{1.2f,2f,-3f}, ArrayHelper.asObjects(new float[]{1.2f, 2f, -3f})));
-        assertFalse(TypeHelper.valueEquals(new Object[]{1.2f,2,-3f}, ArrayHelper.asObjects(new float[]{1.2f, 2f, -3f})));
-        float[] values = null;
-        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
-    }
-
-    @Test
-    public void doublesToObjects() {
-        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new double[0])));
-        assertTrue(TypeHelper.valueEquals(new Object[]{1.3,2.0,3.0}, ArrayHelper.asObjects(new double[]{1.3,2.0,3.0})));
-        double[] values = null;
-        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
-    }
-
-    @Test
-    public void shortsToObjects() {
-        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new short[0])));
-        assertTrue(TypeHelper.valueEquals(new Object[]{(short)1, (short)2, (short)3}, ArrayHelper.asObjects(new short[]{1,2,3})));
-        short[] values = null;
-        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
-    }
-
-    @Test
-    public void longsToObjects() {
-        assertTrue(TypeHelper.valueEquals(new Object[0], ArrayHelper.asObjects(new long[0])));
-        assertTrue(TypeHelper.valueEquals(new Object[]{1L,2L,3L}, ArrayHelper.asObjects(new long[]{1,2,3})));
-        long[] values = null;
-        assertTrue(TypeHelper.valueEquals(null, ArrayHelper.asObjects(values)));
-    }
-
-    @Test
-    public void getParallelSetAll_withPrimitiveTypes_getArraySet() {
-        BiConsumerThrowable<Object, Function<Integer, Object>> parallelSetAll;
-
-        parallelSetAll = ArrayHelper.getParallelSetAll(int.class);
-        int[] ints = new int[10];
-        parallelSetAll.orElse(null).accept(ints, i->i);
-        assertTrue(TypeHelper.valueEquals(new int[]{0,1,2,3,4,5,6,7,8,9}, ints));
-    }
 }
