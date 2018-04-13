@@ -9,7 +9,7 @@ import java.util.function.Supplier;
  * @param <R>   Type of the returned result.
  */
 @FunctionalInterface
-public interface SupplierThrowable<R> extends Supplierable<R> {
+public interface SupplierThrowable<R> extends AbstractThrowable {
 
     /**
      * Get a result

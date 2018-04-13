@@ -1,7 +1,5 @@
 package com.easyworks.function;
 
-import java.util.function.BiFunction;
-
 /**
  * Functional Interface to define the behaviours of handling Exception by considering return type of the Lambda Expression.
  * Notice: The following method shall be implmented: <code>T apply(Exception t, AbstractThrowable u);</code>

@@ -22,7 +22,7 @@ public class SingleValuesRepository<TKey, T>
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map any key to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 1 element
      * @param <TKey>  type of the first element of the Key
@@ -30,10 +30,10 @@ public class SingleValuesRepository<TKey, T>
      * @return      Constructed Repository to map 1 key to 1 value as a Tuple
      */
     public static <TKey, T> SingleValuesRepository<TKey, T> fromKey(
-            SupplierThrowable<Map<TKey, Tuple1<T>>> storageSupplier,
+            Map<TKey, Tuple1<T>> map,
             TriConsumerThrowable<TKey, Tuple1<T>, Tuple1<T>> changesConsumer,
             FunctionThrowable<TKey, Tuple1<T>> valueFunction){
-        return new SingleValuesRepository(storageSupplier, changesConsumer, valueFunction);
+        return new SingleValuesRepository(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -53,7 +53,7 @@ public class SingleValuesRepository<TKey, T>
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 1 element
      * @param <K1>  type of the first element of the Key
@@ -61,17 +61,17 @@ public class SingleValuesRepository<TKey, T>
      * @return      Constructed Repository to map 1 key to 1 value as a Tuple
      */
     public static <K1, T> SingleKeys<K1, T> fromOneKeys(
-            SupplierThrowable<Map<Tuple1<K1>, Tuple1<T>>> storageSupplier,
+            Map<Tuple1<K1>, Tuple1<T>> map,
             TriConsumerThrowable<Tuple1<K1>, Tuple1<T>, Tuple1<T>> changesConsumer,
             FunctionThrowable<K1, Tuple1<T>> valueFunction){
-        return new SingleKeys(storageSupplier, changesConsumer, valueFunction);
+        return new SingleKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 2 keys to Tuple of 1 element
      * @param <K1>  type of the first element of the Key
@@ -80,17 +80,17 @@ public class SingleValuesRepository<TKey, T>
      * @return      Constructed Repository to map 2 keys to 1 value as a Tuple
      */
     public static <K1,K2, T> DualKeys<K1,K2, T> fromTwoKeys(
-            SupplierThrowable<Map<Tuple2<K1,K2>, Tuple1<T>>> storageSupplier,
+            Map<Tuple2<K1,K2>, Tuple1<T>> map,
             TriConsumerThrowable<Tuple2<K1,K2>, Tuple1<T>, Tuple1<T>> changesConsumer,
             BiFunctionThrowable<K1,K2, Tuple1<T>> valueFunction){
-        return new DualKeys(storageSupplier, changesConsumer, valueFunction);
+        return new DualKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 3 keys to Tuple of 1 element
      * @param <K1>  type of the first element of the Key
@@ -100,17 +100,17 @@ public class SingleValuesRepository<TKey, T>
      * @return      Constructed Repository to map 3 keys to 1 value as a Tuple
      */
     public static <K1,K2,K3, T> TripleKeys<K1,K2,K3, T> fromThreeKeys(
-            SupplierThrowable<Map<Tuple3<K1,K2,K3>, Tuple1<T>>> storageSupplier,
+            Map<Tuple3<K1,K2,K3>, Tuple1<T>> map,
             TriConsumerThrowable<Tuple3<K1,K2,K3>, Tuple1<T>, Tuple1<T>> changesConsumer,
             TriFunctionThrowable<K1,K2,K3, Tuple1<T>> valueFunction){
-        return new TripleKeys(storageSupplier, changesConsumer, valueFunction);
+        return new TripleKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 4 keys to Tuple of 1 element
      * @param <K1>  type of the first element of the Key
@@ -121,17 +121,17 @@ public class SingleValuesRepository<TKey, T>
      * @return      Constructed Repository to map 4 keys to 1 value as a Tuple
      */
     public static <K1,K2,K3,K4, T> QuadKeys<K1,K2,K3,K4, T> fromFourKeys(
-            SupplierThrowable<Map<Tuple4<K1,K2,K3,K4>, Tuple1<T>>> storageSupplier,
+            Map<Tuple4<K1,K2,K3,K4>, Tuple1<T>> map,
             TriConsumerThrowable<Tuple4<K1,K2,K3,K4>, Tuple1<T>, Tuple1<T>> changesConsumer,
             QuadFunctionThrowable<K1,K2,K3,K4, Tuple1<T>> valueFunction){
-        return new QuadKeys(storageSupplier, changesConsumer, valueFunction);
+        return new QuadKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 5 keys to Tuple of 1 element
      * @param <K1>  type of the first element of the Key
@@ -143,17 +143,17 @@ public class SingleValuesRepository<TKey, T>
      * @return      Constructed Repository to map 5 keys to 1 value as a Tuple
      */
     public static <K1,K2,K3,K4,K5, T> PentaKeys<K1,K2,K3,K4,K5, T> fromFiveKeys(
-            SupplierThrowable<Map<Tuple5<K1,K2,K3,K4,K5>, Tuple1<T>>> storageSupplier,
+            Map<Tuple5<K1,K2,K3,K4,K5>, Tuple1<T>> map,
             TriConsumerThrowable<Tuple5<K1,K2,K3,K4,K5>, Tuple1<T>, Tuple1<T>> changesConsumer,
             PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple1<T>> valueFunction){
-        return new PentaKeys(storageSupplier, changesConsumer, valueFunction);
+        return new PentaKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 6 keys to Tuple of 1 element
      * @param <K1>  type of the first element of the Key
@@ -166,17 +166,17 @@ public class SingleValuesRepository<TKey, T>
      * @return      Constructed Repository to map 6 keys to 1 value as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6, T> HexaKeys<K1,K2,K3,K4,K5,K6, T> fromSixKeys(
-            SupplierThrowable<Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple1<T>>> storageSupplier,
+            Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple1<T>> map,
             TriConsumerThrowable<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple1<T>, Tuple1<T>> changesConsumer,
             HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple1<T>> valueFunction){
-        return new HexaKeys(storageSupplier, changesConsumer, valueFunction);
+        return new HexaKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 7 keys to Tuple of 1 element
      * @param <K1>  type of the first element of the Key
@@ -190,10 +190,10 @@ public class SingleValuesRepository<TKey, T>
      * @return      Constructed Repository to map 7 keys to 1 value as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6,K7, T> HeptaKeys<K1,K2,K3,K4,K5,K6,K7, T> fromSevenKeys(
-            SupplierThrowable<Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple1<T>>> storageSupplier,
+            Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple1<T>> map,
             TriConsumerThrowable<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple1<T>, Tuple1<T>> changesConsumer,
             HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple1<T>> valueFunction){
-        return new HeptaKeys(storageSupplier, changesConsumer, valueFunction);
+        return new HeptaKeys(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -307,14 +307,14 @@ public class SingleValuesRepository<TKey, T>
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 1 element
      */
-    protected SingleValuesRepository(SupplierThrowable<Map<TKey, Tuple1<T>>> storageSupplier,
+    protected SingleValuesRepository(Map<TKey, Tuple1<T>> map,
                                      TriConsumerThrowable<TKey, Tuple1<T>, Tuple1<T>> changesConsumer,
                                      FunctionThrowable<TKey, Tuple1<T>> valueFunction){
-        super(storageSupplier, changesConsumer, valueFunction);
+        super(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -322,7 +322,7 @@ public class SingleValuesRepository<TKey, T>
      * @param valueFunction     Function to map 1 key to Tuple of 1 element
      */
     protected SingleValuesRepository(FunctionThrowable<TKey, Tuple1<T>> valueFunction){
-        this(HashMap::new, null, valueFunction);
+        this(new HashMap(), null, valueFunction);
     }
     //endregion
 
@@ -350,14 +350,14 @@ public class SingleValuesRepository<TKey, T>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 1 key to Tuple of 1 element
          */
-        protected SingleKeys(SupplierThrowable<Map<Tuple1<K1>, Tuple1<T>>> storageSupplier,
+        protected SingleKeys(Map<Tuple1<K1>, Tuple1<T>> map,
                              TriConsumerThrowable<Tuple1<K1>, Tuple1<T>, Tuple1<T>> changesConsumer,
                              FunctionThrowable<K1, Tuple1<T>> valueFunction) {
-            super(storageSupplier, changesConsumer, single -> valueFunction.apply(single.getFirst()));
+            super(map, changesConsumer, single -> valueFunction.apply(single.getFirst()));
         }
 
         /**
@@ -365,7 +365,7 @@ public class SingleValuesRepository<TKey, T>
          * @param valueFunction     Function to map 1 key to Tuple of 1 element
          */
         protected SingleKeys(FunctionThrowable<K1, Tuple1<T>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -384,14 +384,14 @@ public class SingleValuesRepository<TKey, T>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 2 keys to Tuple of 1 element
          */
-        protected DualKeys(SupplierThrowable<Map<Tuple2<K1,K2>, Tuple1<T>>> storageSupplier,
+        protected DualKeys(Map<Tuple2<K1,K2>, Tuple1<T>> map,
                            TriConsumerThrowable<Tuple2<K1,K2>, Tuple1<T>, Tuple1<T>> changesConsumer,
                            BiFunctionThrowable<K1, K2, Tuple1<T>> valueFunction) {
-            super(storageSupplier, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
+            super(map, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
 
         /**
@@ -399,7 +399,7 @@ public class SingleValuesRepository<TKey, T>
          * @param valueFunction     Function to map 2 keys to Tuple of 1 element
          */
         protected DualKeys(BiFunctionThrowable<K1, K2, Tuple1<T>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -419,14 +419,14 @@ public class SingleValuesRepository<TKey, T>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 3 keys to Tuple of 1 element
          */
-        protected TripleKeys(SupplierThrowable<Map<Tuple3<K1,K2,K3>, Tuple1<T>>> storageSupplier,
+        protected TripleKeys(Map<Tuple3<K1,K2,K3>, Tuple1<T>> map,
                              TriConsumerThrowable<Tuple3<K1,K2,K3>, Tuple1<T>, Tuple1<T>> changesConsumer,
                              TriFunctionThrowable<K1, K2, K3, Tuple1<T>> valueFunction) {
-            super(storageSupplier, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
+            super(map, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
 
         /**
@@ -434,7 +434,7 @@ public class SingleValuesRepository<TKey, T>
          * @param valueFunction     Function to map 3 keys to Tuple of 1 element
          */
         protected TripleKeys(TriFunctionThrowable<K1, K2, K3, Tuple1<T>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -454,14 +454,14 @@ public class SingleValuesRepository<TKey, T>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 4 keys to Tuple of 1 element
          */
-        protected QuadKeys(SupplierThrowable<Map<Tuple4<K1,K2,K3,K4>, Tuple1<T>>> storageSupplier,
+        protected QuadKeys(Map<Tuple4<K1,K2,K3,K4>, Tuple1<T>> map,
                            TriConsumerThrowable<Tuple4<K1,K2,K3,K4>, Tuple1<T>, Tuple1<T>> changesConsumer,
                            QuadFunctionThrowable<K1,K2,K3,K4, Tuple1<T>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
         }
 
@@ -470,7 +470,7 @@ public class SingleValuesRepository<TKey, T>
          * @param valueFunction     Function to map 4 keys to Tuple of 1 element
          */
         protected QuadKeys(QuadFunctionThrowable<K1,K2,K3,K4, Tuple1<T>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -491,14 +491,14 @@ public class SingleValuesRepository<TKey, T>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 5 keys to Tuple of 1 element
          */
-        protected PentaKeys(SupplierThrowable<Map<Tuple5<K1,K2,K3,K4,K5>, Tuple1<T>>> storageSupplier,
+        protected PentaKeys(Map<Tuple5<K1,K2,K3,K4,K5>, Tuple1<T>> map,
                             TriConsumerThrowable<Tuple5<K1,K2,K3,K4,K5>, Tuple1<T>, Tuple1<T>> changesConsumer,
                             PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple1<T>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth()));
         }
@@ -508,7 +508,7 @@ public class SingleValuesRepository<TKey, T>
          * @param valueFunction     Function to map 5 keys to Tuple of 1 element
          */
         protected PentaKeys(PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple1<T>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -532,14 +532,14 @@ public class SingleValuesRepository<TKey, T>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 6 keys to Tuple of 1 element
          */
-        protected HexaKeys(SupplierThrowable<Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple1<T>>> storageSupplier,
+        protected HexaKeys(Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple1<T>> map,
                            TriConsumerThrowable<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple1<T>, Tuple1<T>> changesConsumer,
                            HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple1<T>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth()));
         }
@@ -549,7 +549,7 @@ public class SingleValuesRepository<TKey, T>
          * @param valueFunction     Function to map 6 keys to Tuple of 1 element
          */
         protected HexaKeys(HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple1<T>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -574,14 +574,14 @@ public class SingleValuesRepository<TKey, T>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 7 keys to Tuple of 1 element
          */
-        protected HeptaKeys(SupplierThrowable<Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple1<T>>> storageSupplier,
+        protected HeptaKeys(Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple1<T>> map,
                             TriConsumerThrowable<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple1<T>, Tuple1<T>> changesConsumer,
                             HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple1<T>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth(), tuple.getSeventh()));
         }
@@ -591,7 +591,7 @@ public class SingleValuesRepository<TKey, T>
          * @param valueFunction     Function to map 7 keys to Tuple of 1 element
          */
         protected HeptaKeys(HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple1<T>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 }

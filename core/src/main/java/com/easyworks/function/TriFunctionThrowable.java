@@ -11,7 +11,7 @@ import java.util.function.Function;
  * @param <R>   Type of the returned result.
  */
 @FunctionalInterface
-public interface TriFunctionThrowable<T,U,V,R> extends Supplierable<R> {
+public interface TriFunctionThrowable<T,U,V,R> extends AbstractThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 3 arguments and returning result of type <code>R</code>
      * @param t     The first argument of type <code>T</code>.

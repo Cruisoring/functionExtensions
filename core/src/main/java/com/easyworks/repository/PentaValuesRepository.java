@@ -26,7 +26,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map any key to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 5 elements
      * @param <TKey>  type of the first element of the Key
@@ -38,10 +38,10 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * @return      Constructed Repository to map 1 key to 5 values as a Tuple
      */
     public static <TKey, T,U,V,W,X> PentaValuesRepository<TKey, T,U,V,W,X> fromKey(
-            SupplierThrowable<Map<TKey, Tuple5<T,U,V,W,X>>> storageSupplier,
+            Map<TKey, Tuple5<T,U,V,W,X>> map,
             TriConsumerThrowable<TKey, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
             FunctionThrowable<TKey, Tuple5<T,U,V,W,X>> valueFunction){
-        return new PentaValuesRepository(storageSupplier, changesConsumer, valueFunction);
+        return new PentaValuesRepository(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -65,7 +65,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 5 elements
      * @param <K1>  type of the first element of the Key
@@ -77,17 +77,17 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * @return      Constructed Repository to map 1 key to 5 values as a Tuple
      */
     public static <K1, T,U,V,W,X> SingleKeys<K1, T,U,V,W,X> fromOneKeys(
-            SupplierThrowable<Map<Tuple1<K1>, Tuple5<T,U,V,W,X>>> storageSupplier,
+            Map<Tuple1<K1>, Tuple5<T,U,V,W,X>> map,
             TriConsumerThrowable<Tuple1<K1>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
             FunctionThrowable<K1, Tuple5<T,U,V,W,X>> valueFunction){
-        return new SingleKeys(storageSupplier, changesConsumer, valueFunction);
+        return new SingleKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 2 keys to Tuple of 5 elements
      * @param <K1>  type of the first element of the Key
@@ -100,17 +100,17 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * @return      Constructed Repository to map 2 keys to 5 values as a Tuple
      */
     public static <K1,K2, T,U,V,W,X> DualKeys<K1,K2, T,U,V,W,X> fromTwoKeys(
-            SupplierThrowable<Map<Tuple2<K1,K2>, Tuple5<T,U,V,W,X>>> storageSupplier,
+            Map<Tuple2<K1,K2>, Tuple5<T,U,V,W,X>> map,
             TriConsumerThrowable<Tuple2<K1,K2>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
             BiFunctionThrowable<K1,K2, Tuple5<T,U,V,W,X>> valueFunction){
-        return new DualKeys(storageSupplier, changesConsumer, valueFunction);
+        return new DualKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 3 keys to Tuple of 5 elements
      * @param <K1>  type of the first element of the Key
@@ -124,17 +124,17 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * @return      Constructed Repository to map 3 keys to 5 values as a Tuple
      */
     public static <K1,K2,K3, T,U,V,W,X> TripleKeys<K1,K2,K3, T,U,V,W,X> fromThreeKeys(
-            SupplierThrowable<Map<Tuple3<K1,K2,K3>, Tuple5<T,U,V,W,X>>> storageSupplier,
+            Map<Tuple3<K1,K2,K3>, Tuple5<T,U,V,W,X>> map,
             TriConsumerThrowable<Tuple3<K1,K2,K3>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
             TriFunctionThrowable<K1,K2,K3, Tuple5<T,U,V,W,X>> valueFunction){
-        return new TripleKeys(storageSupplier, changesConsumer, valueFunction);
+        return new TripleKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 4 keys to Tuple of 5 elements
      * @param <K1>  type of the first element of the Key
@@ -149,17 +149,17 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * @return      Constructed Repository to map 4 keys to 5 values as a Tuple
      */
     public static <K1,K2,K3,K4, T,U,V,W,X> QuadKeys<K1,K2,K3,K4, T,U,V,W,X> fromFourKeys(
-            SupplierThrowable<Map<Tuple4<K1,K2,K3,K4>, Tuple5<T,U,V,W,X>>> storageSupplier,
+            Map<Tuple4<K1,K2,K3,K4>, Tuple5<T,U,V,W,X>> map,
             TriConsumerThrowable<Tuple4<K1,K2,K3,K4>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
             QuadFunctionThrowable<K1,K2,K3,K4, Tuple5<T,U,V,W,X>> valueFunction){
-        return new QuadKeys(storageSupplier, changesConsumer, valueFunction);
+        return new QuadKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 5 keys to Tuple of 5 elements
      * @param <K1>  type of the first element of the Key
@@ -175,17 +175,17 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * @return      Constructed Repository to map 5 keys to 5 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5, T,U,V,W,X> PentaKeys<K1,K2,K3,K4,K5, T,U,V,W,X> fromFiveKeys(
-            SupplierThrowable<Map<Tuple5<K1,K2,K3,K4,K5>, Tuple5<T,U,V,W,X>>> storageSupplier,
+            Map<Tuple5<K1,K2,K3,K4,K5>, Tuple5<T,U,V,W,X>> map,
             TriConsumerThrowable<Tuple5<K1,K2,K3,K4,K5>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
             PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple5<T,U,V,W,X>> valueFunction){
-        return new PentaKeys(storageSupplier, changesConsumer, valueFunction);
+        return new PentaKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 6 keys to Tuple of 5 elements
      * @param <K1>  type of the first element of the Key
@@ -202,17 +202,17 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * @return      Constructed Repository to map 6 keys to 5 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6, T,U,V,W,X> HexaKeys<K1,K2,K3,K4,K5,K6, T,U,V,W,X> fromSixKeys(
-            SupplierThrowable<Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple5<T,U,V,W,X>>> storageSupplier,
+            Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple5<T,U,V,W,X>> map,
             TriConsumerThrowable<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
             HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple5<T,U,V,W,X>> valueFunction){
-        return new HexaKeys(storageSupplier, changesConsumer, valueFunction);
+        return new HexaKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 7 keys to Tuple of 5 elements
      * @param <K1>  type of the first element of the Key
@@ -230,10 +230,10 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * @return      Constructed Repository to map 7 keys to 5 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X> HeptaKeys<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X> fromSevenKeys(
-            SupplierThrowable<Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple5<T,U,V,W,X>>> storageSupplier,
+            Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple5<T,U,V,W,X>> map,
             TriConsumerThrowable<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
             HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple5<T,U,V,W,X>> valueFunction){
-        return new HeptaKeys(storageSupplier, changesConsumer, valueFunction);
+        return new HeptaKeys(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -375,14 +375,14 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 5 elements
      */
-    protected PentaValuesRepository(SupplierThrowable<Map<TKey, Tuple5<T,U,V,W,X>>> storageSupplier,
+    protected PentaValuesRepository(Map<TKey, Tuple5<T,U,V,W,X>> map,
                                     TriConsumerThrowable<TKey, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
                                     FunctionThrowable<TKey, Tuple5<T,U,V,W,X>> valueFunction){
-        super(storageSupplier, changesConsumer, valueFunction);
+        super(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -390,7 +390,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
      * @param valueFunction     Function to map 1 key to Tuple of 5 elements
      */
     protected PentaValuesRepository(FunctionThrowable<TKey, Tuple5<T,U,V,W,X>> valueFunction){
-        this(HashMap::new, null, valueFunction);
+        this(new HashMap(), null, valueFunction);
     }
     //endregion
 
@@ -422,14 +422,14 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 1 key to Tuple of 5 elements
          */
-        protected SingleKeys(SupplierThrowable<Map<Tuple1<K1>, Tuple5<T,U,V,W,X>>> storageSupplier,
+        protected SingleKeys(Map<Tuple1<K1>, Tuple5<T,U,V,W,X>> map,
                              TriConsumerThrowable<Tuple1<K1>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
                              FunctionThrowable<K1, Tuple5<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, changesConsumer, single -> valueFunction.apply(single.getFirst()));
+            super(map, changesConsumer, single -> valueFunction.apply(single.getFirst()));
         }
 
         /**
@@ -437,7 +437,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * @param valueFunction     Function to map 1 key to Tuple of 5 elements
          */
         protected SingleKeys(FunctionThrowable<K1, Tuple5<T,U,V,W,X>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -460,14 +460,14 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 2 keys to Tuple of 5 elements
          */
-        protected DualKeys(SupplierThrowable<Map<Tuple2<K1,K2>, Tuple5<T,U,V,W,X>>> storageSupplier,
+        protected DualKeys(Map<Tuple2<K1,K2>, Tuple5<T,U,V,W,X>> map,
                            TriConsumerThrowable<Tuple2<K1,K2>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
                            BiFunctionThrowable<K1, K2, Tuple5<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
+            super(map, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
 
         /**
@@ -475,7 +475,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * @param valueFunction     Function to map 2 keys to Tuple of 5 elements
          */
         protected DualKeys(BiFunctionThrowable<K1, K2, Tuple5<T,U,V,W,X>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -499,14 +499,14 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 3 keys to Tuple of 5 elements
          */
-        protected TripleKeys(SupplierThrowable<Map<Tuple3<K1,K2,K3>, Tuple5<T,U,V,W,X>>> storageSupplier,
+        protected TripleKeys(Map<Tuple3<K1,K2,K3>, Tuple5<T,U,V,W,X>> map,
                              TriConsumerThrowable<Tuple3<K1,K2,K3>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
                              TriFunctionThrowable<K1, K2, K3, Tuple5<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
+            super(map, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
 
         /**
@@ -514,7 +514,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * @param valueFunction     Function to map 3 keys to Tuple of 5 elements
          */
         protected TripleKeys(TriFunctionThrowable<K1, K2, K3, Tuple5<T,U,V,W,X>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -538,14 +538,14 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 4 keys to Tuple of 5 elements
          */
-        protected QuadKeys(SupplierThrowable<Map<Tuple4<K1,K2,K3,K4>, Tuple5<T,U,V,W,X>>> storageSupplier,
+        protected QuadKeys(Map<Tuple4<K1,K2,K3,K4>, Tuple5<T,U,V,W,X>> map,
                            TriConsumerThrowable<Tuple4<K1,K2,K3,K4>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
                            QuadFunctionThrowable<K1,K2,K3,K4, Tuple5<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
         }
 
@@ -554,7 +554,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * @param valueFunction     Function to map 4 keys to Tuple of 5 elements
          */
         protected QuadKeys(QuadFunctionThrowable<K1,K2,K3,K4, Tuple5<T,U,V,W,X>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -579,14 +579,14 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 5 keys to Tuple of 5 elements
          */
-        protected PentaKeys(SupplierThrowable<Map<Tuple5<K1,K2,K3,K4,K5>, Tuple5<T,U,V,W,X>>> storageSupplier,
+        protected PentaKeys(Map<Tuple5<K1,K2,K3,K4,K5>, Tuple5<T,U,V,W,X>> map,
                             TriConsumerThrowable<Tuple5<K1,K2,K3,K4,K5>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
                             PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple5<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth()));
         }
@@ -596,7 +596,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * @param valueFunction     Function to map 5 keys to Tuple of 5 elements
          */
         protected PentaKeys(PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple5<T,U,V,W,X>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -624,14 +624,14 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 6 keys to Tuple of 5 elements
          */
-        protected HexaKeys(SupplierThrowable<Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple5<T,U,V,W,X>>> storageSupplier,
+        protected HexaKeys(Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple5<T,U,V,W,X>> map,
                            TriConsumerThrowable<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
                            HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple5<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth()));
         }
@@ -641,7 +641,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * @param valueFunction     Function to map 6 keys to Tuple of 5 elements
          */
         protected HexaKeys(HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple5<T,U,V,W,X>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -670,14 +670,14 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 7 keys to Tuple of 5 elements
          */
-        protected HeptaKeys(SupplierThrowable<Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple5<T,U,V,W,X>>> storageSupplier,
+        protected HeptaKeys(Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple5<T,U,V,W,X>> map,
                             TriConsumerThrowable<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
                             HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple5<T,U,V,W,X>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth(), tuple.getSeventh()));
         }
@@ -687,7 +687,7 @@ public class PentaValuesRepository<TKey, T,U,V,W,X>
          * @param valueFunction     Function to map 7 keys to Tuple of 5 elements
          */
         protected HeptaKeys(HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple5<T,U,V,W,X>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 }

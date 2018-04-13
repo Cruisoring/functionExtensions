@@ -44,8 +44,8 @@ public class TupleRepositoryTest {
         assertFalse(repository.containsKey(Tuple.create(null)));
         repository.containsKey("");
 
-        assertMatch(repository.getValue().keySet().toArray(new Tuple[3]), new Tuple[]{Tuple.create("0123456789"), Tuple.create(""), Tuple.create(" ")});
-        assertMatch(repository.getValue().values().toArray(new Tuple[3]), new Tuple[]{Tuple.create(10), Tuple.create(0), Tuple.create(1)});
+        assertMatch(repository.storage.keySet().toArray(new Tuple[3]), new Tuple[]{Tuple.create("0123456789"), Tuple.create(""), Tuple.create(" ")});
+        assertMatch(repository.storage.values().toArray(new Tuple[3]), new Tuple[]{Tuple.create(10), Tuple.create(0), Tuple.create(1)});
     }
 
     @Test
@@ -69,9 +69,9 @@ public class TupleRepositoryTest {
         assertFalse(repository.containsKey(null));
 
         assertMatch(new Tuple[]{Tuple.create("",""), Tuple.create(" ", ""), Tuple.create("0123456789", "aa")}
-            , repository.getValue().keySet().toArray(new Tuple[3]));
+            , repository.storage.keySet().toArray(new Tuple[3]));
         assertMatch(new Tuple[]{Tuple.create(12), Tuple.create(0), Tuple.create(1)}
-            , repository.getValue().values().toArray(new Tuple[3]));
+            , repository.storage.values().toArray(new Tuple[3]));
     }
 
     @Test
@@ -95,9 +95,9 @@ public class TupleRepositoryTest {
         assertMatch(new Tuple[]{
                 Tuple.create("", "", true), Tuple.create("","  ", false), Tuple.create(" ", null, false)
                         , Tuple.create("0123456789", "ab", true)}
-                , repository.getValue().keySet().toArray(new Tuple[4]));
+                , repository.storage.keySet().toArray(new Tuple[4]));
         assertMatch(new Tuple[]{Tuple.create(12), Tuple.create(0), Tuple.create(1), Tuple.create(0)}
-                , repository.getValue().values().toArray(new Tuple[4]));
+                , repository.storage.values().toArray(new Tuple[4]));
     }
 
     @Test
@@ -121,9 +121,9 @@ public class TupleRepositoryTest {
         assertMatch(new Tuple[]{
                         Tuple.create("", "", true, 10), Tuple.create("","  ", false, 11), Tuple.create(" ", null, false, 3)
                         , Tuple.create("0123456789", "ab", false, -2)}
-                , repository.getValue().keySet().toArray(new Tuple[4]));
+                , repository.storage.keySet().toArray(new Tuple[4]));
         assertMatch(new Tuple[]{Tuple.create(8), Tuple.create(4), Tuple.create(11), Tuple.create(0)}
-                , repository.getValue().values().toArray(new Tuple[4]));
+                , repository.storage.values().toArray(new Tuple[4]));
     }
 
     @Test
@@ -141,9 +141,9 @@ public class TupleRepositoryTest {
 
         assertMatch(new Tuple[]{
                         Tuple.create("", "", true, "abc", 10), Tuple.create("","  ", false, null, 11)}
-                , repository.getValue().keySet().toArray(new Tuple[2]));
+                , repository.storage.keySet().toArray(new Tuple[2]));
         assertMatch(new Tuple[]{Tuple.create(3), Tuple.create(13)}
-                , repository.getValue().values().toArray(new Tuple[2]));
+                , repository.storage.values().toArray(new Tuple[2]));
     }
 
     @Test
@@ -158,7 +158,7 @@ public class TupleRepositoryTest {
 
         assertMatch(new Tuple[]{
                         Tuple.create("", "", true, "abc", 10, 8), Tuple.create("","  ", false, null, 11, 12)}
-                , repository.getValue().keySet().toArray(new Tuple[2]));
+                , repository.storage.keySet().toArray(new Tuple[2]));
     }
 
     @Test
@@ -189,8 +189,8 @@ public class TupleRepositoryTest {
         assertEquals(Character.valueOf('x'), repository.getFirst("xyz"));
         assertEquals(false, repository.containsKeyOf(null));
         assertEquals(false, repository.containsKeyOf(""));
-        assertMatch(new Tuple[]{Tuple.create("a"), Tuple.create("xyz")}, repository.getValue().keySet().toArray(new Tuple[2]));
-        assertMatch(new Tuple[]{Tuple.create('a', 1), Tuple.create('x', 3)}, repository.getValue().values().toArray(new Tuple[2]));
+        assertMatch(new Tuple[]{Tuple.create("a"), Tuple.create("xyz")}, repository.storage.keySet().toArray(new Tuple[2]));
+        assertMatch(new Tuple[]{Tuple.create('a', 1), Tuple.create('x', 3)}, repository.storage.values().toArray(new Tuple[2]));
     }
 
     @Test
@@ -206,9 +206,9 @@ public class TupleRepositoryTest {
 
         assertEquals("12345", repository.getFirst("12", "345", 1, true));
         assertMatch(new Tuple[]{Tuple.create("a", "bc", 3, false), Tuple.create("12", "345", 1, true)},
-                repository.getValue().keySet().toArray(new Tuple[2]));
+                repository.storage.keySet().toArray(new Tuple[2]));
         assertMatch(new Tuple[]{Tuple.create("abc", 5), Tuple.create("12345", 3)},
-                repository.getValue().values().toArray(new Tuple[2]));
+                repository.storage.values().toArray(new Tuple[2]));
     }
 
     @Test
@@ -226,10 +226,10 @@ public class TupleRepositoryTest {
         assertEquals(false, repository.containsKeyOf(null));
         assertEquals(false, repository.containsKeyOf("GOOD"));
         assertMatch(new Tuple[]{Tuple.create("abc"), Tuple.create("good"), Tuple.create("?"), Tuple.create("what?")},
-                repository.getValue().keySet().toArray(new Tuple[4]));
+                repository.storage.keySet().toArray(new Tuple[4]));
         assertMatch(new Tuple[]{Tuple.create(true, "bc", -1), Tuple.create(true, "hat?", 4)
                         , Tuple.create(true, "ood", -1), Tuple.create(false, "", 0)},
-                repository.getValue().values().toArray(new Tuple[4]));
+                repository.storage.values().toArray(new Tuple[4]));
     }
 
     @Test
@@ -249,10 +249,10 @@ public class TupleRepositoryTest {
         assertEquals(false, repository.containsKeyOf(null, false, "good", 1, 'a'));
         assertMatch(new Tuple[]{Tuple.create("abc", true, "123", 2, 'a'), Tuple.create("what?", true, "abc", 0, '-')
                         , Tuple.create("bad", false, "good", 1, 'a')},
-                repository.getValue().keySet().toArray(new Tuple[3]));
+                repository.storage.keySet().toArray(new Tuple[3]));
         assertMatch(new Tuple[]{Tuple.create(false, "3", 0), Tuple.create(true, "abc", -1)
                         , Tuple.create(true, "ood", 1)},
-                repository.getValue().values().toArray(new Tuple[3]));
+                repository.storage.values().toArray(new Tuple[3]));
     }
 
     @Test
@@ -271,10 +271,10 @@ public class TupleRepositoryTest {
         assertEquals(false, repository.containsKeyOf(null));
         assertEquals(false, repository.containsKeyOf("GOOD"));
         assertMatch(new Tuple[]{Tuple.create("abc"), Tuple.create("good"), Tuple.create("?"), Tuple.create("what?")},
-                repository.getValue().keySet().toArray(new Tuple[4]));
+                repository.storage.keySet().toArray(new Tuple[4]));
         assertMatch(new Tuple[]{Tuple.create(true, "bc", -1, 'a'), Tuple.create(true, "hat?", 4, 'w')
                         , Tuple.create(true, "ood", -1, 'g'), Tuple.create(false, "", 0, '?')},
-                repository.getValue().values().toArray(new Tuple[4]));
+                repository.storage.values().toArray(new Tuple[4]));
     }
 
     @Test
@@ -297,10 +297,10 @@ public class TupleRepositoryTest {
         assertMatch(new Tuple[]{Tuple.create("abc", true, "123", 2, 'a', true),
                         Tuple.create("what?", true, "abc", 0, '-', true)
                         , Tuple.create("bad", false, "good", 1, 'a', false)},
-                repository.getValue().keySet().toArray(new Tuple[3]));
+                repository.storage.keySet().toArray(new Tuple[3]));
         assertMatch(new Tuple[]{Tuple.create(false, "3", "c", 0), Tuple.create(false, "ood", "ad", 100)
                         , Tuple.create(true, "abc", "what?", 0)},
-                repository.getValue().values().toArray(new Tuple[3]));
+                repository.storage.values().toArray(new Tuple[3]));
     }
 
     @Test
@@ -321,13 +321,13 @@ public class TupleRepositoryTest {
         assertEquals(false, repository.containsKeyOf(null));
         assertEquals(false, repository.containsKeyOf("GOOD"));
         assertMatch(new Tuple[]{Tuple.create("abc"), Tuple.create("good"), Tuple.create("?"), Tuple.create("what?")},
-                repository.getValue().keySet().toArray(new Tuple[4]));
+                repository.storage.keySet().toArray(new Tuple[4]));
         assertMatch(new Tuple[]{
                 Tuple.create(true, "bc", -1, 'a', "abc".toCharArray()),
                         Tuple.create(true, "hat?", 4, 'w', "what?".toCharArray()),
                         Tuple.create(true, "ood", -1, 'g', "good".toCharArray()),
                         Tuple.create(false, "", 0, '?', "?".toCharArray())},
-                repository.getValue().values().toArray(new Tuple[4]));
+                repository.storage.values().toArray(new Tuple[4]));
     }
 
     @Test
@@ -346,10 +346,10 @@ public class TupleRepositoryTest {
 
         assertEquals(false, repository.containsKeyOf("abcde", 1, 'b', (byte)1, true, "cd", null));
         assertMatch(new Tuple[]{Tuple.create("abcde", 1, 'b', (byte)1, true, "cd", (short)3)},
-                repository.getValue().keySet().toArray(new Tuple[1]));
+                repository.storage.keySet().toArray(new Tuple[1]));
         assertMatch(new Tuple[]{
                         Tuple.create(true, "bcde", 2, Character.valueOf('d'), new char[]{'b'})},
-                repository.getValue().values().toArray(new Tuple[1]));
+                repository.storage.values().toArray(new Tuple[1]));
     }
 
     @Test

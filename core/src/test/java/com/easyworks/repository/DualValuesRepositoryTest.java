@@ -19,13 +19,13 @@ public class DualValuesRepositoryTest {
         assertEquals(true, dualValuesRepository.getSecondValue("abc"));
 
         assertEquals(Integer.valueOf(0), dualValuesRepository.getFirstValue(""));
-        assertEquals(2, dualValuesRepository.getValue().size());
+        assertEquals(2, dualValuesRepository.storage.size());
 
         assertEquals(Integer.valueOf(10), dualValuesRepository.getFirstValue("0123456789"));
-        assertEquals(3, dualValuesRepository.getValue().size());
+        assertEquals(3, dualValuesRepository.storage.size());
 
         assertNull(dualValuesRepository.retrieve(null));
-        assertEquals(3, dualValuesRepository.getValue().size());
+        assertEquals(3, dualValuesRepository.storage.size());
         assertEquals(null, dualValuesRepository.getFirstValue(null));
         assertEquals(null, dualValuesRepository.getSecondValue(null));
     }

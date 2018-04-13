@@ -1,7 +1,6 @@
 package com.easyworks.repository;
 
 import com.easyworks.function.FunctionThrowable;
-import com.easyworks.function.SupplierThrowable;
 import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.tuple.*;
 
@@ -17,14 +16,14 @@ public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {
     /**
      * Construct a repository with given map factory, extra changesConsumer logic and Function to map key to value
      * Shall be considerer only when the Tuple value contains more than 7 elements
-     * @param storageSupplier   Factory to get a map instance
+     * @param map   Factory to get a map instance
      * @param changesConsumer           Extra steps to run before reset() being called.
      * @param valueFunction     Function to map key of <tt>TKey<tt> type to value of <tt>Tuple<tt> type
      */
-    protected MultiValuesRepository(SupplierThrowable<Map<TKey, Tuple>> storageSupplier,
+    protected MultiValuesRepository(Map<TKey, Tuple> map,
                                     TriConsumerThrowable<TKey, Tuple, Tuple> changesConsumer,
                                     FunctionThrowable<TKey, Tuple> valueFunction){
-        super(storageSupplier, changesConsumer, valueFunction);
+        super(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -33,7 +32,7 @@ public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {
      * @param valueFunction     Function to map key of <tt>TKey<tt> type to value of <tt>Tuple<tt> type
      */
     protected MultiValuesRepository(FunctionThrowable<TKey, Tuple> valueFunction){
-        this(HashMap::new, null, valueFunction);
+        this(new HashMap(), null, valueFunction);
     }
 
     /**
@@ -53,52 +52,52 @@ public class MultiValuesRepository<TKey> extends Repository<TKey, Tuple> {
 
     //region Factory methods to create MultiValuesRepository ith Function to map key to Tuple, and optional Map and changesConsumer action
     public static <TKey,T> SingleValuesRepository<TKey, T> toSingleValuesRepository(
-            SupplierThrowable<Map<TKey, Tuple1<T>>> storageSupplier,
+            Map<TKey, Tuple1<T>> map,
             TriConsumerThrowable<TKey, Tuple1<T>, Tuple1<T>> changesConsumer,
             FunctionThrowable<TKey, Tuple1<T>> valueFunction){
-        return new SingleValuesRepository(storageSupplier, changesConsumer, valueFunction);
+        return new SingleValuesRepository(map, changesConsumer, valueFunction);
     }
 
     public static <TKey,T,U,V> TripleValuesRepository<TKey,T,U,V> toTripleValuesRepository(
-            SupplierThrowable<Map<TKey, Tuple3<T,U,V>>> storageSupplier,
+            Map<TKey, Tuple3<T,U,V>> map,
             TriConsumerThrowable<TKey, Tuple3<T,U,V>, Tuple3<T,U,V>> changesConsumer,
             FunctionThrowable<TKey, Tuple3<T,U,V>> valueFunction){
-        return new TripleValuesRepository(storageSupplier, changesConsumer, valueFunction);
+        return new TripleValuesRepository(map, changesConsumer, valueFunction);
     }
 
     public static <TKey,T,U,V,W> QuadValuesRepository<TKey,T,U,V,W> toQuadValuesRepository(
-            SupplierThrowable<Map<TKey, Tuple4<T,U,V,W>>> storageSupplier,
+            Map<TKey, Tuple4<T,U,V,W>> map,
             TriConsumerThrowable<TKey, Tuple4<T,U,V,W>, Tuple4<T,U,V,W>> changesConsumer,
             FunctionThrowable<TKey, Tuple4<T,U,V,W>> valueFunction){
-        return new QuadValuesRepository(storageSupplier, changesConsumer, valueFunction);
+        return new QuadValuesRepository(map, changesConsumer, valueFunction);
     }
 
     public static <TKey,T,U,V,W,X> PentaValuesRepository<TKey,T,U,V,W,X> toPentaValuesRepository(
-            SupplierThrowable<Map<TKey, Tuple5<T,U,V,W,X>>> storageSupplier,
+            Map<TKey, Tuple5<T,U,V,W,X>> map,
             TriConsumerThrowable<TKey, Tuple5<T,U,V,W,X>, Tuple5<T,U,V,W,X>> changesConsumer,
             FunctionThrowable<TKey, Tuple5<T,U,V,W,X>> valueFunction){
-        return new PentaValuesRepository(storageSupplier, changesConsumer, valueFunction);
+        return new PentaValuesRepository(map, changesConsumer, valueFunction);
     }
 
     public static <TKey,T,U,V,W,X,Y> HexaValuesRepository<TKey,T,U,V,W,X,Y> toHexaValuesRepository(
-            SupplierThrowable<Map<TKey, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+            Map<TKey, Tuple6<T,U,V,W,X,Y>> map,
             TriConsumerThrowable<TKey, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
             FunctionThrowable<TKey, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        return new HexaValuesRepository(storageSupplier, changesConsumer, valueFunction);
+        return new HexaValuesRepository(map, changesConsumer, valueFunction);
     }
 
     public static <TKey,T,U,V,W,X,Y,Z> HeptaValuesRepository<TKey,T,U,V,W,X,Y,Z> toHeptaValuesRepository(
-            SupplierThrowable<Map<TKey, Tuple7<T,U,V,W,X,Y,Z>>> storageSupplier,
+            Map<TKey, Tuple7<T,U,V,W,X,Y,Z>> map,
             TriConsumerThrowable<TKey, Tuple7<T,U,V,W,X,Y,Z>, Tuple7<T,U,V,W,X,Y,Z>> changesConsumer,
             FunctionThrowable<TKey, Tuple7<T,U,V,W,X,Y,Z>> valueFunction){
-        return new HeptaValuesRepository(storageSupplier, changesConsumer, valueFunction);
+        return new HeptaValuesRepository(map, changesConsumer, valueFunction);
     }
 
     public static <TKey> MultiValuesRepository<TKey> toMultiValuesRepository(
-            SupplierThrowable<Map<TKey, Tuple>> storageSupplier,
+            Map<TKey, Tuple> map,
             TriConsumerThrowable<TKey, Tuple, Tuple> changesConsumer,
             FunctionThrowable<TKey, Tuple> valueFunction){
-        return new MultiValuesRepository<TKey>(storageSupplier, changesConsumer, valueFunction);
+        return new MultiValuesRepository<TKey>(map, changesConsumer, valueFunction);
     }
     //endregion
 

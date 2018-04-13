@@ -480,158 +480,138 @@ public class TypeHelper {
                 , TriFunctionThrowable<Object, Integer, Integer, Object>//copyOfRange(original, from, to) -> new array
                 , Function<Object, String>             // Convert array to String
         > classOperators = HexaValuesRepository.fromKey(
-            TypeHelper::getReservedClassOperators,
+            new HashMap<Class, Tuple6<
+                    Predicate<Class>,
+                    FunctionThrowable<Integer, Object>,
+                    Class,
+                    TriConsumerThrowable<Object, Integer, Object>,
+                    TriFunctionThrowable<Object, Integer, Integer, Object>,
+                    Function<Object, String>
+                    >>(){{
+                Predicate<Class> classPredicate = clazz -> int.class.equals(clazz) || Integer.class.equals(clazz);
+                put(int.class, Tuple.create(
+                        classPredicate
+                        , i -> new int[i]
+                        , int[].class
+                        , (array, index, value) -> ((int[])array)[index] = ((Integer)value).intValue()
+                        , (array, from, to) -> Arrays.copyOfRange((int[])array, from, to)
+                        , array -> Arrays.toString((int [])array)));
+                put(Integer.class, Tuple.create(
+                        classPredicate
+                        , i -> new Integer[i]
+                        , Integer[].class
+                        , arraySet
+                        , (array, from, to) -> Arrays.copyOfRange((Integer[])array, from, to)
+                        , array -> Arrays.toString((Integer[])array)));
+                classPredicate = clazz -> byte.class.equals(clazz) || Byte.class.equals(clazz);
+                put(byte.class, Tuple.create(
+                        classPredicate
+                        , i -> new byte[i]
+                        , byte[].class
+                        , (array, index, value) -> ((byte[])array)[index] = ((Byte)value).byteValue()
+                        , (array, from, to) -> Arrays.copyOfRange((byte[])array, from, to)
+                        , array -> Arrays.toString((byte[])array)));
+                put(Byte.class, Tuple.create(
+                        classPredicate
+                        , i -> new Byte[i]
+                        , Byte[].class
+                        , arraySet
+                        , (array, from, to) -> Arrays.copyOfRange((Byte[])array, from, to)
+                        , array -> Arrays.toString((Byte[])array)));
+                classPredicate = clazz -> boolean.class.equals(clazz) || Boolean.class.equals(clazz);
+                put(boolean.class, Tuple.create(
+                        classPredicate
+                        , i -> new boolean[i]
+                        , boolean[].class
+                        , (array, index, value) -> ((boolean[])array)[index] = ((Boolean)value).booleanValue()
+                        , (array, from, to) -> Arrays.copyOfRange((boolean[])array, from, to)
+                        , array -> Arrays.toString((boolean[])array)));
+                put(Boolean.class, Tuple.create(
+                        classPredicate
+                        , i -> new Boolean[i]
+                        , Boolean[].class
+                        , arraySet
+                        , (array, from, to) -> Arrays.copyOfRange((Boolean[])array, from, to)
+                        , array -> Arrays.toString((Boolean[])array)));
+                classPredicate = clazz -> char.class.equals(clazz) || Character.class.equals(clazz);
+                put(char.class, Tuple.create(
+                        classPredicate
+                        , i -> new char[i]
+                        , char[].class
+                        , (array, index, value) -> ((char[])array)[index] = ((Character)value).charValue()
+                        , (array, from, to) -> Arrays.copyOfRange((char[])array, from, to)
+                        , array -> Arrays.toString((char[])array)));
+                put(Character.class, Tuple.create(
+                        classPredicate
+                        , i -> new Character[i]
+                        , Character[].class
+                        , arraySet
+                        , (array, from, to) -> Arrays.copyOfRange((Character[])array, from, to)
+                        , array -> Arrays.toString((Character[])array)));
+                classPredicate = clazz -> short.class.equals(clazz) || Short.class.equals(clazz);
+                put(short.class, Tuple.create(
+                        classPredicate
+                        , i -> new short[i]
+                        , short[].class
+                        , (array, index, value) -> ((short[])array)[index] = ((Short)value).shortValue()
+                        , (array, from, to) -> Arrays.copyOfRange((short[])array, from, to)
+                        , array -> Arrays.toString((short[])array)));
+                put(Short.class, Tuple.create(
+                        classPredicate
+                        , i -> new Short[i]
+                        , Short[].class
+                        , arraySet
+                        , (array, from, to) -> Arrays.copyOfRange((Short[])array, from, to)
+                        , array -> Arrays.toString((Short[])array)));
+                classPredicate = clazz -> long.class.equals(clazz) || Long.class.equals(clazz);
+                put(long.class, Tuple.create(
+                        classPredicate
+                        , i -> new long[i]
+                        , long[].class
+                        , (array, index, value) -> ((long[])array)[index] = ((Long)value).longValue()
+                        , (array, from, to) -> Arrays.copyOfRange((long[])array, from, to)
+                        , array -> Arrays.toString((long[])array)));
+                put(Long.class, Tuple.create(
+                        classPredicate
+                        , i -> new Long[i]
+                        , Long[].class
+                        , arraySet
+                        , (array, from, to) -> Arrays.copyOfRange((Long[])array, from, to)
+                        , array -> Arrays.toString((Long[])array)));
+                classPredicate = clazz -> double.class.equals(clazz) || Double.class.equals(clazz);
+                put(double.class, Tuple.create(
+                        classPredicate
+                        , i -> new double[i]
+                        , double[].class
+                        , (array, index, value) -> ((double[])array)[index] = ((Double)value).doubleValue()
+                        , (array, from, to) -> Arrays.copyOfRange((double[])array, from, to)
+                        , array -> Arrays.toString((double[])array)));
+                put(Double.class, Tuple.create(
+                        classPredicate
+                        , i -> new Double[i]
+                        , Double[].class
+                        , arraySet
+                        , (array, from, to) -> Arrays.copyOfRange((Double[])array, from, to)
+                        , array -> Arrays.toString((Double[])array)));
+                classPredicate = clazz -> float.class.equals(clazz) || Float.class.equals(clazz);
+                put(float.class, Tuple.create(
+                        classPredicate
+                        , i -> new float[i]
+                        , float[].class
+                        , (array, index, value) -> ((float[])array)[index] = ((Float)value).floatValue()
+                        , (array, from, to) -> Arrays.copyOfRange((float[])array, from, to)
+                        , array -> Arrays.toString((float[])array)));
+                put(Float.class, Tuple.create(
+                        classPredicate
+                        , i -> new Float[i]
+                        , Float[].class
+                        , arraySet
+                        , (array, from, to) -> Arrays.copyOfRange((Float[])array, from, to)
+                        , array -> Arrays.toString((Float[])array)));
+            }},
             null,
             TypeHelper::makeClassOperators
     );
-
-    private static Map<Class, Tuple6<
-                Predicate<Class>,
-                FunctionThrowable<Integer, Object>,
-                Class,
-                TriConsumerThrowable<Object, Integer, Object>,
-                TriFunctionThrowable<Object, Integer, Integer, Object>,
-                Function<Object, String>
-                >> getReservedClassOperators() {
-        Map<Class, Tuple6<
-                Predicate<Class>,
-                FunctionThrowable<Integer, Object>,
-                Class,
-                TriConsumerThrowable<Object, Integer, Object>,
-                TriFunctionThrowable<Object, Integer, Integer, Object>,
-                Function<Object, String>
-                >> map = new HashMap();
-
-        Predicate<Class> classPredicate = clazz -> int.class.equals(clazz) || Integer.class.equals(clazz);
-        map.put(int.class, Tuple.create(
-                classPredicate
-                , i -> new int[i]
-                , int[].class
-                , (array, index, value) -> ((int[])array)[index] = ((Integer)value).intValue()
-//                , (array, index, value) -> Array.setInt(array, index.intValue(), Integer.class.cast(value).intValue())
-                , (array, from, to) -> Arrays.copyOfRange((int[])array, from, to)
-                , array -> Arrays.toString((int [])array)));
-        map.put(Integer.class, Tuple.create(
-                classPredicate
-                , i -> new Integer[i]
-                , Integer[].class
-                , arraySet
-                , (array, from, to) -> Arrays.copyOfRange((Integer[])array, from, to)
-                , array -> Arrays.toString((Integer[])array)));
-        classPredicate = clazz -> byte.class.equals(clazz) || Byte.class.equals(clazz);
-        map.put(byte.class, Tuple.create(
-                classPredicate
-                , i -> new byte[i]
-                , byte[].class
-                , (array, index, value) -> ((byte[])array)[index] = ((Byte)value).byteValue()
-//                , (array, index, value) -> Array.setByte(array, index.intValue(), Byte.class.cast(value).byteValue())
-                , (array, from, to) -> Arrays.copyOfRange((byte[])array, from, to)
-                , array -> Arrays.toString((byte[])array)));
-        map.put(Byte.class, Tuple.create(
-                classPredicate
-                , i -> new Byte[i]
-                , Byte[].class
-                , arraySet
-                , (array, from, to) -> Arrays.copyOfRange((Byte[])array, from, to)
-                , array -> Arrays.toString((Byte[])array)));
-        classPredicate = clazz -> boolean.class.equals(clazz) || Boolean.class.equals(clazz);
-        map.put(boolean.class, Tuple.create(
-                classPredicate
-                , i -> new boolean[i]
-                , boolean[].class
-                , (array, index, value) -> ((boolean[])array)[index] = ((Boolean)value).booleanValue()
-//                , (array, index, value) -> Array.setBoolean(array, index.intValue(), Boolean.class.cast(value).booleanValue())
-                , (array, from, to) -> Arrays.copyOfRange((boolean[])array, from, to)
-                , array -> Arrays.toString((boolean[])array)));
-        map.put(Boolean.class, Tuple.create(
-                classPredicate
-                , i -> new Boolean[i]
-                , Boolean[].class
-                , arraySet
-                , (array, from, to) -> Arrays.copyOfRange((Boolean[])array, from, to)
-                , array -> Arrays.toString((Boolean[])array)));
-        classPredicate = clazz -> char.class.equals(clazz) || Character.class.equals(clazz);
-        map.put(char.class, Tuple.create(
-                classPredicate
-                , i -> new char[i]
-                , char[].class
-                , (array, index, value) -> ((char[])array)[index] = ((Character)value).charValue()
-//                , (array, index, value) -> Array.setChar(array, index, Character.class.cast(value).charValue())
-                , (array, from, to) -> Arrays.copyOfRange((char[])array, from, to)
-                , array -> Arrays.toString((char[])array)));
-        map.put(Character.class, Tuple.create(
-                classPredicate
-                , i -> new Character[i]
-                , Character[].class
-                , arraySet
-                , (array, from, to) -> Arrays.copyOfRange((Character[])array, from, to)
-                , array -> Arrays.toString((Character[])array)));
-        classPredicate = clazz -> short.class.equals(clazz) || Short.class.equals(clazz);
-        map.put(short.class, Tuple.create(
-                classPredicate
-                , i -> new short[i]
-                , short[].class
-                , (array, index, value) -> ((short[])array)[index] = ((Short)value).shortValue()
-//                , (array, index, value) -> Array.setShort(array, index, Short.class.cast(value).shortValue())
-                , (array, from, to) -> Arrays.copyOfRange((short[])array, from, to)
-                , array -> Arrays.toString((short[])array)));
-        map.put(Short.class, Tuple.create(
-                classPredicate
-                , i -> new Short[i]
-                , Short[].class
-                , arraySet
-                , (array, from, to) -> Arrays.copyOfRange((Short[])array, from, to)
-                , array -> Arrays.toString((Short[])array)));
-        classPredicate = clazz -> long.class.equals(clazz) || Long.class.equals(clazz);
-        map.put(long.class, Tuple.create(
-                classPredicate
-                , i -> new long[i]
-                , long[].class
-                , (array, index, value) -> ((long[])array)[index] = ((Long)value).longValue()
-//                , (array, index, value) -> Array.setLong(array, index, Long.class.cast(value).longValue())
-                , (array, from, to) -> Arrays.copyOfRange((long[])array, from, to)
-                , array -> Arrays.toString((long[])array)));
-        map.put(Long.class, Tuple.create(
-                classPredicate
-                , i -> new Long[i]
-                , Long[].class
-                , arraySet
-                , (array, from, to) -> Arrays.copyOfRange((Long[])array, from, to)
-                , array -> Arrays.toString((Long[])array)));
-        classPredicate = clazz -> double.class.equals(clazz) || Double.class.equals(clazz);
-        map.put(double.class, Tuple.create(
-                classPredicate
-                , i -> new double[i]
-                , double[].class
-                , (array, index, value) -> ((double[])array)[index] = ((Double)value).doubleValue()
-//                , (array, index, value) -> Array.setDouble(array, index, Double.class.cast(value).doubleValue())
-                , (array, from, to) -> Arrays.copyOfRange((double[])array, from, to)
-                , array -> Arrays.toString((double[])array)));
-        map.put(Double.class, Tuple.create(
-                classPredicate
-                , i -> new Double[i]
-                , Double[].class
-                , arraySet
-                , (array, from, to) -> Arrays.copyOfRange((Double[])array, from, to)
-                , array -> Arrays.toString((Double[])array)));
-        classPredicate = clazz -> float.class.equals(clazz) || Float.class.equals(clazz);
-        map.put(float.class, Tuple.create(
-                classPredicate
-                , i -> new float[i]
-                , float[].class
-                , (array, index, value) -> ((float[])array)[index] = ((Float)value).floatValue()
-//                , (array, index, value) -> Array.setFloat(array, index, Float.class.cast(value).floatValue())
-                , (array, from, to) -> Arrays.copyOfRange((float[])array, from, to)
-                , array -> Arrays.toString((float[])array)));
-        map.put(Float.class, Tuple.create(
-                classPredicate
-                , i -> new Float[i]
-                , Float[].class
-                , arraySet
-                , (array, from, to) -> Arrays.copyOfRange((Float[])array, from, to)
-                , array -> Arrays.toString((Float[])array)));
-        return map;
-    }
 
     private static Tuple6<
             Predicate<Class>,
@@ -798,147 +778,140 @@ public class TypeHelper {
                         , Function<Object, Object>  // convert the value of original class to equivalent class in serial
                         , Function<Object, Object>  // convert the value of original class to equivalent class either parallely or srially
                 > baseTypeConverters = HexaValuesRepository.fromKey(
-            TypeHelper::getReservedBaseTypeConverters,
+            new HashMap(){{
+                //For primitive values, return itself as object would convert it to the wrapper type automatically
+                Function<Object,Object> convertWithCasting = returnsSelf;
+                put(boolean.class, Tuple.create(
+                        true
+                        , false
+                        , Boolean.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = fromElement -> ((Boolean)fromElement).booleanValue();
+                put(Boolean.class, Tuple.create(
+                        false
+                        , false
+                        , boolean.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = returnsSelf;
+                put(byte.class, Tuple.create(
+                        true
+                        , (byte)0
+                        , Byte.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = fromElement -> Byte.class.cast(fromElement).byteValue();
+                put(Byte.class, Tuple.create(
+                        false
+                        , (byte)0
+                        , byte.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = returnsSelf;
+                put(char.class, Tuple.create(
+                        true
+                        , (char)0
+                        , Character.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = fromElement -> Character.class.cast(fromElement).charValue();
+                put(Character.class, Tuple.create(
+                        false
+                        , (char)0
+                        , char.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = returnsSelf;
+                put(double.class, Tuple.create(
+                        true
+                        , 0d
+                        , Double.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = fromElement -> Double.class.cast(fromElement).doubleValue();
+                put(Double.class, Tuple.create(
+                        false
+                        , 0d
+                        , double.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = returnsSelf;
+                put(float.class, Tuple.create(
+                        true
+                        , 0f
+                        , Float.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = fromElement -> Float.class.cast(fromElement).floatValue();
+                put(Float.class, Tuple.create(
+                        false
+                        , 0f
+                        , float.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = returnsSelf;
+                put(int.class, Tuple.create(
+                        true
+                        , 0
+                        , Integer.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = fromElement -> Integer.class.cast(fromElement).intValue();
+                put(Integer.class, Tuple.create(
+                        false
+                        , 0
+                        , int.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = returnsSelf;
+                put(long.class, Tuple.create(
+                        true
+                        , 0L
+                        , Long.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = fromElement -> Long.class.cast(fromElement).longValue();
+                put(Long.class, Tuple.create(
+                        false
+                        , 0L
+                        , long.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = returnsSelf;
+                put(short.class, Tuple.create(
+                        true
+                        , (short)0
+                        , Short.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+                convertWithCasting = fromElement -> Short.class.cast(fromElement).shortValue();
+                put(Short.class, Tuple.create(
+                        false
+                        , (short)0
+                        , short.class
+                        , convertWithCasting
+                        , convertWithCasting
+                        , convertWithCasting));
+            }},
             null,
             TypeHelper::makeBaseTypeConverters
     );
-
-    private static Map<Class, Tuple6<Boolean, Object, Class, Function<Object,Object>, Function<Object,Object>, Function<Object,Object>>>
-        getReservedBaseTypeConverters(){
-        Map<Class, Tuple6<Boolean, Object, Class, Function<Object,Object>, Function<Object,Object>, Function<Object,Object>>> map = new
-                HashMap<Class, Tuple6<Boolean, Object, Class, Function<Object,Object>, Function<Object,Object>, Function<Object,Object>>>();
-
-        //For primitive values, return itself as object would convert it to the wrapper type automatically
-        Function<Object,Object> convertWithCasting = returnsSelf;
-        map.put(boolean.class, Tuple.create(
-                true
-                , false
-                , Boolean.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = fromElement -> ((Boolean)fromElement).booleanValue();
-        map.put(Boolean.class, Tuple.create(
-                false
-                , false
-                , boolean.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = returnsSelf;
-        map.put(byte.class, Tuple.create(
-                true
-                , (byte)0
-                , Byte.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = fromElement -> Byte.class.cast(fromElement).byteValue();
-        map.put(Byte.class, Tuple.create(
-                false
-                , (byte)0
-                , byte.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = returnsSelf;
-        map.put(char.class, Tuple.create(
-                true
-                , (char)0
-                , Character.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = fromElement -> Character.class.cast(fromElement).charValue();
-        map.put(Character.class, Tuple.create(
-                false
-                , (char)0
-                , char.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = returnsSelf;
-        map.put(double.class, Tuple.create(
-                true
-                , 0d
-                , Double.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = fromElement -> Double.class.cast(fromElement).doubleValue();
-        map.put(Double.class, Tuple.create(
-                false
-                , 0d
-                , double.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = returnsSelf;
-        map.put(float.class, Tuple.create(
-                true
-                , 0f
-                , Float.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = fromElement -> Float.class.cast(fromElement).floatValue();
-        map.put(Float.class, Tuple.create(
-                false
-                , 0f
-                , float.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = returnsSelf;
-        map.put(int.class, Tuple.create(
-                true
-                , 0
-                , Integer.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = fromElement -> Integer.class.cast(fromElement).intValue();
-        map.put(Integer.class, Tuple.create(
-                false
-                , 0
-                , int.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = returnsSelf;
-        map.put(long.class, Tuple.create(
-                true
-                , 0L
-                , Long.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = fromElement -> Long.class.cast(fromElement).longValue();
-        map.put(Long.class, Tuple.create(
-                false
-                , 0L
-                , long.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = returnsSelf;
-        map.put(short.class, Tuple.create(
-                true
-                , (short)0
-                , Short.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        convertWithCasting = fromElement -> Short.class.cast(fromElement).shortValue();
-        map.put(Short.class, Tuple.create(
-                false
-                , (short)0
-                , short.class
-                , convertWithCasting
-                , convertWithCasting
-                , convertWithCasting));
-        return map;
-    }
 
     /**
      * This higher-order method parse a class to get

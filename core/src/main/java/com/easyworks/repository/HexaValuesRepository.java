@@ -27,7 +27,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map any key to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 6 elements
      * @param <TKey>  type of the first element of the Key
@@ -40,10 +40,10 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * @return      Constructed Repository to map 1 key to 6 values as a Tuple
      */
     public static <TKey,T,U,V,W,X,Y> HexaValuesRepository<TKey, T,U,V,W,X,Y> fromKey(
-            SupplierThrowable<Map<TKey, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+            Map<TKey, Tuple6<T,U,V,W,X,Y>> map,
             TriConsumerThrowable<TKey, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
             FunctionThrowable<TKey, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        return new HexaValuesRepository(storageSupplier, changesConsumer, valueFunction);
+        return new HexaValuesRepository(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -68,7 +68,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 6 elements
      * @param <K1>  type of the first element of the Key
@@ -81,17 +81,17 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * @return      Constructed Repository to map 1 key to 6 values as a Tuple
      */
     public static <K1, T,U,V,W,X,Y> SingleKeys<K1, T,U,V,W,X,Y> fromOneKeys(
-            SupplierThrowable<Map<Tuple1<K1>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+            Map<Tuple1<K1>, Tuple6<T,U,V,W,X,Y>> map,
             TriConsumerThrowable<Tuple1<K1>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
             FunctionThrowable<K1, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        return new SingleKeys(storageSupplier, changesConsumer, valueFunction);
+        return new SingleKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 2 keys to Tuple of 6 elements
      * @param <K1>  type of the first element of the Key
@@ -105,17 +105,17 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * @return      Constructed Repository to map 2 keys to 6 values as a Tuple
      */
     public static <K1,K2, T,U,V,W,X,Y> DualKeys<K1,K2, T,U,V,W,X,Y> fromTwoKeys(
-            SupplierThrowable<Map<Tuple2<K1,K2>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+            Map<Tuple2<K1,K2>, Tuple6<T,U,V,W,X,Y>> map,
             TriConsumerThrowable<Tuple2<K1,K2>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
             BiFunctionThrowable<K1,K2, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        return new DualKeys(storageSupplier, changesConsumer, valueFunction);
+        return new DualKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 3 keys to Tuple of 6 elements
      * @param <K1>  type of the first element of the Key
@@ -130,17 +130,17 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * @return      Constructed Repository to map 3 keys to 6 values as a Tuple
      */
     public static <K1,K2,K3, T,U,V,W,X,Y> TripleKeys<K1,K2,K3, T,U,V,W,X,Y> fromThreeKeys(
-            SupplierThrowable<Map<Tuple3<K1,K2,K3>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+            Map<Tuple3<K1,K2,K3>, Tuple6<T,U,V,W,X,Y>> map,
             TriConsumerThrowable<Tuple3<K1,K2,K3>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
             TriFunctionThrowable<K1,K2,K3, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        return new TripleKeys(storageSupplier, changesConsumer, valueFunction);
+        return new TripleKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 4 keys to Tuple of 6 elements
      * @param <K1>  type of the first element of the Key
@@ -156,17 +156,17 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * @return      Constructed Repository to map 4 keys to 6 values as a Tuple
      */
     public static <K1,K2,K3,K4, T,U,V,W,X,Y> QuadKeys<K1,K2,K3,K4, T,U,V,W,X,Y> fromFourKeys(
-            SupplierThrowable<Map<Tuple4<K1,K2,K3,K4>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+            Map<Tuple4<K1,K2,K3,K4>, Tuple6<T,U,V,W,X,Y>> map,
             TriConsumerThrowable<Tuple4<K1,K2,K3,K4>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
             QuadFunctionThrowable<K1,K2,K3,K4, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        return new QuadKeys(storageSupplier, changesConsumer, valueFunction);
+        return new QuadKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 5 keys to Tuple of 6 elements
      * @param <K1>  type of the first element of the Key
@@ -183,17 +183,17 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * @return      Constructed Repository to map 5 keys to 6 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5, T,U,V,W,X,Y> PentaKeys<K1,K2,K3,K4,K5, T,U,V,W,X,Y> fromFiveKeys(
-            SupplierThrowable<Map<Tuple5<K1,K2,K3,K4,K5>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+            Map<Tuple5<K1,K2,K3,K4,K5>, Tuple6<T,U,V,W,X,Y>> map,
             TriConsumerThrowable<Tuple5<K1,K2,K3,K4,K5>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
             PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        return new PentaKeys(storageSupplier, changesConsumer, valueFunction);
+        return new PentaKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 6 keys to Tuple of 6 elements
      * @param <K1>  type of the first element of the Key
@@ -211,17 +211,17 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * @return      Constructed Repository to map 6 keys to 6 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y> HexaKeys<K1,K2,K3,K4,K5,K6, T,U,V,W,X,Y> fromSixKeys(
-            SupplierThrowable<Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+            Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple6<T,U,V,W,X,Y>> map,
             TriConsumerThrowable<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
             HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        return new HexaKeys(storageSupplier, changesConsumer, valueFunction);
+        return new HexaKeys(map, changesConsumer, valueFunction);
     }
 
     /**
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 7 keys to Tuple of 6 elements
      * @param <K1>  type of the first element of the Key
@@ -240,10 +240,10 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * @return      Constructed Repository to map 7 keys to 6 values as a Tuple
      */
     public static <K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y> HeptaKeys<K1,K2,K3,K4,K5,K6,K7, T,U,V,W,X,Y> fromSevenKeys(
-            SupplierThrowable<Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+            Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple6<T,U,V,W,X,Y>> map,
             TriConsumerThrowable<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
             HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        return new HeptaKeys(storageSupplier, changesConsumer, valueFunction);
+        return new HeptaKeys(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -392,14 +392,14 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
      * Notice: Shall be used when there are special cases need to be put first
      *
-     * @param storageSupplier   Factory to get the strong-typed map instance
+     * @param map   Factory to get the strong-typed map instance
      * @param changesConsumer   Extra steps to be called when any entry updated
      * @param valueFunction     Function to map 1 key to Tuple of 6 elements
      */
-    protected HexaValuesRepository(SupplierThrowable<Map<TKey, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+    protected HexaValuesRepository(Map<TKey, Tuple6<T,U,V,W,X,Y>> map,
                                    TriConsumerThrowable<TKey, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
                                    FunctionThrowable<TKey, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        super(storageSupplier, changesConsumer, valueFunction);
+        super(map, changesConsumer, valueFunction);
     }
 
     /**
@@ -407,7 +407,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
      * @param valueFunction     Function to map 1 key to Tuple of 6 elements
      */
     protected HexaValuesRepository(FunctionThrowable<TKey, Tuple6<T,U,V,W,X,Y>> valueFunction){
-        this(HashMap::new, null, valueFunction);
+        this(new HashMap(), null, valueFunction);
     }
     //endregion
 
@@ -440,14 +440,14 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 1 key to Tuple of 6 elements
          */
-        protected SingleKeys(SupplierThrowable<Map<Tuple1<K1>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+        protected SingleKeys(Map<Tuple1<K1>, Tuple6<T,U,V,W,X,Y>> map,
                              TriConsumerThrowable<Tuple1<K1>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
                              FunctionThrowable<K1, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, changesConsumer, single -> valueFunction.apply(single.getFirst()));
+            super(map, changesConsumer, single -> valueFunction.apply(single.getFirst()));
         }
 
         /**
@@ -455,7 +455,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * @param valueFunction     Function to map 1 key to Tuple of 6 elements
          */
         protected SingleKeys(FunctionThrowable<K1, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -479,14 +479,14 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 2 keys to Tuple of 6 elements
          */
-        protected DualKeys(SupplierThrowable<Map<Tuple2<K1,K2>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+        protected DualKeys(Map<Tuple2<K1,K2>, Tuple6<T,U,V,W,X,Y>> map,
                            TriConsumerThrowable<Tuple2<K1,K2>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
                            BiFunctionThrowable<K1, K2, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
+            super(map, changesConsumer, dual -> valueFunction.apply(dual.getFirst(), dual.getSecond()));
         }
 
         /**
@@ -494,7 +494,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * @param valueFunction     Function to map 2 keys to Tuple of 6 elements
          */
         protected DualKeys(BiFunctionThrowable<K1, K2, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -519,14 +519,14 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 3 keys to Tuple of 6 elements
          */
-        protected TripleKeys(SupplierThrowable<Map<Tuple3<K1,K2,K3>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+        protected TripleKeys(Map<Tuple3<K1,K2,K3>, Tuple6<T,U,V,W,X,Y>> map,
                              TriConsumerThrowable<Tuple3<K1,K2,K3>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
                              TriFunctionThrowable<K1, K2, K3, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
+            super(map, changesConsumer, triple -> valueFunction.apply(triple.getFirst(), triple.getSecond(), triple.getThird()));
         }
 
         /**
@@ -534,7 +534,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * @param valueFunction     Function to map 3 keys to Tuple of 6 elements
          */
         protected TripleKeys(TriFunctionThrowable<K1, K2, K3, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -559,14 +559,14 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 4 keys to Tuple of 6 elements
          */
-        protected QuadKeys(SupplierThrowable<Map<Tuple4<K1,K2,K3,K4>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+        protected QuadKeys(Map<Tuple4<K1,K2,K3,K4>, Tuple6<T,U,V,W,X,Y>> map,
                            TriConsumerThrowable<Tuple4<K1,K2,K3,K4>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
                            QuadFunctionThrowable<K1,K2,K3,K4, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(), tuple.getFourth()));
         }
 
@@ -575,7 +575,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * @param valueFunction     Function to map 4 keys to Tuple of 6 elements
          */
         protected QuadKeys(QuadFunctionThrowable<K1,K2,K3,K4, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -601,14 +601,14 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 5 keys to Tuple of 6 elements
          */
-        protected PentaKeys(SupplierThrowable<Map<Tuple5<K1,K2,K3,K4,K5>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+        protected PentaKeys(Map<Tuple5<K1,K2,K3,K4,K5>, Tuple6<T,U,V,W,X,Y>> map,
                             TriConsumerThrowable<Tuple5<K1,K2,K3,K4,K5>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
                             PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth()));
         }
@@ -618,7 +618,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * @param valueFunction     Function to map 5 keys to Tuple of 6 elements
          */
         protected PentaKeys(PentaFunctionThrowable<K1,K2,K3,K4,K5, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -647,14 +647,14 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 6 keys to Tuple of 6 elements
          */
-        protected HexaKeys(SupplierThrowable<Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+        protected HexaKeys(Map<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple6<T,U,V,W,X,Y>> map,
                            TriConsumerThrowable<Tuple6<K1,K2,K3,K4,K5,K6>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
                            HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth()));
         }
@@ -664,7 +664,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * @param valueFunction     Function to map 6 keys to Tuple of 6 elements
          */
         protected HexaKeys(HexaFunctionThrowable<K1,K2,K3,K4,K5,K6, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 
@@ -694,14 +694,14 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * Construct a repository with map supplier, extra changesConsumer logic and evaluate logic to map keys to values
          * Notice: Shall be used when there are special cases need to be put first
          *
-         * @param storageSupplier   Factory to get the strong-typed map instance
+         * @param map   Factory to get the strong-typed map instance
          * @param changesConsumer   Extra steps to be called when any entry updated
          * @param valueFunction     Function to map 7 keys to Tuple of 6 elements
          */
-        protected HeptaKeys(SupplierThrowable<Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple6<T,U,V,W,X,Y>>> storageSupplier,
+        protected HeptaKeys(Map<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple6<T,U,V,W,X,Y>> map,
                             TriConsumerThrowable<Tuple7<K1,K2,K3,K4,K5,K6,K7>, Tuple6<T,U,V,W,X,Y>, Tuple6<T,U,V,W,X,Y>> changesConsumer,
                             HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            super(storageSupplier, changesConsumer, tuple ->
+            super(map, changesConsumer, tuple ->
                     valueFunction.apply(tuple.getFirst(), tuple.getSecond(), tuple.getThird(),
                             tuple.getFourth(), tuple.getFifth(), tuple.getSixth(), tuple.getSeventh()));
         }
@@ -711,7 +711,7 @@ public class HexaValuesRepository<TKey, T,U,V,W,X,Y>
          * @param valueFunction     Function to map 7 keys to Tuple of 6 elements
          */
         protected HeptaKeys(HeptaFunctionThrowable<K1,K2,K3,K4,K5,K6,K7, Tuple6<T,U,V,W,X,Y>> valueFunction) {
-            this(HashMap::new, null, valueFunction);
+            this(new HashMap(), null, valueFunction);
         }
     }
 }

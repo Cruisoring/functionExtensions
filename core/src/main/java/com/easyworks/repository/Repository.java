@@ -1,23 +1,25 @@
 package com.easyworks.repository;
 
-import com.easyworks.Functions;
-import com.easyworks.Lazy;
-import com.easyworks.function.*;
+import com.easyworks.function.FunctionThrowable;
+import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.utility.Logger;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Wrapping of Map instance and business logic to get value from key
  * @param <TKey>    the type of keys maintained by this map
  * @param <TValue>  the type of mapped values
  */
-public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
+public class Repository<TKey, TValue>
         implements FunctionThrowable<TKey, TValue> {
     public static boolean USE_DEFAULT_CHNAGES_LOG = false;
     //Default time to close parallelly all AutoCloseable keys/values contained by the map
     public static long DEFAULT_RESET_TIMEOUT = 2000;
 
+    final Map<TKey, TValue> storage;
 
    //Function to map key of <code>TKey<code> type to value of <code>TValue<code> type
     final FunctionThrowable<TKey, TValue> valueFunctionThrowable;
@@ -26,14 +28,14 @@ public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
 
     /**
      * Construct a repository with given map factory, extra changesConsumer logic and Function to map key to value
-     * @param storageSupplier   Factory to get a map instance
+     * @param map   Factory to get a map instance
      * @param changesConsumer           Extra steps to run before reset() being called.
      * @param valueFunction     Function to map key of <code>TKey<code> type to value of <code>TValue<code> type
      */
-    public Repository(SupplierThrowable<Map<TKey, TValue>> storageSupplier,
+    public Repository(Map<TKey, TValue> map,
                       TriConsumerThrowable<TKey, TValue, TValue> changesConsumer,
                       FunctionThrowable<TKey, TValue> valueFunction){
-        super(storageSupplier, null);
+        storage = map;
         Objects.requireNonNull(valueFunction);
         this.valueFunctionThrowable = valueFunction;
         this.changesConsumer = changesConsumer != null ? changesConsumer : (USE_DEFAULT_CHNAGES_LOG ? this::defualtChangesLog : null);
@@ -44,7 +46,7 @@ public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
      * @param valueFunction     Function to map key of <code>TKey<code> type to value of <code>TValue<code> type
      */
     public Repository(FunctionThrowable<TKey, TValue> valueFunction){
-        this(HashMap::new, null, valueFunction);
+        this(new HashMap(), null, valueFunction);
     }
 
     private void defualtChangesLog(TKey key, TValue oldValue, TValue newValue){
@@ -65,7 +67,6 @@ public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
     @Override
     public TValue apply(TKey tKey) throws Exception {
         TValue result;
-        Map<TKey, TValue> storage = getValue();
         if(!storage.containsKey(tKey)){
             result = valueFunctionThrowable.apply(tKey);
             storage.put(tKey, result);
@@ -110,7 +111,7 @@ public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
      */
 
     public boolean containsKey(Object tKey){
-        return getValue().containsKey(tKey);
+        return storage.containsKey(tKey);
     }
 
     /**
@@ -121,38 +122,38 @@ public class Repository<TKey, TValue> extends Lazy<Map<TKey, TValue>>
      * @return the number of key-value mappings in this map
      */
     public int getSize(){
-        return getValue().size();
+        return storage.size();
     }
 
-    /**
-     * Extra closing logic to close all AutoCloseable Keys/Values within a limited time specified by DEFAULT_RESET_TIMEOUT
-     */
-    @Override
-    public void reset() {
-        if(isValueInitialized()){
-            List<RunnableThrowable> keyValueToClose = new ArrayList<>();
-            Map<TKey, TValue> map = getValue();
-            map.entrySet().forEach(entry -> {
-                TKey key = entry.getKey();
-                if(key instanceof AutoCloseable){
-                    AutoCloseable kClose = (AutoCloseable)key;
-                    keyValueToClose.add(kClose::close);
-                }
-                TValue value = entry.getValue();
-                if(value instanceof AutoCloseable){
-                    AutoCloseable vClose = (AutoCloseable)value;
-                    keyValueToClose.add(vClose::close);
-                }
-
-                if(changesConsumer != null){
-                    Functions.Default.run(changesConsumer, key, value, null);
-                }
-            });
-            map.clear();
-            if(keyValueToClose.size() > 0){
-                Functions.runParallel(keyValueToClose, DEFAULT_RESET_TIMEOUT);
-            }
-        }
-        super.reset();
-    }
+//    /**
+//     * Extra closing logic to close all AutoCloseable Keys/Values within a limited time specified by DEFAULT_RESET_TIMEOUT
+//     */
+//    @Override
+//    public void reset() {
+//        if(isValueInitialized()){
+//            List<RunnableThrowable> keyValueToClose = new ArrayList<>();
+//            Map<TKey, TValue> map = storage;
+//            map.entrySet().forEach(entry -> {
+//                TKey key = entry.getKey();
+//                if(key instanceof AutoCloseable){
+//                    AutoCloseable kClose = (AutoCloseable)key;
+//                    keyValueToClose.add(kClose::close);
+//                }
+//                TValue value = entry.getValue();
+//                if(value instanceof AutoCloseable){
+//                    AutoCloseable vClose = (AutoCloseable)value;
+//                    keyValueToClose.add(vClose::close);
+//                }
+//
+//                if(changesConsumer != null){
+//                    Functions.Default.run(changesConsumer, key, value, null);
+//                }
+//            });
+//            map.clear();
+//            if(keyValueToClose.size() > 0){
+//                Functions.runParallel(keyValueToClose, DEFAULT_RESET_TIMEOUT);
+//            }
+//        }
+//        super.reset();
+//    }
 }
