@@ -429,7 +429,7 @@ public class TupleTest {
 
     private void testCloseInOrder(String[] expection, Object... values){
         closeMessages.clear();
-        try (Tuple tuple = Tuple.getTupleSupplier(values).get()){
+        try (Tuple tuple = Tuple.of(values)){
         }catch (Exception ex){
             Logger.L(ex.getMessage());
         }

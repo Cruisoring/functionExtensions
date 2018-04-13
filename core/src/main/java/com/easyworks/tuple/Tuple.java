@@ -1,14 +1,12 @@
 package com.easyworks.tuple;
 
 import com.easyworks.Functions;
-import com.easyworks.function.SupplierThrowable;
+import com.easyworks.TypeHelper;
 import com.easyworks.utility.ArrayHelper;
 import com.easyworks.utility.Logger;
-import com.easyworks.TypeHelper;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -16,18 +14,14 @@ import java.util.function.Predicate;
  * would close any elements if they are also AutoCloseable.
  */
 public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
-    private static java.util.Set<Class> valueArrayClasses = new HashSet<Class>(Arrays.asList(
-            byte[].class, boolean[].class, char[].class, float[].class,
-            int[].class, double[].class, long[].class, short[].class));
 
     public static final Tuple0 UNIT = new Tuple0();
     public static final Tuple1 TRUE = new Tuple1(true);
     public static final Tuple1 FALSE = new Tuple1(false);
 
-    protected static Function<Object, String> objectsToString;
-
     protected final Object[] values;
     private Integer _hashCode;
+    private int[][] deepLength;
     private String _toString;
 
     /**
@@ -125,6 +119,13 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         return values.length;
     }
 
+    public int[][] getDeepLength() {
+        if(deepLength == null){
+            deepLength = TypeHelper.getDeepLength(values);
+        }
+        return deepLength;
+    }
+
     /**
      * Compares this object with the specified object for order.  Returns a
      * negative integer, zero, or a positive integer as this object is less
@@ -209,11 +210,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
 
     @Override
     public String toString() {
-        if(objectsToString == null){
-            objectsToString = TypeHelper.getArrayToString(Object.class);
-        }
         if(_toString==null){
-            _toString = objectsToString.apply(values);
+            _toString = TypeHelper.deepToString(values);
         }
         return _toString;
     }
@@ -250,30 +248,6 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
 //    }
 
     //region Factories to create Strong-typed Tuple instances based on the number of given arguments
-
-    /**
-     * Get the Tuple factory based on number of elements to be catpured.
-     * @param elements  The values to be saved.
-     * @return  Tuple factory to create corresponding Tuple with the given set of elements.
-     */
-    protected static SupplierThrowable<Tuple> getTupleSupplier(Object... elements){
-        if (elements == null){
-            return () -> create(null);
-        }
-        int valueLength = elements.length;
-        switch (valueLength){
-            case 0: return () -> create();
-            case 1: return () -> create(elements[0]);
-            case 2: return () -> create(elements[0], elements[1]);
-            case 3: return () -> create(elements[0], elements[1], elements[2]);
-            case 4: return () -> create(elements[0], elements[1], elements[2], elements[3]);
-            case 5: return () -> create(elements[0], elements[1], elements[2], elements[3], elements[4]);
-            case 6: return () -> create(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
-            case 7: return () -> create(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5], elements[6]);
-            default: return () -> new Tuple(elements);
-        }
-    }
-
 
     /**
      * Create a Tuple instance to keep any number of elements without caring about their Type info.

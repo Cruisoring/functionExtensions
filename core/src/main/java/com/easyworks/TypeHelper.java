@@ -245,9 +245,10 @@ public class TypeHelper {
      * @param obj2      Second Object to be compared
      * @return          <code>true</code> if they have same set of values, otherwise <code>false</code>
      */
-    private static boolean deepLengthEquals(Object obj1, Object obj2){
+    static boolean deepLengthEquals(Object obj1, Object obj2){
         int[][] deepLength1 = getDeepLength(obj1);
         int[][] deepLength2 = getDeepLength(obj2);
+
         int length = deepLength1.length;
         if(length != deepLength2.length)
             return false;

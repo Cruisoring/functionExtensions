@@ -2,7 +2,6 @@ package com.easyworks.tuple;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Special Tuple type with all elements of the same type <code>T</code>
@@ -90,8 +89,6 @@ public class Set<T> extends Tuple{
     @Override
     public String toString() {
         return String.format("%s[%s]", elementType.getSimpleName(),
-                Arrays.stream(values)
-                        .map(v -> v==null?"null":v.toString())
-                        .collect(Collectors.joining(", ")));
+                super.toString());
     }
 }
