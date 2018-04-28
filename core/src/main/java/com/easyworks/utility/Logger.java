@@ -1,6 +1,5 @@
 package com.easyworks.utility;
 
-import com.easyworks.Functions;
 import com.easyworks.Loggable;
 import com.easyworks.function.ConsumerThrowable;
 
@@ -33,7 +32,7 @@ public class Logger implements Loggable {
     @Override
     public void log(String message, Object... arguments){
         if(_logging != null){
-            Functions.Default.run(() -> _logging.accept(String.format(message, arguments)));
+            _logging.withHandler(null).accept(String.format(message, arguments));
         }
     }
 

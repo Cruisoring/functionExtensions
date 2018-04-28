@@ -6,7 +6,7 @@ package com.easyworks.tuple;
  * @param <U> Type of the second persisted element
  */
 public class Tuple2<T,U> extends Tuple
-        implements WithSecond<T,U> {
+        implements WithValues2<T,U> {
 
     protected Tuple2(T t, U u){
         super(t, u);

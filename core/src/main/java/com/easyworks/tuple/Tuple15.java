@@ -19,7 +19,7 @@ package com.easyworks.tuple;
  * @param <H> Type of the 15th persisted element
  */
 public class Tuple15<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H> extends Tuple
-        implements WithFifteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H> {
+        implements WithValues15<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H> {
 
     protected Tuple15(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h){
         super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h);

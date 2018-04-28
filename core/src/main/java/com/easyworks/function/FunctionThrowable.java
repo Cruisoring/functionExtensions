@@ -1,6 +1,6 @@
 package com.easyworks.function;
 
-import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -10,7 +10,7 @@ import java.util.function.Function;
  * @param <R>   Type of the returned result.
  */
 @FunctionalInterface
-public interface FunctionThrowable<T, R> extends AbstractThrowable {
+public interface FunctionThrowable<T, R> extends WithValueReturned<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 1 argument and returning result of type <code>R</code>
      * @param t     The first argument of type <code>T</code>.
@@ -20,34 +20,37 @@ public interface FunctionThrowable<T, R> extends AbstractThrowable {
     R apply(T t) throws Exception;
 
     /**
-     * Convert the above <code>apply</code> method to <code>SupplierThrowable</code> with 1 argument
-     * @param t     The first argument of type <code>T</code>.
-     * @return      The converted <code>SupplierThrowable</code> by applying the given argument.
+     * Convert the FunctionThrowable&lt;T,R&gt; to Function&lt;T,R&gt; with injected Exception Handler
+     * @param exceptionHandler  Handler of the caught Exceptions and returns default value
+     * @return  Converted Function&lt;T,R&gt; that get Exceptions handled with the exceptionHandler
      */
-    default SupplierThrowable<R> asSupplier(T t){
-        return () -> apply(t);
-    }
 
-
-    default Function<T, R> withHandler(Function<Exception, R> exceptionHanlder){
-        Objects.requireNonNull(exceptionHanlder);
-        return (t) -> {
+    default Function<T, R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler){
+        Function<T, R> function = (t) -> {
             try {
                 return apply(t);
             } catch (Exception e) {
-                return exceptionHanlder.apply(e);
+                return exceptionHandler == null ? null : (R) exceptionHandler.apply(e, this);
             }
         };
+        return function;
     }
 
-    default Function<T, R> orElse(R defaultResult){
-        return (t) -> {
+    /**
+     * Simplified version of converting the FunctionThrowable&lt;T,R&gt; to Function&lt;T,R&gt; by ignoring the caught Exception
+     * and simply returns a pre-defined default value.
+     * @param defaultValue  Predefined default value.
+     * @return
+     */
+    default Function<T, R> orElse(R defaultValue){
+        Function<T, R> function = (t) -> {
             try {
                 return apply(t);
             } catch (Exception e) {
-                return defaultResult;
+                return defaultValue;
             }
         };
+        return function;
     }
 
 }

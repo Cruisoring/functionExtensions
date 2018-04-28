@@ -20,7 +20,7 @@ package com.easyworks.tuple;
  * @param <I> Type of the 16th persisted element
  */
 public class Tuple16<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> extends Tuple
-        implements WithSixteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> {
+        implements WithValues16<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> {
 
     protected Tuple16(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i){
         super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i);

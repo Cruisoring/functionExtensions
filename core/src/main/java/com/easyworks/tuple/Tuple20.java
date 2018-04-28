@@ -24,7 +24,7 @@ package com.easyworks.tuple;
  * @param <M> Type of the 20th persisted element
  */
 public class Tuple20<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> extends Tuple
-        implements WithTwentieth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> {
+        implements WithValues20<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> {
 
     protected Tuple20(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m){
         super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l, m);

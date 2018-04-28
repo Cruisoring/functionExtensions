@@ -1,6 +1,5 @@
 package com.easyworks.function;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -12,7 +11,7 @@ import java.util.function.Consumer;
  * @param <W>   Type of the fourth argument.
  */
 @FunctionalInterface
-public interface QuadConsumerThrowable<T,U,V,W> extends AbstractThrowable {
+public interface QuadConsumerThrowable<T,U,V,W> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 4 arguments and returning nothing.
      * @param t     The first argument of type <code>T</code>.
@@ -24,30 +23,31 @@ public interface QuadConsumerThrowable<T,U,V,W> extends AbstractThrowable {
     void accept(T t, U u, V v, W w) throws Exception;
 
     /**
-     * Convert the above <code>accept</code> method to <code>RunnableThrowable</code> with all 4 arguments
-     * @param t     The first argument of type <code>T</code>.
-     * @param u     The second argument of type <code>U</code>.
-     * @param v     The third argument of type <code>V</code>.
-     * @param w     The fourth argument of type <code>W</code>.
-     * @return  The converted <code>RunnableThrowable</code> with all 4 argments captured when called.
+     * Convert the QuadConsumerThrowable&lt;T,U,V,W&gt; to QuadConsumer&lt;T,U,V,W&gt; with injected Exception Handler
+     * @param exceptionHandler  Exception Handler of the caught Exceptions
+     * @return  Converted QuadConsumer&lt;T,U,V,W&gt; that get Exceptions handled with the exceptionHandler
      */
-    default RunnableThrowable asRunnable(T t, U u, V v, W w){
-        return () -> accept(t, u, v, w);
-    }
-
-    default QuadConsumer<T,U,V,W> orElse(Consumer<Exception> exceptionHandler){
-        Objects.requireNonNull(exceptionHandler);
-        return (t, u, v, w) -> {
+    default QuadConsumer<T,U,V,W> withHandler(Consumer<Exception> exceptionHandler){
+        QuadConsumer<T,U,V,W> consumer = (t, u, v, w) -> {
             try {
                 accept(t, u, v, w);
             } catch (Exception e) {
-                exceptionHandler.accept(e);
+                if(exceptionHandler != null)
+                    exceptionHandler.accept(e);
             }
         };
+        return consumer;
     }
 
+    /**
+     * Represents an operation that accepts four input arguments and returns no result.
+     * @param <T>   Type of the first argument
+     * @param <U>   Type of the second argument
+     * @param <V>   Type of the third argument
+     * @param <W>   Type of the fourth argument
+     */
     @FunctionalInterface
-    interface QuadConsumer<T,U,V,W> extends AbstractThrowable{
+    interface QuadConsumer<T,U,V,W> {
         void accept(T t, U u, V v, W w);
     }
 }

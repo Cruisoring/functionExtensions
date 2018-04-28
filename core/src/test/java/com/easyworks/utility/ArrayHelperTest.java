@@ -75,6 +75,10 @@ public class ArrayHelperTest {
         List[] lists = (List[])ArrayHelper.getNewArray(List.class, 3);
         lists[0] = new ArrayList();
         lists[2] = new ArrayList();
+
+        Comparable[][] comparablesArray = (Comparable[][]) ArrayHelper.getNewArray(Comparable[].class, 2);
+        comparablesArray[0] = new Integer[]{1, 2};
+        comparablesArray[1] = new String[0];
     }
 
     @Test
@@ -179,49 +183,6 @@ public class ArrayHelperTest {
         ArrayHelper.setAll(newStrings, i -> String.valueOf(i));
         assertDeepEquals(expectedStrings, newStrings);
     }
-
-//    @Test
-//    public void asObjects() {
-//        int[] ints = new int[]{1,2,3};
-//        Object[] objects = ArrayHelper.asObjects(ints);
-//        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, objects));
-//
-//        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, ArrayHelper.asObjects(new Integer[]{1,2,3})));
-//
-//        DayOfWeek[] days = new DayOfWeek[]{DayOfWeek.FRIDAY, DayOfWeek.MONDAY};
-//        assertTrue(ArrayHelper.matchArrays(new Object[]{DayOfWeek.FRIDAY, DayOfWeek.MONDAY}, ArrayHelper.asObjects(days)));
-//
-//        Collection[] collections = new Collection[]{new ArrayList(), new HashSet()};
-//        objects = ArrayHelper.asObjects(collections);
-//        assertEquals(ArrayList.class, objects[0].getClass());
-//        assertEquals(HashSet.class, objects[1].getClass());
-//    }
-//
-//    @Test
-//    public void asArray() {
-//        assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new int[]{1,2,3})));
-//        assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3}, (Integer[])ArrayHelper.asArray(new Integer[]{1,2,3})));
-//        assertTrue(TypeHelper.valueEquals(new DayOfWeek[]{DayOfWeek.MONDAY}, (DayOfWeek[])ArrayHelper.asArray(new DayOfWeek[]{DayOfWeek.MONDAY})));
-//        assertTrue(TypeHelper.valueEquals(new Tuple[]{Tuple.TRUE, Tuple.FALSE}, (Tuple[])ArrayHelper.asArray(new Tuple[]{Tuple.TRUE, Tuple.FALSE})));
-//    }
-//
-//    @Test
-//    public void asPureObject() {
-//        Object[] complexObjects = new Object[] {null, 23, new int[]{1, 2, 3}, DayOfWeek.FRIDAY,
-//                new DayOfWeek[]{DayOfWeek.MONDAY, null}, new Collection[]{null, null, null},
-//                new char[][]{new char[0], new char[]{'a', 'b', 'c'}}};
-//
-//        Object pureObject = ArrayHelper.asPureObject(complexObjects);
-//        Object[] objects = (Object[])pureObject;
-//        assertEquals(7, objects.length);
-//        assertEquals(null, objects[0]);
-//        assertEquals(23, objects[1]);
-//        assertTrue(ArrayHelper.matchArrays(new Object[]{1,2,3}, (Object[])objects[2]));
-//        assertEquals(DayOfWeek.FRIDAY, objects[3]);
-//        assertTrue(ArrayHelper.matchArrays(new Object[]{DayOfWeek.MONDAY, null}, (Object[])objects[4]));
-//        assertTrue(ArrayHelper.matchArrays(new Object[]{null, null, null}, (Object[])objects[5]));
-//        assertTrue(ArrayHelper.matchArrays(new Object[]{new Object[0], new Object[]{'a', 'b', 'c'}}, (Object[])objects[6]));
-//    }
 
 
     class A{}

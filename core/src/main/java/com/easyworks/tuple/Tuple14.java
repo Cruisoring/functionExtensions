@@ -18,7 +18,7 @@ package com.easyworks.tuple;
  * @param <G> Type of the 14th persisted element
  */
 public class Tuple14<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G> extends Tuple
-        implements WithFourteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G> {
+        implements WithValues14<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G> {
 
     protected Tuple14(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g){
         super(t, u, v, w, x, y, z, a, b, c, d, e, f, g);

@@ -53,7 +53,7 @@ public class LazyTest {
     public void closeDependency_parentsNotClosed() throws Exception {
         Lazy<String> string1 = new Lazy<String>(() -> "1234567");
         Lazy<Integer> integerLazy = string1.create(str -> 37 + str.length(),
-                (i0,i1) -> Logger.L("%d would be reset to %d", i0, i1));
+                (i0,i1) -> Logger.L("%d would be closing to %d", i0, i1));
         Lazy<Boolean> booleanLazy = integerLazy.create(i -> i%2 == 0);
 
         assertTrue(booleanLazy.getValue());
@@ -117,7 +117,7 @@ public class LazyTest {
                 && string1.getValue().equals("string1")
                 && string1.isValueInitialized()
         );
-        string1.reset();
+        string1.closing();
         assertFalse(string1.isValueInitialized());
         assertTrue(string1.getValue().equals("string1"));
     }
@@ -161,21 +161,22 @@ public class LazyTest {
     @Test
     public void chain_creation_sample(){
         Lazy<String> emailLazy = new Lazy<>(() -> "email@test.com");
-        //With try-with-resources pattern:
-//        try(Lazy<Account> accountLazy = emailLazy.create(Account::new)){
-//            Lazy<Inbox> inboxLazy = accountLazy.create(Inbox::new);
-//            Lazy<Outbox> outboxLazy = accountLazy.create(Outbox::new);
-//            outboxLazy.getValue().sendMail();
-//            inboxLazy.getValue().checkMail();
-//        }catch (Exception ex){
-//        }
-
+        //*/With try-with-resources pattern:
+        try(Lazy<Account> accountLazy = emailLazy.create(Account::new)){
+            Lazy<Inbox> inboxLazy = accountLazy.create(Inbox::new);
+            Lazy<Outbox> outboxLazy = accountLazy.create(Outbox::new);
+            outboxLazy.getValue().sendMail();
+            inboxLazy.getValue().checkMail();
+        }catch (Exception ex){
+        }
+        /*/
         Lazy<Account> accountLazy = emailLazy.create(Account::new);
         Lazy<Inbox> inboxLazy = accountLazy.create(Inbox::new);
         Lazy<Outbox>  outboxLazy = accountLazy.create(Outbox::new);
         outboxLazy.getValue().sendMail();
         inboxLazy.getValue().checkMail();
-        emailLazy.reset();  //Instead of emailLazy.close() to avoid Exception try-catch
+        emailLazy.closing();  //Instead of emailLazy.close() to avoid Exception try-catch
+        //*/
 
         assertTrue(TypeHelper.valueEquals(logs.toArray(), new String[]{
                 "Account created: email@test.com", "Outbox opened", "Send mail", "Inbox opened", "Check inbox",

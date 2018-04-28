@@ -1,13 +1,14 @@
 package com.easyworks;
 
 import com.easyworks.function.*;
-import com.easyworks.repository.HexaValuesRepository;
-import com.easyworks.repository.TripleValuesRepository;
+import com.easyworks.repository.TupleRepository3;
+import com.easyworks.repository.TupleRepository6;
 import com.easyworks.tuple.Tuple;
 import com.easyworks.tuple.Tuple2;
 import com.easyworks.tuple.Tuple3;
 import com.easyworks.tuple.Tuple6;
 import com.easyworks.utility.ArrayHelper;
+import com.easyworks.utility.StringHelper;
 import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Array;
@@ -21,34 +22,62 @@ import java.util.stream.IntStream;
 public class TypeHelper {
     public final static Class OBJECT_CLASS = Object.class;
 
+    /**
+     * Strategy to compare two variables when both of them are nulls.
+     */
+    public enum NullEquality{
+        TypeIgnored,            //Two null variables are regarded as equal even if they are declared as different types,
+                                // for example: Integer of null and Double of null
+        BetweenAssignableTypes, //Two null variables are regarded as equal if one can be assigned from another
+                                // (like Object and Integer variables, both are null)
+        SameTypeOnly            //Two null variables are regarded as equal only when they are of the same type
+    }
+
+    /**
+     * Strategy to compare two variables when both of them are empty array.
+     */
+    public enum EmptyArrayEquality {
+        TypeIgnored,            //Two empty arrays are regarded as equal even if they are declared as different types,
+                                // for example: Integer[0] and Double[0]
+        BetweenAssignableTypes, //Two null variables are regarded as equal if one can be assigned from another,
+                                // for example: Comparable[0] and Integer[0], or int[0] and Integer[0]
+        SameTypeOnly            //Two null variables are regarded as equal only when they are of the same type
+    }
+
     public final static int NORMAL_VALUE_NODE = 0;
     public final static int NULL_NODE = -1;
     public final static int EMPTY_ARRAY_NODE = -2;
 
-    private final static int _defaultParallelEvaluationThread = 10000;
+    private final static int _defaultParallelEvaluationThread = 100000;
 
     public final static boolean EMPTY_ARRAY_AS_DEFAULT;
     public final static int PARALLEL_EVALUATION_THRESHOLD;
-    public final static ValueEquality VALUE_EQUALITY;
     public final static EmptyArrayEquality EMPTY_ARRAY_EQUALITY;
     public final static NullEquality NULL_EQUALITY;
 
-    private static <E extends Enum<E>> E tryParse(E defaultEnum){
-        Class enumClass = defaultEnum.getClass();
-        String enumKey = enumClass.getSimpleName();
-        return parseEnumWithDefault(System.getProperty(enumKey), defaultEnum);
-    }
-    static{
-        EMPTY_ARRAY_AS_DEFAULT = !("false".equalsIgnoreCase(System.getProperty("EMPTY_ARRAY_AS_DEFAULT")));
-        PARALLEL_EVALUATION_THRESHOLD = _defaultParallelEvaluationThread;
-        VALUE_EQUALITY = tryParse(ValueEquality.BetweenAssignableTypes);
-        EMPTY_ARRAY_EQUALITY =tryParse(EmptyArrayEquality.TypeIgnored);
-        NULL_EQUALITY = tryParse(NullEquality.TypeIgnored);
+    private static <T> T tryParse(T defaultValue){
+        Class<T> valueClass = (Class<T>) defaultValue.getClass();
+        String valueKey = valueClass.getSimpleName();
+        String valueString = System.getProperty(valueKey);
+        if(valueString == null)
+            return defaultValue;
+        return StringHelper.parse(valueString, valueClass, defaultValue);
     }
 
-    public enum NullEquality{ TypeIgnored, BetweenAssignableTypes, SameTypeOnly };
-    public enum EmptyArrayEquality {TypeIgnored, BetweenAssignableTypes, SameTypeOnly};
-    public enum ValueEquality {BetweenAssignableTypes, SameTypeOnly}
+    public static <T> T tryParse(String valueKey, T defaultValue){
+        String valueString = System.getProperty(valueKey);
+        if(valueString == null)
+            return defaultValue;
+        Class<T> valueClass = (Class<T>) defaultValue.getClass();
+        return StringHelper.parse(valueString, valueClass, defaultValue);
+    }
+
+    static{
+        EMPTY_ARRAY_AS_DEFAULT = tryParse("EMPTY_ARRAY_AS_DEFAULT", false);
+        PARALLEL_EVALUATION_THRESHOLD = tryParse("PARALLEL_EVALUATION_THRESHOLD", _defaultParallelEvaluationThread);
+        EMPTY_ARRAY_EQUALITY = tryParse(EmptyArrayEquality.TypeIgnored);
+        NULL_EQUALITY = tryParse(NullEquality.TypeIgnored);
+    }
 
     //region Common functions saved as static variables
     private static final BiFunctionThrowable<Object, Integer, Object> arrayGet = Array::get;
@@ -117,22 +146,7 @@ public class TypeHelper {
     }
     //endregion
 
-    /**
-     * Try to convert the String to specific Enum type, returns the converted Enum value if success or the first Enum value if conversion failed
-     * @param enumString    String to be converted
-     * @param defaultEnum   default Enum value to be returned if parsing failed
-     * @param <E>           Type of the concerned Enum
-     * @return              the converted Enum value if success or the first Enum value if conversion failed
-     */
-    public static <E extends Enum<E>> E parseEnumWithDefault(String enumString, E defaultEnum){
-        E[] enumValues = (E[]) defaultEnum.getClass().getEnumConstants();
-        E matchedOrFirst = Arrays.stream(enumValues)
-                .filter(e -> e.toString().equalsIgnoreCase(enumString))
-                .findFirst()
-                .orElse(enumValues[0]);
-        return matchedOrFirst;
-    }
-
+    //region deepLength based objects comparing utilities
     /**
      * Merge any numbers of int values with an int array and return the merged copy, used by getDeepLength0()
      * @param fromRoot      An existing int array
@@ -191,10 +205,13 @@ public class TypeHelper {
      *      Notice: the returned value is converted to Object automatically. For an element of an int[], the returned
      *      value would be the corresponding Integer
      */
-    private static Object getNode(Object obj, int[] indexes){
-        int depth = indexes.length;
+    static Object getNode(Object obj, int[] indexes){
+        int last = indexes.length-1;
+        if(indexes[last] == NULL_NODE)
+            last--;
+
         Object result = obj;
-        for (int i = 0; i < depth-1; i++) {
+        for (int i = 0; i < last; i++) {
             result = Array.get(result, indexes[i]);
         }
         return result;
@@ -206,68 +223,67 @@ public class TypeHelper {
      * @param obj2      Second Object to be compared
      * @param indexes   array indexes if the specific node is kept as element of an array, or empty if the root Object
      *                  is the specific node
+     * @param nullEquality  Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyArrayEquality  Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return          <code>true</code> if the two nodes are identical, otherwise <code>false</code>
      */
-    private static boolean nodeEquals(Object obj1, Object obj2, int[] indexes){
+    static boolean nodeEquals(Object obj1, Object obj2, int[] indexes,
+                                      NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality){
         int depth = indexes.length;
         int last = indexes[depth-1];
 
-        if((last == NULL_NODE && NULL_EQUALITY == NullEquality.TypeIgnored)
-                || (last == EMPTY_ARRAY_NODE && EMPTY_ARRAY_EQUALITY == EmptyArrayEquality.TypeIgnored))
+        if((last == NULL_NODE && (nullEquality == NullEquality.TypeIgnored || depth==1))
+                || (last == EMPTY_ARRAY_NODE && emptyArrayEquality == EmptyArrayEquality.TypeIgnored))
             return true;
 
         //node1 and node2 shall not be null
+        //getNode would always cast primitive type values to their wrapper objects
         Object node1 = getNode(obj1, indexes);
         Object node2 = getNode(obj2, indexes);
         Class class1 = node1.getClass();
         Class class2 = node2.getClass();
         if(last == NULL_NODE){
-            if(NULL_EQUALITY == NullEquality.SameTypeOnly)
-                return class1.equals(class2);
-            return areEquivalent(class1, class2)
-                    || class1.isAssignableFrom(class2)
-                    || class2.isAssignableFrom(class1);
+            return (nullEquality == NullEquality.SameTypeOnly)
+                    ? class1.equals(class2)
+                    : areEquivalent(class1, class2)
+                        || class1.isAssignableFrom(class2)
+                        || class2.isAssignableFrom(class1);
         } else if(last == EMPTY_ARRAY_NODE) {
-            if(NULL_EQUALITY == NullEquality.SameTypeOnly)
-                return class1.equals(class2);
-            return areEquivalent(class1, class2)
-                    || class1.isAssignableFrom(class2)
-                    || class2.isAssignableFrom(class1);
+             return emptyArrayEquality == EmptyArrayEquality.SameTypeOnly ?
+                     class1.equals(class2) :
+                    areEquivalent(class1, class2)
+                        || class1.isAssignableFrom(class2)
+                        || class2.isAssignableFrom(class1);
         } else {
             return node1.equals(node2);
         }
     }
+
 
     /**
      * Helper method to validate if the 2 Objects are equal by comparing their deepLength first, then using their deepLength
      * to compare their node values either serially or parallelly based on how many nodes they have
      * @param obj1      First Object to be compared
      * @param obj2      Second Object to be compared
+     * @param deepLength    identical deepLength of the above two objects
+     * @param nullEquality  Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyArrayEquality  Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return          <code>true</code> if they have same set of values, otherwise <code>false</code>
      */
-    static boolean deepLengthEquals(Object obj1, Object obj2){
-        int[][] deepLength1 = getDeepLength(obj1);
-        int[][] deepLength2 = getDeepLength(obj2);
+    static boolean deepLengthEquals(Object obj1, Object obj2, int[][] deepLength,
+                                    NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality){
+        int length = deepLength.length;
 
-        int length = deepLength1.length;
-        if(length != deepLength2.length)
-            return false;
         if(length < PARALLEL_EVALUATION_THRESHOLD){
-            if(!Arrays.deepEquals(deepLength1, deepLength2))
-                return false;
             for (int i = 0; i < length; i++) {
-                int[] indexes = deepLength1[i];
-                if(!nodeEquals(obj1, obj2, indexes))
+                int[] indexes = deepLength[i];
+                if(!nodeEquals(obj1, obj2, indexes, nullEquality, emptyArrayEquality))
                     return false;
             }
             return true;
         } else {
             boolean allEquals = IntStream.range(0, length).boxed().parallel()
-                    .allMatch(i -> Arrays.equals(deepLength1[i], deepLength2[i]));
-            if(!allEquals)
-                return false;
-            allEquals = IntStream.range(0, length).boxed().parallel()
-                    .allMatch(i -> nodeEquals(obj1, obj2, deepLength1[i]));
+                    .allMatch(i -> nodeEquals(obj1, obj2, deepLength[i], nullEquality, emptyArrayEquality));
             return allEquals;
         }
     }
@@ -277,20 +293,16 @@ public class TypeHelper {
      * to compare their node values parallelly
      * @param obj1      First Object to be compared
      * @param obj2      Second Object to be compared
+     * @param deepLength    identical deepLength of the above two objects
+     * @param nullEquality  Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyArrayEquality  Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return          <code>true</code> if they have same set of values, otherwise <code>false</code>
      */
-    private static boolean deepLengthEqualsParallel(Object obj1, Object obj2){
-        int[][] deepLength1 = getDeepLength(obj1);
-        int[][] deepLength2 = getDeepLength(obj2);
-        int length = deepLength1.length;
-        if(length != deepLength2.length)
-            return false;
-        boolean allEquals = IntStream.range(0, length).boxed().parallel()
-                .allMatch(i -> Arrays.equals(deepLength1[i], deepLength2[i]));
-        if(!allEquals)
-            return false;
-        allEquals = IntStream.range(0, length).boxed().parallel()
-                .allMatch(i -> nodeEquals(obj1, obj2, deepLength1[i]));
+    static boolean deepLengthEqualsParallel(Object obj1, Object obj2, int[][] deepLength,
+                                                    NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality){
+        int length = deepLength.length;
+        boolean allEquals =IntStream.range(0, length).boxed().parallel()
+                .allMatch(i -> nodeEquals(obj1, obj2, deepLength[i], nullEquality, emptyArrayEquality));
         return allEquals;
     }
 
@@ -299,19 +311,17 @@ public class TypeHelper {
      * to compare their node values either serially
      * @param obj1      First Object to be compared
      * @param obj2      Second Object to be compared
+     * @param deepLength    identical deepLength of the above two objects
+     * @param nullEquality  Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyArrayEquality  Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return          <code>true</code> if they have same set of values, otherwise <code>false</code>
      */
-    private static boolean deepLengthEqualsSerial(Object obj1, Object obj2){
-        int[][] deepLength1 = getDeepLength(obj1);
-        int[][] deepLength2 = getDeepLength(obj2);
-        int length = deepLength1.length;
-        if(length != deepLength2.length)
-            return false;
-        if(!Arrays.deepEquals(deepLength1, deepLength2))
-            return false;
+    private static boolean deepLengthEqualsSerial(Object obj1, Object obj2, int[][] deepLength,
+                                                  NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality){
+        int length = deepLength.length;
         for (int i = 0; i < length; i++) {
-            int[] indexes = deepLength1[i];
-            if(!nodeEquals(obj1, obj2, indexes))
+            int[] indexes = deepLength[i];
+            if(!nodeEquals(obj1, obj2, indexes, nullEquality, emptyArrayEquality))
                 return false;
         }
         return true;
@@ -364,7 +374,30 @@ public class TypeHelper {
         if (simpleEquals != null)
             return simpleEquals;
 
-        return deepLengthEquals(obj1, obj2);
+        int[][] deepLength1 = getDeepLength(obj1);
+        int[][] deepLength2 = getDeepLength(obj2);
+        if(!Arrays.deepEquals(deepLength1, deepLength2))
+            return false;
+
+        return deepLengthEquals(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+    }
+
+    /**
+     * Comparing two objects with deepLengthEquals directly when their deepDepth provided
+     * @param obj1  first object to be compared
+     * @param obj2  second object to be compared
+     * @param deepLength1    deepLength of the first object
+     * @param deepLength2    deepLength of the second object
+     * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
+     */
+    public static boolean valueEquals(Object obj1, Object obj2, int[][] deepLength1, int[][] deepLength2){
+        Objects.requireNonNull(deepLength1);
+        Objects.requireNonNull(deepLength2);
+
+        if(!Arrays.deepEquals(deepLength1, deepLength2))
+            return false;
+
+        return deepLengthEquals(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
     }
 
     /**
@@ -380,7 +413,29 @@ public class TypeHelper {
         if (singleObjectConverter != null)
             return singleObjectConverter;
 
-        return deepLengthEqualsParallel(obj1, obj2);
+        int[][] deepLength1 = getDeepLength(obj1);
+        int[][] deepLength2 = getDeepLength(obj2);
+        if(!Arrays.deepEquals(deepLength1, deepLength2))
+            return false;
+        return deepLengthEqualsParallel(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+    }
+
+    /**
+     * Comparing two objects with deepLengthEquals parallelly when their deepDepth provided
+     * @param obj1  first object to be compared
+     * @param obj2  second object to be compared
+     * @param deepLength1    deepLength of the first object
+     * @param deepLength2    deepLength of the second object
+     * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
+     */
+    public static boolean valueEqualsParallel(Object obj1, Object obj2, int[][] deepLength1, int[][] deepLength2){
+        Objects.requireNonNull(deepLength1);
+        Objects.requireNonNull(deepLength2);
+
+        if(!Arrays.deepEquals(deepLength1, deepLength2))
+            return false;
+
+        return deepLengthEqualsParallel(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
     }
 
     /**
@@ -396,8 +451,31 @@ public class TypeHelper {
         if (singleObjectConverter != null)
             return singleObjectConverter;
 
-        return deepLengthEqualsSerial(obj1, obj2);
+        int[][] deepLength1 = getDeepLength(obj1);
+        int[][] deepLength2 = getDeepLength(obj2);
+        if(!Arrays.deepEquals(deepLength1, deepLength2))
+            return false;
+        return deepLengthEqualsSerial(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
     }
+
+    /**
+     * Comparing two objects with deepLengthEquals parallelly when their deepDepth provided
+     * @param obj1  first object to be compared
+     * @param obj2  second object to be compared
+     * @param deepLength1    deepLength of the first object
+     * @param deepLength2    deepLength of the second object
+     * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
+     */
+    public static boolean valueEqualsSerially(Object obj1, Object obj2, int[][] deepLength1, int[][] deepLength2){
+        Objects.requireNonNull(deepLength1);
+        Objects.requireNonNull(deepLength2);
+
+        if(!Arrays.deepEquals(deepLength1, deepLength2))
+            return false;
+
+        return deepLengthEqualsSerial(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+    }
+    //endregion
 
 
     //region Method and repository to get return type of Lambda Expression
@@ -417,12 +495,12 @@ public class TypeHelper {
      *
      * <tt>FunctionThrowable&lt;TKey, Tuple3&lt;T,U,V&gt;&gt; valueFunction</tt>
      */
-    public static final TripleValuesRepository<AbstractThrowable,
-            Boolean, Class[], Class> lambdaGenericInfoRepository = TripleValuesRepository.fromKey(
+    public static final TupleRepository3<WithValueReturned,
+                Boolean, Class[], Class> lambdaGenericInfoRepository = TupleRepository3.fromKey(
             TypeHelper::getLambdaGenericInfo
     );
 
-    private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(AbstractThrowable lambda){
+    private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(WithValueReturned lambda){
         Objects.requireNonNull(lambda);
 
         Class lambdaClass = lambda.getClass();
@@ -450,7 +528,7 @@ public class TypeHelper {
      * @param aThrowable solid Lambda expression
      * @return  The type of the return value defined by the Lambda Expression.
      */
-    public static Class getReturnType(AbstractThrowable aThrowable){
+    public static Class getReturnType(WithValueReturned aThrowable){
         return lambdaGenericInfoRepository.getThirdValue(aThrowable);
     }
     //endregion
@@ -470,16 +548,16 @@ public class TypeHelper {
      *      ConvertToString:    convert the array to a string by recursively applying the deep toString() on every elements
      *              of the array
      */
-    public static final HexaValuesRepository<
-                Class,              //concerned Class
+    public static final TupleRepository6<
+                    Class,              //concerned Class
 
-                Predicate<Class> //Equivalent predicate to check if another class is regarded as equal with the concerned class
-                , FunctionThrowable<Integer, Object>             //Array factory
-                , Class              //Class of its array
-                , TriConsumerThrowable<Object, Integer, Object>//Function to set the Element at Index of its array
-                , TriFunctionThrowable<Object, Integer, Integer, Object>//copyOfRange(original, from, to) -> new array
-                , Function<Object, String>             // Convert array to String
-        > classOperators = HexaValuesRepository.fromKey(
+                    Predicate<Class> //Equivalent predicate to check if another class is regarded as equal with the concerned class
+                    , FunctionThrowable<Integer, Object>             //Array factory
+                    , Class              //Class of its array
+                    , TriConsumerThrowable<Object, Integer, Object>//Function to set the Element at Index of its array
+                    , TriFunctionThrowable<Object, Integer, Integer, Object>//copyOfRange(original, from, to) -> new array
+                    , Function<Object, String>             // Convert array to String
+            > classOperators = TupleRepository6.fromKey(
             new HashMap<Class, Tuple6<
                     Predicate<Class>,
                     FunctionThrowable<Integer, Object>,
@@ -678,7 +756,7 @@ public class TypeHelper {
     }
 
     /**
-     * Get the class of the Array composed by elements of the concerned class
+         * Get the class of the Array composed by elements of the concerned class
      * @param clazz     type of the elements to compose the array
      * @return      class of the array composed by elements of the concerned class
      */
@@ -745,7 +823,7 @@ public class TypeHelper {
 
     /**
      * get the deep toString operator to compose a String reflect all values of the elements, calling the corresponding
-     * deep toString operator of the elements if they are arays
+     * deep toString operator of the elements if they are arrays
      * @param clazz type of the elements composing the concerned array
      * @return  deep toString operator to capture all elements of the array and any arrays represented by the elements
      */
@@ -767,17 +845,17 @@ public class TypeHelper {
      * #    serial converter: convert it instance to its equivalent type in serial
      * #    default converter: convert it instance to its equivalent type either parallelly or serially depending on the length of the array
      */
-    private static final HexaValuesRepository<
-                        Class,      // original Class of the concerned object
+    private static final TupleRepository6<
+                            Class,      // original Class of the concerned object
 
-                        Boolean     // isPrmitiveType, when the original class is primitive type, or it is array of primitive type
-                        , Object    // default value of the concerned class
-                        , Class     // equivalent class: could be the wrapper if original class is primitive,
-                                    // or primitive type if original class is wrapper
-                        , Function<Object, Object>  // convert the value of original class to equivalent class parallelly
-                        , Function<Object, Object>  // convert the value of original class to equivalent class in serial
-                        , Function<Object, Object>  // convert the value of original class to equivalent class either parallely or srially
-                > baseTypeConverters = HexaValuesRepository.fromKey(
+                            Boolean     // isPrmitiveType, when the original class is primitive type, or it is array of primitive type
+                            , Object    // default value of the concerned class
+                            , Class     // equivalent class: could be the wrapper if original class is primitive,
+                                        // or primitive type if original class is wrapper
+                            , Function<Object, Object>  // convert the value of original class to equivalent class parallelly
+                            , Function<Object, Object>  // convert the value of original class to equivalent class in serial
+                            , Function<Object, Object>  // convert the value of original class to equivalent class either parallely or srially
+                    > baseTypeConverters = TupleRepository6.fromKey(
             new HashMap(){{
                 //For primitive values, return itself as object would convert it to the wrapper type automatically
                 Function<Object,Object> convertWithCasting = returnsSelf;
@@ -1114,13 +1192,13 @@ public class TypeHelper {
      * #    serialConverter:  Convert the object of type fromClass to value of type toClass in serial
      * #    defaultConverter:  Convert the object of type fromClass to value of type toClass either in parallel or in serial based on its length
      */
-    public static final TripleValuesRepository.DualKeys<
-            Class, Class   //fromClass & toClass as the keys
+    public static final TupleRepository3.TupleKeys2<
+                Class, Class   //fromClass & toClass as the keys
 
-            , Function<Object, Object>          //Convert the first object to another in parallel
-            , Function<Object, Object>          //Convert the first object to another serially
-            , Function<Object, Object>          //Convert the first object by default, in parallel or serial based on the length of the array
-            > deepConverters = TripleValuesRepository.fromTwoKeys(TypeHelper::getDeepEvaluators);
+                , Function<Object, Object>          //Convert the first object to another in parallel
+                , Function<Object, Object>          //Convert the first object to another serially
+                , Function<Object, Object>          //Convert the first object by default, in parallel or serial based on the length of the array
+                > deepConverters = TupleRepository3.fromKeys2(TypeHelper::getDeepEvaluators);
 
     private static Map<Tuple2<Class, Class>, Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>> getConverterMap(){
         return new HashMap<Tuple2<Class, Class>, Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>>();

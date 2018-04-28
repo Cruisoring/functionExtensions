@@ -9,6 +9,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,29 +22,29 @@ import java.util.stream.Stream;
  */
 public class Functions<R> {
 
-//    /**
-//     * Factory to create Functions instance with given exception handler and default value factory.
-//     * @param exeptionConsumer  Exception Handler to allow differentiated processing of different kinds of Excpeitons.
-//     * @param defaultValueFactory   Default return value factory based on the returned type of the Lambda Expression.
-//     * @param <R> Type of the return value.
-//     * @return  Higher-order Function executioner with customised behaviours.
-//     */
-    public static <R> Functions<R> buildFunctions(ExceptionHandler exceptionHandler, DefaultReturner<R> defaultValueFactory){
+    /**
+     * Factory to create Functions instance with given exception handler and default value factory.
+     * @param exceptionHandler  Exception Handler to allow differentiated processing of different kinds of Excpeitons.
+     * @param defaultValueFactory   Default return value factory based on the returned type of the Lambda Expression.
+     * @param <R> Type of the return value.
+     * @return  Higher-order Function executioner with customised behaviours.
+     */
+    public static <R> Functions<R> buildFunctions(Consumer<Exception> exceptionHandler,
+                                                  BiFunction<Exception, WithValueReturned, R> defaultValueFactory){
         Objects.requireNonNull(exceptionHandler);
         Objects.requireNonNull(defaultValueFactory);
         return new Functions(exceptionHandler, defaultValueFactory);
     };
 
     // Static Functions instance to hidden any Exceptions by returning default values matching the given Lambda Expression
-    private static <T> T returnDefaultValue(Exception ex, AbstractThrowable supplier) {
-        return          (T) TypeHelper.getDefaultValue(TypeHelper.getReturnType(supplier));
+    private static BiFunction<Exception, WithValueReturned, Object> returnDefaultValue =
+            (Exception ex, WithValueReturned throwable) -> TypeHelper.getDefaultValue(TypeHelper.getReturnType(throwable));
 
-    }
 //    public static final Functions ReturnsDefaultValue = new Functions((ExceptionHandler) returnDefaultValue);
     @SuppressWarnings("unchecked")
     public static final Functions ReturnsDefaultValue = new Functions(
             ex -> {},
-            function -> TypeHelper.getDefaultValue(TypeHelper.getReturnType(function))
+            returnDefaultValue
         );
 
     // Static Functions instance to simply throw RuntimeException whenever an Exception is caught.
@@ -157,9 +161,9 @@ public class Functions<R> {
 
 
     //Exception Handler that shall throw either RuntimeException or return default value of Type R when an exception is caught.
-    private final ExceptionHandler<R> handler;
+    private final Consumer<Exception> handler;
 
-    private final DefaultReturner<R> defaultReturner;
+    private final BiFunction<Exception, WithValueReturned, Object> defaultReturner;
 
     /**
      * Constructor without ExceptionHandler provided, would always throw RuntimeException accordingly.
@@ -170,13 +174,13 @@ public class Functions<R> {
     }
 
     /**
-     * Constructor with a Non-nullable ExceptionHandler to define behaviours when execute an AbstractThrowable.
+     * Constructor with a Non-nullable ExceptionHandler to define behaviours when execute an WithValueReturned.
      * Notice: thanks to the Java Type Erasing, the Functions instance created can be used with Lambda expressions of
      * different return types.
      * @param exceptionHandler   ExceptionHandler instance that could be defined as Lambda to either throw RuntimeException or
      *                  return default value of type R.
      */
-    public Functions(ExceptionHandler<R> exceptionHandler, DefaultReturner<R> defaultReturner){
+    public Functions(Consumer<Exception> exceptionHandler, BiFunction<Exception, WithValueReturned, Object> defaultReturner){
         Objects.requireNonNull(exceptionHandler);
         this.handler = exceptionHandler;
         this.defaultReturner = defaultReturner;
@@ -193,7 +197,7 @@ public class Functions<R> {
             runnableThrowable.run();
         } catch (Exception ex){
             if(handler != null)
-                handler.handle(ex);
+                handler.accept(ex);
             else
                 throw new RuntimeException(ex);
         }
@@ -204,37 +208,14 @@ public class Functions<R> {
      * When <code>handler</code> is not null, it would handle the thrown Exception with the predefined logics to return
      * the default value of given type; otherwise RuntimeException would be thrown.
      * @param supplierThrowable Service logic receiving no arguments, but return something of type T.
-     * @param <T>   Type of the returned value when everything goes smoothly.
      * @return  The value returned by the service logic of <code>supplierThrowable</code>, or the default value returned
      *      by the handler by parsing return type of the given <code>supplierThrowable</code>.
      */
-    public <T> T apply(SupplierThrowable<T> supplierThrowable){
+    public R apply(SupplierThrowable<R> supplierThrowable){
         try {
             return supplierThrowable.get();
         } catch (Exception ex){
-            if(handler != null)
-                return (T) handler.apply(defaultReturner, ex, supplierThrowable);
-            else
-                throw new RuntimeException(ex);
-        }
-    }
-
-    /**
-     * To be called by other apply() methods with 1 to 7 arguments.
-     * @param originalLambda    The original service logic to be executed, the return type is not erased by Java compiler
-     * @param supplierThrowable Synthetic Lambda created with given parameters and the <code>originalLambda</code>.
-     * @param <T>   Type of the returned value when everything goes smoothly.
-     * @return  The value returned by the service logic of <code>originalLambda</code>, or the default value returned
-     * by the hendler by parsing te given <code>originalLambdavvv</code>.
-     */
-    private <T> T apply(AbstractThrowable originalLambda, SupplierThrowable<T> supplierThrowable){
-        try {
-            return supplierThrowable.get();
-        } catch (Exception ex){
-            if(handler != null)
-                return (T) handler.apply(defaultReturner, ex, originalLambda);
-            else
-                throw new RuntimeException(ex);
+            return handler == null ? null : (R) defaultReturner.apply(ex, supplierThrowable);
         }
     }
 
@@ -247,7 +228,7 @@ public class Functions<R> {
     public <T> void run(
             ConsumerThrowable<T> consumer,
             T t){
-        run(() -> consumer.accept(t));
+        consumer.withHandler(handler).accept(t);
     }
 
     /**
@@ -261,7 +242,7 @@ public class Functions<R> {
     public <T,U> void run(
             BiConsumerThrowable<T,U> consumer,
             T t, U u){
-        run(() -> consumer.accept(t,u));
+        consumer.withHandler(handler).accept(t, u);
     }
 
     /**
@@ -277,7 +258,7 @@ public class Functions<R> {
     public <T,U,V> void run(
             TriConsumerThrowable<T,U,V> consumer,
             T t, U u, V v){
-        run(() -> consumer.accept(t,u,v));
+        consumer.withHandler(handler).accept(t, u, v);
     }
 
     /**
@@ -295,7 +276,7 @@ public class Functions<R> {
     public <T,U,V,W> void run(
             QuadConsumerThrowable<T,U,V,W> consumer,
             T t, U u, V v, W w){
-        run(() -> consumer.accept(t,u,v,w));
+        consumer.withHandler(handler).accept(t, u, v, w);
     }
 
 
@@ -316,7 +297,7 @@ public class Functions<R> {
     public <T,U,V,W,X> void run(
             PentaConsumerThrowable<T,U,V,W,X> consumer,
             T t, U u, V v, W w, X x){
-        run(() -> consumer.accept(t,u,v,w,x));
+        consumer.withHandler(handler).accept(t, u, v, w, x);
     }
 
     /**
@@ -338,7 +319,7 @@ public class Functions<R> {
     public <T,U,V,W,X,Y> void run(
             HexaConsumerThrowable<T,U,V,W,X,Y> consumer,
             T t, U u, V v, W w, X x, Y y){
-        run(() -> consumer.accept(t,u,v,w,x,y));
+        consumer.withHandler(handler).accept(t, u, v, w, x, y);
     }
 
     /**
@@ -362,7 +343,7 @@ public class Functions<R> {
     public <T,U,V,W,X,Y,Z> void run(
             HeptaConsumerThrowable<T,U,V,W,X,Y,Z> consumer,
             T t, U u, V v, W w, X x, Y y, Z z){
-        run(() -> consumer.accept(t,u,v,w,x,y,z));
+        consumer.withHandler(handler).accept(t, u, v, w, x, y, z);
     }
 
     /**
@@ -372,9 +353,15 @@ public class Functions<R> {
      * @param <T>       Type of the given argument <code>t</code>
      * @return          <code>True</code> if predicate is success, otherwise <code>False</code>
      */
-    public <T> boolean test(
-            PredicateThrowable<T> predicate, T t){
-        return apply(() -> predicate.test(t));
+    public <T> Boolean test(PredicateThrowable<T> predicate, T t){
+        Predicate<T> predicate1 = (t1) -> {
+            try {
+                return predicate.test(t1);
+            } catch (Exception e) {
+                return defaultReturner == null ? false : (Boolean) defaultReturner.apply(e, predicate);
+            }
+        };
+        return predicate1.test(t);
     }
 
     /**
@@ -386,10 +373,17 @@ public class Functions<R> {
      * @param <U>       Type of the second argument <code>u</code>
      * @return          <code>True</code> if predicate is success, otherwise <code>False</code>
      */
-    public <T,U> boolean test(
+    public <T,U> Boolean test(
             BiPredicateThrowable<T,U> predicate,
             T t, U u){
-        return apply(() -> predicate.test(t, u));
+        BiPredicate<T, U> predicate1 = (t1, u1) -> {
+            try {
+                return predicate.test(t1, u1);
+            } catch (Exception e) {
+                return defaultReturner == null ? false : (Boolean) defaultReturner.apply(e, predicate);
+            }
+        };
+        return predicate1.test(t, u);
     }
 
     /**
@@ -397,14 +391,12 @@ public class Functions<R> {
      * @param function  Lambda expression accepting seven argument and returns one result.
      * @param t     The first argument to be consumed by the Lambda Expression.
      * @param <T>   Type of the first argment <code>t</code>
-     * @param <R>   Type of the return resul.
      * @return      The value returned by the service logic of <code>rop</code>, or the default value returned
      *      by the handler by parsing return type of the given <code>rop</code>.
      */
-    public <T,R> R apply(
-            FunctionThrowable<T,R> function,
+    public <T> R apply(FunctionThrowable<T,R> function,
             T t){
-        return apply((AbstractThrowable)function, () -> function.apply(t));
+        return function.withHandler(defaultReturner).apply(t);
     }
 
     /**
@@ -414,14 +406,13 @@ public class Functions<R> {
      * @param u     The second argument to be consumed by the Lambda Expression.
      * @param <T>   Type of the first argment <code>t</code>
      * @param <U>   Type of the second argument <code>u</code>
-     * @param <R>   Type of the return resul.
      * @return      The value returned by the service logic of <code>rop</code>, or the default value returned
      *      by the handler by parsing return type of the given <code>rop</code>.
      */
-    public <T,U,R> R apply(
+    public <T,U> R apply(
             BiFunctionThrowable<T,U,R> function,
             T t, U u){
-        return apply(function, () -> function.apply(t,u));
+        return function.withHandler(defaultReturner).apply(t, u);
     }
 
     /**
@@ -433,14 +424,13 @@ public class Functions<R> {
      * @param <T>   Type of the first argment <code>t</code>
      * @param <U>   Type of the second argument <code>u</code>
      * @param <V>   Type of the third argument <code>v</code>
-     * @param <R>   Type of the return resul.
      * @return      The value returned by the service logic of <code>rop</code>, or the default value returned
      *      by the handler by parsing return type of the given <code>rop</code>.
      */
-    public <T,U,V,R> R apply(
+    public <T,U,V> R apply(
             TriFunctionThrowable<T,U,V,R> function,
             T t, U u, V v){
-        return apply(function, () -> function.apply(t,u,v));
+        return function.withHandler(defaultReturner).apply(t, u, v);
     }
 
     /**
@@ -454,14 +444,13 @@ public class Functions<R> {
      * @param <U>   Type of the second argument <code>u</code>
      * @param <V>   Type of the third argument <code>v</code>
      * @param <W>   Type of the fourth argument <code>w</code>
-     * @param <R>   Type of the return resul.
      * @return      The value returned by the service logic of <code>rop</code>, or the default value returned
      *      by the handler by parsing return type of the given <code>rop</code>.
      */
-    public <T,U,V,W,R> R apply(
+    public <T,U,V,W> R apply(
             QuadFunctionThrowable<T,U,V,W,R> function,
             T t, U u, V v, W w){
-        return apply(function, () -> function.apply(t,u,v,w));
+        return function.withHandler(defaultReturner).apply(t, u, v, w);
     }
 
     /**
@@ -477,14 +466,13 @@ public class Functions<R> {
      * @param <V>   Type of the third argument <code>v</code>
      * @param <W>   Type of the fourth argument <code>w</code>
      * @param <X>   Type of the fifth argument <code>x</code>
-     * @param <R>   Type of the return resul.
      * @return      The value returned by the service logic of <code>rop</code>, or the default value returned
      *      by the handler by parsing return type of the given <code>rop</code>.
      */
-    public <T,U,V,W,X,R> R apply(
+    public <T,U,V,W,X> R apply(
             PentaFunctionThrowable<T,U,V,W,X,R> function,
             T t, U u, V v, W w, X x){
-        return apply(function, () -> function.apply(t,u,v,w,x));
+        return function.withHandler(defaultReturner).apply(t, u, v, w, x);
     }
 
     /**
@@ -502,14 +490,13 @@ public class Functions<R> {
      * @param <W>   Type of the fourth argument <code>w</code>
      * @param <X>   Type of the fifth argument <code>x</code>
      * @param <Y>   Type of the sixth argument <code>y</code>
-     * @param <R>   Type of the return resul.
      * @return      The value returned by the service logic of <code>rop</code>, or the default value returned
      *      by the handler by parsing return type of the given <code>rop</code>.
      */
-    public <T,U,V,W,X,Y,R> R apply(
+    public <T,U,V,W,X,Y> R apply(
             HexaFunctionThrowable<T,U,V,W,X,Y,R> function,
             T t, U u, V v, W w, X x, Y y){
-        return apply(function, () -> function.apply(t,u,v,w,x,y));
+        return function.withHandler(defaultReturner).apply(t, u, v, w, x, y);
     }
 
     /**
@@ -529,13 +516,12 @@ public class Functions<R> {
      * @param <X>   Type of the fifth argument <code>x</code>
      * @param <Y>   Type of the sixth argument <code>y</code>
      * @param <Z>   Type of the seventh argument <code>z</code>
-     * @param <R>   Type of the return resul.
      * @return      The value returned by the service logic of <code>rop</code>, or the default value returned
      *      by the handler by parsing return type of the given <code>rop</code>.
      */
-    public <T,U,V,W,X,Y,Z,R> R apply(
+    public <T,U,V,W,X,Y,Z> R apply(
             HeptaFunctionThrowable<T,U,V,W,X,Y,Z,R> function,
             T t, U u, V v, W w, X x, Y y, Z z){
-        return apply(function, () -> function.apply(t,u,v,w,x,y,z));
+        return function.withHandler(defaultReturner).apply(t, u, v, w, x, y, z);
     }
 }

@@ -32,13 +32,13 @@ public class Lazy<T> implements AutoCloseable {
     /**
      * Construct a Lazy object with value factory, as well as customer closing logic.
      * @param supplier              The factory to create value instance when getValue() is called.
-     * @param actionOnChanges    Extra steps to run before reset() being called.
+     * @param actionOnChanges    Extra steps to run before closing() being called.
      */
     public Lazy(SupplierThrowable<T> supplier, BiConsumerThrowable<T,T> actionOnChanges){
         Objects.requireNonNull(supplier);
         this.supplier = supplier;
         this.actionOnChanges = actionOnChanges;
-//        this.closing = actionOnChanges == null ? this::reset : () -> this.resetAfterAction(actionOnChanges);
+//        this.closing = actionOnChanges == null ? this::closing : () -> this.resetAfterAction(actionOnChanges);
     }
 
     /**
@@ -89,38 +89,19 @@ public class Lazy<T> implements AutoCloseable {
     public T getValue(){
         if(!isInitialized){
             T oldValue = value;
-            value = (T) Functions.Default.apply(supplier);
+            value = supplier.withHandler(null).get();
             isInitialized = true;
             isClosed = false;
-            Functions.Default.run(actionOnChanges, oldValue, value);
+            if(actionOnChanges != null)
+                Functions.Default.run(actionOnChanges, oldValue, value);
         }
         return value;
     }
 
-//    /**
-//     * When the value has not been created successfully, try to create the value with the factory then return it when
-//     * there is no Exception, or returns the defaultOfType.
-//     * Notice: when Exception thrown, isInitialized would not be set to True.
-//     * @param defaultValue  Default value of type T when calling the supplier method get any Exception.
-//     * @return  Either the created and cached value when factory is called successfully, or the default value if there
-//     * is any Exception thrown.
-//     */
-//    public T getValue(T defaultValue) {
-//        if(!isInitialized){
-//            try {
-//                value = supplier.get();
-//                isInitialized = true;
-//            }catch (Exception ex){
-//                return defaultValue;
-//            }
-//        }
-//        return value;
-//    }
-
     /**
-     * When value created, reset it and release any resource bounded if the instance is AutoCloseable.
+     * When value created, closing it and release any resource bounded if the instance is AutoCloseable.
      */
-    public void reset(){
+    public void closing(){
         if(!isClosed){
             isClosed = true;
             if(dependencies != null && dependencies.size() > 0){
@@ -154,6 +135,6 @@ public class Lazy<T> implements AutoCloseable {
      */
     @Override
     public void close() throws Exception {
-        Functions.Default.run(this::reset);
+        closing();
     }
 }

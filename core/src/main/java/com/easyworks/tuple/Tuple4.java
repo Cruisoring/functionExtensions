@@ -8,7 +8,7 @@ package com.easyworks.tuple;
  * @param <W> Type of the fourth persisted element
  */
 public class Tuple4<T,U,V,W> extends Tuple
-        implements WithFourth<T,U,V,W> {
+        implements WithValues4<T,U,V,W> {
 
     protected Tuple4(T t, U u, V v, W w){
         super(t, u, v, w);

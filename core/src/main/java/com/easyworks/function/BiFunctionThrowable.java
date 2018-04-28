@@ -1,7 +1,6 @@
 package com.easyworks.function;
 
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * Functional Interface identifying methods, accepting 2 arguments and returning result of type <code>R</code>,
@@ -11,7 +10,7 @@ import java.util.function.Function;
  * @param <R>   Type of the returned result.
  */
 @FunctionalInterface
-public interface BiFunctionThrowable<T, U, R> extends AbstractThrowable {
+public interface BiFunctionThrowable<T, U, R> extends WithValueReturned<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 2 arguments and returning result of type <code>R</code>
      * @param t     The first argument of type <code>T</code>.
@@ -22,24 +21,35 @@ public interface BiFunctionThrowable<T, U, R> extends AbstractThrowable {
     R apply(T t, U u) throws Exception;
 
     /**
-     * Convert the above <code>apply</code> method to <code>SupplierThrowable</code> with all 2 arguments
-     * @param t     The first argument of type <code>T</code>.
-     * @param u     The second argument of type <code>U</code>.
-     * @return      The converted <code>SupplierThrowable</code> by applying the 2 given arguments.
+     * Convert the BiFunctionThrowable&lt;T,U,R&gt; to BiFunction&lt;T,U,R&gt; with injected Exception Handler
+     * @param exceptionHandler  Handler of the caught Exceptions and returns default value
+     * @return  Converted BiFunction&lt;T,U,R&gt; that get Exceptions handled with the exceptionHandler
      */
-    default SupplierThrowable<R> asSupplier(T t, U u){
-        SupplierThrowable<R> supplierThrowable = () -> apply(t, u);
-        return supplierThrowable;
-    }
-
-    default BiFunction<T, U, R> orElse(Function<Exception, R> exceptionHandler){
-        return (t, u) -> {
+    default BiFunction<T, U, R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler){
+        BiFunction<T, U, R> function = (t, u) -> {
             try {
                 return apply(t, u);
             } catch (Exception e) {
-                return asSupplier(t, u).orElse(exceptionHandler).get();
+                return exceptionHandler == null ? null : (R) exceptionHandler.apply(e, this);
             }
         };
+        return function;
     }
 
+    /**
+     * Simplified version of converting the BiFunctionThrowable&lt;T,U,R&gt; to BiFunction&lt;T,U,R&gt; by ignoring the caught Exception
+     * and simply returns a pre-defined default value.
+     * @param defaultValue  Predefined default value.
+     * @return
+     */
+    default BiFunction<T,U, R> orElse(R defaultValue){
+        BiFunction<T,U, R> function = (t, u) -> {
+            try {
+                return apply(t, u);
+            } catch (Exception e) {
+                return defaultValue;
+            }
+        };
+        return function;
+    }
 }

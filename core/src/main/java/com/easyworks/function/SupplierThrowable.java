@@ -1,6 +1,6 @@
 package com.easyworks.function;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -9,7 +9,7 @@ import java.util.function.Supplier;
  * @param <R>   Type of the returned result.
  */
 @FunctionalInterface
-public interface SupplierThrowable<R> extends AbstractThrowable {
+public interface SupplierThrowable<R> extends WithValueReturned<R> {
 
     /**
      * Get a result
@@ -18,25 +18,36 @@ public interface SupplierThrowable<R> extends AbstractThrowable {
      */
     R get() throws Exception;
 
-    default Supplier<R> orElse(Function<Exception, R> exceptionHanlder){
-        return () -> {
+    /**
+     * Convert the SupplierThrowable&lt;R&gt; to Supplier&lt;R&gt;
+     * @param exceptionHandler  Exception Handler of the caught Exceptions that retuns default value of type R.
+     * @return  The Supplier&lt;R&gt; version of the original SupplierThrowable&lt;R&gt;
+     */
+    default Supplier<R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler){
+        Supplier<R> supplier = () -> {
             try {
                 return get();
             } catch (Exception e) {
-                if(exceptionHanlder == null)
-                    return null;
-                return exceptionHanlder.apply(e);
+                return exceptionHandler == null ? null : (R) exceptionHandler.apply(e, this);
             }
         };
+        return supplier;
     }
 
+    /**
+     * Simplified version of converting the SupplierThrowable&lt;R&gt; to Supplier&lt;R&gt; by ignoring the caught Exception
+     * and simply returns a pre-defined default value.
+     * @param defaultValue  Predefined default value.
+     * @return
+     */
     default Supplier<R> orElse(R defaultValue){
-        return () -> {
+        Supplier<R> supplier = () -> {
             try {
                 return get();
             } catch (Exception e) {
                 return defaultValue;
             }
         };
+        return supplier;
     }
 }

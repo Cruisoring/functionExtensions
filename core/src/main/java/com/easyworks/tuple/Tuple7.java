@@ -11,7 +11,7 @@ package com.easyworks.tuple;
  * @param <Z> Type of the seventh persisted element
  */
 public class Tuple7<T,U,V,W,X,Y,Z> extends Tuple
-        implements WithSeventh<T,U,V,W,X,Y,Z> {
+        implements WithValues7<T,U,V,W,X,Y,Z> {
 
     protected Tuple7(T t, U u, V v, W w, X x, Y y, Z z){
         super(t, u, v, w, x, y, z);

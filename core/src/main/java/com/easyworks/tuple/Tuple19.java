@@ -23,7 +23,7 @@ package com.easyworks.tuple;
  * @param <L> Type of the 19th persisted element
  */
 public class Tuple19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Tuple
-        implements WithNineteenth<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> {
+        implements WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> {
 
     protected Tuple19(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l){
         super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l);

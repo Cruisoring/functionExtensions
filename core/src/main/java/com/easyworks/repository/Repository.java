@@ -4,9 +4,8 @@ import com.easyworks.function.FunctionThrowable;
 import com.easyworks.function.TriConsumerThrowable;
 import com.easyworks.utility.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.BiPredicate;
 
 /**
  * Wrapping of Map instance and business logic to get value from key
@@ -29,7 +28,7 @@ public class Repository<TKey, TValue>
     /**
      * Construct a repository with given map factory, extra changesConsumer logic and Function to map key to value
      * @param map   Factory to get a map instance
-     * @param changesConsumer           Extra steps to run before reset() being called.
+     * @param changesConsumer           Extra steps to run before closing() being called.
      * @param valueFunction     Function to map key of <code>TKey<code> type to value of <code>TValue<code> type
      */
     public Repository(Map<TKey, TValue> map,
@@ -66,6 +65,7 @@ public class Repository<TKey, TValue>
      */
     @Override
     public TValue apply(TKey tKey) throws Exception {
+        Objects.requireNonNull(tKey);
         TValue result;
         if(!storage.containsKey(tKey)){
             result = valueFunctionThrowable.apply(tKey);
@@ -76,6 +76,63 @@ public class Repository<TKey, TValue>
             result = storage.get(tKey);
         }
         return result;
+    }
+
+    /**
+     * Update the value mapped from a given key with newValue
+     * Notice: this operation is not thread-safe by itself
+     * @param tKey          The key used to get the concerned value
+     * @param existingValue The existing value mapped from the given key, or null if the map does not contains the key
+     * @param newValue      The value to be used to put or replace the existing value related with the given key
+     * @return              The latest value related with the given key
+     * @throws Exception    Any Exceptions that might be thrown
+     */
+    public TValue update(TKey tKey, TValue existingValue, TValue newValue) throws Exception{
+        Objects.requireNonNull(tKey);
+
+        //No need to update value of the map if there is no changes
+        if(Objects.equals(existingValue, newValue))
+            return existingValue;
+
+        if(containsKey(tKey) && !Objects.equals(existingValue, storage.get(tKey))) {
+            throw new Exception("The existing value of '" + tKey + "' doesn't match with " + existingValue);
+        } else if (!containsKey(tKey) && existingValue != null ){
+            throw new Exception("The existingValue shall be null when there is no entry of key of " + tKey);
+        }
+
+        storage.put(tKey, newValue);
+        if(changesConsumer != null)
+            changesConsumer.accept(tKey, existingValue, newValue);
+        return newValue;
+    }
+
+    /**
+     *  Remove the key value pairs matched with the given keyValuePredicate
+     *  Notice: this operation is not thread-safe by itself
+     * @param keyValuePredicate Predicate to select the key value pairs to remove
+     * @return      Number of key value pairs matched with the given predicate and thus removed
+     */
+    public int clear(BiPredicate<TKey, TValue> keyValuePredicate){
+        Objects.requireNonNull(keyValuePredicate);
+
+        int changes = 0;
+
+        Set<TKey> keySet = storage.keySet();
+        List<TKey> keyList = new ArrayList<>(keySet);
+        for (TKey key : keyList) {
+            try {
+                TValue value = storage.get(key);
+                if (keyValuePredicate.test(key, value)) {
+                    storage.remove(key, value);
+                    changes++;
+                    if(changesConsumer != null)
+                        changesConsumer.accept(key, value, null);
+                }
+            }catch (Exception ex){
+            }
+        }
+
+        return changes;
     }
 
     /**
@@ -125,35 +182,4 @@ public class Repository<TKey, TValue>
         return storage.size();
     }
 
-//    /**
-//     * Extra closing logic to close all AutoCloseable Keys/Values within a limited time specified by DEFAULT_RESET_TIMEOUT
-//     */
-//    @Override
-//    public void reset() {
-//        if(isValueInitialized()){
-//            List<RunnableThrowable> keyValueToClose = new ArrayList<>();
-//            Map<TKey, TValue> map = storage;
-//            map.entrySet().forEach(entry -> {
-//                TKey key = entry.getKey();
-//                if(key instanceof AutoCloseable){
-//                    AutoCloseable kClose = (AutoCloseable)key;
-//                    keyValueToClose.add(kClose::close);
-//                }
-//                TValue value = entry.getValue();
-//                if(value instanceof AutoCloseable){
-//                    AutoCloseable vClose = (AutoCloseable)value;
-//                    keyValueToClose.add(vClose::close);
-//                }
-//
-//                if(changesConsumer != null){
-//                    Functions.Default.run(changesConsumer, key, value, null);
-//                }
-//            });
-//            map.clear();
-//            if(keyValueToClose.size() > 0){
-//                Functions.runParallel(keyValueToClose, DEFAULT_RESET_TIMEOUT);
-//            }
-//        }
-//        super.reset();
-//    }
 }

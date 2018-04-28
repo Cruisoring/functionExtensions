@@ -7,7 +7,7 @@ package com.easyworks.function;
  * @param <U>   Type of the second argument.
  */
 @FunctionalInterface
-public interface BiPredicateThrowable<T,U> extends BiFunctionThrowable<T, U, Boolean> {
+public interface BiPredicateThrowable<T,U> extends BiFunctionThrowable<T,U, Boolean> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 2 arguments and returning result of boolean type
      * @param t     The first argument of type <code>T</code>.
@@ -18,15 +18,4 @@ public interface BiPredicateThrowable<T,U> extends BiFunctionThrowable<T, U, Boo
     default boolean test(T t, U u) throws Exception {
         return apply(t, u);
     }
-
-    /**
-     * Convert the above <code>apply</code> method to <code>SupplierThrowable</code> with 2 arguments
-     * @param t     The first argument of type <code>T</code>.
-     * @param u     The second argument of type <code>U</code>.
-     * @return      The converted <code>SupplierThrowable</code> by applying the 2 given arguments.
-     */
-    default SupplierThrowable<Boolean> asSupplier(T t, U u){
-        return () -> test(t, u);
-    }
-
 }

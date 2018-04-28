@@ -76,27 +76,38 @@ public class TupleTest {
     Set<Tuple> tupleSet = Tuple.setOf(tuple0, tuple1);
 
     @Test
+    public void testAccessors(){
+        Assert.assertEquals(false, hepta.getFirst());
+        Assert.assertEquals(Integer.valueOf(77), hepta.getSecond());
+        Assert.assertEquals("Tuple7", hepta.getThird());
+        Assert.assertEquals(LocalDate.MAX, hepta.getFourth());
+        Assert.assertEquals(Progress.Done, hepta.getFifth());
+        Assert.assertEquals("Result", hepta.getSixth());
+        Assert.assertEquals(Double.valueOf(99.9), hepta.getSeventh());
+    }
+
+    @Test
     public void testToString(){
-        System.out.println(tuple0.toString());
-        System.out.println(tuple1.toString());
-        System.out.println(tuple2.toString());
-        System.out.println(tuple3.toString());
-        System.out.println(tuple4.toString());
-        System.out.println(tuple5.toString());
-        System.out.println(tuple6.toString());
-        System.out.println(tuple7.toString());
-        System.out.println(set1.toString());
-        System.out.println(boolSet2.toString());
-        System.out.println(stringSet.toString());
-        System.out.println(intSet.toString());
-        System.out.println(dual.toString());
-        System.out.println(nullDual.toString());
-        System.out.println(hepta.toString());
-        System.out.println(NULL.toString());
-        System.out.println(Tuple.UNIT.toString());
-        System.out.println(Tuple.TRUE.toString());
-        System.out.println(Tuple.FALSE.toString());
-        System.out.println(tupleSet.toString());
+        Logger.L(tuple0.toString());
+        Logger.L(tuple1.toString());
+        Logger.L(tuple2.toString());
+        Logger.L(tuple3.toString());
+        Logger.L(tuple4.toString());
+        Logger.L(tuple5.toString());
+        Logger.L(tuple6.toString());
+        Logger.L(tuple7.toString());
+        Logger.L(set1.toString());
+        Logger.L(boolSet2.toString());
+        Logger.L(stringSet.toString());
+        Logger.L(intSet.toString());
+        Logger.L(dual.toString());
+        Logger.L(nullDual.toString());
+        Logger.L(hepta.toString());
+        Logger.L(NULL.toString());
+        Logger.L(Tuple.UNIT.toString());
+        Logger.L(Tuple.TRUE.toString());
+        Logger.L(Tuple.FALSE.toString());
+        Logger.L(tupleSet.toString());
     }
 
     @Test
@@ -339,33 +350,33 @@ public class TupleTest {
 
     @Test
     public void testHashCode() {
-        System.out.println(tuple0.hashCode());
-        System.out.println(tuple1.hashCode());
-        System.out.println(tuple2.hashCode());
-        System.out.println(tuple3.hashCode());
-        System.out.println(tuple4.hashCode());
-        System.out.println(tuple5.hashCode());
-        System.out.println(tuple6.hashCode());
-        System.out.println(tuple7.hashCode());
-        System.out.println(set1.hashCode());
-        System.out.println(boolSet2.hashCode());
-        System.out.println(stringSet.hashCode());
-        System.out.println(intSet.hashCode());
-        System.out.println(dual.hashCode());
-        System.out.println(nullDual.hashCode());
-        System.out.println(hepta.hashCode());
-        System.out.println(NULL.hashCode());
-        System.out.println(Tuple.UNIT.hashCode());
-        System.out.println(Tuple.TRUE.hashCode());
-        System.out.println(Tuple.FALSE.hashCode());
-        System.out.println(tupleSet.hashCode());
+        Logger.L("%s: %d", tuple0, tuple0.hashCode());
+        Logger.L("%s: %d", tuple1, tuple1.hashCode());
+        Logger.L("%s: %d", tuple2, tuple2.hashCode());
+        Logger.L("%s: %d", tuple3, tuple3.hashCode());
+        Logger.L("%s: %d", tuple4, tuple4.hashCode());
+        Logger.L("%s: %d", tuple5, tuple5.hashCode());
+        Logger.L("%s: %d", tuple6, tuple6.hashCode());
+        Logger.L("%s: %d", tuple7, tuple7.hashCode());
+        Logger.L("%s: %d", set1, set1.hashCode());
+        Logger.L("%s: %d", boolSet2, boolSet2.hashCode());
+        Logger.L("%s: %d", stringSet, stringSet.hashCode());
+        Logger.L("%s: %d", intSet, intSet.hashCode());
+        Logger.L("%s: %d", dual, dual.hashCode());
+        Logger.L("%s: %d", nullDual, nullDual.hashCode());
+        Logger.L("%s: %d", hepta, hepta.hashCode());
+        Logger.L("%s: %d", NULL, NULL.hashCode());
+        Logger.L("%s: %d", Tuple.UNIT, Tuple.UNIT.hashCode());
+        Logger.L("%s: %d", Tuple.TRUE, Tuple.TRUE.hashCode());
+        Logger.L("%s: %d", Tuple.FALSE, Tuple.FALSE.hashCode());
+        Logger.L("%s: %d", tupleSet, tupleSet.hashCode());
 
         Set<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
         Set<B> bSet = Tuple.setOf(new B(1), new B(2), new B(Integer.valueOf(3)));
         Set bSet1 = bSet.getSetOf(A.class);
-        System.out.println(aSet.hashCode());
-        System.out.println(bSet.hashCode());
-        System.out.println(bSet1.hashCode());
+        Logger.L("%s: %d", aSet, aSet.hashCode());
+        Logger.L("%s: %d", bSet, bSet.hashCode());
+        Logger.L("%s: %d", bSet1, bSet1.hashCode());
     }
 
     @Test

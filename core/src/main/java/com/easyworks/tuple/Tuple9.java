@@ -13,7 +13,7 @@ package com.easyworks.tuple;
  * @param <B> Type of the 9th persisted element
  */
 public class Tuple9<T,U,V,W,X,Y,Z,A,B> extends Tuple
-        implements WithNinth<T,U,V,W,X,Y,Z,A,B> {
+        implements WithValues9<T,U,V,W,X,Y,Z,A,B> {
 
     protected Tuple9(T t, U u, V v, W w, X x, Y y, Z z, A a, B b){
         super(t, u, v, w, x, y, z, a, b);

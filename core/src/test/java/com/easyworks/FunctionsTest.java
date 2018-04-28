@@ -9,6 +9,8 @@ import org.junit.Test;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
@@ -24,7 +26,11 @@ public class FunctionsTest {
                 logs.add(msg);
                 Logger.L(msg);
             },
-            lambda -> {
+            (ex, lambda) -> {
+                String msg = ex.getMessage();
+                msg = ex.getClass().getSimpleName() + (msg == null?"":":"+msg);
+                logs.add(msg);
+                Logger.L(msg);
                 Class returnType = TypeHelper.getReturnType(lambda);
                 return TypeHelper.getDefaultValue(returnType);
             });
@@ -47,7 +53,6 @@ public class FunctionsTest {
     @Test
     public void getReturnType() {
         ConsumerThrowable<Integer> consumerInteger = FunctionsTest::doNothing;
-        assertEquals(void.class, TypeHelper.getReturnType(consumerInteger));
         assertEquals(Integer.class, TypeHelper.getReturnType((SupplierThrowable<Integer>)(()->100)));
 
         BiFunctionThrowable<String, Integer, Integer> intFunc = FunctionsTest::sumOf;
@@ -71,7 +76,7 @@ public class FunctionsTest {
         int intValue = (int) logToList.apply(() -> 111);
         assertEquals(111, intValue);
         //Java is not smart enough to treat the Lambda as SupplierThrowable<Integer>, specifying it clearly
-        intValue = (int) logToList.apply((SupplierThrowable<Integer>) () -> (int)(111/0));
+        intValue = (int) logToList.apply((SupplierThrowable<Integer>) () -> (111/0));
         assertEquals(0, intValue);
         assertTrue(logs.get(0).contains("ArithmeticException"));
     }
@@ -205,6 +210,8 @@ public class FunctionsTest {
         result = (Integer)logToList.apply(f9, "8.0", true);
         assertEquals(Integer.valueOf(0), result);
         assertTrue(logs.get(0).contains("NumberFormatException"));
+
+        assertEquals(Integer.valueOf(-1), f9.withHandler(defaultReturner).apply("8.0", true));
     }
 
     TriFunctionThrowable<String, Integer[], Boolean, Integer> f10 =
@@ -228,11 +235,10 @@ public class FunctionsTest {
         assertTrue(TypeHelper.valueEquals(new String[]{"true", "a", "33", ""}, result));
 
         result = (String[]) logToList.apply(f11, true, "a", 33, new String[]{});
-        if((System.getProperties().containsKey("EMPTY_ARRAY_AS_DEFAULT")
-                && "false".equalsIgnoreCase(System.getProperty("EMPTY_ARRAY_AS_DEFAULT"))))
-            assertNull(result);
-        else
+        if(TypeHelper.tryParse("EMPTY_ARRAY_AS_DEFAULT", false))
             assertEquals(0, result.length);
+        else
+            assertNull(result);
         assertTrue(logs.get(0).contains("OutOfBoundsException"));
     }
 
@@ -272,31 +278,40 @@ public class FunctionsTest {
         assertTrue(logs.get(0).contains("NullPointerException"));
     }
 
+    static Class<? extends Exception>[] negligibles = new Class[]{
+            NullPointerException.class, IllegalArgumentException.class
+    };
+    static Class<? extends Exception>[] noticeables = new Class[]{
+            SQLException.class, NumberFormatException.class
+    };
+    //List<String> logs = new ArrayList();
+    static Consumer<Exception> exHandler = ex -> {
+        final Class<? extends Exception> exceptionType = ex.getClass();
+        if(IntStream.range(0, noticeables.length).anyMatch(i -> noticeables[i].isAssignableFrom(exceptionType))){
+            String msg = ex.getMessage();
+            msg = ex.getClass().getSimpleName() + (msg == null?"":":"+msg);
+            logs.add(msg);
+        }else if(IntStream.range(0, negligibles.length).allMatch(i -> !negligibles[i].isAssignableFrom(exceptionType))){
+            throw new RuntimeException(ex);
+        }
+    };
+    static BiFunction<Exception, WithValueReturned, Object> defaultReturner = (ex, lambda) -> {
+        final Class<? extends Exception> exceptionType = ex.getClass();
+        if(IntStream.range(0, noticeables.length).anyMatch(i -> noticeables[i].isAssignableFrom(exceptionType))){
+            String msg = ex.getMessage();
+            msg = ex.getClass().getSimpleName() + (msg == null?"":":"+msg);
+            logs.add(msg);
+        }else if(IntStream.range(0, negligibles.length).allMatch(i -> !negligibles[i].isAssignableFrom(exceptionType))){
+            throw new RuntimeException(ex);
+        }
+        final Class returnType = TypeHelper.getReturnType(lambda);
+        if(returnType == Integer.class || returnType == int.class)
+            return -1;
+        return TypeHelper.getDefaultValue(returnType);
+    };
     @Test
     public void buildFunctions(){
-        Class<? extends Exception>[] negligibles = new Class[]{
-                NullPointerException.class, IllegalArgumentException.class
-        };
-        Class<? extends Exception>[] noticeables = new Class[]{
-                SQLException.class, NumberFormatException.class
-        };
-        List<String> logs = new ArrayList();
-        ExceptionHandler exHandler = ex -> {
-            final Class<? extends Exception> exceptionType = ex.getClass();
-            if(IntStream.range(0, noticeables.length).anyMatch(i -> noticeables[i].isAssignableFrom(exceptionType))){
-                String msg = ex.getMessage();
-                msg = ex.getClass().getSimpleName() + (msg == null?"":":"+msg);
-                logs.add(msg);
-            }else if(IntStream.range(0, negligibles.length).allMatch(i -> !negligibles[i].isAssignableFrom(exceptionType))){
-                throw new RuntimeException(ex);
-            }
-        };
-        DefaultReturner defaultReturner = lambda -> {
-            final Class returnType = TypeHelper.getReturnType(lambda);
-            if(returnType == Integer.class || returnType == int.class)
-                return -1;
-            return TypeHelper.getDefaultValue(returnType);
-        };
+        assertEquals(Integer.valueOf(-1), f14.withHandler(defaultReturner).apply(false, null, null, null, null, null, null));
 
         Functions customFunctions = Functions.buildFunctions(exHandler, defaultReturner);
 

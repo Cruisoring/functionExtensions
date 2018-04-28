@@ -200,8 +200,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
         if(!other.canEqual(this))
             return false;
 
-        //Calling TypeHelper.deepEquals(values, other.values) would get StackOverflowError
-        return TypeHelper.valueEquals(values, other.values);
+        return TypeHelper.valueEquals(values, other.values, getDeepLength(), other.getDeepLength());
     }
 
     public boolean canEqual(Object obj) {

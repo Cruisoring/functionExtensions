@@ -1,7 +1,6 @@
 package com.easyworks.function;
 
-import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Functional Interface identifying methods, accepting 5 arguments and returning result of type <code>R</code>,
@@ -14,7 +13,7 @@ import java.util.function.Function;
  * @param <R>   Type of the returned result.
  */
 @FunctionalInterface
-public interface PentaFunctionThrowable<T,U,V,W,X,R> extends AbstractThrowable {
+public interface PentaFunctionThrowable<T,U,V,W,X, R> extends WithValueReturned<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 5 arguments and returning result of type <code>R</code>
      * @param t     The first argument of type <code>T</code>.
@@ -28,31 +27,49 @@ public interface PentaFunctionThrowable<T,U,V,W,X,R> extends AbstractThrowable {
     R apply(T t, U u, V v, W w, X x) throws Exception;
 
     /**
-     * Convert the above <code>apply</code> method to <code>SupplierThrowable</code> with all 5 arguments
-     * @param t     The first argument of type <code>T</code>.
-     * @param u     The second argument of type <code>U</code>.
-     * @param v     The third argument of type <code>V</code>.
-     * @param w     The fourth argument of type <code>W</code>.
-     * @param x     The fifth argument of type <code>X</code>.
-     * @return      The converted <code>SupplierThrowable</code> by applying the 5 given arguments.
+     * Convert the PentaFunctionThrowable&lt;T,U,V,W,X, R&gt; to PentaFunction&lt;T,U,V,W,X, R&gt; with injected Exception Handler
+     * @param exceptionHandler  Exception Handler of the caught Exceptions
+     * @return  Converted PentaFunction&lt;T,U,V,W,X, R&gt; that get Exceptions handled with the exceptionHandler
      */
-    default SupplierThrowable<R> asSupplier(T t, U u, V v, W w, X x){
-        return () -> apply(t, u, v, w, x);
-    }
-
-    default PentaFunction<T,U,V,W,X, R> orElse(Function<Exception, R> exceptionHanlder){
-        Objects.requireNonNull(exceptionHanlder);
-        return (t, u, v, w, x) -> {
+    default PentaFunction<T,U,V,W,X, R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler){
+        PentaFunction<T,U,V,W,X, R> function = (t, u, v, w, x) -> {
             try {
                 return apply(t, u, v, w, x);
             } catch (Exception e) {
-                return exceptionHanlder.apply(e);
+                return exceptionHandler == null ? null : (R) exceptionHandler.apply(e, this);
             }
         };
+        return function;
     }
 
+    /**
+     * Simplified version of converting the HexaFunctionThrowable&lt;T,U,V,W,X,Y, R&gt; to HexaFunction&lt;T,U,V,W,X,Y, R&gt;
+     * by ignoring the caught Exception and simply returns a pre-defined default value.
+     * @param defaultValue  Predefined default value.
+     * @return Converted HexaFunction&lt;T,U,V,W,X,Y, R&gt; that returns the given defaultValue when exception caught
+     */
+    default PentaFunction<T,U,V,W,X, R> orElse(R defaultValue){
+        PentaFunction<T,U,V,W,X, R> function = (t, u, v, w, x) -> {
+            try {
+                return apply(t, u, v, w, x);
+            } catch (Exception e) {
+                return defaultValue;
+            }
+        };
+        return function;
+    }
+
+    /**
+     * Represents a function that accepts five arguments and produces a result.
+     * @param <T>   Type of the first argument.
+     * @param <U>   Type of the second argument.
+     * @param <V>   Type of the third argument.
+     * @param <W>   Type of the fourth argument.
+     * @param <X>   Type of the fifth argument.
+     * @param <R>   Type of the result of the function
+     */
     @FunctionalInterface
-    interface PentaFunction<T,U,V,W,X, R> extends AbstractThrowable{
+    interface PentaFunction<T,U,V,W,X, R> {
         R apply(T t, U u, V v, W w, X x);
     }
 }

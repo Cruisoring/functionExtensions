@@ -15,7 +15,7 @@ package com.easyworks.tuple;
  * @param <D> Type of the 11th persisted element
  */
 public class Tuple11<T,U,V,W,X,Y,Z,A,B,C,D> extends Tuple
-        implements WithEleventh<T,U,V,W,X,Y,Z,A,B,C,D> {
+        implements WithValues11<T,U,V,W,X,Y,Z,A,B,C,D> {
 
     protected Tuple11(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d){
         super(t, u, v, w, x, y, z, a, b, c, d);

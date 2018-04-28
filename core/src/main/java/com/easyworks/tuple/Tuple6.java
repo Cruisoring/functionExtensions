@@ -10,7 +10,7 @@ package com.easyworks.tuple;
  * @param <Y> Type of the sixth persisted element
  */
 public class Tuple6<T,U,V,W,X,Y> extends Tuple implements
-        WithSixth<T,U,V,W,X,Y> {
+        WithValues6<T,U,V,W,X,Y> {
 
     protected Tuple6(T t, U u, V v, W w, X x, Y y){
         super(t, u, v, w, x, y);

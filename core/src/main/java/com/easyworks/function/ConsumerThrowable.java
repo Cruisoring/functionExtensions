@@ -1,6 +1,5 @@
 package com.easyworks.function;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -9,7 +8,7 @@ import java.util.function.Consumer;
  * @param <T>   Type of the first argument.
  */
 @FunctionalInterface
-public interface ConsumerThrowable<T> extends AbstractThrowable {
+public interface ConsumerThrowable<T> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 1 argument and returning nothing.
      * @param t     Needed argument of type T.
@@ -17,23 +16,21 @@ public interface ConsumerThrowable<T> extends AbstractThrowable {
      */
     void accept(T t) throws Exception;
 
-    /**
-     * Convert the above <code>accept</code> method to <code>RunnableThrowable</code> with argument <code>t</code> captured
-     * @param t     The first argument of type <code>T</code>.
-     * @return  The converted <code>RunnableThrowable</code> with with argument <code>t</code> captured
-     */
-    default RunnableThrowable asRunnable(T t){
-        return () -> accept(t);
-    }
 
-    default Consumer<T> orElse(Consumer<Exception> exceptionHandler){
-        Objects.requireNonNull(exceptionHandler);
-        return t -> {
+    /**
+     * Convert the ConsumerThrowable&lt;T&gt; to Consumer&lt;T&gt; with injected Exception Handler
+     * @param exceptionHandler  Exception Handler of the caught Exceptions
+     * @return  Converted Consumer&lt;T&gt; that get Exceptions handled with the exceptionHandler
+     */
+    default Consumer<T> withHandler(Consumer<Exception> exceptionHandler){
+        Consumer<T> consumer = t -> {
             try {
                 accept(t);
             } catch (Exception e) {
-                exceptionHandler.accept(e);
+                if(exceptionHandler != null)
+                    exceptionHandler.accept(e);
             }
         };
+        return consumer;
     }
 }

@@ -14,7 +14,7 @@ package com.easyworks.tuple;
  * @param <C> Type of the 10th persisted element
  */
 public class Tuple10<T,U,V,W,X,Y,Z,A,B,C> extends Tuple
-        implements WithTenth<T,U,V,W,X,Y,Z,A,B,C> {
+        implements WithValues10<T,U,V,W,X,Y,Z,A,B,C> {
 
     protected Tuple10(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c){
         super(t, u, v, w, x, y, z, a, b, c);

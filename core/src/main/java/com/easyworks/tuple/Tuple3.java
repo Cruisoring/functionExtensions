@@ -7,7 +7,7 @@ package com.easyworks.tuple;
  * @param <V> Type of the third persisted element
  */
 public class Tuple3<T,U,V> extends Tuple
-    implements WithThird<T,U,V> {
+    implements WithValues3<T,U,V> {
 
     protected Tuple3(T t, U u, V v){
         super(t, u, v);
