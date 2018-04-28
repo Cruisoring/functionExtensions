@@ -288,14 +288,14 @@ The calculated values from the given business logic can still be overriden or cl
 
 The *TupleRepository<TKey>*, by extending *Repository<TKey, Tuple>*, make it is possible to keep multiple values related with a single key of type TKey saved in single Tuple instances but with no value types persisted. The following types and their children types specify any combinations of 1-7 strong-typed elements as keys and 1-7 strong-typed elements as values:
 | Class Name	 | Number of values	| SubClass of 1-keys | SubClass of 2-keys | SubClass of 3-keys | SubClass of 4-keys | SubClass of 5-keys | SubClass of 6-keys | SubClass of 7-keys |
-|----------------|-------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|
-|TupleRepository1|:       1         :|:  TupleKeys1      :|:  TupleKeys2      :|:  TupleKeys3      :|:  TupleKeys4      :|:  TupleKeys5      :|:  TupleKeys6      :|:  TupleKeys7      :|
-|TupleRepository2|:       2         :|:  TupleKeys1      :|:  TupleKeys2      :|:  TupleKeys3      :|:  TupleKeys4      :|:  TupleKeys5      :|:  TupleKeys6      :|:  TupleKeys7      :|
-|TupleRepository3|:       3         :|:  TupleKeys1      :|:  TupleKeys2      :|:  TupleKeys3      :|:  TupleKeys4      :|:  TupleKeys5      :|:  TupleKeys6      :|:  TupleKeys7      :|
-|TupleRepository4|:       4         :|:  TupleKeys1      :|:  TupleKeys2      :|:  TupleKeys3      :|:  TupleKeys4      :|:  TupleKeys5      :|:  TupleKeys6      :|:  TupleKeys7      :|
-|TupleRepository5|:       5         :|:  TupleKeys1      :|:  TupleKeys2      :|:  TupleKeys3      :|:  TupleKeys4      :|:  TupleKeys5      :|:  TupleKeys6      :|:  TupleKeys7      :|
-|TupleRepository6|:       6         :|:  TupleKeys1      :|:  TupleKeys2      :|:  TupleKeys3      :|:  TupleKeys4      :|:  TupleKeys5      :|:  TupleKeys6      :|:  TupleKeys7      :|
-|TupleRepository7|:       7         :|:  TupleKeys1      :|:  TupleKeys2      :|:  TupleKeys3      :|:  TupleKeys4      :|:  TupleKeys5      :|:  TupleKeys6      :|:  TupleKeys7      :|
+|----------------|-------------------|:------------------:|:------------------:|:------------------:|:------------------:|:-----------------:|:------------------:|:------------------:|
+|TupleRepository1|        1          |   TupleKeys1       |   TupleKeys2       |   TupleKeys3       |   TupleKeys4       |   TupleKeys5      |   TupleKeys6       |   TupleKeys7       |
+|TupleRepository2|        2          |   TupleKeys1       |   TupleKeys2       |   TupleKeys3       |   TupleKeys4       |   TupleKeys5      |   TupleKeys6       |   TupleKeys7       |
+|TupleRepository3|        3          |   TupleKeys1       |   TupleKeys2       |   TupleKeys3       |   TupleKeys4       |   TupleKeys5      |   TupleKeys6       |   TupleKeys7       |
+|TupleRepository4|        4          |   TupleKeys1       |   TupleKeys2       |   TupleKeys3       |   TupleKeys4       |   TupleKeys5      |   TupleKeys6       |   TupleKeys7       |
+|TupleRepository5|        5          |   TupleKeys1       |   TupleKeys2       |   TupleKeys3       |   TupleKeys4       |   TupleKeys5      |   TupleKeys6       |   TupleKeys7       |
+|TupleRepository6|        6          |   TupleKeys1       |   TupleKeys2       |   TupleKeys3       |   TupleKeys4       |   TupleKeys5      |   TupleKeys6       |   TupleKeys7       |
+|TupleRepository7|        7          |   TupleKeys1       |   TupleKeys2       |   TupleKeys3       |   TupleKeys4       |   TupleKeys5      |   TupleKeys6       |   TupleKeys7       |
 
 There are corresponding factory methods to create the relevant TupleRepository with specific number of strong-typed values from strong-typed keys. For example, in TupleRepository3:
 ```java
@@ -430,4 +430,4 @@ To summarise, the com.easyworks.functionExtentions package provides 3 types of b
 1. The throwable funcitonal interfaces make lambda expressions can be declared easier without the boiler-plate exception handling codes, and they can be converted to conventional funcitonal expressions with Exceptions handled with simple and potential shared Exception handling methods. Consequently, developers can declare funcitonal interfaces as blocks of key business logics to be used to build one or multiple big pictures later.
 2. The Tuple classes makes chunks of strong-typed values could be composed as a single unit for processing, that shall be immutable and could be compared efficiently with others by their values. 
 3. The Repository binds the business logic to retrieve data with the media to keep data together, with dictionary matching algorithm to replace complex conditional switching and enhance the processing efficiency by its inherited buffering capacity. Combined with Tuples, TupleRepositories extended this utility with multiple keys and/or multiple values linked together and with their type information persisted.
-4. Many of the utilities provided in this package shows how above techniques could be used to build complicated functionalities in a different manner than plain Java language.
+4. Many of the utilities provided in this package shows how above techniques could be used to build complicated functionalities in a different manner than plain Java la
