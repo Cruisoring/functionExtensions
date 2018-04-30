@@ -1,1 +1,0 @@
-select * from  TV_T_BASIS_USERROLE where user_id = 'abc'
