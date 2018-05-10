@@ -9,10 +9,7 @@ import org.junit.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -76,6 +73,41 @@ public class TupleTest {
     Set<Tuple> tupleSet = Tuple.setOf(tuple0, tuple1);
 
     @Test
+    public void testArraysDeepFunctions(){
+        Logger.L("%d", Objects.hashCode(new int[]{1,2,3}));
+        Logger.L("%d", Arrays.deepHashCode(new Integer[]{1,2,3}));
+        Logger.L("%d", Arrays.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
+        Logger.L("%d", Arrays.deepHashCode(new Object[]{new Integer[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
+        Logger.L("%d", Arrays.deepHashCode(new Integer[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
+
+        assertTrue(Integer.valueOf(1).equals(1));
+        assertTrue(Objects.equals(Integer.valueOf(1), 1));
+        //assertTrue(Objects.deepEquals(new int[]{1,2,3}, new Integer[]{1,2,3}));
+
+    }
+
+    @Test
+    public void deepHashCode(){
+        Logger.L("%d", TypeHelper.deepHashCode(new int[]{1,2,3}));
+        assertEquals(TypeHelper.deepHashCode(new int[]{1,2,3}), TypeHelper.deepHashCode(new Integer[]{1,2,3}));
+        Logger.L("%d", TypeHelper.deepHashCode(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
+        assertEquals(TypeHelper.deepHashCode(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}),
+                TypeHelper.deepHashCode(new Object[]{new Integer[]{1,2,3}, new Integer[0], null, new int[]{4, 5}}));
+        Logger.L("%d", TypeHelper.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
+        assertEquals(TypeHelper.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}),
+                TypeHelper.deepHashCode(new Integer[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
+    }
+
+    @Test
+    public void deepEquals(){
+        assertTrue(TypeHelper.valueEquals(new int[]{1,2,3}, new Integer[]{1,2,3}));
+        assertTrue(TypeHelper.valueEquals(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}},
+                new Object[]{new Integer[]{1,2,3}, new Integer[0], null, new int[]{4, 5}}));
+        assertTrue(TypeHelper.valueEquals(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}},
+                new Integer[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
+    }
+
+    @Test
     public void testAccessors(){
         assertEquals(false, hepta.getFirst());
         assertEquals(Integer.valueOf(77), hepta.getSecond());
@@ -122,6 +154,12 @@ public class TupleTest {
         Set<Integer> iSet = (Set<Integer>) Tuple.setOf(aInteger);
         assertEquals(1, iSet.getLength());
         assertEquals(null, iSet.get(0));
+
+        Set<Integer> integerSet = Tuple.setOf(1, 2, 3);
+        assertTrue(Arrays.deepEquals(new Integer[]{1,2,3}, integerSet.asArray()));
+
+        Set<Comparable> comparableSet = Tuple.setOf(Comparable.class, new Comparable[]{1.0, 'a', "abc"});
+        assertTrue(Arrays.deepEquals(new Comparable[]{1.0, 'a', "abc"}, comparableSet.asArray()));
     }
 
     @Test
@@ -346,6 +384,27 @@ public class TupleTest {
         assertEquals(3, tupleSet.getLength());
         assertNotEquals(tupleSet, Tuple.of(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)));
         assertEquals(Tuple.setOf(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)), tupleSet);
+    }
+
+    @Test
+    public void testOf(){
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
+                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+        Comparable first = tuple.getFirst();
+        assertEquals(Integer.valueOf(1), first);
+        assertEquals(Character.valueOf('a'), tuple.getSecond());
+        assertEquals(Double.valueOf(3.0), tuple.getThird());
+        assertEquals("abc", tuple.getFourth());
+        assertEquals(DayOfWeek.MONDAY, tuple.getFifth());
+        assertEquals(true, tuple.getSixth());
+
+        Tuple6<Integer, Character, Double, String, DayOfWeek, Boolean> tuple2 = Tuple.create(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+        assertEquals(Integer.valueOf(1), tuple2.getFirst());
+        assertEquals(Character.valueOf('a'), tuple2.getSecond());
+        assertEquals(Double.valueOf(3.0), tuple2.getThird());
+        assertEquals("abc", tuple2.getFourth());
+        assertEquals(DayOfWeek.MONDAY, tuple2.getFifth());
+        assertEquals(true, tuple2.getSixth());
     }
 
     @Test

@@ -1,4 +1,38 @@
 #functionExtentions
+===================
+
+functionExtentions is a Java library with Throwable Functional Interfaces, Tuples and Repositories implemented to expedite Functional Programming with JAVA 8. It is released on [Maven](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.0/) under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
+
+### functionExtentions Goals
+ *	Declares a rich set of funcitonal interfaces throwing Exceptions, that can be converted to conventional ones with Checked Exceptions handled with shared exceptionHandlers, thus allow developers to define the concerned business logic only within the lambda expressions.
+ *	Implements an immutable data structure to keep and retrieve up to first 20 strong-typed values as a set of Tuple classes.
+ *	Provides Repositories as a kind of Map-based intelligent utility with pre-defined business logic to evaluate a given key or keys (upto 7 strong-typed values as a single Tuple key) to get corresponding value or values (upto 7 strong-typed values as a single Tuple value), buffer and return them if no Exception happened.
+ *	Multiple powerful generic utilities to support above 3 types utilities, mainly build with Repositories, that support various combinations of primitive and objective types and arrays. For example:
+	- *Object getNewArray(Class clazz, int length)*: new an array of ANY type with element type and length of the newed instance.
+	- *String deepToString(Object obj)*: Returns a string representation of the "deep contents" of the specified array.
+	- *Object copyOfRange(Object array, int from, int to)*: Copy all or part of the array as a new array of the same type, no matter if the array is composed by primitive values or not.
+	- *T convert(Object obj, Class<T> toClass)*: convert the object to any equivalent or assignable types.
+	- *boolean valueEquals(Object obj1, Object obj2)*: comparing any two objects. If both are arrays, comparing them by treating primitive values equal to their wrappers, null and empty array elements with predefined default strategies.
+ 
+##Get Started
+
+For maven users for example:
+```xml
+<dependency>
+    <groupId>io.github.cruisoring</groupId>
+    <artifactId>functionExtensions</artifactId>
+    <version>1.0.1</version>
+</dependency>
+```
+
+Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.0.1/)
+
+##Implementation Techniques
+
+Following threads on codeproject discussed some of the techniques used to design and develop this library:
+- [Throwable Functional Interfaces](https://www.codeproject.com/Articles/1231137/functionExtensions-Techniques-Throwable-Functional)
+- [Tuples](https://www.codeproject.com/Articles/1232570/Function-Extensions-Techniques-Tuples)
+- [Repository](https://www.codeproject.com/Articles/1233122/functionExtensions-Techniques-Repository)
 
 ##Overview
 
@@ -55,26 +89,27 @@ Or
 More importantly, the business logic of Class.forName can be saved as a variable, and used as a block to be added to a bigger picture that needs exception handling only when called. Only without the repeative defensive Exception Handling codes, function can be used as first class member in JAVA.
 
 Following functional interfaces are defined to accept up to 7 input arguments:
-| Throwable Interfaces	       | # of Inputs	|With Value Returned | Non-Throwable counterpart |
-|:-----------------------------|:--------------:|--------------------|:--------------------------|
-|RunnableThrowable             |0               |No                  |*Runnable*                   |
-|SupplierThrowable<R>          |0               |Yes                 |*Supplier<R>*                |
-|ConsumerThrowable<T>          |1               |No                  |*Consumer<T>*                |
-|FunctionThrowable<T,R>          |1               |Yes                 |*Function<T,R>*                |
-|PredicateThrowable<T>         |1               |Yes                 |*Predicate<T>*               |
-|BiConsumerThrowable<T,U>      |2               |No                  |*BiConsumer<T,U>*            |
-|BiFunctionThrowable<T,U,R>      |2               |Yes                 |*BiFunction<T,U,R>*            |
-|BiPredicateThrowable<T,U>     |2               |Yes                 |*BiPredicate<T,U>*           |
-|TriConsumerThrowable<T,U,V>   |3               |No                  |TriConsumer<T,U,V>            |
-|TriFunctionThrowable<T,U,V,R>   |3               |Yes                 |TriFunction<T,U,V,R>            |
-|QuadConsumerThrowable<T,U,V,W>   |4               |No                  |QuadConsumer<T,U,V,W>            |
-|QuadFunctionThrowable<T,U,V,W,R>   |4               |Yes                 |QuadFunction<T,U,V,W,R>            |
-|PentaConsumerThrowable<T,U,V,W,X>   |5               |No                  |PentaConsumer<T,U,V,W,X>            |
-|PentaFunctionThrowable<T,U,V,W,X,R>   |5               |Yes                 |PentaFunction<T,U,V,W,X,R>            |
-|HexaConsumerThrowable<T,U,V,W,X,Y>   |6               |No                  |HexaConsumer<T,U,V,W,X,Y>            |
-|HexaFunctionThrowable<T,U,V,W,X,Y,R>   |6               |Yes                 |HexaFunction<T,U,V,W,X,Y,R>            |
-|HeptaConsumerThrowable<T,U,V,W,X,Y,Z>   |7               |No                  |HeptaConsumer<T,U,V,W,X,Y,Z>            |
-|HeptaFunctionThrowable<T,U,V,W,X,Y,Z,R>   |7               |Yes                 |HeptaFunction<T,U,V,W,X,Y,Z,R>            |
+
+|Throwable Interfaces|Number of Inputs|With Value Returned|Non-Throwable function|Convert with Handler|Convert with defaultValue|
+|:---|:---:|---|:---|:---:|:---:|
+|RunnableThrowable|0|No|*Runnable*|Yes|No|
+|SupplierThrowable<R>|0|Yes|*Supplier<R>*|Yes|Yes|
+|ConsumerThrowable<T>|1|No|*Consumer<T>*|Yes|No|
+|FunctionThrowable<T,R>|1|Yes|*Function<T,R>*|Yes|Yes|
+|PredicateThrowable<T>|1|Yes|*Function<T,Boolean>*|Yes|Yes|
+|BiConsumerThrowable<T,U>|2|No|*BiConsumer<T,U>*|Yes|No|
+|BiFunctionThrowable<T,U,R>|2|Yes|*BiFunction<T,U,R>*|Yes|Yes|
+|BiPredicateThrowable<T,U>|2|Yes|*BiFunction<T,U,Boolean>*|Yes|Yes|
+|TriConsumerThrowable<T,U,V>|3|No|TriConsumer<T,U,V>|Yes|No|
+|TriFunctionThrowable<T,U,V,R>|3|Yes|TriFunction<T,U,V,R>|Yes|Yes|
+|QuadConsumerThrowable<T,U,V,W>|4|No|QuadConsumer<T,U,V,W>|Yes|No|
+|QuadFunctionThrowable<T,U,V,W,R>|4|Yes|QuadFunction<T,U,V,W,R>|Yes|Yes|
+|PentaConsumerThrowable<T,U,V,W,X>|5|No|PentaConsumer<T,U,V,W,X>|Yes|No|
+|PentaFunctionThrowable<T,U,V,W,X,R>|5|Yes|PentaFunction<T,U,V,W,X,R>|Yes|Yes|
+|HexaConsumerThrowable<T,U,V,W,X,Y>|6|No|HexaConsumer<T,U,V,W,X,Y>|Yes|No|
+|HexaFunctionThrowable<T,U,V,W,X,Y,R>|6|Yes|HexaFunction<T,U,V,W,X,Y,R>|Yes|Yes|
+|HeptaConsumerThrowable<T,U,V,W,X,Y,Z>|7|No|HeptaConsumer<T,U,V,W,X,Y,Z>|Yes|No|
+|HeptaFunctionThrowable<T,U,V,W,X,Y,Z,R>|7|Yes|HeptaFunction<T,U,V,W,X,Y,Z,R>|Yes|Yes|
 
 These 18 throwable functional interfaces follow the naming convention of [java.util.function](https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html), their counterpart functional interfaces without checked Exceptions are defined as their inner interfaces, if not defined in java.util.function package. For example, TriFunction<T,U,V,R> is defined in TriFunctionThrowable<T,U,V,R>, with similar method signature:
 ```java
@@ -287,6 +322,7 @@ The calculated values from the given business logic can still be overriden or cl
 ```
 
 The *TupleRepository<TKey>*, by extending *Repository<TKey, Tuple>*, make it is possible to keep multiple values related with a single key of type TKey saved in single Tuple instances but with no value types persisted. The following types and their children types specify any combinations of 1-7 strong-typed elements as keys and 1-7 strong-typed elements as values:
+
 | Class Name	 | Number of values	| SubClass of 1-keys | SubClass of 2-keys | SubClass of 3-keys | SubClass of 4-keys | SubClass of 5-keys | SubClass of 6-keys | SubClass of 7-keys |
 |----------------|-------------------|:------------------:|:------------------:|:------------------:|:------------------:|:-----------------:|:------------------:|:------------------:|
 |TupleRepository1|        1          |   TupleKeys1       |   TupleKeys2       |   TupleKeys3       |   TupleKeys4       |   TupleKeys5      |   TupleKeys6       |   TupleKeys7       |
@@ -430,4 +466,4 @@ To summarise, the io.github.cruisoring.functionExtentions package provides 3 typ
 1. The throwable funcitonal interfaces make lambda expressions can be declared easier without the boiler-plate exception handling codes, and they can be converted to conventional funcitonal expressions with Exceptions handled with simple and potential shared Exception handling methods. Consequently, developers can declare funcitonal interfaces as blocks of key business logics to be used to build one or multiple big pictures later.
 2. The Tuple classes makes chunks of strong-typed values could be composed as a single unit for processing, that shall be immutable and could be compared efficiently with others by their values. 
 3. The Repository binds the business logic to retrieve data with the media to keep data together, with dictionary matching algorithm to replace complex conditional switching and enhance the processing efficiency by its inherited buffering capacity. Combined with Tuples, TupleRepositories extended this utility with multiple keys and/or multiple values linked together and with their type information persisted.
-4. Many of the utilities provided in this package shows how above techniques could be used to build complicated functionalities in a different manner than plain Java la
+4. Many of the utilities provided in this package shows how above techniques could be used to build complicated functionalities in a different manner than plain Java.

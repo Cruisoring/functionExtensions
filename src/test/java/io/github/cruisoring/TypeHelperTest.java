@@ -29,6 +29,7 @@ public class TypeHelperTest {
         assertTrue(TypeHelper.valueEqualsParallel(a, b));
     }
 
+
     static Object object1 = new Object[] { new Object[]{(int)1, 1.2d, 3},
             new int[0],
             new int[0],
@@ -125,6 +126,15 @@ public class TypeHelperTest {
             new int[]{2,2,0}, new int[]{2,3,0,0}, new int[]{2,3,1,-1}, new int[]{2,4,-1}, new int[]{3,-1}, new int[]{4,0}
             , new int[]{5,-2}, new int[]{6,0}, new int[]{7,-2}, new int[]{8,0,-2}, new int[]{8,1,-1}}, deepLength);
         assertEquals(16, deepLength.length);
+
+        Object array = new Object[]{1,
+                new int[]{2, 3},
+                new Object[]{null, '5', '6', null},
+                new char[0],
+                11.0};
+        deepLength = TypeHelper.getDeepLength(array);
+        assertValueEquals(new int[][]{new int[]{0,0}, new int[]{1,0,0}, new int[]{1,1,0}, new int[]{2,0,-1}, new int[]{2,1,0},
+                new int[]{2,2,0}, new int[]{2,3,-1}, new int[]{3,-2}, new int[]{4,0}}, deepLength);
     }
 
     @Test
@@ -155,6 +165,21 @@ public class TypeHelperTest {
 
         assertValueEquals(new Object[]{3, (short) 3, true, null, "S1", "S2", 1.1d, DayOfWeek.WEDNESDAY},
                 new Comparable[]{3, Short.valueOf("3"), true, null, "S1", "S2", Double.valueOf(1.1d), DayOfWeek.WEDNESDAY});
+    }
+
+    @Test
+    public void testValueEquals_withDifferentStrategies(){
+        assertValueEquals(new Object[]{new int[]{3,2,1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
+                new Object[]{new Integer[]{3,2,1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}});
+        assertTrue(TypeHelper.valueEquals(new Object[]{new int[]{3,2,1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
+                new Object[]{new Integer[]{3,2,1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}},
+                NullEquality.BetweenAssignableTypes, EmptyArrayEquality.TypeIgnored));
+        assertFalse(TypeHelper.valueEquals(new Object[]{new int[]{3,2,1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
+                new Object[]{new Integer[]{3,2,1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}},
+                NullEquality.SameTypeOnly, EmptyArrayEquality.TypeIgnored));
+        assertFalse(TypeHelper.valueEquals(new Object[]{new int[]{3,2,1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
+                new Object[]{new Integer[]{3,2,1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}},
+                NullEquality.TypeIgnored, EmptyArrayEquality.SameTypeOnly));
     }
 
     @Test

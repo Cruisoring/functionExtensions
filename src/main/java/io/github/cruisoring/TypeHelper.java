@@ -362,14 +362,17 @@ public class TypeHelper {
     }
 
     /**
-     * Comparing two objects by comparing their actual values.
+     * Comparing two objects by comparing their actual values with desired strategies.
      * First by treating them as Non-Array Objects or Empty arrays, then compare them by deepDepth either serial or parallel
      *  Note: primitive types are converted to their corresponding wrappers automatically
      * @param obj1  first object to be compared
      * @param obj2  second object to be compared
+     * @param nullEquality  Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyArrayEquality  Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
-    public static boolean valueEquals(Object obj1, Object obj2){
+    public static boolean valueEquals(Object obj1, Object obj2,
+                                      NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality){
         final Boolean simpleEquals = simpleValueEquals(obj1, obj2);
         if (simpleEquals != null)
             return simpleEquals;
@@ -379,7 +382,19 @@ public class TypeHelper {
         if(!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
 
-        return deepLengthEquals(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return deepLengthEquals(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
+    }
+
+    /**
+     * Comparing two objects by comparing their actual values with default strategies.
+     * First by treating them as Non-Array Objects or Empty arrays, then compare them by deepDepth either serial or parallel
+     *  Note: primitive types are converted to their corresponding wrappers automatically
+     * @param obj1  first object to be compared
+     * @param obj2  second object to be compared
+     * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
+     */
+    public static boolean valueEquals(Object obj1, Object obj2){
+        return valueEquals(obj1, obj2, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
     }
 
     /**
@@ -401,14 +416,17 @@ public class TypeHelper {
     }
 
     /**
-     * Comparing two objects by comparing their actual values.
+     * Comparing two objects by comparing their actual values in parallel with desired strategies.
      * First by treating them as Non-Array Objects or Empty arrays, then compare them by deepDepth parallelly
      *  Note: primitive types are converted to their corresponding wrappers automatically
      * @param obj1  first object to be compared
      * @param obj2  second object to be compared
+     * @param nullEquality  Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyArrayEquality  Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
-    public static boolean valueEqualsParallel(Object obj1, Object obj2){
+    public static boolean valueEqualsParallel(Object obj1, Object obj2,
+                                              NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality){
         final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2);
         if (singleObjectConverter != null)
             return singleObjectConverter;
@@ -417,11 +435,23 @@ public class TypeHelper {
         int[][] deepLength2 = getDeepLength(obj2);
         if(!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
-        return deepLengthEqualsParallel(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return deepLengthEqualsParallel(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
     }
 
     /**
-     * Comparing two objects with deepLengthEquals parallelly when their deepDepth provided
+     * Comparing two objects by comparing their actual values in parallel with default strategies.
+     * First by treating them as Non-Array Objects or Empty arrays, then compare them by deepDepth parallelly
+     *  Note: primitive types are converted to their corresponding wrappers automatically
+     * @param obj1  first object to be compared
+     * @param obj2  second object to be compared
+     * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
+     */
+    public static boolean valueEqualsParallel(Object obj1, Object obj2){
+        return valueEqualsParallel(obj1, obj2, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+    }
+
+    /**
+     * Comparing two objects with deepLengthEquals in parallel when their deepDepth provided
      * @param obj1  first object to be compared
      * @param obj2  second object to be compared
      * @param deepLength1    deepLength of the first object
@@ -439,14 +469,17 @@ public class TypeHelper {
     }
 
     /**
-     * Comparing two objects by comparing their actual values.
+     * Comparing two objects by comparing their actual values in serial with desired strategies.
      * First by treating them as Non-Array Objects or Empty arrays, then compare them by deepDepth either serially
      *  Note: primitive types are converted to their corresponding wrappers automatically
      * @param obj1  first object to be compared
      * @param obj2  second object to be compared
+     * @param nullEquality  Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyArrayEquality  Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
-    public static boolean valueEqualsSerial(Object obj1, Object obj2){
+    public static boolean valueEqualsSerial(Object obj1, Object obj2,
+                                            NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality){
         final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2);
         if (singleObjectConverter != null)
             return singleObjectConverter;
@@ -455,7 +488,19 @@ public class TypeHelper {
         int[][] deepLength2 = getDeepLength(obj2);
         if(!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
-        return deepLengthEqualsSerial(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return deepLengthEqualsSerial(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
+    }
+
+    /**
+     * Comparing two objects by comparing their actual values in serial with default strategies.
+     * First by treating them as Non-Array Objects or Empty arrays, then compare them by deepDepth either serially
+     *  Note: primitive types are converted to their corresponding wrappers automatically
+     * @param obj1  first object to be compared
+     * @param obj2  second object to be compared
+     * @return  <code>true</code> if both objects have same values, otherwise <code>false</code>
+     */
+    public static boolean valueEqualsSerial(Object obj1, Object obj2){
+        return valueEqualsSerial(obj1, obj2, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
     }
 
     /**
@@ -1387,6 +1432,34 @@ public class TypeHelper {
         Class fromClass = obj.getClass();
         Function<Object, Object> converter = deepConverters.getThird(fromClass, toClass);
         return (T)converter.apply(obj);
+    }
+
+    /**
+     * Returns a hash code based on the object itself when it is not an array, or the elements contained if it is an array.
+     * The evaluation could continue recursively if its elements are of arrays.
+     * @param obj   the object whose hash code is to be computed
+     * @return      a deep values based hash code of the <tt>obj</tt>
+     */
+    public static int deepHashCode(Object obj){
+        if(obj == null)
+            return 0;
+
+        Class objClass = obj.getClass();
+        if(!objClass.isArray())
+            return Objects.hashCode(obj);
+        else if (isPrimitive(objClass)){
+            obj = toEquivalent(obj);
+        }
+
+        int result = 1;
+        for (int i = 0; i < Array.getLength(obj); i++) {
+            Object element = Array.get(obj, i);
+            int elementHash = deepHashCode(element);
+
+            result = 31 * result + elementHash;
+        }
+
+        return result;
     }
 
     /**

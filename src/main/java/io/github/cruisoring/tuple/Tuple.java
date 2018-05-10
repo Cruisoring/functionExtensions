@@ -48,7 +48,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
 
 
     /**
-     * Get all Non-null elements matching the given class as an immutable <code>Set</code>
+     * Get all Non-null elements matching the given class as an immutable <tt>Set</tt>
      * @param clazz Class to evaluate the saved values.
      * @param <T>   Type of the given Class.
      * @return      Immutable <code>Set</code> containing matched elements.
@@ -84,7 +84,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
     }
 
     /**
-     * Get all Non-null elements matching the given class as an immutable <code>Set</code>
+     * Get all Non-null elements of the given class and matched with predefined criteria as an immutable <tt>Set</tt>
      * @param clazz Class to evaluate the saved values.
      * @param valuePredicate predicate to filter elements by their values
      * @param <T>   Type of the given Class.
@@ -184,7 +184,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
     @Override
     public int hashCode() {
         if(_hashCode == null){
-            _hashCode = Arrays.deepHashCode(values);
+            _hashCode = TypeHelper.deepHashCode(values);
         }
         return _hashCode;
     }

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
@@ -344,5 +345,22 @@ public class FunctionsTest {
 
         result = (Integer)Functions.Default.apply(ff, new String[]{null, null}, 1);
         assertEquals(Integer.valueOf(0), result);
+    }
+
+    @Test
+    public void convertToConvention() throws Exception{
+        BiFunctionThrowable<Integer, String, Integer> biFunctionThrowable = (i, s) -> i + Integer.valueOf(s);
+        BiFunction<Integer, String, Integer> biFunction = biFunctionThrowable.withHandler((ex, fun) -> -3);
+        assertEquals(Integer.valueOf(10), biFunctionThrowable.apply(3, "7"));
+        assertEquals(Integer.valueOf(-3), biFunction.apply(3, "seven"));
+        biFunction = biFunctionThrowable.orElse(-1);
+        assertEquals(Integer.valueOf(-1), biFunction.apply(3, "seven"));
+
+
+        PredicateThrowable<String> predicateThrowable = s -> Integer.valueOf(s)> 0;
+        Function<String, Boolean> predicate = predicateThrowable.withHandler((ex, fun) -> false);
+        assertFalse(predicate.apply("3.0"));
+        predicate = predicateThrowable.orElse(true);
+        assertTrue(predicate.apply("3.0"));
     }
 }

@@ -4,9 +4,9 @@ import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.FunctionThrowable;
 import io.github.cruisoring.function.TriConsumerThrowable;
 import io.github.cruisoring.repository.Repository;
-import com.sun.media.sound.InvalidFormatException;
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.MalformedParametersException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
@@ -83,7 +83,7 @@ public class StringHelper {
             return s -> {
                 s = s.trim();
                 if(!s.startsWith("[") || !s.endsWith("]"))
-                    throw new InvalidFormatException("Array types shall be wrapped within '[]' and seperated by ','s.");
+                    throw new MalformedParametersException("Array types shall be wrapped within '[]' and seperated by ','s.");
                 String[] substrings = s.substring(1, s.length()-1).split(",");
                 int length = substrings.length;
                 Object parsedValues = ArrayHelper.getNewArray(componentClass, length);
