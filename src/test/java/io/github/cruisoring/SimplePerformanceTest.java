@@ -47,7 +47,7 @@ public class SimplePerformanceTest {
 
         long time = getLeastTimeToRun(testMethod);
         Double millis = time/1000000.0;
-        Logger.L("Least time to run test_Loops of int[%d]: %.3fms", ArraySize, millis);
+        Logger.D("Least time to run test_Loops of int[%d]: %.3fms", ArraySize, millis);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class SimplePerformanceTest {
 
         long time = getLeastTimeToRun(testMethod);
         Double millis = time/1000000.0;
-        Logger.L("Least time to run test_StreamParallel of int[%d]: %.3fms", ArraySize, millis);
+        Logger.D("Least time to run test_StreamParallel of int[%d]: %.3fms", ArraySize, millis);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class SimplePerformanceTest {
         };
         long time = getLeastTimeToRun(()-> Functions.runParallel(testMethod, ArraySize));
         Double millis = time/1000000.0;
-        Logger.L("Least time to run testRunParallel of int[%d]: %.3fms", ArraySize, millis);
+        Logger.D("Least time to run testRunParallel of int[%d]: %.3fms", ArraySize, millis);
     }
 
 }

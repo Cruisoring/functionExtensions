@@ -53,7 +53,7 @@ public class LazyTest {
     public void closeDependency_parentsNotClosed() throws Exception {
         Lazy<String> string1 = new Lazy<String>(() -> "1234567");
         Lazy<Integer> integerLazy = string1.create(str -> 37 + str.length(),
-                (i0,i1) -> Logger.L("%d would be closing to %d", i0, i1));
+                (i0,i1) -> Logger.D("%d would be closing to %d", i0, i1));
         Lazy<Boolean> booleanLazy = integerLazy.create(i -> i%2 == 0);
 
         assertTrue(booleanLazy.getValue());

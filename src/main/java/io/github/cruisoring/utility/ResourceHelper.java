@@ -92,7 +92,7 @@ public class ResourceHelper {
             byte[] bytes = Files.readAllBytes(Paths.get(uri));
             sql = new String(bytes);
         } catch (Exception e) {
-            Logger.L(e.getMessage());
+            Logger.W(e.getMessage());
         }
         return sql;
     }
@@ -111,7 +111,7 @@ public class ResourceHelper {
         String path = classLoader.getResource(resourcePackagename).getPath();
         File file = new File(path);
         if (!file.exists()) {
-            Logger.L("Failed to find: %s", resourcePackagename);
+            Logger.W("Failed to find: %s", resourcePackagename);
             return null;
         }
 
@@ -160,7 +160,7 @@ public class ResourceHelper {
         try {
             properties.load(new FileReader(file));
         } catch (IOException e) {
-            Logger.L(e.getMessage());
+            Logger.W(e.getMessage());
             return;
         }
         result.put(propertiesName, properties); //Let it throw Exception if there is duplicated keys.

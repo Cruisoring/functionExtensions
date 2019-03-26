@@ -230,11 +230,11 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
                 Object value = values[i];
                 if (value != null && value instanceof AutoCloseable) {
                     Functions.Default.run(() -> ((AutoCloseable) value).close());
-                    Logger.L("%s closed()", value);
+                    Logger.V("%s closed()", value);
                 }
             }
             closed = true;
-            Logger.L("%s.close() run successfully!", this);
+            Logger.V("%s.close() run successfully!", this);
         }
     }
 
@@ -242,7 +242,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
 //    protected void finalize() throws Throwable {
 //        if(!closed)
 //        {
-//            Logger.L( "******FORGOT TO CLOSE THE TUPLE!" );
+//            Logger.D( "******FORGOT TO CLOSE THE TUPLE!" );
 //        }
 //        super.finalize();
 //    }

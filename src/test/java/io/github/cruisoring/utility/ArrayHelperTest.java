@@ -32,14 +32,14 @@ public class ArrayHelperTest {
     private final int[] ints = new int[arraySize];
 
     private static void assertValueEquals(Object a, Object b){
-        Logger.L("%s == %s %s", TypeHelper.deepToString(a), TypeHelper.deepToString(b), "?");
+        Logger.D("%s == %s %s", TypeHelper.deepToString(a), TypeHelper.deepToString(b), "?");
         assertTrue(TypeHelper.valueEquals(a, b));
         assertTrue(TypeHelper.valueEqualsSerial(a, b));
         assertTrue(TypeHelper.valueEqualsParallel(a, b));
     }
 
     private static void assertDeepEquals(Object a, Object b){
-        Logger.L("%s ???? %s", TypeHelper.deepToString(a), TypeHelper.deepToString(b));
+        Logger.D("%s ???? %s", TypeHelper.deepToString(a), TypeHelper.deepToString(b));
         assertTrue(Objects.deepEquals(a, b));
     }
 

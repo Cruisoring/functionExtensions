@@ -25,13 +25,13 @@ public class FunctionsTest {
                 String msg = ex.getMessage();
                 msg = ex.getClass().getSimpleName() + (msg == null?"":":"+msg);
                 logs.add(msg);
-                Logger.L(msg);
+                Logger.D(msg);
             },
             (ex, lambda) -> {
                 String msg = ex.getMessage();
                 msg = ex.getClass().getSimpleName() + (msg == null?"":":"+msg);
                 logs.add(msg);
-                Logger.L(msg);
+                Logger.D(msg);
                 Class returnType = TypeHelper.getReturnType(lambda);
                 return TypeHelper.getDefaultValue(returnType);
             });
@@ -103,7 +103,7 @@ public class FunctionsTest {
         assertTrue(logs.get(1).contains("NullPointerException"));
     }
 
-    TriConsumerThrowable<String,Integer,Boolean> f3 = (str, num, expected) -> Logger.L("%s", str.length()>num == expected);
+    TriConsumerThrowable<String,Integer,Boolean> f3 = (str, num, expected) -> Logger.D("%s", str.length()>num == expected);
 
     @Test
     public void run3() {
@@ -113,7 +113,7 @@ public class FunctionsTest {
     }
 
 
-    QuadConsumerThrowable<String,Integer,Boolean, String> f4 = (str, num, expected, s2) -> Logger.L("%s",
+    QuadConsumerThrowable<String,Integer,Boolean, String> f4 = (str, num, expected, s2) -> Logger.D("%s",
             s2.length()>str.substring(num).length() == expected);
 
     @Test
@@ -125,7 +125,7 @@ public class FunctionsTest {
         assertTrue(logs.size() == 1);
     }
 
-    PentaConsumerThrowable<Character, Character,Character,Character, String> f5 = (a, b, c, d, str) -> Logger.L("%s",
+    PentaConsumerThrowable<Character, Character,Character,Character, String> f5 = (a, b, c, d, str) -> Logger.D("%s",
             (int)a+(int)b+(int)c+(int)d > Integer.valueOf(str));
 
     @Test
@@ -138,7 +138,7 @@ public class FunctionsTest {
 
     }
 
-    HexaConsumerThrowable<Character, Character,Character,Character, Integer, String> f6 = (a, b, c, d, n, str) -> Logger.L("%s",
+    HexaConsumerThrowable<Character, Character,Character,Character, Integer, String> f6 = (a, b, c, d, n, str) -> Logger.D("%s",
             (int)a+(int)b+(int)c+(int)d + n > Integer.valueOf(str));
 
     @Test
@@ -150,7 +150,7 @@ public class FunctionsTest {
         assertTrue(logs.get(1).contains("NullPointerException"));
     }
 
-    HeptaConsumerThrowable<Character, Character,Character,Character, Integer, Integer, String> f7 = (a, b, c, d, n, bt, str) -> Logger.L("%s",
+    HeptaConsumerThrowable<Character, Character,Character,Character, Integer, Integer, String> f7 = (a, b, c, d, n, bt, str) -> Logger.D("%s",
             (int)a+b+c+d + n -bt > Integer.valueOf(str));
 
     @Test

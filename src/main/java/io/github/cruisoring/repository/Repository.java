@@ -52,7 +52,7 @@ public class Repository<TKey, TValue>
         Class keyClass = key.getClass();
         Object value = oldValue == null ? newValue : oldValue;
         Class valueClass = value == null ? null : value.getClass();
-        Logger.L("%s<%s,%s>.put(%s: %s -> %s)",
+        Logger.V("%s<%s,%s>.put(%s: %s -> %s)",
                 this.getClass().getSimpleName(), keyClass.getSimpleName(), valueClass.getSimpleName(),
                 key, oldValue, newValue);
     }

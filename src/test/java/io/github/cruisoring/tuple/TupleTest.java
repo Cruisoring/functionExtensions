@@ -74,11 +74,11 @@ public class TupleTest {
 
     @Test
     public void testArraysDeepFunctions(){
-        Logger.L("%d", Objects.hashCode(new int[]{1,2,3}));
-        Logger.L("%d", Arrays.deepHashCode(new Integer[]{1,2,3}));
-        Logger.L("%d", Arrays.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
-        Logger.L("%d", Arrays.deepHashCode(new Object[]{new Integer[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
-        Logger.L("%d", Arrays.deepHashCode(new Integer[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
+        Logger.D("%d", Objects.hashCode(new int[]{1,2,3}));
+        Logger.D("%d", Arrays.deepHashCode(new Integer[]{1,2,3}));
+        Logger.D("%d", Arrays.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
+        Logger.D("%d", Arrays.deepHashCode(new Object[]{new Integer[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
+        Logger.D("%d", Arrays.deepHashCode(new Integer[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
 
         assertTrue(Integer.valueOf(1).equals(1));
         assertTrue(Objects.equals(Integer.valueOf(1), 1));
@@ -88,12 +88,12 @@ public class TupleTest {
 
     @Test
     public void deepHashCode(){
-        Logger.L("%d", TypeHelper.deepHashCode(new int[]{1,2,3}));
+        Logger.D("%d", TypeHelper.deepHashCode(new int[]{1,2,3}));
         assertEquals(TypeHelper.deepHashCode(new int[]{1,2,3}), TypeHelper.deepHashCode(new Integer[]{1,2,3}));
-        Logger.L("%d", TypeHelper.deepHashCode(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
+        Logger.D("%d", TypeHelper.deepHashCode(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
         assertEquals(TypeHelper.deepHashCode(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}),
                 TypeHelper.deepHashCode(new Object[]{new Integer[]{1,2,3}, new Integer[0], null, new int[]{4, 5}}));
-        Logger.L("%d", TypeHelper.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
+        Logger.D("%d", TypeHelper.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
         assertEquals(TypeHelper.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}),
                 TypeHelper.deepHashCode(new Integer[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
     }
@@ -120,26 +120,26 @@ public class TupleTest {
 
     @Test
     public void testToString(){
-        Logger.L(tuple0.toString());
-        Logger.L(tuple1.toString());
-        Logger.L(tuple2.toString());
-        Logger.L(tuple3.toString());
-        Logger.L(tuple4.toString());
-        Logger.L(tuple5.toString());
-        Logger.L(tuple6.toString());
-        Logger.L(tuple7.toString());
-        Logger.L(set1.toString());
-        Logger.L(boolSet2.toString());
-        Logger.L(stringSet.toString());
-        Logger.L(intSet.toString());
-        Logger.L(dual.toString());
-        Logger.L(nullDual.toString());
-        Logger.L(hepta.toString());
-        Logger.L(NULL.toString());
-        Logger.L(Tuple.UNIT.toString());
-        Logger.L(Tuple.TRUE.toString());
-        Logger.L(Tuple.FALSE.toString());
-        Logger.L(tupleSet.toString());
+        Logger.D(tuple0.toString());
+        Logger.D(tuple1.toString());
+        Logger.D(tuple2.toString());
+        Logger.D(tuple3.toString());
+        Logger.D(tuple4.toString());
+        Logger.D(tuple5.toString());
+        Logger.D(tuple6.toString());
+        Logger.D(tuple7.toString());
+        Logger.D(set1.toString());
+        Logger.D(boolSet2.toString());
+        Logger.D(stringSet.toString());
+        Logger.D(intSet.toString());
+        Logger.D(dual.toString());
+        Logger.D(nullDual.toString());
+        Logger.D(hepta.toString());
+        Logger.D(NULL.toString());
+        Logger.D(Tuple.UNIT.toString());
+        Logger.D(Tuple.TRUE.toString());
+        Logger.D(Tuple.FALSE.toString());
+        Logger.D(tupleSet.toString());
     }
 
     @Test
@@ -409,33 +409,33 @@ public class TupleTest {
 
     @Test
     public void testHashCode() {
-        Logger.L("%s: %d", tuple0, tuple0.hashCode());
-        Logger.L("%s: %d", tuple1, tuple1.hashCode());
-        Logger.L("%s: %d", tuple2, tuple2.hashCode());
-        Logger.L("%s: %d", tuple3, tuple3.hashCode());
-        Logger.L("%s: %d", tuple4, tuple4.hashCode());
-        Logger.L("%s: %d", tuple5, tuple5.hashCode());
-        Logger.L("%s: %d", tuple6, tuple6.hashCode());
-        Logger.L("%s: %d", tuple7, tuple7.hashCode());
-        Logger.L("%s: %d", set1, set1.hashCode());
-        Logger.L("%s: %d", boolSet2, boolSet2.hashCode());
-        Logger.L("%s: %d", stringSet, stringSet.hashCode());
-        Logger.L("%s: %d", intSet, intSet.hashCode());
-        Logger.L("%s: %d", dual, dual.hashCode());
-        Logger.L("%s: %d", nullDual, nullDual.hashCode());
-        Logger.L("%s: %d", hepta, hepta.hashCode());
-        Logger.L("%s: %d", NULL, NULL.hashCode());
-        Logger.L("%s: %d", Tuple.UNIT, Tuple.UNIT.hashCode());
-        Logger.L("%s: %d", Tuple.TRUE, Tuple.TRUE.hashCode());
-        Logger.L("%s: %d", Tuple.FALSE, Tuple.FALSE.hashCode());
-        Logger.L("%s: %d", tupleSet, tupleSet.hashCode());
+        Logger.D("%s: %d", tuple0, tuple0.hashCode());
+        Logger.D("%s: %d", tuple1, tuple1.hashCode());
+        Logger.D("%s: %d", tuple2, tuple2.hashCode());
+        Logger.D("%s: %d", tuple3, tuple3.hashCode());
+        Logger.D("%s: %d", tuple4, tuple4.hashCode());
+        Logger.D("%s: %d", tuple5, tuple5.hashCode());
+        Logger.D("%s: %d", tuple6, tuple6.hashCode());
+        Logger.D("%s: %d", tuple7, tuple7.hashCode());
+        Logger.D("%s: %d", set1, set1.hashCode());
+        Logger.D("%s: %d", boolSet2, boolSet2.hashCode());
+        Logger.D("%s: %d", stringSet, stringSet.hashCode());
+        Logger.D("%s: %d", intSet, intSet.hashCode());
+        Logger.D("%s: %d", dual, dual.hashCode());
+        Logger.D("%s: %d", nullDual, nullDual.hashCode());
+        Logger.D("%s: %d", hepta, hepta.hashCode());
+        Logger.D("%s: %d", NULL, NULL.hashCode());
+        Logger.D("%s: %d", Tuple.UNIT, Tuple.UNIT.hashCode());
+        Logger.D("%s: %d", Tuple.TRUE, Tuple.TRUE.hashCode());
+        Logger.D("%s: %d", Tuple.FALSE, Tuple.FALSE.hashCode());
+        Logger.D("%s: %d", tupleSet, tupleSet.hashCode());
 
         Set<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
         Set<B> bSet = Tuple.setOf(new B(1), new B(2), new B(Integer.valueOf(3)));
         Set bSet1 = bSet.getSetOf(A.class);
-        Logger.L("%s: %d", aSet, aSet.hashCode());
-        Logger.L("%s: %d", bSet, bSet.hashCode());
-        Logger.L("%s: %d", bSet1, bSet1.hashCode());
+        Logger.D("%s: %d", aSet, aSet.hashCode());
+        Logger.D("%s: %d", bSet, bSet.hashCode());
+        Logger.D("%s: %d", bSet1, bSet1.hashCode());
     }
 
     @Test
@@ -501,7 +501,7 @@ public class TupleTest {
         closeMessages.clear();
         try (Tuple tuple = Tuple.of(values)){
         }catch (Exception ex){
-            Logger.L(ex.getMessage());
+            Logger.D(ex.getMessage());
         }
 
         assertTrue(TypeHelper.valueEquals(expection, closeMessages.toArray()));
