@@ -9,10 +9,7 @@ import org.junit.Test;
 import java.lang.reflect.Array;
 import java.time.DayOfWeek;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -1271,5 +1268,8 @@ public class TypeHelperTest {
         int[] ints = new int[] {1, 2, 3};
         objects = TypeHelper.convert(ints, Object[].class);
         assertTrue(TypeHelper.valueEquals(new Object[]{1, 2, 3}, objects));
+
+        int[] convertedInts = TypeHelper.convert(objects, int[].class);
+        assertTrue(Objects.deepEquals(ints, convertedInts));
     }
 }

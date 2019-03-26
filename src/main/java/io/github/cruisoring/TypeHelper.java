@@ -1314,16 +1314,17 @@ public class TypeHelper {
             return Tuple.create(returnsSelf, returnsSelf, returnsSelf);
         }
 
-        //Second, checking if it is converting primitive array to Object array
-        if(fromComponentClass.isPrimitive() && !toComponentClass.isPrimitive()){
-            Class equivalentComponentType = getEquivalentClass(fromComponentClass);
-            if(!toComponentClass.isAssignableFrom(equivalentComponentType)){
+        //Second, checking if it is converting between primitive array and Object array
+        if(fromComponentClass.isPrimitive() != toComponentClass.isPrimitive()){
+            Class equivalentFromComponentType = getEquivalentClass(fromComponentClass);
+            Class equivalentToComponentType = getEquivalentClass(toComponentClass);
+            //Returns null factory methods only when there is no chance to convert one type to another
+            if(!toComponentClass.isAssignableFrom(equivalentFromComponentType) && !fromComponentClass.isAssignableFrom(equivalentToComponentType)){
                 // Use the equivalent converter if they are
                 return Tuple.create(mapsToNull, mapsToNull, mapsToNull);
             }
-        }else if(!getClassEqualitor(fromComponentClass).test(toComponentClass) && !toComponentClass.isAssignableFrom(fromComponentClass)) {
-            //Second, check to see if fromClass is equivalent to toClass
-            // Use the equivalent converter if they are
+        }else if(!fromComponentClass.isAssignableFrom(toComponentClass) && !toComponentClass.isAssignableFrom(fromComponentClass)) {
+            //Third, return null factory methods when there is no chance to convert between two primitive types or two object types
             return Tuple.create(mapsToNull, mapsToNull, mapsToNull);
         }
 
