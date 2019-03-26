@@ -1,7 +1,5 @@
 package io.github.cruisoring.utility;
 
-import io.github.cruisoring.Loggable;
-import io.github.cruisoring.function.ConsumerThrowable;
 import io.github.cruisoring.tuple.Tuple3;
 import org.apache.commons.lang3.StringUtils;
 
@@ -193,98 +191,158 @@ public class Logger {
     private static final Pipe<String> recentExceptionMessages = new Pipe<String>(10);
     static String lastMessage;
     static Logger logException(LogLevel logLevel, Exception ex){
-        if(OnlyDefaultLogger != null) {
+        if(DefaultLogger != null) {
             String message = ex.getMessage();
             if(message == null)
 
                 if(StringUtils.equalsIgnoreCase(message, lastMessage)){
-                    return OnlyDefaultLogger;
+                    return DefaultLogger;
                 }
             Tuple3<Boolean, String, String> tuple = recentExceptionMessages.pushIfAbsent(message);
             if(tuple.getFirst() && StringUtils.isNotEmpty(tuple.getSecond())) {
-                OnlyDefaultLogger.log(logLevel, message);
+                DefaultLogger.log(logLevel, message);
                 String stackTrace = getStackTrace(getDefaultStackCount.apply(logLevel));
-                OnlyDefaultLogger.log(logLevel, stackTrace);
+                DefaultLogger.log(logLevel, stackTrace);
             } else {
                 message = (message == null ? ex.toString() : message).substring(0, message.indexOf('\n'));
-                OnlyDefaultLogger.log(logLevel, String.format("Same error as recent one: %s", message));
+                DefaultLogger.log(logLevel, String.format("Same error as recent one: %s", message));
             }
 
             if(recentExceptionMessages.isFull()){
                 recentExceptionMessages.pop();
             }
         }
-        return OnlyDefaultLogger;
+        return DefaultLogger;
 
     }
 
-    static final Logger OnlyDefaultLogger = new Logger(System.out::println,
+    //TODO: make it to support multiple loggers.
+    static Logger DefaultLogger = new Logger(System.out::println,
             LogLevel.verbose,
             LogLevel.debug,
             LogLevel.info, LogLevel.warning, LogLevel.error);
 
+    /**
+     * Use DefaultLogger to keep the time related info.
+     * @return The Timer object that would keep performance data when it is closed.
+     */
     public static Timer M(){
-        if(OnlyDefaultLogger == null || !MeasurePerformanceEnabled)
+        if(DefaultLogger == null || !MeasurePerformanceEnabled)
             return null;
 
-        Consumer<String> output = OnlyDefaultLogger.output;
+        Consumer<String> output = DefaultLogger.output;
         return new Timer(output, Timer.highlightTimerFormatter);
     }
 
+    /**
+     * Log exception using the DefaultLogger, with default color and including stack frames for Verbose level.
+     * @param ex    Exception to be logged.
+     * @return      The Logger used to enable fluent logging.
+     */
     public static Logger V(Exception ex) {
         return logException(LogLevel.verbose, ex);
     }
 
+    /**
+     * Log exception using the DefaultLogger, with default color and including stack frames for Debug level.
+     * @param ex    Exception to be logged.
+     * @return      The Logger used to enable fluent logging.
+     */
     public static Logger D(Exception ex) {
         return logException(LogLevel.debug, ex);
     }
 
+    /**
+     * Log exception using the DefaultLogger, with default color and including stack frames for Info level.
+     * @param ex    Exception to be logged.
+     * @return      The Logger used to enable fluent logging.
+     */
     public static Logger I(Exception ex) {
         return logException(LogLevel.info, ex);
     }
 
+    /**
+     * Log exception using the DefaultLogger, with default color and including stack frames for Warning level.
+     * @param ex    Exception to be logged.
+     * @return      The Logger used to enable fluent logging.
+     */
     public static Logger W(Exception ex) {
         return logException(LogLevel.warning, ex);
     }
 
+    /**
+     * Log exception using the DefaultLogger, with default color and including stack frames for Error level.
+     * @param ex    Exception to be logged.
+     * @return      The Logger used to enable fluent logging.
+     */
     public static Logger E(Exception ex) {
         return logException(LogLevel.error, ex);
     }
 
+    /**
+     * Log message with the DefaultLogger as Verbose level.
+     * @param format    Format to compose the message body.
+     * @param args      Optional argument to compose the message.
+     * @return          The Logger used to enable fluent logging.
+     */
     public static Logger V(String format, Object... args){
-        if(OnlyDefaultLogger != null ){
+        if(DefaultLogger != null ){
             //String stack = getStackTrace();
-            OnlyDefaultLogger.log(LogLevel.verbose, format, args);
+            DefaultLogger.log(LogLevel.verbose, format, args);
         }
-        return OnlyDefaultLogger;
+        return DefaultLogger;
     }
 
+    /**
+     * Log message with the DefaultLogger as Debug level.
+     * @param format    Format to compose the message body.
+     * @param args      Optional argument to compose the message.
+     * @return          The Logger used to enable fluent logging.
+     */
     public static Logger D(String format, Object... args){
-        if(OnlyDefaultLogger != null ){
-            OnlyDefaultLogger.log(LogLevel.debug, format, args);
+        if(DefaultLogger != null ){
+            DefaultLogger.log(LogLevel.debug, format, args);
         }
-        return OnlyDefaultLogger;
+        return DefaultLogger;
     }
 
+    /**
+     * Log message with the DefaultLogger as Info level.
+     * @param format    Format to compose the message body.
+     * @param args      Optional argument to compose the message.
+     * @return          The Logger used to enable fluent logging.
+     */
     public static Logger I(String format, Object... args){
-        if(OnlyDefaultLogger != null ){
-            OnlyDefaultLogger.log(LogLevel.info, format, args);
+        if(DefaultLogger != null ){
+            DefaultLogger.log(LogLevel.info, format, args);
         }
-        return OnlyDefaultLogger;
+        return DefaultLogger;
     }
 
+    /**
+     * Log message with the DefaultLogger as Warning level.
+     * @param format    Format to compose the message body.
+     * @param args      Optional argument to compose the message.
+     * @return          The Logger used to enable fluent logging.
+     */
     public static Logger W(String format, Object... args){
-        if(OnlyDefaultLogger != null ){
-            OnlyDefaultLogger.log(LogLevel.warning, format, args);
+        if(DefaultLogger != null ){
+            DefaultLogger.log(LogLevel.warning, format, args);
         }
-        return OnlyDefaultLogger;
+        return DefaultLogger;
     }
 
+    /**
+     * Log message with the DefaultLogger as Error level.
+     * @param format    Format to compose the message body.
+     * @param args      Optional argument to compose the message.
+     * @return          The Logger used to enable fluent logging.
+     */
     public static Logger E(String format, Object... args){
-        if(OnlyDefaultLogger != null ){
-            OnlyDefaultLogger.log(LogLevel.error, format, args);
+        if(DefaultLogger != null ){
+            DefaultLogger.log(LogLevel.error, format, args);
         }
-        return OnlyDefaultLogger;
+        return DefaultLogger;
     }
 
     /**
