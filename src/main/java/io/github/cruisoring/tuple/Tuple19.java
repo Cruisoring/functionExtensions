@@ -25,7 +25,7 @@ package io.github.cruisoring.tuple;
 public class Tuple19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Tuple
         implements WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> {
 
-    protected Tuple19(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l){
+    protected Tuple19(final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b, final C c, final D d, final E e, final F f, final G g, final H h, final I i, final J j, final K k, final L l){
         super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l);
     }
 

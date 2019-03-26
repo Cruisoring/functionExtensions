@@ -16,7 +16,7 @@ package io.github.cruisoring.tuple;
 public class Tuple10<T,U,V,W,X,Y,Z,A,B,C> extends Tuple
         implements WithValues10<T,U,V,W,X,Y,Z,A,B,C> {
 
-    protected Tuple10(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c){
+    protected Tuple10(final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b, final C c){
         super(t, u, v, w, x, y, z, a, b, c);
     }
 

@@ -7,7 +7,7 @@ package io.github.cruisoring.tuple;
 public class Tuple1<T> extends Tuple
         implements WithValues1<T> {
 
-    protected Tuple1(T t){
+    protected Tuple1(final T t){
         super(t);
     }
 

@@ -9,7 +9,7 @@ package io.github.cruisoring.tuple;
 public class Tuple3<T,U,V> extends Tuple
     implements WithValues3<T,U,V> {
 
-    protected Tuple3(T t, U u, V v){
+    protected Tuple3(final T t, final U u, final V v){
         super(t, u, v);
     }
 

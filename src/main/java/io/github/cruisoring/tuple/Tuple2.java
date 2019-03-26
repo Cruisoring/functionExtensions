@@ -8,7 +8,7 @@ package io.github.cruisoring.tuple;
 public class Tuple2<T,U> extends Tuple
         implements WithValues2<T,U> {
 
-    protected Tuple2(T t, U u){
+    protected Tuple2(final T t, final U u){
         super(t, u);
     }
 

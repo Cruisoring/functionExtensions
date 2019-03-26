@@ -23,7 +23,7 @@ package io.github.cruisoring.tuple;
 public class Tuple17<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J> extends Tuple
         implements WithValues17<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J> {
 
-    protected Tuple17(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j){
+    protected Tuple17(final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b, final C c, final D d, final E e, final F f, final G g, final H h, final I i, final J j){
         super(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j);
     }
 

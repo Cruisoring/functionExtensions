@@ -1309,9 +1309,18 @@ public class TypeHelper {
         Class toComponentClass = toClass.getComponentType();
 
         //Now both type are of array
-        //First, check fromClass and toClass is identical
+        //First, check fromClass and toClass is identical, return itself if they are identical
         if(fromComponentClass.equals(toComponentClass)){
             return Tuple.create(returnsSelf, returnsSelf, returnsSelf);
+        }
+
+        //Second, checking if it is converting primitive array to Object array
+        if(fromComponentClass.isPrimitive() && !toComponentClass.isPrimitive()){
+            Class equivalentComponentType = getEquivalentClass(fromComponentClass);
+            if(!toComponentClass.isAssignableFrom(equivalentComponentType)){
+                // Use the equivalent converter if they are
+                return Tuple.create(mapsToNull, mapsToNull, mapsToNull);
+            }
         }else if(!getClassEqualitor(fromComponentClass).test(toComponentClass) && !toComponentClass.isAssignableFrom(fromComponentClass)) {
             //Second, check to see if fromClass is equivalent to toClass
             // Use the equivalent converter if they are

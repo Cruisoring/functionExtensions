@@ -13,7 +13,7 @@ package io.github.cruisoring.tuple;
 public class Tuple7<T,U,V,W,X,Y,Z> extends Tuple
         implements WithValues7<T,U,V,W,X,Y,Z> {
 
-    protected Tuple7(T t, U u, V v, W w, X x, Y y, Z z){
+    protected Tuple7(final T t, final U u, final V v, final W w, final X x, final Y y, final Z z){
         super(t, u, v, w, x, y, z);
     }
 

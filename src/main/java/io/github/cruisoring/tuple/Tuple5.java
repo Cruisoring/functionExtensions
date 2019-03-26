@@ -11,7 +11,7 @@ package io.github.cruisoring.tuple;
 public class Tuple5<T,U,V,W,X> extends Tuple
         implements WithValues5<T,U,V,W,X> {
 
-    protected Tuple5(T t, U u, V v, W w, X x){
+    protected Tuple5(final T t, final U u, final V v, final W w, final X x){
         super(t, u, v, w, x);
     }
 

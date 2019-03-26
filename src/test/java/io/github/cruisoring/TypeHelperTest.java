@@ -1267,5 +1267,9 @@ public class TypeHelperTest {
 
         Object[] objects = TypeHelper.convertSerial(numbers, Object[].class);
         assertTrue(TypeHelper.valueEquals(numbers, objects));
+
+        int[] ints = new int[] {1, 2, 3};
+        objects = TypeHelper.convert(ints, Object[].class);
+        assertTrue(TypeHelper.valueEquals(new Object[]{1, 2, 3}, objects));
     }
 }

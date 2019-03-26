@@ -28,14 +28,15 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * Protected constructor to keep the elements as a final array.
      * @param elements values to be persisted by the Tuple.
      */
-    protected Tuple(Object... elements){
+    protected Tuple(final Object... elements){
         if(elements == null){
-            elements = new Object[]{elements};
-        }
-        int length = elements.length;
-        values = new Object[length];
-        for (int i=0; i<length; i++){
-            values[i] = elements[i];
+            values = new Object[]{null};
+        } else {
+            int length = elements.length;
+            values = new Object[length];
+            for (int i = 0; i < length; i++) {
+                values[i] = elements[i];
+            }
         }
     }
 
@@ -253,7 +254,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param elements  All elements to be persisted by the Tuple
      * @return          A <tt>Tuple</tt> instance with length of the elements
      */
-    public static Tuple of(Object... elements){
+    public static Tuple of(final Object... elements){
         if (elements == null){
             return create(null);
         }
@@ -331,7 +332,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <T>   Type of the element <code>t</code>
      * @return      Tuple containing 6 elements that could be accessed as their original types.
      */
-    public static <T> Tuple1<T> create(T t){
+    public static <T> Tuple1<T> create(final T t){
         return new Tuple1(t);
     }
 
@@ -343,7 +344,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <U>   Type of the second element <code>u</code>
      * @return      Tuple containing 2 elements that could be accessed as their original types.
      */
-    public static <T,U> Tuple2<T,U> create(T t, U u){
+    public static <T,U> Tuple2<T,U> create(final T t, final U u){
         return new Tuple2(t, u);
     }
 
@@ -357,7 +358,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <V>   Type of the third element <code>v</code>
      * @return      Tuple containing 3 elements that could be accessed as their original types.
      */
-    public static <T,U,V> Tuple3<T,U,V> create(T t, U u, V v){
+    public static <T,U,V> Tuple3<T,U,V> create(final T t, final U u, final V v){
         return new Tuple3(t, u, v);
     }
 
@@ -373,7 +374,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <W>   Type of the fourth element <code>w</code>
      * @return      Tuple containing 4 elements that could be accessed as their original types.
      */
-    public static <T,U,V,W> Tuple4<T,U,V,W> create(T t, U u, V v, W w){
+    public static <T,U,V,W> Tuple4<T,U,V,W> create(final T t, final U u, final V v, final W w){
         return new Tuple4(t, u, v, w);
     }
 
@@ -391,7 +392,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <X>   Type of the fifth element <code>x</code>
      * @return      Tuple containing 5 elements that could be accessed as their original types.
      */
-    public static <T,U,V,W,X> Tuple5<T,U,V,W,X> create(T t, U u, V v, W w, X x){
+    public static <T,U,V,W,X> Tuple5<T,U,V,W,X> create(final T t, final U u, final V v, final W w, final X x){
         return new Tuple5(t, u, v, w, x);
     }
 
@@ -411,7 +412,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <Y>   Type of the sixth element <code>y</code>
      * @return      Tuple containing 6 elements that could be accessed as their original types.
      */
-    public static <T,U,V,W,X,Y> Tuple6<T,U,V,W,X,Y> create(T t, U u, V v, W w, X x, Y y){
+    public static <T,U,V,W,X,Y> Tuple6<T,U,V,W,X,Y> create(
+            final T t, final U u, final V v, final W w, final X x, final Y y){
         return new Tuple6(t, u, v, w, x, y);
     }
 
@@ -433,7 +435,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @param <Z>   Type of the seventh element <code>z</code>
      * @return      Tuple containing seven elements that could be accessed as their original types.
      */
-    public static <T,U,V,W,X,Y,Z> Tuple7<T,U,V,W,X,Y,Z> create(T t, U u, V v, W w, X x, Y y, Z z){
+    public static <T,U,V,W,X,Y,Z> Tuple7<T,U,V,W,X,Y,Z> create(
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z){
         return new Tuple7(t, u, v, w, x, y, z);
     }
 
@@ -458,7 +461,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 8 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A> Tuple8<T,U,V,W,X,Y,Z,A> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a){
         return new Tuple8(t, u, v, w, x, y, z, a);
     }
 
@@ -485,7 +488,7 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 9 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B> Tuple9<T,U,V,W,X,Y,Z,A,B> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b){
         return new Tuple9(t, u, v, w, x, y, z, a, b);
     }
     
@@ -514,7 +517,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 10 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C> Tuple10<T,U,V,W,X,Y,Z,A,B,C> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c){
         return new Tuple10(t, u, v, w, x, y, z, a, b, c);
     }
     
@@ -545,7 +549,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 11 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D> Tuple11<T,U,V,W,X,Y,Z,A,B,C,D> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d){
         return new Tuple11(t, u, v, w, x, y, z, a, b, c, d);
     }
 
@@ -578,7 +583,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 12 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E> Tuple12<T,U,V,W,X,Y,Z,A,B,C,D,E> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d, final E e){
         return new Tuple12(t, u, v, w, x, y, z, a, b, c, d, e);
     }
 
@@ -613,7 +619,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 13 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F> Tuple13<T,U,V,W,X,Y,Z,A,B,C,D,E,F> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d, final E e, final F f){
         return new Tuple13(t, u, v, w, x, y, z, a, b, c, d, e, f);
     }
     
@@ -650,7 +657,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 14 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G> Tuple14<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d, final E e, final F f, final G g){
         return new Tuple14(t, u, v, w, x, y, z, a, b, c, d, e, f, g);
     }
 
@@ -689,7 +697,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 15 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H> Tuple15<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d, final E e, final F f, final G g, final H h){
         return new Tuple15(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h);
     }
 
@@ -731,7 +740,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 16 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> Tuple16<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d, final E e, final F f, final G g, final H h, final I i){
         return new Tuple16(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i);
     }
 
@@ -774,7 +784,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 17 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J> Tuple17<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d, final E e, final F f, final G g, final H h, final I i, final J j){
         return new Tuple17(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j);
     }
 
@@ -819,7 +830,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 18 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K> Tuple18<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d, final E e, final F f, final G g, final H h, final I i, final J j, final K k){
         return new Tuple18(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k);
     }
 
@@ -866,7 +878,9 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 19 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> Tuple19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d, final E e, final F f, final G g, final H h, final I i, final J j, final K k,
+            final L l){
         return new Tuple19(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l);
     }
 
@@ -915,7 +929,9 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * @return      Tuple containing 20 elements that could be retrieved as their original types.
      */
     public static <T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> Tuple20<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> create(
-            T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m){
+            final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
+            final C c, final D d, final E e, final F f, final G g, final H h, final I i, final J j, final K k,
+            final L l, final M m){
         return new Tuple20(t, u, v, w, x, y, z, a, b, c, d, e, f, g, h, i, j, k, l, m);
     }
 

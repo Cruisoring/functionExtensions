@@ -16,7 +16,7 @@ public class Set<T> extends Tuple{
      * Notice: if only one 'null' is used, then it would be wrapped as Object[]{null}, thus elementType is Object.class
      * @param elements  Elements to be persisted
      */
-    protected Set(T... elements){
+    protected Set(final T... elements){
         super(elements);
         elementType = (Class<T>) elements.getClass().getComponentType();
     }
@@ -27,7 +27,7 @@ public class Set<T> extends Tuple{
      * @param elementType  type of the elements being specified to cope with <tt>Type Erasure</tt>
      * @param elements  Elements to be persisted
      */
-    protected Set(Class<T> elementType, T... elements){
+    protected Set(final Class<T> elementType, final T... elements){
         super(elements);
         Objects.requireNonNull(elementType);
         this.elementType = elementType;

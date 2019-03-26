@@ -14,7 +14,7 @@ package io.github.cruisoring.tuple;
 public class Tuple8<T,U,V,W,X,Y,Z,A> extends Tuple
         implements WithValues8<T,U,V,W,X,Y,Z,A> {
 
-    protected Tuple8(T t, U u, V v, W w, X x, Y y, Z z, A a){
+    protected Tuple8(final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a){
         super(t, u, v, w, x, y, z, a);
     }
 
