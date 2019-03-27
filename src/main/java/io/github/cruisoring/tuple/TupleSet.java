@@ -7,7 +7,7 @@ import java.util.Objects;
  * Special Tuple type with all elements of the same type <code>T</code>
  * @param <T>   Type of the persisted elements
  */
-public class Set<T> extends Tuple{
+public class TupleSet<T> extends Tuple{
     public final Class<T> elementType;
 
     /**
@@ -15,7 +15,7 @@ public class Set<T> extends Tuple{
      * Notice: if only one 'null' is used, then it would be wrapped as Object[]{null}, thus elementType is Object.class
      * @param elements  Elements to be persisted
      */
-    protected Set(final T... elements){
+    protected TupleSet(final T... elements){
         super(elements);
         elementType = (Class<T>) elements.getClass().getComponentType();
     }
@@ -26,7 +26,7 @@ public class Set<T> extends Tuple{
      * @param elementType  type of the elements being specified to cope with <tt>Type Erasure</tt>
      * @param elements  Elements to be persisted
      */
-    protected Set(final Class<T> elementType, final T... elements){
+    protected TupleSet(final Class<T> elementType, final T... elements){
         super(elementType, elements);
         Objects.requireNonNull(elementType);
         this.elementType = elementType;
@@ -54,11 +54,11 @@ public class Set<T> extends Tuple{
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null || !(obj instanceof Set))
+        if(obj == null || !(obj instanceof TupleSet))
             return false;
         if (obj == this)
             return true;
-        Set other = (Set)obj;
+        TupleSet other = (TupleSet)obj;
         if(!other.canEqual(this) || getLength() != ((Tuple) obj).getLength())
             return false;
 
@@ -67,7 +67,7 @@ public class Set<T> extends Tuple{
 
     @Override
     public boolean canEqual(Object other) {
-        return (other instanceof Set) && ((Set) other).elementType.equals(elementType);
+        return (other instanceof TupleSet) && ((TupleSet) other).elementType.equals(elementType);
     }
 
     @Override

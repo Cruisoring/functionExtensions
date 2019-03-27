@@ -67,12 +67,12 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
 
 
     /**
-     * Get all Non-null elements matching the given class as an immutable <tt>Set</tt>
+     * Get all Non-null elements matching the given class as an immutable <tt>TupleSet</tt>
      * @param clazz Class to evaluate the saved values.
      * @param <T>   Type of the given Class.
-     * @return      Immutable <code>Set</code> containing matched elements.
+     * @return      Immutable <code>TupleSet</code> containing matched elements.
      */
-    public <T> Set<T> getSetOf(Class<T> clazz){
+    public <T> TupleSet<T> getSetOf(Class<T> clazz){
         Objects.requireNonNull(clazz);
 
         try {
@@ -105,13 +105,13 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
     }
 
     /**
-     * Get all Non-null elements of the given class and matched with predefined criteria as an immutable <tt>Set</tt>
+     * Get all Non-null elements of the given class and matched with predefined criteria as an immutable <tt>TupleSet</tt>
      * @param clazz Class to evaluate the saved values.
      * @param valuePredicate predicate to filter elements by their values
      * @param <S>   Type of the given Class.
-     * @return      Immutable <code>Set</code> containing matched elements.
+     * @return      Immutable <code>TupleSet</code> containing matched elements.
      */
-    public <S> Set<S> getSetOf(Class<S> clazz, Predicate<S> valuePredicate){
+    public <S> TupleSet<S> getSetOf(Class<S> clazz, Predicate<S> valuePredicate){
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(valuePredicate);
         List<S> matched = new ArrayList<>();
@@ -1006,37 +1006,37 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
     }
 
     /**
-     * Factory to create a <tt>Set</tt> instance of type <tt>T</tt> with elements of the same type
+     * Factory to create a <tt>TupleSet</tt> instance of type <tt>T</tt> with elements of the same type
      * @param elements  Elements of same type <tt>T</tt> to be persisted
      * @param <T>       Type of the given elements
-     * @return          A strong-typed Set instance
+     * @return          A strong-typed TupleSet instance
      */
-    public static <T> Set<T> setOf(T... elements) {
+    public static <T> TupleSet<T> setOf(T... elements) {
         if(elements == null)
-            return (Set<T>) Functions.ReturnsDefaultValue.apply(Set::new, elements);
+            return (TupleSet<T>) Functions.ReturnsDefaultValue.apply(TupleSet::new, elements);
         Class<T> elementType = (Class<T>) elements.getClass().getComponentType();
-        return new Set<T>(elementType, elements);
+        return new TupleSet<T>(elementType, elements);
     }
 
     /**
-     * Factory to create a <tt>Set</tt> instance of type <tt>T</tt> with elements of the same type, and their type to cope with Tpe Erasure
+     * Factory to create a <tt>TupleSet</tt> instance of type <tt>T</tt> with elements of the same type, and their type to cope with Tpe Erasure
      * @param elementType   Class of the Type of the elements
      * @param elements      Elements of the same type T
      * @param <T>           Actually Type of the elements
-     * @return              A strong-typed Set instance
+     * @return              A strong-typed TupleSet instance
      */
-    public static <T> Set<T> setOf(Class<T> elementType, T[] elements){
-        return new Set<T>(elementType, elements);
+    public static <T> TupleSet<T> setOf(Class<T> elementType, T[] elements){
+        return new TupleSet<T>(elementType, elements);
     }
 
     /**
-     * Factory to create a <code>Set</code> of type <code>T</code>
+     * Factory to create a <code>TupleSet</code> of type <code>T</code>
      * @param collection    Collection of Elements of type <code>T</code> to be persisted
      * @param clazz         Class of the elements to cope with Java Type Erasure
      * @param <T>           Declared Type of the elements
-     * @return              Strong-typed Set, with component type of <code>T</code>
+     * @return              Strong-typed TupleSet, with component type of <code>T</code>
      */
-    public static <T> Set<T> setOf(Collection<T> collection, Class<? extends T> clazz){
+    public static <T> TupleSet<T> setOf(Collection<T> collection, Class<? extends T> clazz){
         Objects.requireNonNull(collection);
         T[] array = (T[])collection.toArray((T[]) Array.newInstance(clazz, 0));
         return setOf(array);

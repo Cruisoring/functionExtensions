@@ -56,7 +56,7 @@ public class TupleTest {
     Tuple tuple1 = Tuple.create("First");
     Tuple set1 = Tuple.setOf(true);
     Tuple tuple2 = Tuple.create("Second", "2");
-    Set<Boolean> boolSet2 = Tuple.setOf(true, false);
+    TupleSet<Boolean> boolSet2 = Tuple.setOf(true, false);
     Tuple tuple3 = Tuple.create(3, "Third", 3.33d);
     Tuple4 tuple4 = Tuple.create(true, null, new A("Aaa"), new A("B").getClass());
     Tuple5 tuple5 = Tuple.create(Progress.Working, "5", null, 5f, false);
@@ -68,9 +68,9 @@ public class TupleTest {
     Tuple7<Boolean, Integer, String, LocalDate, Progress, String, Double> hepta=
             Tuple.create(false, 77, "Tuple7", LocalDate.MAX, Progress.Done, "Result", 99.9d);
     Tuple NULL = Tuple.create(null);
-    Set<String> stringSet = Tuple.setOf("", null, "third", "3");
-    Set<Integer> intSet = Tuple.setOf(111, 222, 3333, 4444);
-    Set<Tuple> tupleSet = Tuple.setOf(tuple0, tuple1);
+    TupleSet<String> stringSet = Tuple.setOf("", null, "third", "3");
+    TupleSet<Integer> intSet = Tuple.setOf(111, 222, 3333, 4444);
+    TupleSet<Tuple> tupleSet = Tuple.setOf(tuple0, tuple1);
 
     @Test
     public void testArraysDeepFunctions(){
@@ -145,20 +145,20 @@ public class TupleTest {
     @Test
     public void testSetOf(){
         Date date = null;
-        Set nullSet = Tuple.setOf(date);
+        TupleSet nullSet = Tuple.setOf(date);
         assertEquals(Date.class, nullSet.elementType);
         assertEquals(1, nullSet.getLength());
         assertEquals(null, nullSet.get(0));
 
         Integer aInteger = null;
-        Set<Integer> iSet = (Set<Integer>) Tuple.setOf(aInteger);
+        TupleSet<Integer> iSet = (TupleSet<Integer>) Tuple.setOf(aInteger);
         assertEquals(1, iSet.getLength());
         assertEquals(null, iSet.get(0));
 
-        Set<Integer> integerSet = Tuple.setOf(1, 2, 3);
+        TupleSet<Integer> integerSet = Tuple.setOf(1, 2, 3);
         assertTrue(Arrays.deepEquals(new Integer[]{1,2,3}, integerSet.asArray()));
 
-        Set<Comparable> comparableSet = Tuple.setOf(Comparable.class, new Comparable[]{1.0, 'a', "abc"});
+        TupleSet<Comparable> comparableSet = Tuple.setOf(Comparable.class, new Comparable[]{1.0, 'a', "abc"});
         assertTrue(Arrays.deepEquals(new Comparable[]{1.0, 'a', "abc"}, comparableSet.asArray()));
     }
 
@@ -167,7 +167,7 @@ public class TupleTest {
         assertTrue(tuple0 instanceof Tuple0);
         assertTrue(tuple0 instanceof Tuple);
         assertFalse(tuple0 instanceof Tuple1);
-        assertFalse(tuple0 instanceof Set);
+        assertFalse(tuple0 instanceof TupleSet);
         assertEquals(tuple0, Tuple.UNIT);
         assertEquals(0, tuple0.getLength());
     }
@@ -176,7 +176,7 @@ public class TupleTest {
     public void create1() {
         assertEquals(1, tuple1.getLength());
         assertTrue(tuple1 instanceof Tuple1);
-        assertFalse(tuple1 instanceof Set);
+        assertFalse(tuple1 instanceof TupleSet);
 
         Tuple _1 = Tuple.create("First");
         assertEquals(_1, tuple1);
@@ -195,9 +195,9 @@ public class TupleTest {
         assertEquals(2, boolSet2.getLength());
         assertEquals(2, boolSet2.getLength());
         assertTrue(tuple2 instanceof Tuple2);
-        assertFalse(tuple2 instanceof Set);
+        assertFalse(tuple2 instanceof TupleSet);
 
-        assertTrue(boolSet2 instanceof Set);
+        assertTrue(boolSet2 instanceof TupleSet);
         assertEquals(boolSet2, Tuple.setOf(Boolean.valueOf(true), Boolean.valueOf("false")));
         Tuple _2 = Tuple.create(null, null);
         assertEquals(2, _2.getLength());
@@ -277,18 +277,18 @@ public class TupleTest {
     public void setOf() {
 
         assertEquals(4, stringSet.getLength());
-        assertEquals(Set.class, stringSet.getClass());
+        assertEquals(TupleSet.class, stringSet.getClass());
         assertEquals(stringSet.get(0), "");
         assertEquals(stringSet.get(1), null);
         assertTrue(TypeHelper.valueEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray()));
-        Set tupleSet2 = Tuple.setOf(Tuple.create(), Tuple.create("First"));
+        TupleSet tupleSet2 = Tuple.setOf(Tuple.create(), Tuple.create("First"));
         assertEquals(tupleSet, tupleSet2);
     }
 
     @Test
     public void testArrayToSet(){
         Integer[] ints = new Integer[]{1, 2, 3};
-        Set integerSet = Tuple.setOf(ints);
+        TupleSet integerSet = Tuple.setOf(ints);
         assertEquals(Integer.class, integerSet.elementType);
         assertEquals(3, integerSet.getLength());
 
@@ -304,7 +304,7 @@ public class TupleTest {
         aList.add(new A(true));
         aList.add(new A(3.33d));
         aList.add(new B(77));
-        Set aSet = Tuple.setOf(aList, A.class);
+        TupleSet aSet = Tuple.setOf(aList, A.class);
         assertEquals(3, aSet.getLength());
         assertEquals(A.class, aSet.elementType);
     }
@@ -318,39 +318,39 @@ public class TupleTest {
                 Tuple.create(7, 7%2==0, "Seven", "Seven".toCharArray(), 7.0d, new A("Seven"),
                         (PredicateThrowable<A>) a -> ((String)(a.value)).length() > 5 );
 
-        Set<String> stringSet1 = hepta.getSetOf(String.class);
+        TupleSet<String> stringSet1 = hepta.getSetOf(String.class);
         assertTrue(TypeHelper.valueEquals(new String[]{"Seven"}, stringSet1.asArray()));
 
         Tuple t = Tuple.create(1, 2, 3, null, 4, 5);
         assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3,4,5}, t.getSetOf(int.class).asArray()));
 
-        Set<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
-        Set aSet1 = aSet.getSetOf(A.class);
+        TupleSet<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
+        TupleSet aSet1 = aSet.getSetOf(A.class);
         assertEquals(aSet, aSet1);
-        Set aSet2 = aSet.getSetOf(B.class);
+        TupleSet aSet2 = aSet.getSetOf(B.class);
         assertEquals(0, aSet2.getLength());
 
-        Set<B> bSet = Tuple.setOf(new B(1), new B(2), new B(Integer.valueOf(3)));
-        Set bSet1 = bSet.getSetOf(A.class).getSetOf(B.class);
+        TupleSet<B> bSet = Tuple.setOf(new B(1), new B(2), new B(Integer.valueOf(3)));
+        TupleSet bSet1 = bSet.getSetOf(A.class).getSetOf(B.class);
         assertEquals(bSet, bSet1);
 
-        Set bSet2 = bSet.getSetOf(B.class);
+        TupleSet bSet2 = bSet.getSetOf(B.class);
         assertEquals(bSet, bSet2);
     }
 
     @Test
     public void getSetOf2() {
         Tuple tuple = Tuple.of((Integer)null, -1, -2, new int[]{1,2}, new Integer[]{3,4,5}, -5, new Object[]{6,7});
-        Set<Integer> integers = tuple.getSetOf(int.class);
+        TupleSet<Integer> integers = tuple.getSetOf(int.class);
 
-        Set<Integer[]> integerArrays = tuple.getSetOf(Integer[].class);
-        assertEquals(Set.setOf(null, new Integer[]{1,2}, new Integer[]{3,4,5}), integerArrays);
+        TupleSet<Integer[]> integerArrays = tuple.getSetOf(Integer[].class);
+        assertEquals(TupleSet.setOf(null, new Integer[]{1,2}, new Integer[]{3,4,5}), integerArrays);
 
-        Set<int[]> intArrays = tuple.getSetOf(int[].class);
-        assertEquals(Set.setOf(new int[]{1,2}, new int[]{3,4,5}), intArrays);
+        TupleSet<int[]> intArrays = tuple.getSetOf(int[].class);
+        assertEquals(TupleSet.setOf(new int[]{1,2}, new int[]{3,4,5}), intArrays);
 
-        Set<Integer> ints = tuple.getSetOf(Integer.class);
-        assertEquals(Set.setOf(null, Integer.valueOf(-1), Integer.valueOf(-2), Integer.valueOf(-5)), ints);
+        TupleSet<Integer> ints = tuple.getSetOf(Integer.class);
+        assertEquals(TupleSet.setOf(null, Integer.valueOf(-1), Integer.valueOf(-2), Integer.valueOf(-5)), ints);
    }
 
     @Test
@@ -378,7 +378,7 @@ public class TupleTest {
         elements = new Object[]{1,2,3,"abc", 'a', true, Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3), 'b'};
         tuple = Tuple.of(elements);
         assertEquals(10, tuple.getLength());
-        Set<Tuple> tupleSet = tuple.getSetOf(Tuple.class);
+        TupleSet<Tuple> tupleSet = tuple.getSetOf(Tuple.class);
         assertEquals(3, tupleSet.getLength());
         assertNotEquals(tupleSet, Tuple.of(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)));
         assertEquals(Tuple.setOf(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)), tupleSet);
@@ -428,9 +428,9 @@ public class TupleTest {
         Logger.D("%s: %d", Tuple.FALSE, Tuple.FALSE.hashCode());
         Logger.D("%s: %d", tupleSet, tupleSet.hashCode());
 
-        Set<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
-        Set<B> bSet = Tuple.setOf(new B(1), new B(2), new B(Integer.valueOf(3)));
-        Set bSet1 = bSet.getSetOf(A.class);
+        TupleSet<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
+        TupleSet<B> bSet = Tuple.setOf(new B(1), new B(2), new B(Integer.valueOf(3)));
+        TupleSet bSet1 = bSet.getSetOf(A.class);
         Logger.D("%s: %d", aSet, aSet.hashCode());
         Logger.D("%s: %d", bSet, bSet.hashCode());
         Logger.D("%s: %d", bSet1, bSet1.hashCode());
@@ -444,16 +444,16 @@ public class TupleTest {
         assertEquals(nullDual2, nullDual);
         assertEquals(nullDual, nullDual2);
 
-        Set<Boolean> nullDual3 = Tuple.setOf(Boolean.class, new Boolean[]{null, null});
+        TupleSet<Boolean> nullDual3 = Tuple.setOf(Boolean.class, new Boolean[]{null, null});
         assertFalse(nullDual2.equals(nullDual3));
         assertFalse(nullDual3.equals(nullDual2));
 
-        Set<String> null4 = Tuple.setOf(String.class, new String[]{null, null} );
+        TupleSet<String> null4 = Tuple.setOf(String.class, new String[]{null, null} );
         assertFalse(nullDual3.equals(null4));
         assertNotEquals(null4, nullDual3);
         assertNotEquals(nullDual3, null4);
 
-        Set<String> null5 = Tuple.setOf((String)null, (String)null);
+        TupleSet<String> null5 = Tuple.setOf((String)null, (String)null);
         assertEquals(null5, null4);
 
         Tuple tuple1 = Tuple.create(1, "abc".toCharArray(), new boolean[]{true, false}, new int[]{3, 2}, new int[][]{null, new int[]{0}});

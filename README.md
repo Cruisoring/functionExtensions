@@ -260,7 +260,7 @@ The define and use of Tuple is quite simple, as illustrated below:
 	Assert.assertEquals(Double.valueOf(99.9), hepta.getSeventh());
 ```
 
-When elements of the Tuple are of the same type, the *Set<T>* class is used to persist the type info along with the values. The *Set<T> getSetOf(Class<T> clazz)* of Tuple can be used to extract all matched elements as shown below:
+When elements of the Tuple are of the same type, the *TupleSet<T>* class is used to persist the type info along with the values. The *TupleSet<T> getSetOf(Class<T> clazz)* of Tuple can be used to extract all matched elements as shown below:
 ```java
         Tuple t = Tuple.create(1, 2, 3, null, 4, 5);
         assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3,4,5}, t.getSetOf(int.class).asArray()));

@@ -215,7 +215,7 @@ public class MultiValuesRepositoryTest {
 //
 //        Tuple tuple2 = repositoryOfTuples.retrieve("A test of retrieve");
 //        assertEquals(3, tuple2.getLength());
-//        Set<Tuple> tupleSet = tuple2.getSetOf(Tuple.class);
+//        TupleSet<Tuple> tupleSet = tuple2.getSetOf(Tuple.class);
 //        assertEquals(Tuple.of(18, false), tupleSet.get(0));
 //        assertEquals(Tuple.of('A', "A test of retrieve".toCharArray(), "t of retrieve"), tupleSet.get(1));
 //        assertEquals(Tuple.of(14, true, false), tupleSet.get(2));
