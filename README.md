@@ -32,7 +32,7 @@ For maven users for example:
 </dependency>
 ```
 
-Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.0.1/)
+Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.1.0/)
 
 ##Implementation Techniques
 

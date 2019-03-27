@@ -1315,7 +1315,8 @@ public class TypeHelper {
         }
 
         //Second, checking if it is converting between primitive array and Object array
-        if(fromComponentClass.isPrimitive() != toComponentClass.isPrimitive()){
+        boolean needConversion = fromComponentClass.isPrimitive() != toComponentClass.isPrimitive();
+        if(needConversion){
             Class equivalentFromComponentType = getEquivalentClass(fromComponentClass);
             Class equivalentToComponentType = getEquivalentClass(toComponentClass);
             //Returns null factory methods only when there is no chance to convert one type to another
@@ -1331,7 +1332,7 @@ public class TypeHelper {
         FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(toComponentClass);
         TriConsumerThrowable<Object, Integer, Object> toElementSetter = getArrayElementSetter(toComponentClass);
 
-        Function<Object, Object> elementConverter = (getEquivalentClass(fromClass).equals(toClass)) ?
+        Function<Object, Object> elementConverter = needConversion ?
                 getToEquivalentSerialConverter(fromComponentClass) : returnsSelf;
 
         TriFunctionThrowable.TriFunction<Object, Object, Integer, Boolean> elementMappingWithException =

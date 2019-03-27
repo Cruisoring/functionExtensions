@@ -189,14 +189,14 @@ public class TupleRepositoryTest {
     public void toSingleValuesRepository7() {
         TupleRepository1.TupleKeys7<Object,Object,Object,Object,Object,Object,Object,Tuple> repository = TupleRepository1.fromKeys7(
                 (o1,o2,o3,o4,o5,o6,o7)->{
-                    Tuple all = Tuple.create(o1,o2,o3,o4,o5,o6,o7);
+                    Tuple<Object> all = Tuple.create(o1,o2,o3,o4,o5,o6,o7);
                     Set<Integer> integerSet = all.getSetOf(Integer.class);
                     Set<String> stringSet = all.getSetOf(String.class, s->s.length()>1);
                     return Tuple.create(Tuple.create(integerSet, stringSet));
                 }
         );
 
-        assertEquals(Tuple.create(Tuple.setOf(22,-33), Tuple.setOf("abc", "1234567"))
+        assertEquals(Tuple.create(Tuple.setOf(22, null,-33), Tuple.setOf("abc", "1234567"))
                 , repository.getFirst("", 22, null, 'a', "abc", -33, "1234567"));
     }
 

@@ -13,7 +13,7 @@ import java.util.function.Predicate;
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
  * would close any elements if they are also AutoCloseable.
  */
-public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
+public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
 
     public static final Tuple0 UNIT = new Tuple0();
     public static final Tuple1 TRUE = new Tuple1(true);
@@ -23,6 +23,24 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
     private Integer _hashCode;
     private int[][] deepLength;
     private String _toString;
+
+    /**
+     * Protected constructor to keep the elements as a final array.
+     * @param elementType  type of the elements being specified to cope with <tt>Type Erasure</tt>
+     * @param elements values to be persisted by the Tuple.
+     */
+    protected Tuple(final Class<T> elementType, final T... elements){
+        int length = elements == null ? 1 : elements.length;
+        values = elementType == null ? new Object[length] : (Object[]) ArrayHelper.getNewArray(elementType, length);
+
+        if(elements == null) {
+            values[0] = null;
+        }else {
+            for (int i = 0; i < length; i++) {
+                values[i] = elements[i];
+            }
+        }
+    }
 
     /**
      * Protected constructor to keep the elements as a final array.
@@ -75,6 +93,8 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
                         T t = (T) TypeHelper.getToEquivalentParallelConverter(vClass).apply(v);
                         list.add(t);
                     }
+                } else if(!TypeHelper.isPrimitive(clazz)) {
+                    list.add(null);
                 }
             }
             Object[] array = list.toArray((T[])ArrayHelper.getNewArray(equivalent, list.size()));
@@ -88,13 +108,13 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
      * Get all Non-null elements of the given class and matched with predefined criteria as an immutable <tt>Set</tt>
      * @param clazz Class to evaluate the saved values.
      * @param valuePredicate predicate to filter elements by their values
-     * @param <T>   Type of the given Class.
+     * @param <S>   Type of the given Class.
      * @return      Immutable <code>Set</code> containing matched elements.
      */
-    public <T> Set<T> getSetOf(Class<T> clazz, Predicate<T> valuePredicate){
+    public <S> Set<S> getSetOf(Class<S> clazz, Predicate<S> valuePredicate){
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(valuePredicate);
-        List<T> matched = new ArrayList<>();
+        List<S> matched = new ArrayList<>();
 
         Predicate<Class> classPredicate = TypeHelper.getClassEqualitor(clazz);
 
@@ -103,12 +123,12 @@ public class Tuple implements AutoCloseable, Comparable<Tuple>, WithValues {
             Object v = values[i];
             if(v != null){
                 try {
-                    if(classPredicate.test(v.getClass()) && valuePredicate.test((T)v))
-                        matched.add((T)v);
+                    if(classPredicate.test(v.getClass()) && valuePredicate.test((S)v))
+                        matched.add((S)v);
                 }catch (Exception ex){}
             }
         };
-        T[] array = (T[]) matched.stream().toArray();
+        S[] array = (S[]) matched.stream().toArray();
         return setOf(clazz, array);
     }
 

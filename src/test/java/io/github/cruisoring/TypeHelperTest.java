@@ -1265,11 +1265,45 @@ public class TypeHelperTest {
         Object[] objects = TypeHelper.convertSerial(numbers, Object[].class);
         assertTrue(TypeHelper.valueEquals(numbers, objects));
 
-        int[] ints = new int[] {1, 2, 3};
-        objects = TypeHelper.convert(ints, Object[].class);
-        assertTrue(TypeHelper.valueEquals(new Object[]{1, 2, 3}, objects));
+    }
 
+    @Test
+    public void testConverToObjectArray() {
+        int[] ints = new int[] {1, 2, 3};
+        Object[] objects = TypeHelper.convert(ints, Object[].class);
+        assertTrue(TypeHelper.valueEquals(new Object[]{1, 2, 3}, objects));
         int[] convertedInts = TypeHelper.convert(objects, int[].class);
         assertTrue(Objects.deepEquals(ints, convertedInts));
+
+        double[] doubles = new double[]{-1.2, 3};
+        objects = TypeHelper.convert(doubles, Object[].class);
+        assertTrue(TypeHelper.valueEquals(new Object[]{-1.2, 3d}, objects));
+        double[] convertedDoubles = TypeHelper.convert(objects, double[].class);
+        assertTrue(Objects.deepEquals(convertedDoubles, doubles));
+
+        char[] chars = new char[]{'a', 'b', 'c'};
+        objects = TypeHelper.convert(chars, Object[].class);
+        assertTrue(Objects.deepEquals(new Object[]{'a', 'b', 'c'}, objects));
+        char[] convertedChars = TypeHelper.convert(objects, char[].class);
+        assertTrue(Objects.deepEquals(convertedChars, chars));
+
+        Integer[] integers = new Integer[] {1, 2, 3};
+        objects = TypeHelper.convert(ints, Object[].class);
+        assertTrue(TypeHelper.valueEquals(new Object[]{1, 2, 3}, objects));
+        Integer[] convertedIntegers = TypeHelper.convert(objects, Integer[].class);
+        assertTrue(Objects.deepEquals(convertedIntegers, integers));
+
+        Double[] dbls = new Double[]{-1.2, 3d};
+        objects = TypeHelper.convert(dbls, Object[].class);
+        assertTrue(TypeHelper.valueEquals(new Object[]{-1.2, 3d}, objects));
+        Double[] convertedDbls = TypeHelper.convert(objects, Double[].class);
+        assertTrue(Objects.deepEquals(convertedDbls, dbls));
+
+        Character[] characters = new Character[]{'a', 'b', 'c'};
+        objects = TypeHelper.convert(chars, Object[].class);
+        assertTrue(Objects.deepEquals(new Object[]{'a', 'b', 'c'}, objects));
+        Character[] convertedCharacters = TypeHelper.convert(objects, Character[].class);
+        assertTrue(Objects.deepEquals(convertedCharacters, characters));
+
     }
 }

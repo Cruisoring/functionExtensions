@@ -8,7 +8,6 @@ import java.util.Objects;
  * @param <T>   Type of the persisted elements
  */
 public class Set<T> extends Tuple{
-    public final static Set EMPTY = new Set();
     public final Class<T> elementType;
 
     /**
@@ -28,7 +27,7 @@ public class Set<T> extends Tuple{
      * @param elements  Elements to be persisted
      */
     protected Set(final Class<T> elementType, final T... elements){
-        super(elements);
+        super(elementType, elements);
         Objects.requireNonNull(elementType);
         this.elementType = elementType;
     }
@@ -69,21 +68,6 @@ public class Set<T> extends Tuple{
     @Override
     public boolean canEqual(Object other) {
         return (other instanceof Set) && ((Set) other).elementType.equals(elementType);
-    }
-
-    /**
-     * Override Tuple.getSetOf() to return either EMPTY set or the itself if the class is matched
-     * @param clazz Class to evaluate the saved values.
-     * @param <R>   Type of the persistent elements
-     * @return      The Set iselft if the class is matched, or Empty.
-     */
-//    @Override
-    public <R> Set<R> getSetOf(Class<R> clazz){
-        Objects.requireNonNull(clazz);
-
-        if(clazz.equals(elementType) || clazz.isAssignableFrom(elementType))
-            return (Set<R>) this;
-        return EMPTY;
     }
 
     @Override

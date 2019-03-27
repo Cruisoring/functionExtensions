@@ -328,10 +328,10 @@ public class TupleTest {
         Set aSet1 = aSet.getSetOf(A.class);
         assertEquals(aSet, aSet1);
         Set aSet2 = aSet.getSetOf(B.class);
-        assertEquals(Set.EMPTY, aSet2);
+        assertEquals(0, aSet2.getLength());
 
         Set<B> bSet = Tuple.setOf(new B(1), new B(2), new B(Integer.valueOf(3)));
-        Set bSet1 = bSet.getSetOf(A.class);
+        Set bSet1 = bSet.getSetOf(A.class).getSetOf(B.class);
         assertEquals(bSet, bSet1);
 
         Set bSet2 = bSet.getSetOf(B.class);
@@ -344,21 +344,19 @@ public class TupleTest {
         Set<Integer> integers = tuple.getSetOf(int.class);
 
         Set<Integer[]> integerArrays = tuple.getSetOf(Integer[].class);
-        assertEquals(Set.setOf(new Integer[]{1,2}, new Integer[]{3,4,5}), integerArrays);
+        assertEquals(Set.setOf(null, new Integer[]{1,2}, new Integer[]{3,4,5}), integerArrays);
 
         Set<int[]> intArrays = tuple.getSetOf(int[].class);
         assertEquals(Set.setOf(new int[]{1,2}, new int[]{3,4,5}), intArrays);
 
         Set<Integer> ints = tuple.getSetOf(Integer.class);
-        assertEquals(Set.setOf(Integer.valueOf(-1), Integer.valueOf(-2), Integer.valueOf(-5)), ints);
-
-        assertEquals(ints, integers);
+        assertEquals(Set.setOf(null, Integer.valueOf(-1), Integer.valueOf(-2), Integer.valueOf(-5)), ints);
    }
 
     @Test
     public void getSetOfWithPredicate() {
-        Tuple manyValues = Tuple.of("abc", null, 33, true, "a", "", 'a', Tuple.TRUE, 47);
-        assertEquals(Tuple.setOf("abc", "a", ""), manyValues.getSetOf(String.class));
+        Tuple<String> manyValues = Tuple.of("abc", null, 33, true, "a", "", 'a', Tuple.TRUE, 47);
+        assertEquals(Tuple.setOf("abc", null, "a", ""), manyValues.getSetOf(String.class));
         assertEquals(Tuple.setOf("abc"), manyValues.getSetOf(String.class, s->s.length()>2));
     }
 
