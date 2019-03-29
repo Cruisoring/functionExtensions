@@ -13,25 +13,27 @@ import java.util.function.Predicate;
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
  * would close any elements if they are also AutoCloseable.
  */
-public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
+public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>, WithValues {
 
     public static final Tuple0 UNIT = new Tuple0();
     public static final Tuple1 TRUE = new Tuple1(true);
     public static final Tuple1 FALSE = new Tuple1(false);
 
-    protected final Object[] values;
-    private Integer _hashCode;
-    private int[][] deepLength;
-    private String _toString;
+    protected final Class<? extends T> _elementType;
+    protected final T[] values;
+    protected Integer _hashCode;
+    protected int[][] deepLength;
+    protected String _toString;
 
     /**
      * Protected constructor to keep the elements as a final array.
-     * @param elementType  type of the elements being specified to cope with <tt>Type Erasure</tt>
+     * @param eType  type of the elements being specified to cope with <tt>Type Erasure</tt>
      * @param elements values to be persisted by the Tuple.
      */
-    protected Tuple(final Class<T> elementType, final T... elements){
+    protected Tuple(Class<? extends T> eType, final T... elements){
+        this._elementType = eType;
         int length = elements == null ? 1 : elements.length;
-        values = elementType == null ? new Object[length] : (Object[]) ArrayHelper.getNewArray(elementType, length);
+        values = (T[]) ArrayHelper.getNewArray(eType, length);
 
         if(elements == null) {
             values[0] = null;
@@ -46,12 +48,14 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
      * Protected constructor to keep the elements as a final array.
      * @param elements values to be persisted by the Tuple.
      */
-    protected Tuple(final Object... elements){
-        if(elements == null){
-            values = new Object[]{null};
-        } else {
-            int length = elements.length;
-            values = new Object[length];
+    protected Tuple(final T... elements){
+        this._elementType = (Class<? extends T>) ArrayHelper.getComponentType(elements);
+        int length = elements == null ? 1 : elements.length;
+        values = (T[]) ArrayHelper.getNewArray(_elementType, length);
+
+        if(elements == null) {
+            values[0] = null;
+        }else {
             for (int i = 0; i < length; i++) {
                 values[i] = elements[i];
             }
@@ -65,14 +69,34 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
         return values[index];
     }
 
+    /**
+     * Get new Array of values to prevent changes on the underlying array.
+     * @return copied Array of the persistent values
+     */
+    public T[] asArray(){
+        return Arrays.copyOf((T[]) values, values.length);
+    }
 
     /**
-     * Get all Non-null elements matching the given class as an immutable <tt>TupleSet</tt>
-     * @param clazz Class to evaluate the saved values.
-     * @param <T>   Type of the given Class.
-     * @return      Immutable <code>TupleSet</code> containing matched elements.
+     * Get the elements at specific position
+     * @param index     Index of the expected element
+     * @return          Element at that index
+     * @throws IndexOutOfBoundsException    When invalid index is provided
      */
-    public <T> TupleSet<T> getSetOf(Class<T> clazz){
+    public T get(int index) throws IndexOutOfBoundsException{
+        if(index < 0 || index >= getLength())
+            throw new IndexOutOfBoundsException();
+        return (T) values[index];
+    }
+
+
+    /**
+     * Get all Non-null elements matching the given class as an immutable <tt>Tuple</tt>
+     * @param clazz Class to evaluate the saved values.
+     * @param <U>   Type of the given Class.
+     * @return      Immutable <code>Tuple</code> containing matched elements.
+     */
+    public <U> Tuple<U> getSetOf(Class<U> clazz){
         Objects.requireNonNull(clazz);
 
         try {
@@ -82,36 +106,36 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
             Class<?> componentType = isArray ? clazz.getComponentType() : null;
 
             int length = getLength();
-            List<T> list = new ArrayList<T>();
+            List<U> list = new ArrayList<U>();
             for (int i = 0; i < length; i++) {
                 Object v = values[i];
                 if (v != null) {
                     Class vClass = v.getClass();
                     if(equivalent.equals(vClass)){
-                        list.add((T)v);
+                        list.add((U)v);
                     } else if (predicate.test(vClass)) {
-                        T t = (T) TypeHelper.getToEquivalentParallelConverter(vClass).apply(v);
+                        U t = (U) TypeHelper.getToEquivalentParallelConverter(vClass).apply(v);
                         list.add(t);
                     }
                 } else if(!TypeHelper.isPrimitive(clazz)) {
                     list.add(null);
                 }
             }
-            Object[] array = list.toArray((T[])ArrayHelper.getNewArray(equivalent, list.size()));
-            return setOf(equivalent, (T[])array);
+            Object[] array = list.toArray((U[])ArrayHelper.getNewArray(equivalent, list.size()));
+            return setOf(equivalent, (U[])array);
         }catch (Exception ex){
             return null;
         }
     }
 
     /**
-     * Get all Non-null elements of the given class and matched with predefined criteria as an immutable <tt>TupleSet</tt>
+     * Get all Non-null elements of the given class and matched with predefined criteria as an immutable <tt>Tuple</tt>
      * @param clazz Class to evaluate the saved values.
      * @param valuePredicate predicate to filter elements by their values
      * @param <S>   Type of the given Class.
-     * @return      Immutable <code>TupleSet</code> containing matched elements.
+     * @return      Immutable <code>Tuple</code> containing matched elements.
      */
-    public <S> TupleSet<S> getSetOf(Class<S> clazz, Predicate<S> valuePredicate){
+    public <S> Tuple<S> getSetOf(Class<S> clazz, Predicate<S> valuePredicate){
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(valuePredicate);
         List<S> matched = new ArrayList<>();
@@ -147,59 +171,9 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
         return deepLength;
     }
 
-    /**
-     * Compares this object with the specified object for order.  Returns a
-     * negative integer, zero, or a positive integer as this object is less
-     * than, equal to, or greater than the specified object.
-     * <p>The implementor must ensure <tt>sgn(x.compareTo(y)) ==
-     * -sgn(y.compareTo(x))</tt> for all <tt>x</tt> and <tt>y</tt>.  (This
-     * implies that <tt>x.compareTo(y)</tt> must throw an exception iff
-     * <tt>y.compareTo(x)</tt> throws an exception.)
-     * </p>
-     * <p>The implementor must also ensure that the relation is transitive:
-     * <tt>(x.compareTo(y)&gt;0 &amp;&amp; y.compareTo(z)&gt;0)</tt> implies
-     * <tt>x.compareTo(z)&gt;0</tt>.
-     * </p>
-     * <p>Finally, the implementor must ensure that <tt>x.compareTo(y)==0</tt>
-     * implies that <tt>sgn(x.compareTo(z)) == sgn(y.compareTo(z))</tt>, for
-     * all <tt>z</tt>.
-     * </p>
-     * <p>It is strongly recommended, but <i>not</i> strictly required that
-     * <tt>(x.compareTo(y)==0) == (x.equals(y))</tt>.  Generally speaking, any
-     * class that implements the <tt>Comparable</tt> interface and violates
-     * this condition should clearly indicate this fact.  The recommended
-     * language is "Note: this class has a natural ordering that is
-     * inconsistent with equals."
-     * </p>
-     * <p>In the foregoing description, the notation
-     * <tt>sgn(</tt><i>expression</i><tt>)</tt> designates the mathematical
-     * <i>signum</i> function, which is defined to return one of <tt>-1</tt>,
-     * <tt>0</tt>, or <tt>1</tt> according to whether the value of
-     * <i>expression</i> is negative, zero or positive.
-     * </p>
-     *
-     * @param o the object to be compared.
-     * @return a negative integer, zero, or a positive integer as this object
-     * is less than, equal to, or greater than the specified object.
-     * @throws NullPointerException if the specified object is null
-     * @throws ClassCastException   if the specified object's type prevents it
-     *                              from being compared to this object.
-     */
     @Override
     public int compareTo(Tuple o) {
-        int length = o.getLength();
-        int result = this.getLength() - length;
-        if(result != 0)
-            return result;
-
-        String thisString = this.toString();
-        String oString = o.toString();
-
-        result = thisString.length()-oString.length();
-        if(result != 0)
-            return result;
-
-        return thisString.compareTo(oString);
+        return this.toString().compareTo(o.toString());
     }
 
     @Override
@@ -225,7 +199,10 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
     }
 
     public boolean canEqual(Object obj) {
-        return (obj instanceof Tuple);
+        if(! (obj instanceof  Tuple))
+            return false;
+        Tuple other = (Tuple)obj;
+        return this._elementType.isAssignableFrom(other._elementType) || other._elementType.isAssignableFrom(this._elementType);
     }
 
     @Override
@@ -257,15 +234,6 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
             Logger.V("%s.close() run successfully!", this);
         }
     }
-
-//    @Override
-//    protected void finalize() throws Throwable {
-//        if(!closed)
-//        {
-//            Logger.D( "******FORGOT TO CLOSE THE TUPLE!" );
-//        }
-//        super.finalize();
-//    }
 
     //region Factories to create Strong-typed Tuple instances based on the number of given arguments
 
@@ -1006,40 +974,39 @@ public class Tuple<T> implements AutoCloseable, Comparable<Tuple>, WithValues {
     }
 
     /**
-     * Factory to create a <tt>TupleSet</tt> instance of type <tt>T</tt> with elements of the same type
+     * Factory to create a <tt>Tuple</tt> instance of type <tt>T</tt> with elements of the same type
      * @param elements  Elements of same type <tt>T</tt> to be persisted
      * @param <T>       Type of the given elements
-     * @return          A strong-typed TupleSet instance
+     * @return          A strong-typed Tuple instance
      */
-    public static <T> TupleSet<T> setOf(T... elements) {
+    public static <T> Tuple<T> setOf(T... elements) {
         if(elements == null)
-            return (TupleSet<T>) Functions.ReturnsDefaultValue.apply(TupleSet::new, elements);
-        Class<T> elementType = (Class<T>) elements.getClass().getComponentType();
-        return new TupleSet<T>(elementType, elements);
+            return (Tuple<T>) Functions.ReturnsDefaultValue.apply(Tuple::new, elements);
+        return new Tuple<T>(elements);
     }
 
     /**
-     * Factory to create a <tt>TupleSet</tt> instance of type <tt>T</tt> with elements of the same type, and their type to cope with Tpe Erasure
+     * Factory to create a <tt>Tuple</tt> instance of type <tt>T</tt> with elements of the same type, and their type to cope with Tpe Erasure
      * @param elementType   Class of the Type of the elements
      * @param elements      Elements of the same type T
      * @param <T>           Actually Type of the elements
-     * @return              A strong-typed TupleSet instance
+     * @return              A strong-typed Tuple containing instances of the same type <tt>T</tt>
      */
-    public static <T> TupleSet<T> setOf(Class<T> elementType, T[] elements){
-        return new TupleSet<T>(elementType, elements);
+    public static <T> Tuple<T> setOf(Class<? extends T> elementType, T[] elements){
+        return new Tuple<T>(elementType, elements);
     }
 
     /**
-     * Factory to create a <code>TupleSet</code> of type <code>T</code>
+     * Factory to create a <code>Tuple</code> of type <code>T</code>
      * @param collection    Collection of Elements of type <code>T</code> to be persisted
      * @param clazz         Class of the elements to cope with Java Type Erasure
      * @param <T>           Declared Type of the elements
-     * @return              Strong-typed TupleSet, with component type of <code>T</code>
+     * @return              A strong-typed Tuple containing instances of the same type <tt>T</tt>
      */
-    public static <T> TupleSet<T> setOf(Collection<T> collection, Class<? extends T> clazz){
+    public static <T> Tuple<T> setOf(Collection<T> collection, Class<? extends T> clazz){
         Objects.requireNonNull(collection);
         T[] array = (T[])collection.toArray((T[]) Array.newInstance(clazz, 0));
-        return setOf(array);
+        return setOf(clazz, array);
     }
 
     //endregion Factories to create Strong-typed Tuple instances based on the number of given arguments

@@ -731,6 +731,14 @@ public class TypeHelper {
                         , arraySet
                         , (array, from, to) -> Arrays.copyOfRange((Float[])array, from, to)
                         , array -> Arrays.toString((Float[])array)));
+//                classPredicate = clazz -> !clazz.isPrimitive();
+//                put(Object.class, Tuple.create(
+//                        classPredicate
+//                        , i -> new Object[i]
+//                        , Object[].class
+//                        , arraySet
+//                        , (array, from, to) -> Arrays.copyOfRange((Object[])array, from, to)
+//                        , array -> Arrays.toString((Object[])array)));
             }},
             null,
             TypeHelper::makeClassOperators
@@ -1099,7 +1107,7 @@ public class TypeHelper {
                     //Get original element
                     Object fromElement = Array.get(fromArray, i);
                     //Get the converted element
-                    //TupleSet the converted value to the target array
+                    //Set the converted value to the target array
                     equivalentSetter.accept(toArray, i, componentConverter.apply(fromElement));
                 }
                 return toArray;
@@ -1122,7 +1130,7 @@ public class TypeHelper {
                         //Get original element
                         Object fromElement = Array.get(fromArray, i);
                         //Get the converted element
-                        //TupleSet the converted value to the target array
+                        //Set the converted value to the target array
                         equivalentSetter.accept(toArray, i, componentConverter.apply(fromElement));
                     }
                     return toArray;

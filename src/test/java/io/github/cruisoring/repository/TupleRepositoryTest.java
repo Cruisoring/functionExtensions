@@ -1,7 +1,6 @@
 package io.github.cruisoring.repository;
 
 import io.github.cruisoring.TypeHelper;
-import io.github.cruisoring.tuple.TupleSet;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.utility.Logger;
@@ -190,8 +189,8 @@ public class TupleRepositoryTest {
         TupleRepository1.TupleKeys7<Object,Object,Object,Object,Object,Object,Object,Tuple> repository = TupleRepository1.fromKeys7(
                 (o1,o2,o3,o4,o5,o6,o7)->{
                     Tuple<Object> all = Tuple.create(o1,o2,o3,o4,o5,o6,o7);
-                    TupleSet<Integer> integerSet = all.getSetOf(Integer.class);
-                    TupleSet<String> stringSet = all.getSetOf(String.class, s->s.length()>1);
+                    Tuple<Integer> integerSet = all.getSetOf(Integer.class);
+                    Tuple<String> stringSet = all.getSetOf(String.class, s->s.length()>1);
                     return Tuple.create(Tuple.create(integerSet, stringSet));
                 }
         );
