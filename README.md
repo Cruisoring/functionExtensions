@@ -2,10 +2,12 @@
 ===================
 
 ##Updates
+### 29/03/2019: 1.2.0
+ *  Flat Tuple interfaces with duplicated default methods.
 ### 27/03/2019: 1.1.0
  *  Tuple constructors and factory methods accept final arguments only
  *  Logger utilities enhanced with richer output formats and more handy methods.
- 
+
  
 ##Brief
 functionExtentions is a Java library with Throwable Functional Interfaces, Tuples and Repositories implemented to expedite Functional Programming with JAVA 8. It is released on [Maven](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.0/) under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
@@ -28,11 +30,11 @@ For maven users for example:
 <dependency>
     <groupId>io.github.cruisoring</groupId>
     <artifactId>functionExtensions</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
-Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.1.0/)
+Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.2.0/)
 
 ##Implementation Techniques
 
