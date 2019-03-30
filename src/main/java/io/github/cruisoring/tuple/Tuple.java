@@ -186,14 +186,16 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
 
     @Override
     public boolean equals(Object obj) {
-        int length = values.length;
-        if(obj == null || !(obj instanceof Tuple) || length != ((Tuple) obj).getLength())
+        if(obj==null || !(obj instanceof Tuple)){
             return false;
-        if (obj == this)
+        } else if(obj == this){
             return true;
+        }
+
         Tuple other = (Tuple)obj;
-        if(!other.canEqual(this))
+        if(!other.canEqual(this) || other.getLength() != values.length){
             return false;
+        }
 
         return TypeHelper.valueEquals(values, other.values, getDeepLength(), other.getDeepLength());
     }
