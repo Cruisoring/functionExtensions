@@ -173,7 +173,7 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
 
     @Override
     public int compareTo(Tuple o) {
-        return this.toString().compareTo(o.toString());
+        return o==null ? hashCode() : hashCode() - o.hashCode();
     }
 
     @Override
