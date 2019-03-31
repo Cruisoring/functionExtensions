@@ -1,6 +1,6 @@
 package io.github.cruisoring;
 
-import io.github.cruisoring.utility.Logger;
+import io.github.cruisoring.logger.Logger;
 import org.junit.Before;
 import org.junit.Test;
 

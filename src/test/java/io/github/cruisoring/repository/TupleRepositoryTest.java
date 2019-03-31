@@ -3,7 +3,7 @@ package io.github.cruisoring.repository;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
-import io.github.cruisoring.utility.Logger;
+import io.github.cruisoring.logger.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -2,7 +2,7 @@ package io.github.cruisoring.repository;
 
 import io.github.cruisoring.function.FunctionThrowable;
 import io.github.cruisoring.function.TriConsumerThrowable;
-import io.github.cruisoring.utility.Logger;
+import io.github.cruisoring.logger.Logger;
 
 import java.util.*;
 import java.util.function.BiPredicate;

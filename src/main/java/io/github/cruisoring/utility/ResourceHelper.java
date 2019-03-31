@@ -1,5 +1,7 @@
 package io.github.cruisoring.utility;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;

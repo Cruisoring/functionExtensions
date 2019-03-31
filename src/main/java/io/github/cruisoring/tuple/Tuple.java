@@ -2,8 +2,8 @@ package io.github.cruisoring.tuple;
 
 import io.github.cruisoring.Functions;
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.utility.ArrayHelper;
-import io.github.cruisoring.utility.Logger;
 
 import java.lang.reflect.Array;
 import java.util.*;

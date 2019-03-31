@@ -1,6 +1,7 @@
 package io.github.cruisoring.utility;
 
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.logger.Logger;
 import org.junit.Test;
 
 import java.lang.reflect.Array;

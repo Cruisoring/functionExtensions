@@ -1,7 +1,7 @@
 package io.github.cruisoring;
 
 import io.github.cruisoring.function.ConsumerThrowable;
-import io.github.cruisoring.utility.Logger;
+import io.github.cruisoring.logger.Logger;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
 

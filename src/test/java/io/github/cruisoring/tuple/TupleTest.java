@@ -2,7 +2,7 @@ package io.github.cruisoring.tuple;
 
 import io.github.cruisoring.Functions;
 import io.github.cruisoring.function.PredicateThrowable;
-import io.github.cruisoring.utility.Logger;
+import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.TypeHelper;
 import org.junit.Assert;
 import org.junit.Test;
