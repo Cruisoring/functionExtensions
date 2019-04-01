@@ -54,20 +54,36 @@ public interface ILogger {
      * For each LogLevel, retrieve meaningful stack trace of specific number of stack frames.
      * @return Stack trace of the call stack with specific number of stack frames.
      */
-    default String getCallStack(LogLevel level){
+    default String getCallStack(LogLevel level, Exception ex){
+        List<StackTraceElement> stacks = null;
         switch (level) {
             case verbose:
-                return getStackTrace(5);
+                stacks = getStackTrace(2, ex);
+                break;
             case debug:
-                return getStackTrace(3);
+                stacks = getStackTrace(3, ex);
+                break;
             case info:
-                return getStackTrace(3);
-//            case warning:
-//            case error:
-//                return getStackTrace(-5);
+                stacks = getStackTrace(5, ex);
+                break;
+            case warning:
+            case error:
+                stacks = getStackTrace(8, ex);
+                break;
             default:
-                return "";
+                break;
         }
+
+        if(stacks == null){
+            return "";
+        }
+
+        AtomicInteger counter = new AtomicInteger();
+        String stackTrace = stacks.stream()
+                .map(s -> String.format("%s%s", StringUtils.repeat(" ", 2* counter.getAndIncrement()), s))
+                .collect(Collectors.joining("\n..."));
+
+        return stackTrace;
     };
 
     /**
@@ -118,7 +134,7 @@ public interface ILogger {
 
     default ILogger log(LogLevel level, Exception ex) {
         if(canLog(level)) {
-            String stackTrace = getCallStack(level);
+            String stackTrace = getCallStack(level, ex);
             log(level, "%s: %s%s", ex.getClass().getSimpleName(), ex.getMessage(),
                     StringUtils.isBlank(stackTrace)?"":"\n"+stackTrace);
         }
@@ -151,50 +167,37 @@ public interface ILogger {
     static final Set<String> loggerClasses = new HashSet<String>(Arrays.asList(Logger.class.getName(), ILogger.class.getName()));
 
     static final String SunReflect = "sun.reflect";
-    static final String[] platformNeglibles = new String[] { SunReflect };
+    static final String[] systemClassNames = new String[] { SunReflect };
 
     //endregion
 
     //region Retrieve only concerned stack for logging purposes
-    static String getStackTrace(int stackCount){
+    static List<StackTraceElement> getStackTrace(int stackCount, Exception ex){
         if (stackCount == 0)
-            return  "";
+            return  null;
 
-        List<StackTraceElement> stacks = getStackTraces(stackCount);
-        AtomicInteger counter = new AtomicInteger();
-
-        String stackTrace = stacks.stream()
-                .map(s -> String.format("%s%s", StringUtils.repeat(" ", 2* counter.getAndIncrement()), s))
-                .collect(Collectors.joining("\n..."));
-
-        return stackTrace;
-    }
-
-    static List<StackTraceElement> getStackTraces(int maxCount){
-        StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
+        StackTraceElement[] stacks = ex==null ? Thread.currentThread().getStackTrace() : ex.getStackTrace();
         int first=-1, last=-1;
-        for(int i=1; i<stacks.length; i++){
+        for(int i=0; i<stacks.length; i++){
             String className = stacks[i].getClassName();
             if (first==-1){
                 if (!loggerClasses.contains(className)){
                     first = i;
+                }else{
+                    continue;
                 }
-            } else if(last == -1){
-                first = i-1;
-                if(!loggerClasses.contains(className)){
-                    last = i+1;
-                }
-            } else if(StringHelper.containsAny(className, platformNeglibles)) {
-                last = i+1;
-                break;
-            } else if(last-first > maxCount){
+            }
+            last = i;
+            if(StringHelper.containsAny(className, systemClassNames)){
                 break;
             }
         }
 
-        int total = last-first;
+        if(last-first > stackCount){
+            first = last-stackCount < 0 ? 0 : last-stackCount;
+        }
         List<StackTraceElement> concerned = Arrays.stream(stacks)
-                .skip(first-1).limit(total).collect(Collectors.toList());
+                .skip(first).limit(last-first).collect(Collectors.toList());
         return concerned;
     }
     //endregion

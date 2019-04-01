@@ -3,6 +3,7 @@ package io.github.cruisoring.logger;
 import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.function.SupplierThrowable;
 import io.github.cruisoring.utility.StringHelper;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -185,10 +186,15 @@ public class Logger implements ILogger {
 
     final Consumer<String> recorder;
     final EnumSet<LogLevel> concernedLevels;
+    Duration measuredElapsed=null;
 
     public Logger(Consumer<String> recorder, EnumSet<LogLevel> concernedLevels) {
         this.recorder = recorder;
         this.concernedLevels = concernedLevels == null ? EnumSet.allOf(LogLevel.class) : concernedLevels;
+    }
+
+    public Duration getMeasuredElapsed(){
+        return measuredElapsed;
     }
 
     public boolean isSuccess(String format){
@@ -237,7 +243,6 @@ public class Logger implements ILogger {
 
     public <R> R measure(LogLevel level, SupplierThrowable<R> supplier){
         final long startMills = System.currentTimeMillis();
-        final Duration elapsed;
         Exception e=null;
         try {
             return supplier.get();
@@ -247,20 +252,19 @@ public class Logger implements ILogger {
             return null;
         }finally {
             if(canLog(level)) {
-                elapsed = Duration.ofMillis(System.currentTimeMillis() - startMills);
+                measuredElapsed = Duration.ofMillis(System.currentTimeMillis() - startMills);
                 if (NeglectExceptionWhenMeasure && e != null) {
                     log(level, e);
                 }
-                StackTraceElement callerStack = ILogger.getStackTraces(1).get(0);
-                log(level, "%s to execute %s.%s:%d",
-                        elapsed, callerStack.getClassName(), callerStack.getMethodName(), callerStack.getLineNumber());
+                StackTraceElement callerStack = ILogger.getStackTrace(1, e).get(0);
+                log(level, "%s to execute %s.%s(%s:%d)",
+                        measuredElapsed, callerStack.getClassName(), callerStack.getMethodName(), callerStack.getFileName(), callerStack.getLineNumber());
             }
         }
     }
 
     public ILogger measure(LogLevel level, RunnableThrowable runable){
         final long startMills = System.currentTimeMillis();
-        final Duration elapsed;
         Exception e=null;
         try {
             runable.run();
@@ -268,14 +272,14 @@ public class Logger implements ILogger {
             e = ex;
         }finally {
             if(canLog(level)) {
-                elapsed = Duration.ofMillis(System.currentTimeMillis() - startMills);
+                measuredElapsed = Duration.ofMillis(System.currentTimeMillis() - startMills);
                 if (NeglectExceptionWhenMeasure && e != null) {
                     log(level, e);
                 }
-                StackTraceElement callerStack = ILogger.getStackTraces(1).get(0);
+                StackTraceElement callerStack = ILogger.getStackTrace(1, e).get(0);
 
-                log(level, "%s to execute %s.%s:%d",
-                        elapsed, callerStack.getClassName(), callerStack.getMethodName(), callerStack.getLineNumber());
+                log(level, "%s to execute %s.%s(%s:%d)",
+                        measuredElapsed, callerStack.getClassName(), callerStack.getMethodName(), callerStack.getFileName(), callerStack.getLineNumber());
             }
             return this;
         }
@@ -357,7 +361,7 @@ public class Logger implements ILogger {
             String message=null;
             switch (level){
                 case verbose:
-                    message = WHITE_BACKGROUND+BLUE+label+RESET;
+                    message = WHITE_BACKGROUND+BLACK+label+RESET;
                     break;
                 case debug:
                     message = PURPLE_UNDERLINED+label+RESET;
@@ -382,6 +386,16 @@ public class Logger implements ILogger {
                 message = message + String.format(highlighted, format, argsString);
             }
             return message;
+        }
+
+        @Override
+        public ILogger log(LogLevel level, Exception ex) {
+            if(canLog(level)) {
+                String stackTrace = getCallStack(level, ex);
+                log(level, String.format("%s: %s%s", ex.getClass().getSimpleName(), ex.getMessage(),
+                        StringUtils.isBlank(stackTrace)?"":"\n"+stackTrace));
+            }
+            return this;
         }
     }
 }

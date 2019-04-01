@@ -6,6 +6,12 @@ import java.time.LocalDateTime;
 
 public class LoggerTest {
 
+    int a(){ throw new IllegalStateException();}
+    boolean b(int i){ return i > a();}
+    void c(){ b(3);}
+    int testD(){ c(); return 0; }
+    void testE(){ testD();}
+
     @Test
     public void testMeasureSupplier() {
         Integer integer = Logger.M(()-> {
@@ -15,7 +21,7 @@ public class LoggerTest {
 
         integer = Logger.M(()-> {
             Thread.sleep(100);
-            throw new IllegalStateException();
+            return testD();
         });
     }
 
@@ -27,7 +33,7 @@ public class LoggerTest {
 
         Logger.M(()-> {
             Thread.sleep(100);
-            throw new IllegalStateException();
+            testE();
         });
     }
 
@@ -75,12 +81,6 @@ public class LoggerTest {
 
         Logger.E("Sth wrong with the format %s, and result is %s", LocalDateTime.now());
     }
-
-    int a(){ throw new IllegalStateException();}
-    boolean b(int i){ return i > a();}
-    void c(){ b(3);}
-    int testD(){ c(); return 0; }
-    void testE(){ testD();}
 
     @Test
     public void testLogVerbose() {
