@@ -256,7 +256,7 @@ public class Logger implements ILogger {
                 if (NeglectExceptionWhenMeasure && e != null) {
                     log(level, e);
                 }
-                StackTraceElement callerStack = ILogger.getStackTrace(1, e).get(0);
+                StackTraceElement callerStack = ILogger.getStackTrace(-1, e).get(0);
                 log(level, "%s to execute %s.%s(%s:%d)",
                         measuredElapsed, callerStack.getClassName(), callerStack.getMethodName(), callerStack.getFileName(), callerStack.getLineNumber());
             }
@@ -276,7 +276,7 @@ public class Logger implements ILogger {
                 if (NeglectExceptionWhenMeasure && e != null) {
                     log(level, e);
                 }
-                StackTraceElement callerStack = ILogger.getStackTrace(1, e).get(0);
+                StackTraceElement callerStack = ILogger.getStackTrace(-1, e).get(0);
 
                 log(level, "%s to execute %s.%s(%s:%d)",
                         measuredElapsed, callerStack.getClassName(), callerStack.getMethodName(), callerStack.getFileName(), callerStack.getLineNumber());

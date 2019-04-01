@@ -58,17 +58,19 @@ public interface ILogger {
         List<StackTraceElement> stacks = null;
         switch (level) {
             case verbose:
-                stacks = getStackTrace(2, ex);
+                stacks = getStackTrace(8, ex);
                 break;
             case debug:
-                stacks = getStackTrace(3, ex);
+                stacks = getStackTrace(5, ex);
                 break;
             case info:
                 stacks = getStackTrace(5, ex);
                 break;
             case warning:
+                stacks = getStackTrace(-3, ex);
+                break;
             case error:
-                stacks = getStackTrace(8, ex);
+                stacks = getStackTrace(-8, ex);
                 break;
             default:
                 break;
@@ -172,8 +174,15 @@ public interface ILogger {
     //endregion
 
     //region Retrieve only concerned stack for logging purposes
-    static List<StackTraceElement> getStackTrace(int stackCount, Exception ex){
-        if (stackCount == 0)
+
+    /**
+     * Retrieve relevant stack trace elements.
+     * @param maxCount    Its abs() specify up to how many stack frames to be displayed, prefer high level if it is less than 0.
+     * @param ex    Exception if available to get the captured stack trace.
+     * @return      List of stack trace elements
+     */
+    static List<StackTraceElement> getStackTrace(int maxCount, Exception ex){
+        if (maxCount == 0)
             return  null;
 
         StackTraceElement[] stacks = ex==null ? Thread.currentThread().getStackTrace() : ex.getStackTrace();
@@ -193,8 +202,10 @@ public interface ILogger {
             }
         }
 
-        if(last-first > stackCount){
-            first = last-stackCount < 0 ? 0 : last-stackCount;
+        if(maxCount > 0 && last-first > maxCount){
+            last = first+maxCount;
+        } else if(maxCount<0 && first-last < maxCount){
+            first = last+maxCount < 0 ? 0 : last+maxCount;
         }
         List<StackTraceElement> concerned = Arrays.stream(stacks)
                 .skip(first).limit(last-first).collect(Collectors.toList());
