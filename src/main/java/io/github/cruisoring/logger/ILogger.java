@@ -168,8 +168,7 @@ public interface ILogger {
 
     static final Set<String> loggerClasses = new HashSet<String>(Arrays.asList(Logger.class.getName(), ILogger.class.getName()));
 
-    static final String SunReflect = "sun.reflect";
-    static final String[] systemClassNames = new String[] { SunReflect };
+    static final String[] systemClassNames = new String[] { "sun.reflect", "java.lang" };
 
     //endregion
 
@@ -190,7 +189,7 @@ public interface ILogger {
         for(int i=0; i<stacks.length; i++){
             String className = stacks[i].getClassName();
             if (first==-1){
-                if (!loggerClasses.contains(className)){
+                if (!loggerClasses.contains(className) && !StringHelper.containsAny(className, systemClassNames)){
                     first = i;
                 }else{
                     continue;
