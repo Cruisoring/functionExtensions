@@ -60,13 +60,13 @@ public interface ILogger {
         List<StackTraceElement> stacks = null;
         switch (level) {
             case verbose:
-                stacks = getStackTrace(8, ex);
+                stacks = getStackTrace(30, ex);
                 break;
             case debug:
-                stacks = getStackTrace(5, ex);
+                stacks = getStackTrace(15, ex);
                 break;
             case info:
-                stacks = getStackTrace(5, ex);
+                stacks = getStackTrace(10, ex);
                 break;
             case warning:
                 stacks = getStackTrace(-3, ex);
