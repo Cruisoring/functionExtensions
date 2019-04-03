@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Array;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
 import java.util.function.Consumer;
@@ -1306,4 +1307,13 @@ public class TypeHelperTest {
         assertTrue(Objects.deepEquals(convertedCharacters, characters));
 
     }
+
+    @Test
+    public void asString() {
+        LocalDate date = LocalDate.of(2019, 1, 31);
+        assertEquals("2019-01-31", TypeHelper.asString(date));
+        assertEquals("1-31, 19", TypeHelper.asString(date, "M-D, yy"));
+    }
+
+
 }

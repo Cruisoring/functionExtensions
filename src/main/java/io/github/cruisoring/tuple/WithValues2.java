@@ -6,7 +6,7 @@ public interface WithValues2<T,U> extends WithValues {
      * @return  value of the persisted element of type <code>T</code>
      */
     default T getFirst() {
-        return (T)getValueAt(0);
+        return (T) getValue(0);
     }
 
     /**
@@ -14,7 +14,7 @@ public interface WithValues2<T,U> extends WithValues {
      * @return  value of the second element of type <code>U</code>
      */
     default U getSecond() {
-        return (U)getValueAt(1);
+        return (U) getValue(1);
     }
 
 }

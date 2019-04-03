@@ -22,6 +22,6 @@ public interface TupleValues6<TKey, T,U,V,W,X,Y> extends TupleValues5<TKey, T,U,
         Tuple tuple = retrieve(key);
         if(tuple == null)
             return null;
-        return (Y) tuple.getValueAt(5);
+        return (Y) tuple.getValue(5);
     }
 }

@@ -13,7 +13,7 @@ import java.util.function.Predicate;
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
  * would close any elements if they are also AutoCloseable.
  */
-public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>, WithValues {
+public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>, WithValues<T> {
 
     public static final Tuple0 UNIT = new Tuple0();
     public static final Tuple1 TRUE = new Tuple1(true);
@@ -21,9 +21,10 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
 
     protected final Class<? extends T> _elementType;
     protected final T[] values;
-    protected Integer _hashCode;
     protected int[][] deepLength;
     protected String _toString;
+    protected Integer _hashCode;
+    protected Set<Integer> _signatures;
 
     /**
      * Protected constructor to keep the elements as a final array.
@@ -62,19 +63,12 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
         }
     }
 
-    @Override
-    public Object getValueAt(int index) {
-        if(index < 0 || index >= values.length)
-            return null;
-        return values[index];
-    }
-
     /**
      * Get new Array of values to prevent changes on the underlying array.
      * @return copied Array of the persistent values
      */
     public T[] asArray(){
-        return Arrays.copyOf((T[]) values, values.length);
+        return Arrays.copyOf(values, values.length);
     }
 
     /**
@@ -83,10 +77,10 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
      * @return          Element at that index
      * @throws IndexOutOfBoundsException    When invalid index is provided
      */
-    public T get(int index) throws IndexOutOfBoundsException{
+    public T getValue(int index) throws IndexOutOfBoundsException{
         if(index < 0 || index >= getLength())
             throw new IndexOutOfBoundsException();
-        return (T) values[index];
+        return values[index];
     }
 
 
@@ -185,6 +179,22 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
     }
 
     @Override
+    public Set<Integer> getSignatures(){
+        if(_signatures == null ){
+            Set<Integer> hashCodes = new HashSet<>();
+            hashCodes.add(hashCode());
+            int len = values.length;
+            for (int i = 0; i < len; i++) {
+                T element = values[i];
+                hashCodes.add(element==null ? 0 : element.hashCode());
+            }
+            _signatures = Collections.unmodifiableSet(hashCodes);
+        }
+        return _signatures;
+    }
+
+
+    @Override
     public boolean equals(Object obj) {
         if(obj==null || !(obj instanceof Tuple)){
             return false;
@@ -193,6 +203,7 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
         }
 
         Tuple other = (Tuple)obj;
+        //Notice: tuples with different signatures could still be equal
         if(!other.canEqual(this) || other.getLength() != values.length){
             return false;
         }

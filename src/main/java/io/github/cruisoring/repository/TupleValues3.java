@@ -20,6 +20,6 @@ public interface TupleValues3<TKey, T,U,V> extends TupleValues2<TKey, T,U> {
         Tuple tuple = retrieve(key);
         if(tuple == null)
             return null;
-        return (V) tuple.getValueAt(2);
+        return (V) tuple.getValue(2);
     }
 }

@@ -1,5 +1,6 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.function.SupplierThrowable;
 import io.github.cruisoring.utility.StringHelper;
@@ -8,7 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.IllegalFormatException;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -28,29 +32,29 @@ public class Logger implements ILogger {
     public static DateTimeFormatter DefaultTimeStampFormatter = DateTimeFormatter.ISO_TIME;
 
     public static String[] DefaultSuccessKeywords = new String[]{"success", "passed", "pass"};
-    public static String[] DefaultFailedKeywords = new String[]{"failed", "fail", "error", "exception", "wrong", "mistake", "problem"};
+    public static String[] DefaultFailedKeywords = new String[]{"fail", "error", "exception", "wrong", "mistake", "problem"};
 
     //region Measure performance of any method calls as either SupplierThrowable or RunnableThrowable with the Default Logger.
     /**
      * Use Logger.Default to measure time used to get value from the given SupplierThrowable.
      * @return The value returned by the supplier or default value of type <tt>R</tt>.
      */
-    public static <R> R M(SupplierThrowable<R> supplier){
+    public static <R> R M(SupplierThrowable<R> supplier, Object... formatAndArgs){
         if(Default == null)
             return null;
 
-        return Default.measure(DefaultMeasureLogLevel, supplier);
+        return Default.measure(DefaultMeasureLogLevel, supplier, formatAndArgs);
     }
 
     /**
      * Use Logger.Default to measure time used to get value from the given RunnableThrowable.
      * @return The Logger.Default to be used fluently.
      */
-    public static ILogger M(RunnableThrowable runable){
+    public static ILogger M(RunnableThrowable runable, Object... formatAndArgs){
         if(Default == null)
             return null;
 
-        return Default.measure(DefaultMeasureLogLevel, runable);
+        return Default.measure(DefaultMeasureLogLevel, runable, formatAndArgs);
     }
     //endregion
 
@@ -241,29 +245,20 @@ public class Logger implements ILogger {
         return label + message;
     }
 
-    public <R> R measure(LogLevel level, SupplierThrowable<R> supplier){
+    public <R> R measure(LogLevel level, SupplierThrowable<R> supplier, Object... formatAndArgs){
         final long startMills = System.currentTimeMillis();
         Exception e=null;
         try {
             return supplier.get();
         }catch (Exception ex){
             e = ex;
-//            return (R) TypeHelper.getDefaultValue(TypeHelper.getReturnType(supplier));
             return null;
         }finally {
-            if(canLog(level)) {
-                measuredElapsed = Duration.ofMillis(System.currentTimeMillis() - startMills);
-                if (NeglectExceptionWhenMeasure && e != null) {
-                    log(level, e);
-                }
-                StackTraceElement callerStack = ILogger.getStackTrace(1, e).get(0);
-                log(level, "%s to execute %s.%s(%s:%d)",
-                        measuredElapsed, callerStack.getClassName(), callerStack.getMethodName(), callerStack.getFileName(), callerStack.getLineNumber());
-            }
+            _measure(level, e, startMills, formatAndArgs);
         }
     }
 
-    public ILogger measure(LogLevel level, RunnableThrowable runable){
+    public ILogger measure(LogLevel level, RunnableThrowable runable, Object... formatAndArgs){
         final long startMills = System.currentTimeMillis();
         Exception e=null;
         try {
@@ -271,20 +266,43 @@ public class Logger implements ILogger {
         }catch (Exception ex){
             e = ex;
         }finally {
-            if(canLog(level)) {
-                measuredElapsed = Duration.ofMillis(System.currentTimeMillis() - startMills);
-                if (NeglectExceptionWhenMeasure && e != null) {
-                    log(level, e);
-                }
-                StackTraceElement callerStack = ILogger.getStackTrace(1, e).get(0);
-
-                log(level, "%s to execute %s.%s(%s:%d)",
-                        measuredElapsed, callerStack.getClassName(), callerStack.getMethodName(), callerStack.getFileName(), callerStack.getLineNumber());
-            }
+            _measure(level, e, startMills, formatAndArgs);
             return this;
         }
     }
 
+    void _measure(LogLevel level, Exception e, long startMills, Object... formatAndArgs){
+        if(!canLog(level)) {
+            return;
+        }
+
+        measuredElapsed = Duration.ofMillis(System.currentTimeMillis() - startMills);
+        if (NeglectExceptionWhenMeasure && e != null) {
+            log(level, e);
+        }
+        final String label;
+        if(formatAndArgs==null || formatAndArgs.length==0) {
+            StackTraceElement stack = ILogger.getStackTrace(1, e).get(0);
+            label = tryFormatString("%s.%s(%s:%d)",
+                    stack.getClassName(), stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
+        } else {
+            if(formatAndArgs[0] instanceof String){
+                String format = (String) formatAndArgs[0];
+                int len = formatAndArgs.length;
+                if(len==1){
+                    label = format;
+                } else {
+                    label = tryFormatString(format, TypeHelper.copyOfRange(formatAndArgs, 1, formatAndArgs.length));
+                }
+            } else {
+                label = Arrays.stream(formatAndArgs)
+                        .map(o -> o==null? "null":o.toString())
+                        .collect(Collectors.joining(", "));
+            }
+        }
+        log(level, "%s to " + (e==null?"pass":"fail") + " %s",
+                measuredElapsed, label);
+    }
 
     public static class ConsoleLogger extends Logger {
         //region Console color controls
@@ -375,6 +393,11 @@ public class Logger implements ILogger {
                 case error:
                     message = RED_BACKGROUND+BLACK_BOLD+label+RESET;
                     break;
+            }
+
+            if(args!=null && args.length==0){
+                message = message + format;
+                return message;
             }
 
             String highlighted = highlightArgs(format);

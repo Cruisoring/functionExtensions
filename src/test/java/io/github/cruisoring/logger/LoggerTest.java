@@ -1,12 +1,14 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.TypeHelper;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class LoggerTest {
 
-    int a(){ throw new IllegalStateException();}
+    int a(){ throw new IllegalStateException("for test");}
     boolean b(int i){ return i > a();}
     void c(){ b(3);}
     int testD(){ c(); return 0; }
@@ -35,6 +37,25 @@ public class LoggerTest {
             Thread.sleep(100);
             testE();
         });
+    }
+
+    @Test
+    public void testMeasureSupplier_WithLabel() {
+        Integer integer = Logger.M(()-> {
+            Thread.sleep(100);
+            return testD();
+        }, "testD()");
+    }
+
+    @Test
+    public void testMeasureRunnable_WithLabel() {
+        Logger.M(()-> {
+            Thread.sleep(100);
+            testE();
+        }, "testE() on %s", TypeHelper.asString(LocalDate.now()));
+
+        Logger.M(() -> Thread.sleep(1),
+                "testNothing on %s for %d", TypeHelper.asString(LocalDate.now()), 3);
     }
 
     @Test

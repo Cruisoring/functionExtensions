@@ -7,7 +7,7 @@ public interface WithValues5<T,U,V,W,X> extends WithValues {
      * @return  value of the persisted element of type <code>T</code>
      */
     default T getFirst() {
-        return (T)getValueAt(0);
+        return (T) getValue(0);
     }
 
     /**
@@ -15,7 +15,7 @@ public interface WithValues5<T,U,V,W,X> extends WithValues {
      * @return  value of the second element of type <code>U</code>
      */
     default U getSecond() {
-        return (U)getValueAt(1);
+        return (U) getValue(1);
     }
 
     /**
@@ -23,7 +23,7 @@ public interface WithValues5<T,U,V,W,X> extends WithValues {
      * @return  value of the third element of type <code>V</code>
      */
     default V getThird() {
-        return (V)getValueAt(2);
+        return (V) getValue(2);
     }
 
     /**
@@ -31,7 +31,7 @@ public interface WithValues5<T,U,V,W,X> extends WithValues {
      * @return  value of the fourth element of type <code>W</code>
      */
     default W getFourth() {
-        return (W)getValueAt(3);
+        return (W) getValue(3);
     }
 
     /**
@@ -39,7 +39,7 @@ public interface WithValues5<T,U,V,W,X> extends WithValues {
      * @return  value of the fifth element of type <code>X</code>
      */
     default X getFifth() {
-        return (X)getValueAt(4);
+        return (X) getValue(4);
     }
 
 }

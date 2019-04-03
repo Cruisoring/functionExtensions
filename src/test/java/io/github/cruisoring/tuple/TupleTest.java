@@ -154,12 +154,12 @@ public class TupleTest {
         Tuple<Date> nullSet = Tuple.setOf(date);
         assertEquals(Date.class, nullSet._elementType);
         assertEquals(1, nullSet.getLength());
-        assertEquals(null, nullSet.get(0));
+        assertEquals(null, nullSet.getValue(0));
 
         Integer aInteger = null;
         Tuple<Integer> iSet = (Tuple<Integer>) Tuple.setOf(aInteger);
         assertEquals(1, iSet.getLength());
-        assertEquals(null, iSet.get(0));
+        assertEquals(null, iSet.getValue(0));
 
         Tuple<Integer> integerSet = Tuple.setOf(1, 2, 3);
         assertTrue(Arrays.deepEquals(new Integer[]{1,2,3}, integerSet.asArray()));
@@ -191,7 +191,7 @@ public class TupleTest {
         assertEquals(_1, singleString);
         String v = singleString.getFirst();
         assertEquals("First", v);
-        assertEquals(tuple0, tupleSet.get(0));
+        assertEquals(tuple0, tupleSet.getValue(0));
 
         assertEquals(1, set1.getLength());
     }
@@ -222,8 +222,8 @@ public class TupleTest {
         assertEquals(1, tuple3.getSetOf(Integer.class).getLength());
         assertEquals(1, tuple3.getSetOf(double.class).getLength());
         assertEquals(1, tuple3.getSetOf(String.class).getLength());
-        assertEquals(Integer.valueOf(3), tuple3.getSetOf(Integer.class).get(0));
-        assertEquals("Third", tuple3.getSetOf(String.class).get(0));
+        assertEquals(Integer.valueOf(3), tuple3.getSetOf(Integer.class).getValue(0));
+        assertEquals("Third", tuple3.getSetOf(String.class).getValue(0));
     }
 
     @Test
@@ -285,8 +285,8 @@ public class TupleTest {
 
         assertEquals(4, stringSet.getLength());
         assertEquals(Tuple.class, stringSet.getClass());
-        assertEquals(stringSet.get(0), "");
-        assertEquals(stringSet.get(1), null);
+        assertEquals(stringSet.getValue(0), "");
+        assertEquals(stringSet.getValue(1), null);
         assertTrue(TypeHelper.valueEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray()));
         Tuple tupleSet2 = Tuple.setOf(Tuple.create(), Tuple.create("First"));
         assertEquals(tupleSet, tupleSet2);
@@ -302,7 +302,7 @@ public class TupleTest {
         ints = null;
         integerSet = Tuple.setOf(ints);
         assertEquals(1, integerSet.getLength());
-        assertEquals(null, integerSet.get(0));
+        assertEquals(null, integerSet.getValue(0));
     }
 
     @Test
@@ -576,41 +576,49 @@ public class TupleTest {
         assertEquals(0, tuple20.getTwentieth()[0].length);
     }
 
+    Object[] raw = new Object[]{
+            1, 'a', "String", 3.0d, 2.1f,
+            (byte)33, Integer.valueOf(7), null, new char[]{'x'}, new Character[]{'y'},
+            DayOfWeek.FRIDAY, new A(3), new Object[0][], new AutoA(), new AutoB(),
+            new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1,2,3}, null},
+            new Short[]{1,2,3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]},
+            "The 21th", 22
+    };
     TuplePlus<Integer, Character, String, Double, Float, Byte, Integer, Boolean, char[], Character[]
-            , DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> TuplePlus =
+            , DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> tuplePlus =
             Tuple.create(1, 'a', "String", 3.0d, 2.1f,
-                    (byte)33, Integer.valueOf(7), null, new char[]{'x'}, new Character[]{'y'},
-                    DayOfWeek.FRIDAY, new A(3), new Object[0][], new AutoA(), new AutoB(),
-                    new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1,2,3}, null},
-                    new Short[]{1,2,3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]},
+                    (byte)33, Integer.valueOf(7), null, (char[])raw[8], (Character[])raw[9],
+                    DayOfWeek.FRIDAY, (A)raw[11], (Object[][])raw[12], (AutoA)raw[13], (AutoB)raw[14],
+                    (double[][])raw[15], (Byte[][])raw[16],
+                    (Short[])raw[17], (Comparable[])raw[18], (int[][])raw[19],
                     "The 21th", 22
             );
     @Test
     public void testTuplePlus_ofAllAccessors_retrieveElementAsExpected(){
 
-        assertEquals(22, TuplePlus.getLength());
-        assertEquals(Integer.valueOf(1), TuplePlus.getFirst());
-        assertEquals(Character.valueOf('a'), TuplePlus.getSecond());
-        assertEquals("String", TuplePlus.getThird());
-        assertEquals(Double.valueOf(3.0), TuplePlus.getFourth());
-        assertEquals(Float.valueOf(2.1f), TuplePlus.getFifth());
-        assertEquals(Byte.valueOf((byte)33), TuplePlus.getSixth());
-        assertEquals(Integer.valueOf(7), TuplePlus.getSeventh());
-        assertEquals(null, TuplePlus.getEighth());
-        assertTrue(TypeHelper.valueEquals(new char[]{'x'}, TuplePlus.getNineth()));
-        assertEquals(DayOfWeek.FRIDAY, TuplePlus.getEleventh());
-        assertEquals(A.class, TuplePlus.getTwelfth().getClass());
-        assertEquals(0, TuplePlus.getThirteenth().length);
-        assertEquals(AutoA.class, TuplePlus.getFourteenth().getClass());
-        assertEquals(AutoB.class, TuplePlus.getFifteenth().getClass());
-        assertTrue(TypeHelper.valueEquals(new double[]{2.2}, TuplePlus.getSixteenth()[1]));
-        assertEquals(null, TuplePlus.getSeventeenth()[1]);
-        assertEquals(Short.valueOf("3"), TuplePlus.getEighteenth()[2]);
-        assertTrue(TypeHelper.valueEquals(new Object[]{1, 'a'}, TuplePlus.getNineteenth()));
-        assertEquals(0, TuplePlus.getTwentieth()[0].length);
+        assertEquals(22, tuplePlus.getLength());
+        assertEquals(Integer.valueOf(1), tuplePlus.getFirst());
+        assertEquals(Character.valueOf('a'), tuplePlus.getSecond());
+        assertEquals("String", tuplePlus.getThird());
+        assertEquals(Double.valueOf(3.0), tuplePlus.getFourth());
+        assertEquals(Float.valueOf(2.1f), tuplePlus.getFifth());
+        assertEquals(Byte.valueOf((byte)33), tuplePlus.getSixth());
+        assertEquals(Integer.valueOf(7), tuplePlus.getSeventh());
+        assertEquals(null, tuplePlus.getEighth());
+        assertTrue(TypeHelper.valueEquals(new char[]{'x'}, tuplePlus.getNineth()));
+        assertEquals(DayOfWeek.FRIDAY, tuplePlus.getEleventh());
+        assertEquals(A.class, tuplePlus.getTwelfth().getClass());
+        assertEquals(0, tuplePlus.getThirteenth().length);
+        assertEquals(AutoA.class, tuplePlus.getFourteenth().getClass());
+        assertEquals(AutoB.class, tuplePlus.getFifteenth().getClass());
+        assertTrue(TypeHelper.valueEquals(new double[]{2.2}, tuplePlus.getSixteenth()[1]));
+        assertEquals(null, tuplePlus.getSeventeenth()[1]);
+        assertEquals(Short.valueOf("3"), tuplePlus.getEighteenth()[2]);
+        assertTrue(TypeHelper.valueEquals(new Object[]{1, 'a'}, tuplePlus.getNineteenth()));
+        assertEquals(0, tuplePlus.getTwentieth()[0].length);
 
-        assertEquals("The 21th", TuplePlus.getValueAt(20));
-        assertEquals(22, TuplePlus.getValueAt(21));
+        assertEquals("The 21th", tuplePlus.getValue(20));
+        assertEquals(22, tuplePlus.getValue(21));
     }
 
     @Test
@@ -647,18 +655,18 @@ public class TupleTest {
         assertTrue(TypeHelper.valueEquals(new Object[]{1, 'a'}, tupleOf.getNineteenth()));
         assertEquals(0, tupleOf.getTwentieth()[0].length);
 
-        assertEquals("The 21th", tupleOf.getValueAt(20));
-        assertEquals(22, tupleOf.getValueAt(21));
+        assertEquals("The 21th", tupleOf.getValue(20));
+        assertEquals(22, tupleOf.getValue(21));
 
-        assertNotEquals(tupleOf, TuplePlus);
+        assertNotEquals(tupleOf, tuplePlus);
 
-        Tuple tuple2 = Tuple.of(TuplePlus.getFirst(), TuplePlus.getSecond(), TuplePlus.getThird(), TuplePlus.getFourth(), TuplePlus.getFifth()
-            , TuplePlus.getSixth(), TuplePlus.getSeventh(), TuplePlus.getEighth(), TuplePlus.getNineth(), TuplePlus.getTenth()
-            , TuplePlus.getEleventh(), TuplePlus.getTwelfth(), TuplePlus.getThirteenth(), TuplePlus.getFourteenth(), TuplePlus.getFifteenth()
-                , TuplePlus.getSixteenth(), TuplePlus.getSeventeenth(), TuplePlus.getEighteenth(), TuplePlus.getNineteenth(), TuplePlus.getTwentieth()
-                , TuplePlus.getValueAt(20), TuplePlus.getValueAt(21)
+        Tuple tuple2 = Tuple.of(tuplePlus.getFirst(), tuplePlus.getSecond(), tuplePlus.getThird(), tuplePlus.getFourth(), tuplePlus.getFifth()
+            , tuplePlus.getSixth(), tuplePlus.getSeventh(), tuplePlus.getEighth(), tuplePlus.getNineth(), tuplePlus.getTenth()
+            , tuplePlus.getEleventh(), tuplePlus.getTwelfth(), tuplePlus.getThirteenth(), tuplePlus.getFourteenth(), tuplePlus.getFifteenth()
+                , tuplePlus.getSixteenth(), tuplePlus.getSeventeenth(), tuplePlus.getEighteenth(), tuplePlus.getNineteenth(), tuplePlus.getTwentieth()
+                , tuplePlus.getValue(20), tuplePlus.getValue(21)
                 );
-        assertEquals(tuple2, TuplePlus);
+        assertEquals(tuple2, tuplePlus);
     }
 
     @Test
@@ -666,6 +674,52 @@ public class TupleTest {
         Tuple<Number> numbers = Tuple.setOf(1, 2.3f, 3.07, 44, null);
         Number[] array = numbers.asArray();
         assertEquals(Number[].class, array.getClass());
+    }
+
+    @Test
+    public void getSignatures(){
+        assertEquals(TypeHelper.deepHashCode(tuplePlus.values), tuplePlus.hashCode());
+
+        List<Integer> expectedSignatures = Arrays.asList(
+                1,
+                Objects.hashCode('a'),
+                "String".hashCode(),
+                Objects.hashCode(3.0d),
+                Objects.hashCode(2.1f),
+                Objects.hashCode((byte)33),
+                Integer.valueOf(7).hashCode(),
+                0,
+                raw[8].hashCode(),
+                raw[9].hashCode(),
+                raw[10].hashCode(),
+                raw[11].hashCode(),
+                raw[12].hashCode(),
+                raw[13].hashCode(),
+                raw[14].hashCode(),
+                raw[15].hashCode(),
+                raw[16].hashCode(),
+                raw[17].hashCode(),
+                raw[18].hashCode(),
+                raw[19].hashCode(),
+                "The 21th".hashCode(),
+                22,
+                TypeHelper.deepHashCode(tuplePlus.values)
+        );
+
+        Set<Integer> actualSignatures = tuplePlus.getSignatures();
+        assertTrue(expectedSignatures.size()==actualSignatures.size() && expectedSignatures.containsAll(actualSignatures));
+//        for (int i = 0; i < expectedSignatures.size(); i++) {
+//            if(!actualSignatures.contains(expectedSignatures.get(i))){
+//                Logger.D("%d at index of %d is not contained", expectedSignatures.get(i), i);
+//            }
+//        }
+//
+//        Set<Integer> actualDif = new HashSet(actualSignatures);
+//        actualDif.removeAll(expectedSignatures);
+//        Set<Integer> expectedDif = new HashSet(expectedSignatures);
+//        expectedDif.removeAll(actualSignatures);
+//
+//        assertTrue(actualDif.size() == 0 && expectedDif.size() ==0);
     }
 
 }

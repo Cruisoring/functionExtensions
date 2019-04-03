@@ -7,7 +7,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the persisted element of type <code>T</code>
      */
     default T getFirst() {
-        return (T)getValueAt(0);
+        return (T) getValue(0);
     }
 
     /**
@@ -15,7 +15,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the second element of type <code>U</code>
      */
     default U getSecond() {
-        return (U)getValueAt(1);
+        return (U) getValue(1);
     }
 
     /**
@@ -23,7 +23,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the third element of type <code>V</code>
      */
     default V getThird() {
-        return (V)getValueAt(2);
+        return (V) getValue(2);
     }
 
     /**
@@ -31,7 +31,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the fourth element of type <code>W</code>
      */
     default W getFourth() {
-        return (W)getValueAt(3);
+        return (W) getValue(3);
     }
 
     /**
@@ -39,7 +39,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the fifth element of type <code>X</code>
      */
     default X getFifth() {
-        return (X)getValueAt(4);
+        return (X) getValue(4);
     }
 
     /**
@@ -47,7 +47,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the sixth element of type <code>Y</code>
      */
     default Y getSixth() {
-        return (Y)getValueAt(5);
+        return (Y) getValue(5);
     }
 
     /**
@@ -55,7 +55,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the seventh element of type <code>Z</code>
      */
     default Z getSeventh() {
-        return (Z)getValueAt(6);
+        return (Z) getValue(6);
     }
 
     /**
@@ -63,7 +63,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the eighth element of type <code>A</code>
      */
     default A getEighth() {
-        return (A)getValueAt(7);
+        return (A) getValue(7);
     }
 
     /**
@@ -71,7 +71,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the nineth element of type <code>B</code>
      */
     default B getNineth() {
-        return (B)getValueAt(8);
+        return (B) getValue(8);
     }
 
     /**
@@ -79,7 +79,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 10th element of type <code>C</code>
      */
     default C getTenth() {
-        return (C)getValueAt(9);
+        return (C) getValue(9);
     }
 
     /**
@@ -87,7 +87,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 11th element of type <code>D</code>
      */
     default D getEleventh() {
-        return (D)getValueAt(10);
+        return (D) getValue(10);
     }
 
     /**
@@ -95,7 +95,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 12th element of type <code>E</code>
      */
     default E getTwelfth() {
-        return (E)getValueAt(11);
+        return (E) getValue(11);
     }
 
     /**
@@ -103,7 +103,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 13th element of type <code>F</code>
      */
     default F getThirteenth() {
-        return (F)getValueAt(12);
+        return (F) getValue(12);
     }
 
     /**
@@ -111,7 +111,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 14th element of type <code>G</code>
      */
     default G getFourteenth() {
-        return (G)getValueAt(13);
+        return (G) getValue(13);
     }
 
     /**
@@ -119,7 +119,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 15th element of type <code>H</code>
      */
     default H getFifteenth() {
-        return (H)getValueAt(14);
+        return (H) getValue(14);
     }
 
     /**
@@ -127,7 +127,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 16th element of type <code>I</code>
      */
     default I getSixteenth() {
-        return (I)getValueAt(15);
+        return (I) getValue(15);
     }
 
     /**
@@ -135,7 +135,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 17th element of type <code>J</code>
      */
     default J getSeventeenth() {
-        return (J)getValueAt(16);
+        return (J) getValue(16);
     }
 
     /**
@@ -143,7 +143,7 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 18th element of type <code>K</code>
      */
     default K getEighteenth() {
-        return (K)getValueAt(17);
+        return (K) getValue(17);
     }
 
     /**
@@ -151,6 +151,6 @@ public interface WithValues19<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L> extends Wit
      * @return  value of the 19th element of type <code>D</code>
      */
     default L getNineteenth() {
-        return (L)getValueAt(18);
+        return (L) getValue(18);
     }
 }

@@ -23,6 +23,6 @@ public interface TupleValues7<TKey, T,U,V,W,X,Y,Z> extends TupleValues6<TKey, T,
         Tuple tuple = retrieve(key);
         if(tuple == null)
             return null;
-        return (Z) tuple.getValueAt(6);
+        return (Z) tuple.getValue(6);
     }
 }

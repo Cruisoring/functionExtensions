@@ -28,18 +28,20 @@ public interface ILogger {
      * Mesure the performance of given SupplierThrowable and log its elapse at given LogLevel.
      * @param level     LogLevel to log the measure message.
      * @param supplier  SupplierThrowable that shall return value of type <tt>R</tt>, can be lambda of any method returning a value.
+     * @param formatAndArgs Optional format and args to compose the label for this measurement.
      * @param <R>       Type of the returned value by the given lambda.
      * @return          Value returned by the SupplierThrowable or default value of type <tt>R</tt> when it failed.
      */
-    <R> R measure(LogLevel level, SupplierThrowable<R> supplier);
+    <R> R measure(LogLevel level, SupplierThrowable<R> supplier, Object... formatAndArgs);
 
     /**
      * Mesure the performance of given RunnableThrowable and log its elapse at given LogLevel.
      * @param level     LogLevel to log the measure message.
      * @param runable   RunnableThrowable that return nothing.
+     * @param formatAndArgs Optional format and args to compose the label for this measurement.
      * @return          The ILogger instance that can be used fluently.
      */
-    ILogger measure(LogLevel level, RunnableThrowable runable);
+    ILogger measure(LogLevel level, RunnableThrowable runable, Object... formatAndArgs);
 
     /**
      * Define if the message of the specific LogLevel shall be recorded.
@@ -96,6 +98,9 @@ public interface ILogger {
      */
     default String tryFormatString(String format, Object... args) {
         Objects.requireNonNull(format);
+        if(args.length==1 && args[0] instanceof Object[]){
+            args = (Object[]) args[0];
+        }
         try {
             String formatted = String.format(format, args);
             formatted = formatted.replaceAll(PercentageAscii, "%");

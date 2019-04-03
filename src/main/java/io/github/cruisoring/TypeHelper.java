@@ -1,6 +1,7 @@
 package io.github.cruisoring;
 
 import io.github.cruisoring.function.*;
+import io.github.cruisoring.repository.Repository;
 import io.github.cruisoring.repository.TupleRepository3;
 import io.github.cruisoring.repository.TupleRepository6;
 import io.github.cruisoring.tuple.Tuple;
@@ -13,6 +14,10 @@ import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -21,6 +26,9 @@ import java.util.stream.IntStream;
 
 public class TypeHelper {
     public final static Class OBJECT_CLASS = Object.class;
+
+    public static String DefaultDateFormat = "yyyy-MM-dd";
+    public static String DefaultDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * Strategy to compare two variables when both of them are nulls.
@@ -731,14 +739,6 @@ public class TypeHelper {
                         , arraySet
                         , (array, from, to) -> Arrays.copyOfRange((Float[])array, from, to)
                         , array -> Arrays.toString((Float[])array)));
-//                classPredicate = clazz -> !clazz.isPrimitive();
-//                put(Object.class, Tuple.create(
-//                        classPredicate
-//                        , i -> new Object[i]
-//                        , Object[].class
-//                        , arraySet
-//                        , (array, from, to) -> Arrays.copyOfRange((Object[])array, from, to)
-//                        , array -> Arrays.toString((Object[])array)));
             }},
             null,
             TypeHelper::makeClassOperators
@@ -1511,4 +1511,41 @@ public class TypeHelper {
         return arrayToString.apply(obj);
     }
 
+    static Repository<String, DateTimeFormatter> dateFormatRepository = new Repository<>(
+            (String format) -> DateTimeFormatter.ofPattern(format));
+
+    /**
+     * Convert the given LocalDate instance to selected format.
+     * @param localDate     LocalDate instance to be formatted.
+     * @param formats       Optional Format String as array, use DefaultDateFormat if not provided.
+     * @return      Formatted String of the given LocalDate.
+     */
+    public static String asString(LocalDate localDate, String... formats){
+        String format = (formats == null || formats.length==0) ? DefaultDateFormat : formats[0];
+        DateTimeFormatter formatter = dateFormatRepository.get(format, null);
+        return formatter == null ? null : formatter.format(localDate);
+    }
+
+    /**
+     * Convert the given Date instance to selected format.
+     * @param date          Date instance to be formatted.
+     * @param formats       Optional Format String as array, use DefaultDateFormat if not provided.
+     * @return      Formatted String of the given Date.
+     */
+    public static String asString(Date date, String... formats){
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return asString(localDate, formats);
+    }
+
+    /**
+     * Convert the given LocalDateTime instance to selected format.
+     * @param localDateTime     LocalDateTime instance to be formatted.
+     * @param formats       Optional Format String as array, use DefaultDateFormat if not provided.
+     * @return      Formatted String of the given LocalDateTime.
+     */
+    public static String asString(LocalDateTime localDateTime, String... formats){
+        String format = (formats == null || formats.length==0) ? DefaultDateFormat : formats[0];
+        DateTimeFormatter formatter = dateFormatRepository.get(format, null);
+        return formatter == null ? null : formatter.format(localDateTime);
+    }
 }

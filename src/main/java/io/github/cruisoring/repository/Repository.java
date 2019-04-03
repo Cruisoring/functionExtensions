@@ -37,7 +37,7 @@ public class Repository<TKey, TValue>
         storage = map;
         Objects.requireNonNull(valueFunction);
         this.valueFunctionThrowable = valueFunction;
-        this.changesConsumer = changesConsumer != null ? changesConsumer : (USE_DEFAULT_CHNAGES_LOG ? this::defualtChangesLog : null);
+        this.changesConsumer = changesConsumer != null ? changesConsumer : (USE_DEFAULT_CHNAGES_LOG ? this::defaultChangesLog : null);
     }
 
     /**
@@ -48,7 +48,7 @@ public class Repository<TKey, TValue>
         this(new HashMap(), null, valueFunction);
     }
 
-    private void defualtChangesLog(TKey key, TValue oldValue, TValue newValue){
+    private void defaultChangesLog(TKey key, TValue oldValue, TValue newValue){
         Class keyClass = key.getClass();
         Object value = oldValue == null ? newValue : oldValue;
         Class valueClass = value == null ? null : value.getClass();

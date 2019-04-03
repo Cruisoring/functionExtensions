@@ -6,7 +6,7 @@ public interface WithValues1<T> extends WithValues {
      * @return  value of the persisted element of type <code>T</code>
      */
     default T getFirst() {
-        return (T)getValueAt(0);
+        return (T) getValue(0);
     }
 
 }

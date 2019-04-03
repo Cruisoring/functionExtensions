@@ -19,6 +19,6 @@ public interface TupleValues1<TKey, T> extends TupleValues<TKey> {
         Tuple tuple = retrieve(key);
         if(tuple == null)
             return null;
-        return (T) tuple.getValueAt(0);
+        return (T) tuple.getValue(0);
     }
 }

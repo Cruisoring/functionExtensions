@@ -21,6 +21,6 @@ public interface TupleValues4<TKey, T,U,V,W> extends TupleValues3<TKey, T,U,V> {
         Tuple tuple = retrieve(key);
         if(tuple == null)
             return null;
-        return (W) tuple.getValueAt(3);
+        return (W) tuple.getValue(3);
     }
 }
