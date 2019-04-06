@@ -14,6 +14,16 @@ public interface RunnableThrowable {
      */
     void run() throws Exception;
 
+
+    /**
+     * Execute <code>run()</code> and ignore any Exceptions thrown.
+     */
+    default void tryRun(){
+        try {
+            run();
+        }catch (Exception e){ }
+    }
+
     /**
      * Convert the RunnableThrowable to Runnable
      * @param exceptionHandler  Exception Handler of the caught Exceptions that retuns default value of type R.

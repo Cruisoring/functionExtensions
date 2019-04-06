@@ -21,6 +21,19 @@ public interface TriConsumerThrowable<T,U,V> {
     void accept(T t, U u, V v) throws Exception;
 
     /**
+     * Execute <code>accept(t)</code> and ignore any Exceptions thrown.
+     * @param t     The first argument of type <code>T</code>.
+     * @param u     The second argument of type <code>U</code>.
+     * @param v     The third argument of type <code>V</code>.
+     */
+    default void tryAccept(T t, U u, V v){
+        try {
+            accept(t, u, v);
+        }catch (Exception e){ }
+    }
+
+
+    /**
      * Convert the TriConsumerThrowable&lt;T,U,V&gt; to TriConsumer&lt;T,U,V&gt; with injected Exception Handler
      * @param exceptionHandler  Exception Handler of the caught Exceptions
      * @return  Converted TriConsumer&lt;T,U,V&gt; that get Exceptions handled with the exceptionHandler

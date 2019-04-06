@@ -16,6 +16,15 @@ public interface ConsumerThrowable<T> {
      */
     void accept(T t) throws Exception;
 
+    /**
+     * Execute <code>accept()</code> and ignore any Exceptions thrown.
+     * @param t     Argument needed by <code>accept(t)</code>
+     */
+    default void tryAccept(T t){
+        try {
+            accept(t);
+        }catch (Exception e){ }
+    }
 
     /**
      * Convert the ConsumerThrowable&lt;T&gt; to Consumer&lt;T&gt; with injected Exception Handler

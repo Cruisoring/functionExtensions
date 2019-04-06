@@ -1,10 +1,15 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.AutoCloseableObject;
+import io.github.cruisoring.Lazy;
 import io.github.cruisoring.TypeHelper;
 import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class LoggerTest {
 
@@ -13,6 +18,59 @@ public class LoggerTest {
     void c(){ b(3);}
     int testD(){ c(); return 0; }
     void testE(){ testD();}
+
+    @Test
+    public void testCompareLogLevel(){
+        assertTrue(LogLevel.none.compareTo(LogLevel.error) > 0 && LogLevel.none.compareTo(LogLevel.verbose)>0);
+        assertTrue(LogLevel.verbose.compareTo(LogLevel.none)<0 && LogLevel.error.compareTo(LogLevel.none)<0);
+
+        assertTrue(LogLevel.verbose.compareTo(LogLevel.verbose)==0 && LogLevel.verbose.compareTo(LogLevel.debug)<0);
+        assertTrue(LogLevel.error.compareTo(LogLevel.error)>= 0 && LogLevel.error.compareTo(LogLevel.verbose)>=0);
+    }
+
+    @Test
+    public void testCanLog(){
+        LogLevel defaultLevel = Logger.getGlobalLogLevel();
+        try {
+            ILogger defaultLogger = Logger.Default;
+
+            Logger.setGlobalLevel(LogLevel.none);
+            assertFalse(Logger.Default.canLog(defaultLogger.getMinLevel()));
+            assertFalse(Logger.Default.canLog(LogLevel.error));
+
+            Logger.setGlobalLevel(LogLevel.verbose);
+            Logger.V("The minLevel of Logger.Default is %s", defaultLogger.getMinLevel());
+            assertTrue(Logger.Default.canLog(defaultLogger.getMinLevel()));
+            assertTrue(Logger.Default.canLog(LogLevel.error));
+
+            Logger newLogger = new Logger(System.err::println, LogLevel.warning);
+            assertTrue(newLogger.canLog(LogLevel.warning) && newLogger.canLog(LogLevel.error));
+            assertFalse(newLogger.canLog(LogLevel.verbose) || newLogger.canLog(LogLevel.debug) || newLogger.canLog(LogLevel.info));
+
+            Logger.setGlobalLevel(LogLevel.none);
+            assertFalse(newLogger.canLog(LogLevel.verbose) || newLogger.canLog(LogLevel.debug) || newLogger.canLog(LogLevel.info)
+                    || newLogger.canLog(LogLevel.warning) || newLogger.canLog(LogLevel.error));
+
+        }finally {
+            Logger.setGlobalLevel(defaultLevel);
+        }
+    }
+
+
+    @Test
+    public void testSetGlobalLogLeveInScope(){
+        Logger.W("This is a warning you shall see.");
+
+        try(AutoCloseableObject closeable = Logger.setLevelInScope(LogLevel.none)){
+            Logger.V("But you shall not be able to see this verbose log");
+            Logger.E("You shall not be able to see this error log");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Logger.W("Now you shall see this message logged.");
+    }
+
 
     @Test
     public void testMeasureSupplier() {

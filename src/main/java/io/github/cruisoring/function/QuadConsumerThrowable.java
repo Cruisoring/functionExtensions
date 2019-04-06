@@ -23,6 +23,19 @@ public interface QuadConsumerThrowable<T,U,V,W> {
     void accept(T t, U u, V v, W w) throws Exception;
 
     /**
+     * Execute <code>accept()</code> and ignore any Exceptions thrown.
+     * @param t     The first argument of type <code>T</code>.
+     * @param u     The second argument of type <code>U</code>.
+     * @param v     The third argument of type <code>V</code>.
+     * @param w     The fourth argument of type <code>W</code>.
+     */
+    default void tryAccept(T t, U u, V v, W w){
+        try {
+            accept(t, u, v, w);
+        }catch (Exception e){ }
+    }
+
+    /**
      * Convert the QuadConsumerThrowable&lt;T,U,V,W&gt; to QuadConsumer&lt;T,U,V,W&gt; with injected Exception Handler
      * @param exceptionHandler  Exception Handler of the caught Exceptions
      * @return  Converted QuadConsumer&lt;T,U,V,W&gt; that get Exceptions handled with the exceptionHandler

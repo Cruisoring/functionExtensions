@@ -25,6 +25,20 @@ public interface PentaConsumerThrowable<T,U,V,W,X> {
     void accept(T t, U u, V v, W w, X x) throws Exception;
 
     /**
+     * Execute <code>accept()</code> and ignore any Exceptions thrown.
+     * @param t     The first argument of type <code>T</code>.
+     * @param u     The second argument of type <code>U</code>.
+     * @param v     The third argument of type <code>V</code>.
+     * @param w     The fourth argument of type <code>W</code>.
+     * @param x     The fifth argument of type <code>X</code>.
+     */
+    default void tryAccept(T t, U u, V v, W w, X x){
+        try {
+            accept(t, u, v, w, x);
+        }catch (Exception e){ }
+    }
+
+    /**
      * Convert the PentaConsumerThrowable&lt;T,U,V,W,X&gt; to PentaConsumer&lt;T,U,V,W,X&gt; with injected Exception Handler
      * @param exceptionHandler  Exception Handler of the caught Exceptions
      * @return  Converted PentaConsumer&lt;T,U,V,W,X&gt; that get Exceptions handled with the exceptionHandler

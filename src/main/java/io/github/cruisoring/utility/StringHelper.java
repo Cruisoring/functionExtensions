@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class StringHelper {
+    public final static String PercentageAscii = "&#37";
 
     /**
      * Try to convert the String to specific Enum type, returns the converted Enum value if success or the first Enum value if conversion failed
@@ -170,6 +171,27 @@ public class StringHelper {
 
     public static Boolean containsAnyIgnoreCase(String context, Object... keys) {
         return containsAnyIgnoreCase(context, defaultToStringForms, keys);
+    }
+
+    /**
+     * Try to call String.format() and refrain potential IllegalFormatException
+     * @param format    template to compose a string with given arguments
+     * @param args      arguments to be applied to the above template
+     * @return          string formatted with the given or exceptional template.
+     */
+    public static String tryFormatString(String format, Object... args) {
+        Objects.requireNonNull(format);
+        if(args.length==1 && args[0] instanceof Object[]){
+            args = (Object[]) args[0];
+        }
+        try {
+            String formatted = String.format(format, args);
+            formatted = formatted.replaceAll(PercentageAscii, "%");
+            return formatted;
+        } catch (Exception e) {
+            String[] argStrings = Arrays.stream(args).map(arg -> arg.toString()).toArray(size -> new String[size]);
+            return String.format("MalFormated format: '%s'\nargs: '%s'", format, String.join(", ", argStrings));
+        }
     }
 
 

@@ -21,6 +21,18 @@ public interface BiConsumerThrowable<T, U> {
     void accept(T t, U u) throws Exception;
 
     /**
+     * Execute <code>accept()</code> and ignore any Exceptions thrown.
+     * @param t     The first argument of type <code>T</code>.
+     * @param u     The second argument of type <code>U</code>.
+     */
+    default void tryAccept(T t, U u){
+        try {
+            accept(t, u);
+        }catch (Exception e){ }
+    }
+
+
+    /**
      * Convert the BiConsumerThrowable&lt;T,U&gt; to BiConsumer&lt;T,U&gt; with injected Exception Handler
      * @param exceptionHandler  Exception Handler of the caught Exceptions
      * @return  Converted BiConsumer&lt;T,U&gt; that get Exceptions handled with the exceptionHandler

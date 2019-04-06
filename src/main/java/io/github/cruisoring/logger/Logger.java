@@ -1,16 +1,16 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.AutoCloseableObject;
+import io.github.cruisoring.Lazy;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.function.SupplierThrowable;
 import io.github.cruisoring.utility.StringHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.IllegalFormatException;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -19,10 +19,107 @@ import java.util.stream.Collectors;
 public class Logger implements ILogger {
 
     /**
+     * Global LogLevel to be used as both default LogLevel when new a Logger instance, and also a global switch to turn off any logging when set to <code>LogLevel.none</code>
+     */
+    static LogLevel GlobalLogLevel = LogLevel.debug;
+
+    /**
      * Default Logger to be used to log messages with static methods.
      */
-    public static Logger Default = new ConsoleLogger(System.out::println);
-    
+    public static ILogger Default;
+
+    // Use static constructor to ensure Default is created after GlobalLogLevel is initialised.
+    static {
+        //TODO: load GlobalLogLevel and Default from config
+        Default = new ConsoleLogger(System.out::println, GlobalLogLevel);
+    }
+
+    /**
+     * Get the LogLevel of GlobalLogLevel.
+     * @return  The LogLevel held by GlobalLogLevel.
+     */
+    public static LogLevel getGlobalLogLevel(){
+        return GlobalLogLevel;
+    }
+
+    /**
+     * Get the Logger.Default instance.
+     * @return  The instance of Logger held by <code>Default</code>
+     */
+    public static ILogger getDefault(){
+        return Default;
+    }
+
+    /**
+     * Set the <code>Logger.Default</code> to a new <code>Logger</code>.
+     * @param newLogger New <code>Logger</code> to be used globally when calling static methods of <code>Logger</code> class. If it is null, then no logging would happen.
+     * @return      The existing <code>Logger</code> instance.
+     */
+    public static ILogger setDefault(Logger newLogger){
+        final ILogger oldLogger = Default;
+
+        if(oldLogger != newLogger){
+            Default = newLogger;
+        }
+        return oldLogger;
+    }
+
+    /**
+     * Set the <code>Logger.Default</code> to a new <code>Logger</code> and return an <code>AutoCloseableObject</code> which
+     * would restore <code>Logger.Default</code> to the existing Logger, so calling static methods of Logger would use the new instance
+     * until the returned <code>AutoCloseableObject</code> is closed to restore the old one.
+     * @param newLogger  New <code>Logger</code> instance to be set to <code>Logger.Default</code>. If it is <code>null</code>,
+     *                      then no logging would happen before the returned <code>AutoCloseableObject</code> is closed.
+     * @return the AutoCloseableObject<Logger> containing the existing Logger held by <code>Logger.Default</code>.
+     *      Once the AutoCloseableObject<Logger> is closed, the <code>Logger.Default</code> would be replaced back to the existing one.
+     */
+    public static AutoCloseableObject<ILogger> useInScope(ILogger newLogger) {
+        final ILogger oldLogger = Default;
+        if(newLogger == Default){
+            //Nothing would change, return simply Lazy<> returning newLogLevel directly
+            return new AutoCloseableObject<ILogger>(newLogger, AutoCloseableObject.DoNothing);
+        }
+        Default = newLogger;
+        return new AutoCloseableObject<>(oldLogger, t -> Default = oldLogger);
+    }
+
+
+    /**
+     * Set the GlobalLogLevel to a new <code>LogLevel</code>.
+     * @param newLogLevel   New LogLevel to be set to <code>GlobalLogLevel</code>. If it is <code>LogLevel.none</code>, then no logging methods would be performed.
+     * @return      The existing LogLevel held by <code>GlobalLogLevel</code>.
+     */
+    public static LogLevel setGlobalLevel(LogLevel newLogLevel){
+        if(newLogLevel == null){
+            //GlobalLevel cannot be set to null
+            return GlobalLogLevel;
+        }
+
+        final LogLevel oldLevel = GlobalLogLevel;
+        if(oldLevel != newLogLevel) {
+            GlobalLogLevel = newLogLevel;
+        }
+        return oldLevel;
+    }
+
+    /**
+     * Set the GlobalLogLevel to a new value and wrap the restore action as an <code>AutoCloseableObject</code> which
+     * would restore <code>GlobalLogLevel</code> to its state before calling this method when closing.
+     * @param newLogLevel   New LogLevel to be set to <code>GlobalLogLevel</code>. If it is <code>LogLevel.none</code>,
+     *                      then no logging methods would be performed before the returned <code>AutoCloseableObject</code> is closed.
+     * @return the AutoCloseableObject<LogLevel> containing the existing LogLevel held by <code>GlobalLogLevel</code>.
+     *      Once the AutoCloseableObject<LogLevel> is closed, the <code>GlobalLogLevel</code> would be restored to its old value.
+     */
+    public static AutoCloseableObject<LogLevel> setLevelInScope(LogLevel newLogLevel) {
+        if(newLogLevel == GlobalLogLevel || newLogLevel == null){
+            //Nothing would change, return simply Lazy<> returning newLogLevel directly
+            return new AutoCloseableObject<LogLevel>(GlobalLogLevel, AutoCloseableObject.DoNothing);
+        }
+        final LogLevel oldLevel = GlobalLogLevel;
+        GlobalLogLevel = newLogLevel;
+        return new AutoCloseableObject<>(oldLevel, t -> GlobalLogLevel = oldLevel);
+    }
+
     public static LogLevel DefaultMeasureLogLevel = LogLevel.info;
 
 //    public static EnumSet<LogLevel> DefaultConcernedLevel = EnumSet.allOf(LogLevel.class);
@@ -189,12 +286,32 @@ public class Logger implements ILogger {
 
 
     final Consumer<String> recorder;
-    final EnumSet<LogLevel> concernedLevels;
+    final LogLevel minLevel;
     Duration measuredElapsed=null;
 
-    public Logger(Consumer<String> recorder, EnumSet<LogLevel> concernedLevels) {
+    /**
+     * Compose a Logger with the default value defined by GlobalLogLevel.
+     * @param recorder  the means of keeping a String as a log.
+     */
+    public Logger(Consumer<String> recorder){
+        this(recorder, GlobalLogLevel);
+    }
+
+    /**
+     * Compose a Logger with its means of keeping logs and minimum <code>LogLevel</code> acceptable for logging.
+     * @param recorder  the means of keeping a String as a log.
+     * @param minLevel  the minimum <code>LogLevel</code> could be logged by this Logger.
+     */
+    public Logger(Consumer<String> recorder, LogLevel minLevel) {
         this.recorder = recorder;
-        this.concernedLevels = concernedLevels == null ? EnumSet.allOf(LogLevel.class) : concernedLevels;
+        Objects.requireNonNull(minLevel);
+
+        this.minLevel = minLevel;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Logger of %s or obove.", minLevel);
     }
 
     public Duration getMeasuredElapsed(){
@@ -210,15 +327,15 @@ public class Logger implements ILogger {
     }
 
     @Override
-    public void record(String message) {
+    public void save(String message) {
         if(recorder != null){
             recorder.accept(message);
         }
     }
 
     @Override
-    public boolean canLog(LogLevel level) {
-        return concernedLevels.contains(level);
+    public LogLevel getMinLevel() {
+        return minLevel;
     }
 
     /**
@@ -229,6 +346,12 @@ public class Logger implements ILogger {
     protected String highlightArgs(String format){
         return format;
     }
+
+    @Override
+    public boolean canLog(LogLevel level){
+        return GlobalLogLevel != LogLevel.none && level.compareTo(minLevel) >= 0;
+    }
+
 
     @Override
     public String getMessage(LogLevel level, String format, Object... args) {
@@ -283,7 +406,7 @@ public class Logger implements ILogger {
         final String label;
         if(formatAndArgs==null || formatAndArgs.length==0) {
             StackTraceElement stack = ILogger.getStackTrace(1, e).get(0);
-            label = tryFormatString("%s.%s(%s:%d)",
+            label = StringHelper.tryFormatString("%s.%s(%s:%d)",
                     stack.getClassName(), stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
         } else {
             if(formatAndArgs[0] instanceof String){
@@ -292,7 +415,7 @@ public class Logger implements ILogger {
                 if(len==1){
                     label = format;
                 } else {
-                    label = tryFormatString(format, TypeHelper.copyOfRange(formatAndArgs, 1, formatAndArgs.length));
+                    label = StringHelper.tryFormatString(format, TypeHelper.copyOfRange(formatAndArgs, 1, formatAndArgs.length));
                 }
             } else {
                 label = Arrays.stream(formatAndArgs)
@@ -302,123 +425,5 @@ public class Logger implements ILogger {
         }
         log(level, "%s to " + (e==null?"pass":"fail") + " %s",
                 measuredElapsed, label);
-    }
-
-    public static class ConsoleLogger extends Logger {
-        //region Console color controls
-        // Reset
-        public static final String RESET = "\033[0m";  // Text Reset
-
-        // Regular Colors
-        public static final String BLACK = "\033[0;30m";   // BLACK
-        public static final String RED = "\033[0;31m";     // RED
-        public static final String GREEN = "\033[0;32m";   // GREEN
-        public static final String YELLOW = "\033[0;33m";  // YELLOW
-        public static final String BLUE = "\033[0;34m";    // BLUE
-        public static final String PURPLE = "\033[0;35m";  // PURPLE
-        public static final String CYAN = "\033[0;36m";    // CYAN
-        public static final String WHITE = "\033[0;37m";   // WHITE
-
-        // Bold
-        public static final String BLACK_BOLD = "\033[1;30m";  // BLACK
-        public static final String RED_BOLD = "\033[1;31m";    // RED
-        public static final String GREEN_BOLD = "\033[1;32m";  // GREEN
-        public static final String YELLOW_BOLD = "\033[1;33m"; // YELLOW
-        public static final String BLUE_BOLD = "\033[1;34m";   // BLUE
-        public static final String PURPLE_BOLD = "\033[1;35m"; // PURPLE
-        public static final String CYAN_BOLD = "\033[1;36m";   // CYAN
-        public static final String WHITE_BOLD = "\033[1;37m";  // WHITE
-
-        // Underline
-        public static final String BLACK_UNDERLINED = "\033[4;30m";  // BLACK
-        public static final String RED_UNDERLINED = "\033[4;31m";    // RED
-        public static final String GREEN_UNDERLINED = "\033[4;32m";  // GREEN
-        public static final String YELLOW_UNDERLINED = "\033[4;33m"; // YELLOW
-        public static final String BLUE_UNDERLINED = "\033[4;34m";   // BLUE
-        public static final String PURPLE_UNDERLINED = "\033[4;35m"; // PURPLE
-        public static final String CYAN_UNDERLINED = "\033[4;36m";   // CYAN
-        public static final String WHITE_UNDERLINED = "\033[4;37m";  // WHITE
-
-        // Background
-        public static final String BLACK_BACKGROUND = "\033[40m";  // BLACK
-        public static final String DARK_GRAY_BACKGROUND = "\033[100m";  // BLACK
-        public static final String RED_BACKGROUND = "\033[101m";    // RED
-        public static final String GREEN_BACKGROUND = "\033[102m";  // GREEN
-        public static final String YELLOW_BACKGROUND = "\033[103m"; // YELLOW
-        public static final String BLUE_BACKGROUND = "\033[104m";   // BLUE
-        public static final String PURPLE_BACKGROUND = "\033[105m"; // PURPLE
-        public static final String CYAN_BACKGROUND = "\033[106m";   // CYAN
-        public static final String WHITE_BACKGROUND = "\033[107m";  // WHITE
-        //endregion
-
-        public ConsoleLogger(Consumer<String> recorder, EnumSet<LogLevel> concernedLevels) {
-            super(recorder, concernedLevels);
-        }
-
-        public ConsoleLogger(Consumer<String> recorder) {
-            this(recorder, null);
-        }
-
-        @Override
-        protected String highlightArgs(String format) {
-            String highlighted;
-            if(isSuccess(format)){
-                highlighted = format.replaceAll("%(\\d*$)?(\\d*)?\\S", GREEN_BOLD + "$0" + RESET);
-            } else if(isFailed(format)){
-                highlighted = format.replaceAll("%(\\d*$)?(\\d*)?\\S", RED_BOLD + "$0" + RESET);
-            } else {
-                highlighted = format.replaceAll("%(\\d*$)?(\\d*)?\\S", BLUE_BOLD + "$0" + RESET);
-            }
-            return highlighted;
-        }
-
-        @Override
-        public String getMessage(LogLevel level, String format, Object... args) {
-            Objects.requireNonNull(format);
-            final String label = String.format("[%s%s]: ", level.label, DefaultTimeStampFormatter==null? "":"@"+LocalDateTime.now().format(DefaultTimeStampFormatter));
-            String message=null;
-            switch (level){
-                case verbose:
-                    message = WHITE_BACKGROUND+BLACK+label+RESET;
-                    break;
-                case debug:
-                    message = PURPLE_UNDERLINED+label+RESET;
-                    break;
-                case info:
-                    message = CYAN_BACKGROUND+BLACK+label+RESET;
-                    break;
-                case warning:
-                    message = YELLOW_BACKGROUND+PURPLE_UNDERLINED+label+RESET;
-                    break;
-                case error:
-                    message = RED_BACKGROUND+BLACK_BOLD+label+RESET;
-                    break;
-            }
-
-            if(args!=null && args.length==0){
-                message = message + format;
-                return message;
-            }
-
-            String highlighted = highlightArgs(format);
-            try {
-                message = message + String.format(highlighted, args);
-            }catch (Exception ex){
-                String argsString = Arrays.stream(args).map(a -> a==null?"null":a.toString()).collect(Collectors.joining(", "));
-                highlighted = highlightArgs(ex.getClass().getName() + ": wrong format='%s', args='%s'");
-                message = message + String.format(highlighted, format, argsString);
-            }
-            return message;
-        }
-
-        @Override
-        public ILogger log(LogLevel level, Exception ex) {
-            if(canLog(level)) {
-                String stackTrace = getCallStack(level, ex);
-                log(level, String.format("%s: %s%s", ex.getClass().getSimpleName(), ex.getMessage(),
-                        StringUtils.isBlank(stackTrace)?"":"\n"+stackTrace));
-            }
-            return this;
-        }
     }
 }
