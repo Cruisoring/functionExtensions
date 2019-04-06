@@ -368,6 +368,7 @@ public class Logger implements ILogger {
         return label + message;
     }
 
+    @Override
     public <R> R measure(LogLevel level, SupplierThrowable<R> supplier, Object... formatAndArgs){
         final long startMills = System.currentTimeMillis();
         Exception e=null;
@@ -381,6 +382,9 @@ public class Logger implements ILogger {
         }
     }
 
+
+
+    @Override
     public ILogger measure(LogLevel level, RunnableThrowable runable, Object... formatAndArgs){
         final long startMills = System.currentTimeMillis();
         Exception e=null;

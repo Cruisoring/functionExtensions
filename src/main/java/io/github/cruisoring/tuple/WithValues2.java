@@ -1,14 +1,6 @@
 package io.github.cruisoring.tuple;
 
-public interface WithValues2<T,U> extends WithValues {
-    /**
-     * Get the first element of <code>T</code>
-     * @return  value of the persisted element of type <code>T</code>
-     */
-    default T getFirst() {
-        return (T) getValue(0);
-    }
-
+public interface WithValues2<T,U> extends WithValues1<T> {
     /**
      * Get the second element of <code>U</code>
      * @return  value of the second element of type <code>U</code>
