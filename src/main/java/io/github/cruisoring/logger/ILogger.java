@@ -136,7 +136,9 @@ public interface ILogger {
 
     /**
      * For each LogLevel, retrieve meaningful stack trace of specific number of stack frames.
-     * @return Stack trace of the call stack with specific number of stack frames.
+     * @param level <code>LogLevel</code> to be evaluated
+     * @param ex    Exception if thrown that contains stackTrace.
+     * @return  Stack trace of the call stack with specific number of stack frames.
      */
     default String getCallStack(LogLevel level, Exception ex){
         int maxCount = getStackTraceCount(level);

@@ -71,10 +71,10 @@ public class Logger implements ILogger {
      * Set the <code>Logger.Default</code> to a new <code>Logger</code> and return an <code>AutoCloseableObject</code> which
      * would restore <code>Logger.Default</code> to the existing Logger, so calling static methods of Logger would use the new instance
      * until the returned <code>AutoCloseableObject</code> is closed to restore the old one.
-     * @param newLogger  New <code>Logger</code> instance to be set to <code>Logger.Default</code>. If it is <code>null</code>,
+     * @param newLogger  New <code>Logger</code> instance to be set to <code>Logger.Default</code>. If it is <code>`null</code>,
      *                      then no logging would happen before the returned <code>AutoCloseableObject</code> is closed.
-     * @return the AutoCloseableObject<Logger> containing the existing Logger held by <code>Logger.Default</code>.
-     *      Once the AutoCloseableObject<Logger> is closed, the <code>Logger.Default</code> would be replaced back to the existing one.
+     * @return the AutoCloseableObject&lt;Logger&gt; containing the existing Logger held by <code>Logger.Default</code>.
+     *      Once the AutoCloseableObject&lt;Logger&gt; is closed, the <code>Logger.Default</code> would be replaced back to the existing one.
      */
     public static AutoCloseableObject<ILogger> useInScope(ILogger newLogger) {
         final ILogger oldLogger = Default;
@@ -110,8 +110,8 @@ public class Logger implements ILogger {
      * would restore <code>GlobalLogLevel</code> to its state before calling this method when closing.
      * @param newLogLevel   New LogLevel to be set to <code>GlobalLogLevel</code>. If it is <code>LogLevel.none</code>,
      *                      then no logging methods would be performed before the returned <code>AutoCloseableObject</code> is closed.
-     * @return the AutoCloseableObject<LogLevel> containing the existing LogLevel held by <code>GlobalLogLevel</code>.
-     *      Once the AutoCloseableObject<LogLevel> is closed, the <code>GlobalLogLevel</code> would be restored to its old value.
+     * @return the AutoCloseableObject&lt;LogLevel&gt; containing the existing LogLevel held by <code>GlobalLogLevel</code>.
+     *      Once the AutoCloseableObject&lt;LogLevel&gt; is closed, the <code>GlobalLogLevel</code> would be restored to its old value.
      */
     public static AutoCloseableObject<LogLevel> setLevelInScope(LogLevel newLogLevel) {
         if(newLogLevel == GlobalLogLevel || newLogLevel == null){
