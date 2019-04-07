@@ -5,6 +5,9 @@ import io.github.cruisoring.Lazy;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.function.SupplierThrowable;
+import io.github.cruisoring.tuple.Tuple;
+import io.github.cruisoring.tuple.Tuple2;
+import io.github.cruisoring.utility.StackTraceHelper;
 import io.github.cruisoring.utility.StringHelper;
 
 import java.time.Duration;
@@ -131,27 +134,58 @@ public class Logger implements ILogger {
     public static String[] DefaultSuccessKeywords = new String[]{"success", "passed", "pass"};
     public static String[] DefaultFailedKeywords = new String[]{"fail", "error", "exception", "wrong", "mistake", "problem"};
 
-    //region Measure performance of any method calls as either SupplierThrowable or RunnableThrowable with the Default Logger.
-    /**
-     * Use Logger.Default to measure time used to get value from the given SupplierThrowable.
-     * @return The value returned by the supplier or default value of type <tt>R</tt>.
-     */
-    public static <R> R M(SupplierThrowable<R> supplier, Object... formatAndArgs){
-        if(Default == null)
-            return null;
+    //region Measure performance of any method
 
-        return Default.measure(DefaultMeasureLogLevel, supplier, formatAndArgs);
+    /**
+     * Use <code>Logger.Default</code> to measure the performance of getting the value with a time-consuming process,
+     * save into Measurement and log the elapse with proper <code>LogLevel</code>
+     * @param startMoment   the token object to keep the moment to start calculating the value of type <code>R</code>
+     * @param value         the value of type <code>R</code> returned by a time-consuming calculation which is the target to measure
+     * @param levels        the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
+     *                      is equal or above the <code>minLevel</code> of this Logger.
+     * @param <R>           the type of the value, usually returned by a time-consuming calculation
+     * @return              the value returned by the concerned time-consuming calculation
+     */
+    public static <R> R M(Measurement.Moment startMoment, R value, LogLevel... levels){
+        if(Default == null)
+            return value;
+
+        return Default.measure(startMoment, value, levels);
     }
 
     /**
-     * Use Logger.Default to measure time used to get value from the given RunnableThrowable.
-     * @return The Logger.Default to be used fluently.
+     * Use Logger.Default to measure time used to get value from the given SupplierThrowable, save into Measurement and log the
+     * elapse with proper <code>LogLevel</code>. Since it triggers the <code>supplier</code>, it gets the chance
+     * to capture and display Exception thrown by the <code>supplier</code>
+     * @param startMoment   the token object to keep the moment to start calculating the value of type <code>R</code>
+     * @param supplier  SupplierThrowable that shall return value of type <tt>R</tt>, can be lambda of any method returning a value.
+     * @param levels        the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
+     *                      is equal or above the <code>minLevel</code> of this Logger.
+     * @param <R>       Type of the returned value by the given lambda.
+     * @return          Value returned by the SupplierThrowable or default value of type <tt>R</tt> when it failed.
      */
-    public static ILogger M(RunnableThrowable runable, Object... formatAndArgs){
+    public static <R> R M(Measurement.Moment startMoment, SupplierThrowable<R> supplier, LogLevel... levels){
+        if(Default == null)
+            return supplier.orElse(null).get();
+
+        return Default.measure(startMoment, supplier, levels);
+    }
+
+    /**
+     * Use Logger.Default to measure time used to get value from the given RunnableThrowable, save into Measurement and log the
+     * elapse with proper <code>LogLevel</code>
+     * @param startMoment   the token object to keep the moment to start triggering the concerned time-consuming process
+     * @param runnable      RunnableThrowable representing how to trigger that time-consuming process
+     * @param levels        the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
+     *                      is equal or above the <code>minLevel</code> of this Logger.
+     * @return      the <code>Logger.Default</code> to be used fluently.
+     */
+
+    public static ILogger M(Measurement.Moment startMoment, RunnableThrowable runnable, LogLevel... levels){
         if(Default == null)
             return null;
 
-        return Default.measure(DefaultMeasureLogLevel, runable, formatAndArgs);
+        return Default.measure(startMoment, runnable, levels);
     }
     //endregion
 
@@ -352,6 +386,17 @@ public class Logger implements ILogger {
         return GlobalLogLevel != LogLevel.none && level.compareTo(minLevel) >= 0;
     }
 
+    @Override
+    public int getStackTraceCount(LogLevel level) {
+        switch (level) {
+            case verbose: return 30;
+            case debug: return 15;
+            case info: return 10;
+            case warning: return -5;
+            case error: return -8;
+            default: return 0;
+        }
+    }
 
     @Override
     public String getMessage(LogLevel level, String format, Object... args) {
@@ -366,68 +411,5 @@ public class Logger implements ILogger {
         }
 
         return label + message;
-    }
-
-    @Override
-    public <R> R measure(LogLevel level, SupplierThrowable<R> supplier, Object... formatAndArgs){
-        final long startMills = System.currentTimeMillis();
-        Exception e=null;
-        try {
-            return supplier.get();
-        }catch (Exception ex){
-            e = ex;
-            return null;
-        }finally {
-            _measure(level, e, startMills, formatAndArgs);
-        }
-    }
-
-
-
-    @Override
-    public ILogger measure(LogLevel level, RunnableThrowable runable, Object... formatAndArgs){
-        final long startMills = System.currentTimeMillis();
-        Exception e=null;
-        try {
-            runable.run();
-        }catch (Exception ex){
-            e = ex;
-        }finally {
-            _measure(level, e, startMills, formatAndArgs);
-            return this;
-        }
-    }
-
-    void _measure(LogLevel level, Exception e, long startMills, Object... formatAndArgs){
-        if(!canLog(level)) {
-            return;
-        }
-
-        measuredElapsed = Duration.ofMillis(System.currentTimeMillis() - startMills);
-        if (NeglectExceptionWhenMeasure && e != null) {
-            log(level, e);
-        }
-        final String label;
-        if(formatAndArgs==null || formatAndArgs.length==0) {
-            StackTraceElement stack = ILogger.getStackTrace(1, e).get(0);
-            label = StringHelper.tryFormatString("%s.%s(%s:%d)",
-                    stack.getClassName(), stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
-        } else {
-            if(formatAndArgs[0] instanceof String){
-                String format = (String) formatAndArgs[0];
-                int len = formatAndArgs.length;
-                if(len==1){
-                    label = format;
-                } else {
-                    label = StringHelper.tryFormatString(format, TypeHelper.copyOfRange(formatAndArgs, 1, formatAndArgs.length));
-                }
-            } else {
-                label = Arrays.stream(formatAndArgs)
-                        .map(o -> o==null? "null":o.toString())
-                        .collect(Collectors.joining(", "));
-            }
-        }
-        log(level, "%s to " + (e==null?"pass":"fail") + " %s",
-                measuredElapsed, label);
     }
 }

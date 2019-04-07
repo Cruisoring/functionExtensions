@@ -1,10 +1,15 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.function.SupplierThrowable;
+import io.github.cruisoring.tuple.Tuple;
+import io.github.cruisoring.tuple.Tuple2;
+import io.github.cruisoring.utility.StackTraceHelper;
 import io.github.cruisoring.utility.StringHelper;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -42,52 +47,103 @@ public interface ILogger {
      */
     String getMessage(LogLevel level, String format, Object... args);
 
+//    <R> R measure(Measurement.Moment startMoment, R value, LogLevel logLevel);
 
     /**
-     * Mesure the performance of given SupplierThrowable and log its elapse at given LogLevel.
-     * @param level     LogLevel to log the measure message.
+     * Measure the performance of getting the value with a time-consuming process, save into Measurement and log the
+     * elapse with proper <code>LogLevel</code>
+     * @param startMoment   the token object to keep the moment to start calculating the value of type <code>R</code>
+     * @param value         the value of type <code>R</code> returned by a time-consuming calculation which is the target to measure
+     * @param levels        the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
+     *                      is equal or above the <code>minLevel</code> of this Logger.
+     * @param <R>           the type of the value, usually returned by a time-consuming calculation
+     * @return              the value returned by the concerned time-consuming calculation
+     */
+    default  <R> R measure(Measurement.Moment startMoment, R value, LogLevel... levels){
+        final long elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+        Measurement.save(startMoment.label, Tuple.create(elapsedMills, startMoment.createdAt));
+        if(levels != null && levels.length>0 && levels[0] != LogLevel.none){
+            log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
+        }
+        return value;
+    }
+
+    /**
+     * Mesure the performance of given SupplierThrowable and log its elapse save into Measurement and log the
+     * elapse with proper <code>LogLevel</code>. Since it triggers the <code>supplier</code>, it gets the chance
+     * to capture and display Exception thrown by the <code>supplier</code>
+     * @param startMoment   the token object to keep the moment to start calculating the value of type <code>R</code>
      * @param supplier  SupplierThrowable that shall return value of type <tt>R</tt>, can be lambda of any method returning a value.
-     * @param formatAndArgs Optional format and args to compose the label for this measurement.
+     * @param levels        the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
+     *                      is equal or above the <code>minLevel</code> of this Logger.
      * @param <R>       Type of the returned value by the given lambda.
      * @return          Value returned by the SupplierThrowable or default value of type <tt>R</tt> when it failed.
      */
-    <R> R measure(LogLevel level, SupplierThrowable<R> supplier, Object... formatAndArgs);
+    default <R> R measure(Measurement.Moment startMoment, SupplierThrowable<R> supplier, LogLevel... levels){
+        Exception e=null;
+        long elapsedMills=0;
+        try {
+            R result = supplier.get();
+            elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+            Measurement.save(startMoment.label, Tuple.create(elapsedMills, startMoment.createdAt));
+            return result;
+        }catch (Exception ex){
+            elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+            e = ex;
+            return null;
+        }finally {
+            if(levels != null && levels.length>0 && levels[0] != LogLevel.none){
+                log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
+            }
+        }
+    }
 
     /**
-     * Mesure the performance of given RunnableThrowable and log its elapse at given LogLevel.
-     * @param level     LogLevel to log the measure message.
-     * @param runable   RunnableThrowable that return nothing.
-     * @param formatAndArgs Optional format and args to compose the label for this measurement.
-     * @return          The ILogger instance that can be used fluently.
+     * Measure the performance of running a time-consuming process that returns nothing, save into Measurement and log the
+     * elapse with proper <code>LogLevel</code>
+     * @param startMoment   the token object to keep the moment to start triggering the concerned time-consuming process
+     * @param runnable      RunnableThrowable representing how to trigger that time-consuming process
+     * @param levels        the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
+     *                      is equal or above the <code>minLevel</code> of this Logger.
+     * @return      this ILogger instance to be used fluently.
      */
-    ILogger measure(LogLevel level, RunnableThrowable runable, Object... formatAndArgs);
+    default ILogger measure(Measurement.Moment startMoment, RunnableThrowable runnable, LogLevel... levels){
+        Exception e=null;
+        long elapsedMills=0;
+        try {
+            runnable.run();
+            elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+            Measurement.save(startMoment.label, Tuple.create(elapsedMills, startMoment.createdAt));
+        }catch (Exception ex){
+            elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+            e = ex;
+        }finally {
+            if(levels != null && levels.length>0 && levels[0] != LogLevel.none){
+                log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
+            }
+            return this;
+        }
+    }
+
+    /**
+     * Get max number of meaningful StackTraceElements for the given <code>LogLevel</code> that are not Logger or JDK related.
+     * @param level     <code>LogLevel</code> to be evaluated.
+     * @return          Max number of LogLevel to be captured by the Logger, 0 means no StackTraceElement info would be saved.
+     */
+    default int getStackTraceCount(LogLevel level){
+        return 0;
+    }
 
     /**
      * For each LogLevel, retrieve meaningful stack trace of specific number of stack frames.
      * @return Stack trace of the call stack with specific number of stack frames.
      */
     default String getCallStack(LogLevel level, Exception ex){
-        List<StackTraceElement> stacks = null;
-        switch (level) {
-            case verbose:
-                stacks = getStackTrace(30, ex);
-                break;
-            case debug:
-                stacks = getStackTrace(15, ex);
-                break;
-            case info:
-                stacks = getStackTrace(10, ex);
-                break;
-            case warning:
-                stacks = getStackTrace(-3, ex);
-                break;
-            case error:
-                stacks = getStackTrace(-8, ex);
-                break;
-            default:
-                break;
+        int maxCount = getStackTraceCount(level);
+        if(maxCount == 0){
+            return "";
         }
-
+        List<StackTraceElement> stacks = StackTraceHelper.getStackTrace(maxCount, ex);
         if(stacks == null){
             return "";
         }
@@ -224,52 +280,6 @@ public interface ILogger {
     default ILogger error(Exception ex){
         return log(LogLevel.error, ex);
     }
-
-    //region Static variables and methods
-
-    //Logger related classes that are usually not displayed in the final logs
-    static final Set<String> loggerClasses = new HashSet<String>(Arrays.asList(Logger.class.getName(), ILogger.class.getName()));
-
-    //Java SDK related classes that are not displayed in the final logs
-    static final String[] systemClassNames = new String[] { "sun.reflect", "java.lang" };
-
-    /**
-     * Retrieve relevant stack trace elements.
-     * @param maxCount    Its abs() specify up to how many stack frames to be displayed, prefer high level if it is less than 0.
-     * @param ex    Exception if available to get the captured stack trace.
-     * @return      List of stack trace elements
-     */
-    static List<StackTraceElement> getStackTrace(int maxCount, Exception ex){
-        if (maxCount == 0)
-            return  null;
-
-        StackTraceElement[] stacks = ex==null ? Thread.currentThread().getStackTrace() : ex.getStackTrace();
-        int first=-1, last=-1;
-        for(int i=0; i<stacks.length; i++){
-            String className = stacks[i].getClassName();
-            if (first==-1){
-                if (!loggerClasses.contains(className) && !StringHelper.containsAny(className, systemClassNames)){
-                    first = i;
-                }else{
-                    continue;
-                }
-            }
-            last = i;
-            if(StringHelper.containsAny(className, systemClassNames)){
-                break;
-            }
-        }
-
-        if(maxCount > 0 && last-first > maxCount){
-            last = first+maxCount;
-        } else if(maxCount<0 && first-last < maxCount){
-            first = last+maxCount < 0 ? 0 : last+maxCount;
-        }
-        List<StackTraceElement> concerned = Arrays.stream(stacks)
-                .skip(first).limit(last-first).collect(Collectors.toList());
-        return concerned;
-    }
-    //endregion
 
 
 }

@@ -58,12 +58,17 @@ public class CompositeLogger implements ILogger {
     }
 
     @Override
-    public <R> R measure(LogLevel level, SupplierThrowable<R> supplier, Object... formatAndArgs) {
+    public <R> R measure(Measurement.Moment startMoment, R value, LogLevel... levels) {
         throw new InvalidStateException("Not supported");
     }
 
     @Override
-    public ILogger measure(LogLevel level, RunnableThrowable runable, Object... formatAndArgs) {
+    public <R> R measure(Measurement.Moment startMoment, SupplierThrowable<R> supplier, LogLevel... levels) {
+        throw new InvalidStateException("Not supported");
+    }
+
+    @Override
+    public ILogger measure(Measurement.Moment startMoment, RunnableThrowable runnable, LogLevel... levels) {
         throw new InvalidStateException("Not supported");
     }
 

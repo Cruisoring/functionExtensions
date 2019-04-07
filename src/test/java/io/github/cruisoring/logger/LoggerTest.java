@@ -3,10 +3,13 @@ package io.github.cruisoring.logger;
 import io.github.cruisoring.AutoCloseableObject;
 import io.github.cruisoring.Lazy;
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.tuple.Tuple7;
 import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Random;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -56,7 +59,6 @@ public class LoggerTest {
         }
     }
 
-
     @Test
     public void testSetGlobalLogLeveInScope(){
         Logger.W("This is a warning you shall see.");
@@ -71,49 +73,92 @@ public class LoggerTest {
         Logger.W("Now you shall see this message logged.");
     }
 
+    <T> T withDelay(T value, long mills){
+        justSleep(mills);
+        return value;
+    }
+
+    void justSleep(long mills){
+        try {
+            Thread.sleep(mills);
+        }catch (Exception e){
+        }
+    }
+
+    @Test
+    public void testMeasurement_withValueReturned(){
+        Logger logger = new ConsoleLogger(System.out::println, LogLevel.debug);
+
+        Random random = new Random();
+        for (int i = 0; i < 5; i++) {
+            int v = logger.measure(Measurement.start(), withDelay(99, random.nextInt(20)+90), LogLevel.info);
+            String s = logger.measure(Measurement.start("Get String"), withDelay("s", random.nextInt(20)+190), LogLevel.debug);
+        }
+
+        Map<String, Tuple7<String, Long, Long, Long, Long, Long, Double>> all = Measurement.getAllSummary();
+        for (String label : all.keySet()) {
+            Logger.I("%s: %s", label, all.get(label));
+        }
+    }
+
+    @Test
+    public void testMeasurement_withoutValueReturned(){
+        Logger logger = new ConsoleLogger(System.out::println, LogLevel.debug);
+
+        Random random = new Random();
+        for (int i = 0; i < 5; i++) {
+            logger.measure(Measurement.start(), ()-> justSleep(random.nextInt(20)+90), LogLevel.error);
+            logger.measure(Measurement.start("Sleep 200ms"), ()-> justSleep(random.nextInt(20)+190), LogLevel.debug);
+        }
+
+        Map<String, Tuple7<String, Long, Long, Long, Long, Long, Double>> all = Measurement.getAllSummary();
+        for (String label : all.keySet()) {
+            Logger.I("%s: %s", label, all.get(label));
+        }
+    }
 
     @Test
     public void testMeasureSupplier() {
-        Integer integer = Logger.M(()-> {
+        Integer integer = Logger.M(Measurement.start(), ()-> {
             Thread.sleep(100);
             return -1;
-        });
+        }, LogLevel.info);
 
-        integer = Logger.M(()-> {
+        integer = Logger.M(Measurement.start(), ()-> {
             Thread.sleep(100);
             return testD();
-        });
+        }, LogLevel.warning);
     }
 
     @Test
     public void testMeasureRunnable() {
-        Logger.M(()-> {
+        Logger.M(Measurement.start(), ()-> {
             Thread.sleep(100);
-        });
+        }, LogLevel.info);
 
-        Logger.M(()-> {
+        Logger.M(Measurement.start(), ()-> {
             Thread.sleep(100);
             testE();
-        });
+        }, LogLevel.debug);
     }
 
     @Test
     public void testMeasureSupplier_WithLabel() {
-        Integer integer = Logger.M(()-> {
+        Integer integer = Logger.M(Measurement.start("testD()"), ()-> {
             Thread.sleep(100);
             return testD();
-        }, "testD()");
+        }, LogLevel.info);
     }
 
     @Test
     public void testMeasureRunnable_WithLabel() {
-        Logger.M(()-> {
+        Logger.M(Measurement.start("testE() on %s"), ()-> {
             Thread.sleep(100);
             testE();
-        }, "testE() on %s", TypeHelper.asString(LocalDate.now()));
+        }, LogLevel.debug);
 
-        Logger.M(() -> Thread.sleep(1),
-                "testNothing on %s for %d", TypeHelper.asString(LocalDate.now()), 3);
+        Logger.M(Measurement.start("testNothing on %s for %d", TypeHelper.asString(LocalDate.now(), "dd-MM"), 3),
+                () -> Thread.sleep(1), LogLevel.info);
     }
 
     @Test
