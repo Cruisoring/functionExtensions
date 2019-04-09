@@ -9,7 +9,7 @@ public interface WithValues<T> {
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    T getValue(int index);
+    T getValue(int index) throws IndexOutOfBoundsException;
 
     /**
      * Returns the number of elements in this list.

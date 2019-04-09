@@ -12,4 +12,14 @@ public class Tuple2<T,U> extends Tuple
         super(t, u);
     }
 
+    /**
+     * Tuple with 3 elements of identical type.
+     * @param <T> type of the elements.
+     */
+    public static class Set<T> extends Tuple2<T, T>{
+
+        protected Set(final T t1, final T t2) {
+            super(t1, t2);
+        }
+    }
 }

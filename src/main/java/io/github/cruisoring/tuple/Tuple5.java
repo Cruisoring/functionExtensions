@@ -15,4 +15,14 @@ public class Tuple5<T,U,V,W,X> extends Tuple
         super(t, u, v, w, x);
     }
 
+    /**
+     * Tuple with 5 elements of identical type.
+     * @param <T> type of the elements.
+     */
+    public static class Set<T> extends Tuple5<T, T, T, T, T>{
+
+        protected Set(final T t1, final T t2, final T t3, final T t4, final T t5) {
+            super(t1, t2, t3, t4, t5);
+        }
+    }
 }

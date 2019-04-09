@@ -16,4 +16,14 @@ public class Tuple6<T,U,V,W,X,Y> extends Tuple implements
         super(t, u, v, w, x, y);
     }
 
+    /**
+     * Tuple with 6 elements of identical type.
+     * @param <T> type of the elements.
+     */
+    public static class Set<T> extends Tuple6<T, T, T, T, T, T>{
+
+        protected Set(final T t1, final T t2, final T t3, final T t4, final T t5, final T t6) {
+            super(t1, t2, t3, t4, t5, t6);
+        }
+    }
 }

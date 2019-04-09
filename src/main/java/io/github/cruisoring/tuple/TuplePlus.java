@@ -14,24 +14,23 @@ import io.github.cruisoring.utility.ArrayHelper;
  * @param <A> Type of the 8th persisted element
  * @param <B> Type of the 9th persisted element
  * @param <C> Type of the 10th persisted element
- * @param <D> Type of the 11th persisted element
- * @param <E> Type of the 12th persisted element
- * @param <F> Type of the 13th persisted element
- * @param <G> Type of the 14th persisted element
- * @param <H> Type of the 15th persisted element
- * @param <I> Type of the 16th persisted element
- * @param <J> Type of the 17th persisted element
- * @param <K> Type of the 18th persisted element
- * @param <L> Type of the 19th persisted element
- * @param <M> Type of the 20th persisted element
  */
-public class TuplePlus<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> extends Tuple
-        implements WithValues20<T,U,V,W,X,Y,Z,A,B,C,D,E,F,G,H,I,J,K,L,M> {
+public class TuplePlus<T,U,V,W,X,Y,Z,A,B,C> extends Tuple
+        implements WithValues10<T,U,V,W,X,Y,Z,A,B,C> {
 
-    protected TuplePlus(final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b,
-                        final C c, final D d, final E e, final F f, final G g, final H h, final I i, final J j, final K k,
-                        final L l, final M m, final Object... more){
-        super(ArrayHelper.mergeTypedArray(new Object[]{t,u,v,w,x,y,z,a,b,c,d,e,f,g,h,i,j,k,l,m}, more));
+    protected TuplePlus(final T t, final U u, final V v, final W w, final X x, final Y y, final Z z, final A a, final B b, final C c
+            , final Object... more){
+        super(ArrayHelper.mergeTypedArray(new Object[]{t,u,v,w,x,y,z,a,b,c}, more));
     }
 
+    /**
+     * Tuple with more than 10 elements of identical type.
+     * @param <T> type of the elements.
+     */
+    public static class Set<T> extends TuplePlus<T, T, T, T, T, T, T, T, T, T>{
+
+        protected Set(final T t1, final T t2, final T t3, final T t4, final T t5, final T t6, final T t7, final T t8, final T t9, final T t10, final T... more) {
+            super(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, more);
+        }
+    }
 }

@@ -20,4 +20,14 @@ public class Tuple10<T,U,V,W,X,Y,Z,A,B,C> extends Tuple
         super(t, u, v, w, x, y, z, a, b, c);
     }
 
+    /**
+     * Tuple with 10 elements of identical type.
+     * @param <T> type of the elements.
+     */
+    public static class Set<T> extends Tuple10<T, T, T, T, T, T, T, T, T, T>{
+
+        protected Set(final T t1, final T t2, final T t3, final T t4, final T t5, final T t6, final T t7, final T t8, final T t9, final T t10) {
+            super(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);
+        }
+    }
 }
