@@ -2,15 +2,12 @@ package io.github.cruisoring.logger;
 
 
 import io.github.cruisoring.utility.StringHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class ConsoleLogger extends Logger implements ILogWithColor {
     //region Console color controls
@@ -62,12 +59,12 @@ public class ConsoleLogger extends Logger implements ILogWithColor {
     public static final String DefaultSuccessPlaceholder = GREEN_BOLD + "$0" + RESET;
     public static final String DefaultNormalPlaceholder = BLUE_BOLD + "$0" + RESET;
 
-    public static final Map<LogLevel, String> levelColors = new HashMap<LogLevel, String>(){{
-        put(LogLevel.verbose, WHITE_BACKGROUND+BLACK);
+    public static final Map<LogLevel, String> levelColors = new HashMap<LogLevel, String>() {{
+        put(LogLevel.verbose, WHITE_BACKGROUND + BLACK);
         put(LogLevel.debug, PURPLE_UNDERLINED);
-        put(LogLevel.info, CYAN_BACKGROUND+BLACK);
-        put(LogLevel.warning, YELLOW_BACKGROUND+PURPLE_UNDERLINED);
-        put(LogLevel.error, RED_BACKGROUND+BLACK_BOLD);
+        put(LogLevel.info, CYAN_BACKGROUND + BLACK);
+        put(LogLevel.warning, YELLOW_BACKGROUND + PURPLE_UNDERLINED);
+        put(LogLevel.error, RED_BACKGROUND + BLACK_BOLD);
         put(LogLevel.none, "");
     }};
     //endregion
@@ -98,9 +95,9 @@ public class ConsoleLogger extends Logger implements ILogWithColor {
     @Override
     public String highlightArgs(String format) {
         String highlighted;
-        if(isSuccess(format)){
+        if (isSuccess(format)) {
             highlighted = format.replaceAll("%(\\d*$)?(\\d*)?\\S", GREEN_BOLD + "$0" + RESET);
-        } else if(isFailed(format)){
+        } else if (isFailed(format)) {
             highlighted = format.replaceAll("%(\\d*$)?(\\d*)?\\S", RED_BOLD + "$0" + RESET);
         } else {
             highlighted = format.replaceAll("%(\\d*$)?(\\d*)?\\S", BLUE_BOLD + "$0" + RESET);
@@ -116,10 +113,10 @@ public class ConsoleLogger extends Logger implements ILogWithColor {
     @Override
     public String getMessage(LogLevel level, String format, Object... args) {
         Objects.requireNonNull(format);
-        final String label = String.format("[%s%s]: ", level.label, DefaultTimeStampFormatter==null? "":"@"+ LocalDateTime.now().format(DefaultTimeStampFormatter));
-        String message=levelColors.get(level) + label + RESET;
+        final String label = String.format("[%s%s]: ", level.label, DefaultTimeStampFormatter == null ? "" : "@" + LocalDateTime.now().format(DefaultTimeStampFormatter));
+        String message = levelColors.get(level) + label + RESET;
 
-        if(args!=null && args.length==0){
+        if (args != null && args.length == 0) {
             message = message + format;
             return message;
         }

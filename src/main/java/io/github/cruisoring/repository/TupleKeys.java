@@ -1,6 +1,6 @@
 package io.github.cruisoring.repository;
 
-public interface TupleKeys <TKey> {
+public interface TupleKeys<TKey> {
 
     boolean containsKey(Object key);
 

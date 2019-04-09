@@ -1,16 +1,14 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.function.SupplierThrowable;
 import io.github.cruisoring.tuple.Tuple;
-import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.utility.StackTraceHelper;
 import io.github.cruisoring.utility.StringHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -21,29 +19,33 @@ public interface ILogger {
 
     /**
      * Specify how message would be persistent.
-     * @param message   message to be saved as a log item.
+     *
+     * @param message message to be saved as a log item.
      */
     void save(String message);
 
     /**
      * Get the minimum LogLevel to be logged by this ILogger.
-     * @return  the mininum LogLevel that would enable the ILogger to save messages.
+     *
+     * @return the mininum LogLevel that would enable the ILogger to save messages.
      */
     LogLevel getMinLevel();
 
     /**
      * Define if the message of the specific LogLevel shall be recorded.
-     * @param level     LogLevel of the concerned message.
-     * @return          <tt>true</tt> means the message can be recorded, otherwise <tt>false</tt>
+     *
+     * @param level LogLevel of the concerned message.
+     * @return <tt>true</tt> means the message can be recorded, otherwise <tt>false</tt>
      */
     boolean canLog(LogLevel level);
 
     /**
      * Get the message to be recorded as given LogLevel, with specific format and corresponding arguments.
-     * @param level         LogLevel of the message to be recorded as.
-     * @param format        A format String.
-     * @param args          Arguments referenced by the format specifiers in the format string.
-     * @return              A formatted string
+     *
+     * @param level  LogLevel of the message to be recorded as.
+     * @param format A format String.
+     * @param args   Arguments referenced by the format specifiers in the format string.
+     * @return A formatted string
      */
     String getMessage(LogLevel level, String format, Object... args);
 
@@ -52,17 +54,18 @@ public interface ILogger {
     /**
      * Measure the performance of getting the value with a time-consuming process, save into Measurement and log the
      * elapse with proper <code>LogLevel</code>
-     * @param startMoment   the token object to keep the moment to start calculating the value of type <code>R</code>
-     * @param value         the value of type <code>R</code> returned by a time-consuming calculation which is the target to measure
-     * @param levels        the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
-     *                      is equal or above the <code>minLevel</code> of this Logger.
-     * @param <R>           the type of the value, usually returned by a time-consuming calculation
-     * @return              the value returned by the concerned time-consuming calculation
+     *
+     * @param startMoment the token object to keep the moment to start calculating the value of type <code>R</code>
+     * @param value       the value of type <code>R</code> returned by a time-consuming calculation which is the target to measure
+     * @param levels      the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
+     *                    is equal or above the <code>minLevel</code> of this Logger.
+     * @param <R>         the type of the value, usually returned by a time-consuming calculation
+     * @return the value returned by the concerned time-consuming calculation
      */
-    default  <R> R measure(Measurement.Moment startMoment, R value, LogLevel... levels){
-        final long elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+    default <R> R measure(Measurement.Moment startMoment, R value, LogLevel... levels) {
+        final long elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
         Measurement.save(startMoment.label, Tuple.create(elapsedMills, startMoment.createdAt));
-        if(levels != null && levels.length>0 && levels[0] != LogLevel.none){
+        if (levels != null && levels.length > 0 && levels[0] != LogLevel.none) {
             log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
         }
         return value;
@@ -72,27 +75,28 @@ public interface ILogger {
      * Mesure the performance of given SupplierThrowable and log its elapse save into Measurement and log the
      * elapse with proper <code>LogLevel</code>. Since it triggers the <code>supplier</code>, it gets the chance
      * to capture and display Exception thrown by the <code>supplier</code>
-     * @param startMoment   the token object to keep the moment to start calculating the value of type <code>R</code>
-     * @param supplier  SupplierThrowable that shall return value of type <tt>R</tt>, can be lambda of any method returning a value.
-     * @param levels        the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
-     *                      is equal or above the <code>minLevel</code> of this Logger.
-     * @param <R>       Type of the returned value by the given lambda.
-     * @return          Value returned by the SupplierThrowable or default value of type <tt>R</tt> when it failed.
+     *
+     * @param startMoment the token object to keep the moment to start calculating the value of type <code>R</code>
+     * @param supplier    SupplierThrowable that shall return value of type <tt>R</tt>, can be lambda of any method returning a value.
+     * @param levels      the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
+     *                    is equal or above the <code>minLevel</code> of this Logger.
+     * @param <R>         Type of the returned value by the given lambda.
+     * @return Value returned by the SupplierThrowable or default value of type <tt>R</tt> when it failed.
      */
-    default <R> R measure(Measurement.Moment startMoment, SupplierThrowable<R> supplier, LogLevel... levels){
-        Exception e=null;
-        long elapsedMills=0;
+    default <R> R measure(Measurement.Moment startMoment, SupplierThrowable<R> supplier, LogLevel... levels) {
+        Exception e = null;
+        long elapsedMills = 0;
         try {
             R result = supplier.get();
-            elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+            elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             Measurement.save(startMoment.label, Tuple.create(elapsedMills, startMoment.createdAt));
             return result;
-        }catch (Exception ex){
-            elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+        } catch (Exception ex) {
+            elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             e = ex;
             return null;
-        }finally {
-            if(levels != null && levels.length>0 && levels[0] != LogLevel.none){
+        } finally {
+            if (levels != null && levels.length > 0 && levels[0] != LogLevel.none) {
                 log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
             }
         }
@@ -101,24 +105,25 @@ public interface ILogger {
     /**
      * Measure the performance of running a time-consuming process that returns nothing, save into Measurement and log the
      * elapse with proper <code>LogLevel</code>
-     * @param startMoment   the token object to keep the moment to start triggering the concerned time-consuming process
-     * @param runnable      RunnableThrowable representing how to trigger that time-consuming process
-     * @param levels        the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
-     *                      is equal or above the <code>minLevel</code> of this Logger.
-     * @return      this ILogger instance to be used fluently.
+     *
+     * @param startMoment the token object to keep the moment to start triggering the concerned time-consuming process
+     * @param runnable    RunnableThrowable representing how to trigger that time-consuming process
+     * @param levels      the optional <code>LogLevel</code> used to display outcome immediately the first LogLevel
+     *                    is equal or above the <code>minLevel</code> of this Logger.
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger measure(Measurement.Moment startMoment, RunnableThrowable runnable, LogLevel... levels){
-        Exception e=null;
-        long elapsedMills=0;
+    default ILogger measure(Measurement.Moment startMoment, RunnableThrowable runnable, LogLevel... levels) {
+        Exception e = null;
+        long elapsedMills = 0;
         try {
             runnable.run();
-            elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+            elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             Measurement.save(startMoment.label, Tuple.create(elapsedMills, startMoment.createdAt));
-        }catch (Exception ex){
-            elapsedMills = System.currentTimeMillis()-startMoment.createdAt;
+        } catch (Exception ex) {
+            elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             e = ex;
-        }finally {
-            if(levels != null && levels.length>0 && levels[0] != LogLevel.none){
+        } finally {
+            if (levels != null && levels.length > 0 && levels[0] != LogLevel.none) {
                 log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
             }
             return this;
@@ -127,46 +132,49 @@ public interface ILogger {
 
     /**
      * Get max number of meaningful StackTraceElements for the given <code>LogLevel</code> that are not Logger or JDK related.
-     * @param level     <code>LogLevel</code> to be evaluated.
-     * @return          Max number of LogLevel to be captured by the Logger, 0 means no StackTraceElement info would be saved.
+     *
+     * @param level <code>LogLevel</code> to be evaluated.
+     * @return Max number of LogLevel to be captured by the Logger, 0 means no StackTraceElement info would be saved.
      */
-    default int getStackTraceCount(LogLevel level){
+    default int getStackTraceCount(LogLevel level) {
         return 0;
     }
 
     /**
      * For each LogLevel, retrieve meaningful stack trace of specific number of stack frames.
+     *
      * @param level <code>LogLevel</code> to be evaluated
      * @param ex    Exception if thrown that contains stackTrace.
-     * @return  Stack trace of the call stack with specific number of stack frames.
+     * @return Stack trace of the call stack with specific number of stack frames.
      */
-    default String getCallStack(LogLevel level, Exception ex){
+    default String getCallStack(LogLevel level, Exception ex) {
         int maxCount = getStackTraceCount(level);
-        if(maxCount == 0){
+        if (maxCount == 0) {
             return "";
         }
         List<StackTraceElement> stacks = StackTraceHelper.getStackTrace(maxCount, ex);
-        if(stacks == null){
+        if (stacks == null) {
             return "";
         }
 
         AtomicInteger counter = new AtomicInteger();
         String stackTrace = stacks.stream()
-                .map(s -> String.format("%s%s", StringUtils.repeat(" ", 2* counter.getAndIncrement()), s))
+                .map(s -> String.format("%s%s", StringUtils.repeat(" ", 2 * counter.getAndIncrement()), s))
                 .collect(Collectors.joining("\n..."));
 
         return stackTrace;
-    };
+    }
 
     /**
      * Main entrance method to check if it is allowed by <code>canLog(level)</code> first, if <tt>yes</tt> then compose the message with given <code>format</code> and <code>arguments</code> to save as <code>level</code>.
+     *
      * @param level     the <code>LogLevel</code> of the message to be recorded.
      * @param format    the <code>format</code> part of String.format() to be used to compose the final message
      * @param arguments the optional <code>arguments</code> of String.format() to be used to compose the final message
-     * @return  this ILogger instance to be used fluently.
+     * @return this ILogger instance to be used fluently.
      */
     default ILogger log(LogLevel level, String format, Object... arguments) {
-        if(canLog(level) && format != null) {
+        if (canLog(level) && format != null) {
             final String message = getMessage(level, format, arguments);
             save(message);
         }
@@ -175,111 +183,122 @@ public interface ILogger {
 
     /**
      * Main entrance method to check if it is allowed by <code>canLog(level)</code> first, if <tt>yes</tt> then compose the message stackTrace of <code>ex</code> to save as <code>level</code>.
-     * @param level     the <code>LogLevel</code> of the message to be recorded.
-     * @param ex        the <code>Exception</code> to be recorded.
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param level the <code>LogLevel</code> of the message to be recorded.
+     * @param ex    the <code>Exception</code> to be recorded.
+     * @return this ILogger instance to be used fluently.
      */
     default ILogger log(LogLevel level, Exception ex) {
-        if(canLog(level) && ex != null) {
+        if (canLog(level) && ex != null) {
             String stackTrace = getCallStack(level, ex);
             log(level, "%s: %s%s", ex.getClass().getSimpleName(), ex.getMessage(),
-                    StringUtils.isBlank(stackTrace)?"":"\n"+stackTrace);
+                    StringUtils.isBlank(stackTrace) ? "" : "\n" + stackTrace);
         }
         return this;
     }
 
     /**
      * To compose the message with given <code>format</code> and <code>arguments</code> to save as <code>LogLevel.verbose</code>
-     * @param format    the <code>format</code> part of String.format() to be used to compose the final message
-     * @param args      the optional <code>arguments</code> of String.format() to be used to compose the final message
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param format the <code>format</code> part of String.format() to be used to compose the final message
+     * @param args   the optional <code>arguments</code> of String.format() to be used to compose the final message
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger verbose(String format, Object... args){
+    default ILogger verbose(String format, Object... args) {
         return log(LogLevel.verbose, StringHelper.tryFormatString(format, args));
     }
 
     /**
      * To compose the message with given <code>format</code> and <code>arguments</code> to save as <code>LogLevel.debug</code>
-     * @param format    the <code>format</code> part of String.format() to be used to compose the final message
-     * @param args      the optional <code>arguments</code> of String.format() to be used to compose the final message
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param format the <code>format</code> part of String.format() to be used to compose the final message
+     * @param args   the optional <code>arguments</code> of String.format() to be used to compose the final message
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger debug(String format, Object... args){
+    default ILogger debug(String format, Object... args) {
         return log(LogLevel.debug, StringHelper.tryFormatString(format, args));
     }
 
     /**
      * To compose the message with given <code>format</code> and <code>arguments</code> to save as <code>LogLevel.info</code>
-     * @param format    the <code>format</code> part of String.format() to be used to compose the final message
-     * @param args      the optional <code>arguments</code> of String.format() to be used to compose the final message
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param format the <code>format</code> part of String.format() to be used to compose the final message
+     * @param args   the optional <code>arguments</code> of String.format() to be used to compose the final message
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger info(String format, Object... args){
+    default ILogger info(String format, Object... args) {
         return log(LogLevel.info, StringHelper.tryFormatString(format, args));
     }
 
     /**
      * To compose the message with given <code>format</code> and <code>arguments</code> to save as <code>LogLevel.warning</code>
-     * @param format    the <code>format</code> part of String.format() to be used to compose the final message
-     * @param args      the optional <code>arguments</code> of String.format() to be used to compose the final message
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param format the <code>format</code> part of String.format() to be used to compose the final message
+     * @param args   the optional <code>arguments</code> of String.format() to be used to compose the final message
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger warning(String format, Object... args){
+    default ILogger warning(String format, Object... args) {
         return log(LogLevel.warning, StringHelper.tryFormatString(format, args));
     }
 
     /**
      * To compose the message with given <code>format</code> and <code>arguments</code> to save as <code>LogLevel.error</code>
-     * @param format    the <code>format</code> part of String.format() to be used to compose the final message
-     * @param args      the optional <code>arguments</code> of String.format() to be used to compose the final message
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param format the <code>format</code> part of String.format() to be used to compose the final message
+     * @param args   the optional <code>arguments</code> of String.format() to be used to compose the final message
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger error(String format, Object... args){
+    default ILogger error(String format, Object... args) {
         return log(LogLevel.error, StringHelper.tryFormatString(format, args));
     }
 
     /**
      * if it is allowed by <code>canLog(level)</code>, compose the message including stackTrace of <code>ex</code> to save as <code>LogLevel.verbose</code>.
-     * @param ex        the <code>Exception</code> to be recorded.
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param ex the <code>Exception</code> to be recorded.
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger verbose(Exception ex){
+    default ILogger verbose(Exception ex) {
         return log(LogLevel.verbose, ex);
     }
 
     /**
      * if it is allowed by <code>canLog(level)</code>, compose the message including stackTrace of <code>ex</code> to save as <code>LogLevel.debug</code>.
-     * @param ex        the <code>Exception</code> to be recorded.
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param ex the <code>Exception</code> to be recorded.
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger debug(Exception ex){
+    default ILogger debug(Exception ex) {
         return log(LogLevel.debug, ex);
     }
 
     /**
      * if it is allowed by <code>canLog(level)</code>, compose the message including stackTrace of <code>ex</code> to save as <code>LogLevel.info</code>.
-     * @param ex        the <code>Exception</code> to be recorded.
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param ex the <code>Exception</code> to be recorded.
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger info(Exception ex){
+    default ILogger info(Exception ex) {
         return log(LogLevel.info, ex);
     }
 
     /**
      * if it is allowed by <code>canLog(level)</code>, compose the message including stackTrace of <code>ex</code> to save as <code>LogLevel.warning</code>.
-     * @param ex        the <code>Exception</code> to be recorded.
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param ex the <code>Exception</code> to be recorded.
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger warning(Exception ex){
+    default ILogger warning(Exception ex) {
         return log(LogLevel.warning, ex);
     }
 
     /**
      * if it is allowed by <code>canLog(level)</code>, compose the message including stackTrace of <code>ex</code> to save as <code>LogLevel.error</code>.
-     * @param ex        the <code>Exception</code> to be recorded.
-     * @return  this ILogger instance to be used fluently.
+     *
+     * @param ex the <code>Exception</code> to be recorded.
+     * @return this ILogger instance to be used fluently.
      */
-    default ILogger error(Exception ex){
+    default ILogger error(Exception ex) {
         return log(LogLevel.error, ex);
     }
 

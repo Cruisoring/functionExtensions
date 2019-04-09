@@ -10,7 +10,8 @@ public interface RunnableThrowable {
 
     /**
      * The abstract method to be mapped to Lambda Expresion accepting no argument and returning nothing.
-     * @throws Exception    Any Exception could be thrown by the concerned service logic.
+     *
+     * @throws Exception Any Exception could be thrown by the concerned service logic.
      */
     void run() throws Exception;
 
@@ -18,23 +19,25 @@ public interface RunnableThrowable {
     /**
      * Execute <code>run()</code> and ignore any Exceptions thrown.
      */
-    default void tryRun(){
+    default void tryRun() {
         try {
             run();
-        }catch (Exception e){ }
+        } catch (Exception e) {
+        }
     }
 
     /**
      * Convert the RunnableThrowable to Runnable
-     * @param exceptionHandler  Exception Handler of the caught Exceptions that retuns default value of type R.
-     * @return  The Runnerable version of the original RunnableThrowable
+     *
+     * @param exceptionHandler Exception Handler of the caught Exceptions that retuns default value of type R.
+     * @return The Runnerable version of the original RunnableThrowable
      */
-    default Runnable withHandler(Consumer<Exception> exceptionHandler){
+    default Runnable withHandler(Consumer<Exception> exceptionHandler) {
         Runnable runnable = () -> {
             try {
                 run();
             } catch (Exception e) {
-                if(exceptionHandler != null)
+                if (exceptionHandler != null)
                     exceptionHandler.accept(e);
             }
         };

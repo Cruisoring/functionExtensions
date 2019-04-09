@@ -3,11 +3,11 @@ package io.github.cruisoring.logger;
 public class InMemoryLogger extends Logger {
     private final StringBuilder stringBuilder;
 
-    public InMemoryLogger(){
+    public InMemoryLogger() {
         this(new StringBuilder(), GlobalLogLevel);
     }
 
-    public InMemoryLogger(LogLevel minLevel){
+    public InMemoryLogger(LogLevel minLevel) {
         this(new StringBuilder(), minLevel);
     }
 
@@ -20,11 +20,11 @@ public class InMemoryLogger extends Logger {
         this(sb, Logger.GlobalLogLevel);
     }
 
-    public StringBuilder getStringBuilder(){
+    public StringBuilder getStringBuilder() {
         return stringBuilder;
     }
 
-    public String getHistory(){
+    public String getHistory() {
         return stringBuilder.toString();
     }
 }

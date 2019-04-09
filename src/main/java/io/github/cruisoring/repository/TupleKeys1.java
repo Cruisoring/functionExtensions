@@ -1,7 +1,7 @@
 package io.github.cruisoring.repository;
 
-import io.github.cruisoring.tuple.Tuple1;
 import io.github.cruisoring.tuple.Tuple;
+import io.github.cruisoring.tuple.Tuple1;
 
 /**
  * Interface for map.keys that are of <tt>Tuple</tt> of 2 elements and keep the methods to use them as strong-typed

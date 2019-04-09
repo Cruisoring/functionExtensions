@@ -1,7 +1,6 @@
 package io.github.cruisoring.logger;
 
 import io.github.cruisoring.AutoCloseableObject;
-import io.github.cruisoring.Lazy;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.tuple.Tuple7;
 import org.junit.Test;
@@ -16,23 +15,38 @@ import static org.junit.Assert.assertTrue;
 
 public class LoggerTest {
 
-    int a(){ throw new IllegalStateException("for test");}
-    boolean b(int i){ return i > a();}
-    void c(){ b(3);}
-    int testD(){ c(); return 0; }
-    void testE(){ testD();}
+    int a() {
+        throw new IllegalStateException("for test");
+    }
 
-    @Test
-    public void testCompareLogLevel(){
-        assertTrue(LogLevel.none.compareTo(LogLevel.error) > 0 && LogLevel.none.compareTo(LogLevel.verbose)>0);
-        assertTrue(LogLevel.verbose.compareTo(LogLevel.none)<0 && LogLevel.error.compareTo(LogLevel.none)<0);
+    boolean b(int i) {
+        return i > a();
+    }
 
-        assertTrue(LogLevel.verbose.compareTo(LogLevel.verbose)==0 && LogLevel.verbose.compareTo(LogLevel.debug)<0);
-        assertTrue(LogLevel.error.compareTo(LogLevel.error)>= 0 && LogLevel.error.compareTo(LogLevel.verbose)>=0);
+    void c() {
+        b(3);
+    }
+
+    int testD() {
+        c();
+        return 0;
+    }
+
+    void testE() {
+        testD();
     }
 
     @Test
-    public void testCanLog(){
+    public void testCompareLogLevel() {
+        assertTrue(LogLevel.none.compareTo(LogLevel.error) > 0 && LogLevel.none.compareTo(LogLevel.verbose) > 0);
+        assertTrue(LogLevel.verbose.compareTo(LogLevel.none) < 0 && LogLevel.error.compareTo(LogLevel.none) < 0);
+
+        assertTrue(LogLevel.verbose.compareTo(LogLevel.verbose) == 0 && LogLevel.verbose.compareTo(LogLevel.debug) < 0);
+        assertTrue(LogLevel.error.compareTo(LogLevel.error) >= 0 && LogLevel.error.compareTo(LogLevel.verbose) >= 0);
+    }
+
+    @Test
+    public void testCanLog() {
         LogLevel defaultLevel = Logger.getGlobalLogLevel();
         try {
             ILogger defaultLogger = Logger.Default;
@@ -54,16 +68,16 @@ public class LoggerTest {
             assertFalse(newLogger.canLog(LogLevel.verbose) || newLogger.canLog(LogLevel.debug) || newLogger.canLog(LogLevel.info)
                     || newLogger.canLog(LogLevel.warning) || newLogger.canLog(LogLevel.error));
 
-        }finally {
+        } finally {
             Logger.setGlobalLevel(defaultLevel);
         }
     }
 
     @Test
-    public void testSetGlobalLogLeveInScope(){
+    public void testSetGlobalLogLeveInScope() {
         Logger.W("This is a warning you shall see.");
 
-        try(AutoCloseableObject closeable = Logger.setLevelInScope(LogLevel.none)){
+        try (AutoCloseableObject closeable = Logger.setLevelInScope(LogLevel.none)) {
             Logger.V("But you shall not be able to see this verbose log");
             Logger.E("You shall not be able to see this error log");
         } catch (Exception e) {
@@ -73,26 +87,26 @@ public class LoggerTest {
         Logger.W("Now you shall see this message logged.");
     }
 
-    <T> T withDelay(T value, long mills){
+    <T> T withDelay(T value, long mills) {
         justSleep(mills);
         return value;
     }
 
-    void justSleep(long mills){
+    void justSleep(long mills) {
         try {
             Thread.sleep(mills);
-        }catch (Exception e){
+        } catch (Exception e) {
         }
     }
 
     @Test
-    public void testMeasurement_withValueReturned(){
+    public void testMeasurement_withValueReturned() {
         Logger logger = new ConsoleLogger(System.out::println, LogLevel.debug);
 
         Random random = new Random();
         for (int i = 0; i < 5; i++) {
-            int v = logger.measure(Measurement.start(), withDelay(99, random.nextInt(20)+90), LogLevel.info);
-            String s = logger.measure(Measurement.start("Get String"), withDelay("s", random.nextInt(20)+190), LogLevel.debug);
+            int v = logger.measure(Measurement.start(), withDelay(99, random.nextInt(20) + 90), LogLevel.info);
+            String s = logger.measure(Measurement.start("Get String"), withDelay("s", random.nextInt(20) + 190), LogLevel.debug);
         }
 
         Map<String, Tuple7<String, Long, Long, Long, Long, Long, Double>> all = Measurement.getAllSummary();
@@ -102,13 +116,13 @@ public class LoggerTest {
     }
 
     @Test
-    public void testMeasurement_withoutValueReturned(){
+    public void testMeasurement_withoutValueReturned() {
         Logger logger = new ConsoleLogger(System.out::println, LogLevel.debug);
 
         Random random = new Random();
         for (int i = 0; i < 5; i++) {
-            logger.measure(Measurement.start(), ()-> justSleep(random.nextInt(20)+90), LogLevel.error);
-            logger.measure(Measurement.start("Sleep 200ms"), ()-> justSleep(random.nextInt(20)+190), LogLevel.debug);
+            logger.measure(Measurement.start(), () -> justSleep(random.nextInt(20) + 90), LogLevel.error);
+            logger.measure(Measurement.start("Sleep 200ms"), () -> justSleep(random.nextInt(20) + 190), LogLevel.debug);
         }
 
         Map<String, Tuple7<String, Long, Long, Long, Long, Long, Double>> all = Measurement.getAllSummary();
@@ -119,12 +133,12 @@ public class LoggerTest {
 
     @Test
     public void testMeasureSupplier() {
-        Integer integer = Logger.M(Measurement.start(), ()-> {
+        Integer integer = Logger.M(Measurement.start(), () -> {
             Thread.sleep(100);
             return -1;
         }, LogLevel.info);
 
-        integer = Logger.M(Measurement.start(), ()-> {
+        integer = Logger.M(Measurement.start(), () -> {
             Thread.sleep(100);
             return testD();
         }, LogLevel.warning);
@@ -132,11 +146,11 @@ public class LoggerTest {
 
     @Test
     public void testMeasureRunnable() {
-        Logger.M(Measurement.start(), ()-> {
+        Logger.M(Measurement.start(), () -> {
             Thread.sleep(100);
         }, LogLevel.info);
 
-        Logger.M(Measurement.start(), ()-> {
+        Logger.M(Measurement.start(), () -> {
             Thread.sleep(100);
             testE();
         }, LogLevel.debug);
@@ -144,7 +158,7 @@ public class LoggerTest {
 
     @Test
     public void testMeasureSupplier_WithLabel() {
-        Integer integer = Logger.M(Measurement.start("testD()"), ()-> {
+        Integer integer = Logger.M(Measurement.start("testD()"), () -> {
             Thread.sleep(100);
             return testD();
         }, LogLevel.info);
@@ -152,7 +166,7 @@ public class LoggerTest {
 
     @Test
     public void testMeasureRunnable_WithLabel() {
-        Logger.M(Measurement.start("testE() on %s"), ()-> {
+        Logger.M(Measurement.start("testE() on %s"), () -> {
             Thread.sleep(100);
             testE();
         }, LogLevel.debug);
@@ -208,45 +222,45 @@ public class LoggerTest {
 
     @Test
     public void testLogVerbose() {
-        try{
+        try {
             testE();
-        }catch (Exception e){
+        } catch (Exception e) {
             Logger.V(e);
         }
     }
 
     @Test
     public void testLogDebug() {
-        try{
+        try {
             testE();
-        }catch (Exception e){
+        } catch (Exception e) {
             Logger.D(e);
         }
     }
 
     @Test
     public void testLogInfo() {
-        try{
+        try {
             testE();
-        }catch (Exception e){
+        } catch (Exception e) {
             Logger.I(e);
         }
     }
 
     @Test
     public void testLogWarning() {
-        try{
+        try {
             testE();
-        }catch (Exception e){
+        } catch (Exception e) {
             Logger.W(e);
         }
     }
 
     @Test
     public void testLogError() {
-        try{
+        try {
             testE();
-        }catch (Exception e){
+        } catch (Exception e) {
             Logger.E(e);
         }
     }

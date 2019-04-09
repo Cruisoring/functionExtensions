@@ -5,32 +5,35 @@ import java.util.function.BiFunction;
 /**
  * Functional Interface identifying methods, accepting 4 arguments and returning result of type <code>R</code>,
  * while their service logic could throw Exceptions.
- * @param <T>   Type of the first argument.
- * @param <U>   Type of the second argument.
- * @param <V>   Type of the third argument.
- * @param <W>   Type of the fourth argument.
- * @param <R>   Type of the returned result.
+ *
+ * @param <T> Type of the first argument.
+ * @param <U> Type of the second argument.
+ * @param <V> Type of the third argument.
+ * @param <W> Type of the fourth argument.
+ * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface QuadFunctionThrowable<T,U,V,W, R> extends WithValueReturned<R> {
+public interface QuadFunctionThrowable<T, U, V, W, R> extends WithValueReturned<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 4 arguments and returning result of type <code>R</code>
-     * @param t     The first argument of type <code>T</code>.
-     * @param u     The second argument of type <code>U</code>.
-     * @param v     The third argument of type <code>V</code>.
-     * @param w     The fourth argument of type <code>W</code>.
-     * @return      The result of applying the given arguments.
-     * @throws Exception    Any Exception could be thrown by the concerned service logic.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @return The result of applying the given arguments.
+     * @throws Exception Any Exception could be thrown by the concerned service logic.
      */
     R apply(T t, U u, V v, W w) throws Exception;
 
     /**
      * Convert the QuadFunctionThrowable&lt;T,U,V,W, R&gt; to QuadFunction&lt;T,U,V,W, R&gt; with injected Exception Handler
-     * @param exceptionHandler  Exception Handler of the caught Exceptions
-     * @return  Converted QuadFunction&lt;T,U,V,W, R&gt; that get Exceptions handled with the exceptionHandler
+     *
+     * @param exceptionHandler Exception Handler of the caught Exceptions
+     * @return Converted QuadFunction&lt;T,U,V,W, R&gt; that get Exceptions handled with the exceptionHandler
      */
-    default QuadFunction<T,U,V,W, R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler){
-        QuadFunction<T,U,V,W, R>  function = (t, u, v, w) -> {
+    default QuadFunction<T, U, V, W, R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler) {
+        QuadFunction<T, U, V, W, R> function = (t, u, v, w) -> {
             try {
                 return apply(t, u, v, w);
             } catch (Exception e) {
@@ -43,11 +46,12 @@ public interface QuadFunctionThrowable<T,U,V,W, R> extends WithValueReturned<R> 
     /**
      * Simplified version of converting the QuadFunctionThrowable&lt;T,U,V,W, R&gt; to QuadFunction&lt;T,U,V,W, R&gt;
      * by ignoring the caught Exception and simply returns a pre-defined default value.
-     * @param defaultValue  Predefined default value.
+     *
+     * @param defaultValue Predefined default value.
      * @return Converted QuadFunction&lt;T,U,V,W, R&gt; that returns the given defaultValue when exception caught
      */
-    default QuadFunction<T,U,V,W, R> orElse(R defaultValue){
-        QuadFunction<T,U,V,W, R>  function = (t, u, v, w) -> {
+    default QuadFunction<T, U, V, W, R> orElse(R defaultValue) {
+        QuadFunction<T, U, V, W, R> function = (t, u, v, w) -> {
             try {
                 return apply(t, u, v, w);
             } catch (Exception e) {
@@ -59,14 +63,15 @@ public interface QuadFunctionThrowable<T,U,V,W, R> extends WithValueReturned<R> 
 
     /**
      * Represents a function that accepts four arguments and produces a result.
-     * @param <T>   Type of the first argument.
-     * @param <U>   Type of the second argument.
-     * @param <V>   Type of the third argument.
-     * @param <W>   Type of the fourth argument.
-     * @param <R>   Type of the result of the function
+     *
+     * @param <T> Type of the first argument.
+     * @param <U> Type of the second argument.
+     * @param <V> Type of the third argument.
+     * @param <W> Type of the fourth argument.
+     * @param <R> Type of the result of the function
      */
     @FunctionalInterface
-    interface QuadFunction<T,U,V,W, R> {
+    interface QuadFunction<T, U, V, W, R> {
         R apply(T t, U u, V v, W w);
     }
 }

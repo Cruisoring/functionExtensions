@@ -1,9 +1,9 @@
 package io.github.cruisoring.tuple;
 
 import io.github.cruisoring.Functions;
+import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.logger.Logger;
-import io.github.cruisoring.TypeHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,44 +14,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public class TupleTest {
-    class A<T> {
-        T value;
-        public A(T t){
-            value = t;
-        }
-
-        public T getValue(){
-            return value;
-        }
-
-        @Override
-        public String toString(){
-            return String.format("A(%s)", value==null?"null":value.toString());
-        }
-    }
-
-    class B extends A<Integer>{
-        public B(Integer i){
-            super(i);
-        }
-    }
-
-    enum Progress {
-        Backlog, Study, Working, ReadyForQA, Done;
-
-        private static Progress[] _values = values();
-        public int toInt(){
-            return ordinal();
-        }
-        public static Progress ofIndex(int index){
-            if(index<0 || index>= _values.length) throw new IndexOutOfBoundsException();
-            return _values[index];
-        }
-        public Progress getNext(){
-            return _values[(ordinal()+1)% _values.length];
-        }
-    }
-
+    public static List<String> closeMessages = new ArrayList<>();
     Tuple tuple0 = Tuple.create();
     Tuple tuple1 = Tuple.create("First");
     Tuple set1 = Tuple.setOf(true);
@@ -60,25 +23,31 @@ public class TupleTest {
     Tuple tuple3 = Tuple.create(3, "Third", 3.33d);
     Tuple4 tuple4 = Tuple.create(true, null, new A("Aaa"), new A("B").getClass());
     Tuple5 tuple5 = Tuple.create(Progress.Working, "5", null, 5f, false);
-    Tuple tuple6 = Tuple.create(6, Integer.valueOf(6), 6f, 6.0d, "six",  Progress.ofIndex(3));
-
-
+    Tuple tuple6 = Tuple.create(6, Integer.valueOf(6), 6f, 6.0d, "six", Progress.ofIndex(3));
     Tuple2<String, Integer> dual = Tuple.create("First", 2);
     Tuple2<Boolean, Boolean> nullDual = Tuple.create(null, null);
-    Tuple7<Boolean, Integer, String, LocalDate, Progress, String, Double> hepta=
+    Tuple7<Boolean, Integer, String, LocalDate, Progress, String, Double> hepta =
             Tuple.create(false, 77, "Tuple7", LocalDate.MAX, Progress.Done, "Result", 99.9d);
     Tuple NULL = Tuple.create(null);
     Tuple<String> stringSet = Tuple.setOf("", null, "third", "3");
     Tuple<Integer> intSet = Tuple.setOf(111, 222, 3333, 4444);
     Tuple<Tuple> tupleSet = Tuple.setOf(tuple0, tuple1);
+    Tuple tuple7 = Tuple.create("Seven", new String[]{"arrayValue1", "arrayValue2"}, Character.valueOf('7'), '7', Integer.valueOf(7),
+            new Character[]{'C'}, new char[]{'a', 'b'});
+    Object[] raw = new Object[]{
+            DayOfWeek.FRIDAY, new A(3), new Object[0][], new AutoA(), new AutoB(),
+            new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1, 2, 3}, null},
+            new Short[]{1, 2, 3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]},
+            "The 21th", 22
+    };
 
     @Test
-    public void testArraysDeepFunctions(){
-        Logger.D("%d", Objects.hashCode(new int[]{1,2,3}));
-        Logger.D("%d", Arrays.deepHashCode(new Integer[]{1,2,3}));
-        Logger.D("%d", Arrays.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
-        Logger.D("%d", Arrays.deepHashCode(new Object[]{new Integer[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
-        Logger.D("%d", Arrays.deepHashCode(new Integer[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
+    public void testArraysDeepFunctions() {
+        Logger.D("%d", Objects.hashCode(new int[]{1, 2, 3}));
+        Logger.D("%d", Arrays.deepHashCode(new Integer[]{1, 2, 3}));
+        Logger.D("%d", Arrays.deepHashCode(new int[][]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}}));
+        Logger.D("%d", Arrays.deepHashCode(new Object[]{new Integer[]{1, 2, 3}, new int[0], null, new int[]{4, 5}}));
+        Logger.D("%d", Arrays.deepHashCode(new Integer[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
 
         assertTrue(Integer.valueOf(1).equals(1));
         assertTrue(Objects.equals(Integer.valueOf(1), 1));
@@ -87,34 +56,34 @@ public class TupleTest {
     }
 
     @Test
-    public void deepHashCode(){
-        Logger.D("%d", TypeHelper.deepHashCode(new int[]{1,2,3}));
-        assertEquals(TypeHelper.deepHashCode(new int[]{1,2,3}), TypeHelper.deepHashCode(new Integer[]{1,2,3}));
-        Logger.D("%d", TypeHelper.deepHashCode(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
-        assertEquals(TypeHelper.deepHashCode(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}),
-                TypeHelper.deepHashCode(new Object[]{new Integer[]{1,2,3}, new Integer[0], null, new int[]{4, 5}}));
-        Logger.D("%d", TypeHelper.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}));
-        assertEquals(TypeHelper.deepHashCode(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}}),
-                TypeHelper.deepHashCode(new Integer[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
+    public void deepHashCode() {
+        Logger.D("%d", TypeHelper.deepHashCode(new int[]{1, 2, 3}));
+        assertEquals(TypeHelper.deepHashCode(new int[]{1, 2, 3}), TypeHelper.deepHashCode(new Integer[]{1, 2, 3}));
+        Logger.D("%d", TypeHelper.deepHashCode(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}}));
+        assertEquals(TypeHelper.deepHashCode(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}}),
+                TypeHelper.deepHashCode(new Object[]{new Integer[]{1, 2, 3}, new Integer[0], null, new int[]{4, 5}}));
+        Logger.D("%d", TypeHelper.deepHashCode(new int[][]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}}));
+        assertEquals(TypeHelper.deepHashCode(new int[][]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}}),
+                TypeHelper.deepHashCode(new Integer[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
     }
 
     @Test
-    public void valueEquals(){
-        assertTrue(TypeHelper.valueEquals(new int[]{1,2,3}, new Integer[]{1,2,3}));
-        assertTrue(TypeHelper.valueEquals(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}},
-                new Object[]{new Integer[]{1,2,3}, new Integer[0], null, new int[]{4, 5}}));
-        assertTrue(TypeHelper.valueEquals(new int[][]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}},
-                new Integer[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
+    public void valueEquals() {
+        assertTrue(TypeHelper.valueEquals(new int[]{1, 2, 3}, new Integer[]{1, 2, 3}));
+        assertTrue(TypeHelper.valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+                new Object[]{new Integer[]{1, 2, 3}, new Integer[0], null, new int[]{4, 5}}));
+        assertTrue(TypeHelper.valueEquals(new int[][]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+                new Integer[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
 
-        assertTrue(TypeHelper.valueEquals(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}},
-                new Comparable[][]{new Integer[]{1,2,3}, new Integer[0], null, new Integer[]{4, 5}}));
+        assertTrue(TypeHelper.valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+                new Comparable[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
 
-        assertFalse(TypeHelper.valueEquals(new Object[]{new int[]{1,2,3}, new int[0], null, new int[]{4, 5}},
-                new Number[][]{new Number[]{1,2,3}, new Number[0], null, new Number[]{4.0, 5}}));
+        assertFalse(TypeHelper.valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+                new Number[][]{new Number[]{1, 2, 3}, new Number[0], null, new Number[]{4.0, 5}}));
     }
 
     @Test
-    public void testAccessors(){
+    public void testAccessors() {
         assertEquals(false, hepta.getFirst());
         assertEquals(Integer.valueOf(77), hepta.getSecond());
         assertEquals("Tuple7", hepta.getThird());
@@ -125,7 +94,7 @@ public class TupleTest {
     }
 
     @Test
-    public void testToString(){
+    public void testToString() {
         Logger.D(tuple0.toString());
         Logger.D(tuple1.toString());
         Logger.D(tuple2.toString());
@@ -149,7 +118,7 @@ public class TupleTest {
     }
 
     @Test
-    public void testSetOf(){
+    public void testSetOf() {
         Date date = null;
         Tuple<Date> nullSet = Tuple.setOf(date);
         assertEquals(Object.class, nullSet._elementType);
@@ -157,12 +126,12 @@ public class TupleTest {
         assertEquals(null, nullSet.getValue(0));
 
         Integer aInteger = null;
-        Tuple<Integer> iSet = (Tuple<Integer>) Tuple.setOf(aInteger);
+        Tuple<Integer> iSet = Tuple.setOf(aInteger);
         assertEquals(1, iSet.getLength());
         assertEquals(null, iSet.getValue(0));
 
         Tuple<Integer> integerSet = Tuple.setOf(1, 2, 3);
-        assertTrue(Arrays.deepEquals(new Integer[]{1,2,3}, integerSet.asArray()));
+        assertTrue(Arrays.deepEquals(new Integer[]{1, 2, 3}, integerSet.asArray()));
 
         Tuple<Comparable> comparableSet = Tuple.setOf(Comparable.class, new Comparable[]{1.0, 'a', "abc"});
         assertTrue(Arrays.deepEquals(new Comparable[]{1.0, 'a', "abc"}, comparableSet.asArray()));
@@ -187,7 +156,7 @@ public class TupleTest {
 
         Tuple _1 = Tuple.create("First");
         assertEquals(_1, tuple1);
-        Tuple1<String> singleString = (Tuple1)_1;
+        Tuple1<String> singleString = (Tuple1) _1;
         assertEquals(_1, singleString);
         String v = singleString.getFirst();
         assertEquals("First", v);
@@ -231,7 +200,7 @@ public class TupleTest {
         assertEquals(4, tuple4.getLength());
         assertEquals(true, tuple4.getFirst());
         assertEquals(A.class, tuple4.getFourth());
-        assertEquals("Aaa", ((A)tuple4.getThird()).getValue());
+        assertEquals("Aaa", ((A) tuple4.getThird()).getValue());
     }
 
     @Test
@@ -252,9 +221,6 @@ public class TupleTest {
         assertEquals(1, tuple6.getSetOf(Progress.class).getLength());
     }
 
-    Tuple tuple7 = Tuple.create("Seven", new String[]{"arrayValue1", "arrayValue2"}, Character.valueOf('7'), '7', Integer.valueOf(7),
-            new Character[]{'C'}, new char[]{'a','b'});
-
     @Test
     public void create7() {
 
@@ -267,8 +233,8 @@ public class TupleTest {
         assertEquals(1, tuple7.getSetOf(int.class).getLength());
 
         Tuple7<Integer, Boolean, String, char[], Double, A<String>, PredicateThrowable<A>> hepta =
-                Tuple.create(7, 7%2==0, "Seven", "Seven".toCharArray(), 7.0d, new A("Seven"),
-                        (PredicateThrowable<A>) a -> ((String)(a.value)).length() > 5 );
+                Tuple.create(7, 7 % 2 == 0, "Seven", "Seven".toCharArray(), 7.0d, new A("Seven"),
+                        a -> ((String) (a.value)).length() > 5);
         Integer item1 = hepta.getFirst();
         Boolean item2 = hepta.getSecond();
         String item3 = hepta.getThird();
@@ -277,7 +243,7 @@ public class TupleTest {
         A<String> item6 = hepta.getSixth();
         PredicateThrowable<A> item7 = hepta.getSeventh();
         assertEquals(false, item2);
-        Assert.assertEquals(false, Functions.ReturnsDefaultValue.apply(() -> (boolean)(item7.test(item6))));
+        Assert.assertEquals(false, Functions.ReturnsDefaultValue.apply(() -> item7.test(item6)));
     }
 
     @Test
@@ -293,7 +259,7 @@ public class TupleTest {
     }
 
     @Test
-    public void testArrayToSet(){
+    public void testArrayToSet() {
         Integer[] ints = new Integer[]{1, 2, 3};
         Tuple integerSet = Tuple.setOf(ints);
         assertEquals(Object.class, integerSet._elementType);
@@ -322,14 +288,14 @@ public class TupleTest {
         assertEquals(4, stringSet.getSetOf(String.class).getLength());
 
         Tuple7<Integer, Boolean, String, char[], Double, A<String>, PredicateThrowable<A>> hepta =
-                Tuple.create(7, 7%2==0, "Seven", "Seven".toCharArray(), 7.0d, new A("Seven"),
-                        (PredicateThrowable<A>) a -> ((String)(a.value)).length() > 5 );
+                Tuple.create(7, 7 % 2 == 0, "Seven", "Seven".toCharArray(), 7.0d, new A("Seven"),
+                        a -> ((String) (a.value)).length() > 5);
 
         Tuple<String> stringSet1 = hepta.getSetOf(String.class);
         assertTrue(TypeHelper.valueEquals(new String[]{"Seven"}, stringSet1.asArray()));
 
         Tuple t = Tuple.create(1, 2, 3, null, 4, 5);
-        assertTrue(TypeHelper.valueEquals(new Integer[]{1,2,3,4,5}, t.getSetOf(int.class).asArray()));
+        assertTrue(TypeHelper.valueEquals(new Integer[]{1, 2, 3, 4, 5}, t.getSetOf(int.class).asArray()));
 
         Tuple<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
         Tuple aSet1 = aSet.getSetOf(A.class);
@@ -347,42 +313,42 @@ public class TupleTest {
 
     @Test
     public void getSetOf2() {
-        Tuple tuple = Tuple.of((Integer)null, -1, -2, new int[]{1,2}, new Integer[]{3,4,5}, -5, new Object[]{6,7});
+        Tuple tuple = Tuple.of(null, -1, -2, new int[]{1, 2}, new Integer[]{3, 4, 5}, -5, new Object[]{6, 7});
         Tuple<Integer> integers = tuple.getSetOf(int.class);
 
         Tuple<Integer[]> integerArrays = tuple.getSetOf(Integer[].class);
-        assertEquals(Tuple.setOf(null, new Integer[]{1,2}, new Integer[]{3,4,5}), integerArrays);
+        assertEquals(Tuple.setOf(null, new Integer[]{1, 2}, new Integer[]{3, 4, 5}), integerArrays);
 
         Tuple<int[]> intArrays = tuple.getSetOf(int[].class);
-        assertEquals(Tuple.setOf(new int[]{1,2}, new int[]{3,4,5}), intArrays);
+        assertEquals(Tuple.setOf(new int[]{1, 2}, new int[]{3, 4, 5}), intArrays);
 
         Tuple<Integer> ints = tuple.getSetOf(Integer.class);
         assertEquals(Tuple.setOf(null, Integer.valueOf(-1), Integer.valueOf(-2), Integer.valueOf(-5)), ints);
-   }
+    }
 
     @Test
     public void getSetOfWithPredicate() {
         Tuple<String> manyValues = Tuple.of("abc", null, 33, true, "a", "", 'a', Tuple.TRUE, 47);
         assertEquals(Tuple.setOf("abc", null, "a", ""), manyValues.getSetOf(String.class));
-        assertEquals(Tuple.setOf("abc"), manyValues.getSetOf(String.class, s->s.length()>2));
+        assertEquals(Tuple.setOf("abc"), manyValues.getSetOf(String.class, s -> s.length() > 2));
     }
 
     @Test
-    public void asTuple(){
+    public void asTuple() {
         Tuple tuple = Tuple.of(null);
         assertEquals(1, tuple.getLength());
 
-        int[] ints = new int[] {1, 2};
+        int[] ints = new int[]{1, 2};
         tuple = Tuple.of(ints);
         assertEquals(1, tuple.getLength());
-        assertEquals(Tuple.create(new int[] {1, 2}), tuple);
+        assertEquals(Tuple.create(new int[]{1, 2}), tuple);
 
-        Object[] elements = new Object[] {1, "ok", true};
+        Object[] elements = new Object[]{1, "ok", true};
         tuple = Tuple.of(elements);
         assertEquals(3, tuple.getLength());
         assertTrue(TypeHelper.valueEquals(tuple.values, elements));
 
-        elements = new Object[]{1,2,3,"abc", 'a', true, Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3), 'b'};
+        elements = new Object[]{1, 2, 3, "abc", 'a', true, Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3), 'b'};
         tuple = Tuple.of(elements);
         assertEquals(10, tuple.getLength());
         Tuple<Tuple> tupleSet = tuple.getSetOf(Tuple.class);
@@ -392,7 +358,7 @@ public class TupleTest {
     }
 
     @Test
-    public void testOf(){
+    public void testOf() {
         Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
                 (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
         Comparable first = tuple.getFirst();
@@ -455,42 +421,24 @@ public class TupleTest {
         assertTrue(nullDual2.equals(nullDual3));
         assertTrue(nullDual3.equals(nullDual2));
 
-        Tuple<String> null4 = Tuple.setOf(String.class, new String[]{null, null} );
+        Tuple<String> null4 = Tuple.setOf(String.class, new String[]{null, null});
         assertFalse(nullDual3.equals(null4));
         assertNotEquals(null4, nullDual3);
         assertNotEquals(nullDual3, null4);
 
-        Tuple<String> null5 = Tuple.setOf((String)null, (String)null);
-        assertEquals(null5, null4);
+//        Tuple<String> null5 = Tuple.setOf(null, null);
+//        assertEquals(null5, null4);
 
         Tuple tuple1 = Tuple.create(1, "abc".toCharArray(), new boolean[]{true, false}, new int[]{3, 2}, new int[][]{null, new int[]{0}});
         Tuple tuple2 = Tuple.create(Integer.valueOf(1),
-                new Character[]{'a','b','c'}, new Boolean[]{true, false}, new Integer[]{3, 2}, new Integer[][]{null, new Integer[]{0}});
+                new Character[]{'a', 'b', 'c'}, new Boolean[]{true, false}, new Integer[]{3, 2}, new Integer[][]{null, new Integer[]{0}});
         assertEquals(tuple1, tuple2);
     }
 
-    public static List<String> closeMessages = new ArrayList<>();
-    public class AutoA implements AutoCloseable{
-        @Override
-        public void close() throws Exception {
-            closeMessages.add(this.getClass().getSimpleName() + ".close()");
-        }
-    }
-
-    public class AutoB extends AutoA { }
-    public class AutoC extends AutoA { }
-    public class AutoD extends AutoA { }
-    public class AutoE extends AutoA { }
-    public class AutoF extends AutoA { }
-    public class AutoG extends AutoA { }
-    public class AutoH extends AutoA { }
-
-    public class E{}
-
     @Test
-    public void close(){
-        String[] expected = new String[]{"AutoH.close()","AutoG.close()","AutoF.close()","AutoE.close()",
-                "AutoD.close()","AutoC.close()","AutoB.close()","AutoA.close()"};
+    public void close() {
+        String[] expected = new String[]{"AutoH.close()", "AutoG.close()", "AutoF.close()", "AutoE.close()",
+                "AutoD.close()", "AutoC.close()", "AutoB.close()", "AutoA.close()"};
         testCloseInOrder(new String[0], 123, "String");
         testCloseInOrder(Arrays.copyOfRange(expected, 7, 8), 123, new AutoA());
         testCloseInOrder(Arrays.copyOfRange(expected, 6, 8), new AutoA(), new AutoB());
@@ -502,23 +450,22 @@ public class TupleTest {
         testCloseInOrder(expected, 123, new AutoA(), new AutoB(), new AutoC(), new AutoD(), new AutoE(), new AutoF(), new AutoG(), new AutoH());
     }
 
-    private void testCloseInOrder(String[] expection, Object... values){
+    private void testCloseInOrder(String[] expection, Object... values) {
         closeMessages.clear();
-        try (Tuple tuple = Tuple.of(values)){
-        }catch (Exception ex){
+        try (Tuple tuple = Tuple.of(values)) {
+        } catch (Exception ex) {
             Logger.D(ex.getMessage());
         }
 
         assertTrue(TypeHelper.valueEquals(expection, closeMessages.toArray()));
     }
 
-
     @Test
-    public void testTuple10_ofAllAccessors_retrieveElementAsExpected(){
+    public void testTuple10_ofAllAccessors_retrieveElementAsExpected() {
         Tuple10<DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> tuple10 = Tuple.create(
                 DayOfWeek.FRIDAY, new A(3), new Object[0][], new AutoA(), new AutoB(),
-                new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1,2,3}, null},
-                new Short[]{1,2,3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]}
+                new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1, 2, 3}, null},
+                new Short[]{1, 2, 3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]}
         );
 
         assertEquals(DayOfWeek.FRIDAY, tuple10.getFirst());
@@ -533,15 +480,8 @@ public class TupleTest {
         assertEquals(0, tuple10.getTenth()[0].length);
     }
 
-    Object[] raw = new Object[]{
-            DayOfWeek.FRIDAY, new A(3), new Object[0][], new AutoA(), new AutoB(),
-            new double[][]{new double[]{1.1}, new double[]{2.2}, new double[]{3.3}}, new Byte[][]{new Byte[]{1,2,3}, null},
-            new Short[]{1,2,3}, new Comparable[]{1, 'a'}, new int[][]{new int[0]},
-            "The 21th", 22
-    };
-
     @Test
-    public void testTuplePlus_castAfterOf_retrieveElementAsExpected(){
+    public void testTuplePlus_castAfterOf_retrieveElementAsExpected() {
         TuplePlus<DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> tupleOf =
                 (TuplePlus<DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]>)
                         Tuple.of(raw);
@@ -563,18 +503,18 @@ public class TupleTest {
 
         TuplePlus<DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> tuplePlus =
                 Tuple.create(
-                        DayOfWeek.FRIDAY, (A)raw[1], (Object[][])raw[2], (AutoA)raw[3], (AutoB)raw[4],
-                        (double[][])raw[5], (Byte[][])raw[6],
-                        (Short[])raw[7], (Comparable[])raw[8], (int[][])raw[9],
+                        DayOfWeek.FRIDAY, (A) raw[1], (Object[][]) raw[2], (AutoA) raw[3], (AutoB) raw[4],
+                        (double[][]) raw[5], (Byte[][]) raw[6],
+                        (Short[]) raw[7], (Comparable[]) raw[8], (int[][]) raw[9],
                         "The 21th", 22
                 );
 
         assertEquals(tupleOf, tuplePlus);
 
         Tuple tuple2 = Tuple.of(tuplePlus.getFirst(), tuplePlus.getSecond(), tuplePlus.getThird(), tuplePlus.getFourth(), tuplePlus.getFifth()
-            , tuplePlus.getSixth(), tuplePlus.getSeventh(), tuplePlus.getEighth(), tuplePlus.getNineth(), tuplePlus.getTenth()
+                , tuplePlus.getSixth(), tuplePlus.getSeventh(), tuplePlus.getEighth(), tuplePlus.getNineth(), tuplePlus.getTenth()
                 , tuplePlus.getValue(10), tuplePlus.getValue(11)
-                );
+        );
         assertEquals(tuple2, tuplePlus);
     }
 
@@ -586,12 +526,12 @@ public class TupleTest {
     }
 
     @Test
-    public void getSignatures(){
+    public void getSignatures() {
         TuplePlus<DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> tuplePlus =
                 Tuple.create(
-                        DayOfWeek.FRIDAY, (A)raw[1], (Object[][])raw[2], (AutoA)raw[3], (AutoB)raw[4],
-                        (double[][])raw[5], (Byte[][])raw[6],
-                        (Short[])raw[7], (Comparable[])raw[8], (int[][])raw[9],
+                        DayOfWeek.FRIDAY, (A) raw[1], (Object[][]) raw[2], (AutoA) raw[3], (AutoB) raw[4],
+                        (double[][]) raw[5], (Byte[][]) raw[6],
+                        (Short[]) raw[7], (Comparable[]) raw[8], (int[][]) raw[9],
                         "The 21th", 22
                 );
 
@@ -614,7 +554,7 @@ public class TupleTest {
         );
 
         Set<Integer> actualSignatures = tuplePlus.getSignatures();
-        assertTrue(expectedSignatures.size()==actualSignatures.size() && expectedSignatures.containsAll(actualSignatures));
+        assertTrue(expectedSignatures.size() == actualSignatures.size() && expectedSignatures.containsAll(actualSignatures));
 //        for (int i = 0; i < expectedSignatures.size(); i++) {
 //            if(!actualSignatures.contains(expectedSignatures.get(i))){
 //                Logger.D("%d at index of %d is not contained", expectedSignatures.get(i), i);
@@ -627,6 +567,79 @@ public class TupleTest {
 //        expectedDif.removeAll(actualSignatures);
 //
 //        assertTrue(actualDif.size() == 0 && expectedDif.size() ==0);
+    }
+
+    enum Progress {
+        Backlog, Study, Working, ReadyForQA, Done;
+
+        private static Progress[] _values = values();
+
+        public static Progress ofIndex(int index) {
+            if (index < 0 || index >= _values.length) throw new IndexOutOfBoundsException();
+            return _values[index];
+        }
+
+        public int toInt() {
+            return ordinal();
+        }
+
+        public Progress getNext() {
+            return _values[(ordinal() + 1) % _values.length];
+        }
+    }
+
+    class A<T> {
+        T value;
+
+        public A(T t) {
+            value = t;
+        }
+
+        public T getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("A(%s)", value == null ? "null" : value.toString());
+        }
+    }
+
+    class B extends A<Integer> {
+        public B(Integer i) {
+            super(i);
+        }
+    }
+
+    public class AutoA implements AutoCloseable {
+        @Override
+        public void close() throws Exception {
+            closeMessages.add(this.getClass().getSimpleName() + ".close()");
+        }
+    }
+
+    public class AutoB extends AutoA {
+    }
+
+    public class AutoC extends AutoA {
+    }
+
+    public class AutoD extends AutoA {
+    }
+
+    public class AutoE extends AutoA {
+    }
+
+    public class AutoF extends AutoA {
+    }
+
+    public class AutoG extends AutoA {
+    }
+
+    public class AutoH extends AutoA {
+    }
+
+    public class E {
     }
 
 }

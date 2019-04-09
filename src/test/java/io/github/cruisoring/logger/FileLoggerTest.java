@@ -18,17 +18,17 @@ public class FileLoggerTest {
     public void canLog() {
         FileLogger fileLogger = new FileLogger("..\\test.log", LogLevel.info);
         LogLevel currentLevel = Logger.getGlobalLogLevel();
-        try(AutoCloseableObject<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
+        try (AutoCloseableObject<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
             Logger.setGlobalLevel(LogLevel.info);
             assertTrue(fileLogger.canLog(LogLevel.info) && fileLogger.canLog(LogLevel.warning) && fileLogger.canLog(LogLevel.warning));
             assertFalse(fileLogger.canLog(LogLevel.verbose) || fileLogger.canLog(LogLevel.debug));
-        }catch (Exception e){
+        } catch (Exception e) {
         }
         assertEquals(currentLevel, Logger.getGlobalLogLevel());
 
-        try(AutoCloseableObject<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
+        try (AutoCloseableObject<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
             assertFalse(fileLogger.canLog(LogLevel.verbose) || fileLogger.canLog(LogLevel.info) || fileLogger.canLog(LogLevel.error));
-        }catch (Exception e){
+        } catch (Exception e) {
         }
     }
 

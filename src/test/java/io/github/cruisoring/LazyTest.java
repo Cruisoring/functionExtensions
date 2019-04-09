@@ -13,7 +13,7 @@ public class LazyTest {
     public static List<String> logs = new ArrayList<>();
 
     @Before
-    public void clear(){
+    public void clear() {
         logs.clear();
     }
 
@@ -21,7 +21,7 @@ public class LazyTest {
     public void create() throws Exception {
         Lazy<String> refString = new Lazy<String>(() -> "abcdefg");
         Lazy<Integer> refInt = refString.create(str -> str.length());
-        Lazy<Boolean> refBoolean = refInt.create(n -> n%2 == 0);
+        Lazy<Boolean> refBoolean = refInt.create(n -> n % 2 == 0);
 
         assertEquals(false, refBoolean.getValue());
         assertTrue(refString.isValueInitialized());
@@ -32,13 +32,13 @@ public class LazyTest {
     public void createWithExtraClosingAction() throws Exception {
         List<String> logs = new ArrayList<>();
         Lazy<Boolean> booleanLazy;
-        try(Lazy<String> stringLazy = new Lazy<String>(() -> "1234567",
+        try (Lazy<String> stringLazy = new Lazy<String>(() -> "1234567",
                 (s0, s1) -> logs.add(String.format("stringLazy changed: %s -> %s", s0, s1)));
-            Lazy<Integer> integerLazy = stringLazy.create(str -> 37 + str.length(),
-                    (i0, i1)-> logs.add(String.format("integerLazy changed: %s -> %s", i0, i1)))) {
+             Lazy<Integer> integerLazy = stringLazy.create(str -> 37 + str.length(),
+                     (i0, i1) -> logs.add(String.format("integerLazy changed: %s -> %s", i0, i1)))) {
             assertEquals(Integer.valueOf(44), integerLazy.getValue());
             assertTrue(stringLazy.isValueInitialized());
-            booleanLazy = integerLazy.create(n -> n%2==0,
+            booleanLazy = integerLazy.create(n -> n % 2 == 0,
                     (b0, b1) -> logs.add(String.format("booleanLazy changed: %s -> %s", b0, b1)));
             boolean booleanValue = booleanLazy.getValue();
         }
@@ -53,8 +53,8 @@ public class LazyTest {
     public void closeDependency_parentsNotClosed() throws Exception {
         Lazy<String> string1 = new Lazy<String>(() -> "1234567");
         Lazy<Integer> integerLazy = string1.create(str -> 37 + str.length(),
-                (i0,i1) -> Logger.D("%d would be closing to %d", i0, i1));
-        Lazy<Boolean> booleanLazy = integerLazy.create(i -> i%2 == 0);
+                (i0, i1) -> Logger.D("%d would be closing to %d", i0, i1));
+        Lazy<Boolean> booleanLazy = integerLazy.create(i -> i % 2 == 0);
 
         assertTrue(booleanLazy.getValue());
         assertTrue(integerLazy.isValueInitialized());
@@ -87,7 +87,7 @@ public class LazyTest {
         assertTrue(string1.isValueInitialized() && string1.getValue().equals("string1"));
     }
 
-    private String throwException(){
+    private String throwException() {
         throw new IllegalArgumentException("test");
     }
 
@@ -133,41 +133,16 @@ public class LazyTest {
         assertEquals("You shall see me after the test :)", logs.get(0));
     }
 
-    public class Account implements AutoCloseable {
-        private String email;
-        public Account(String email){this.email = email; logs.add("Account created: " + email);}
-        @Override
-        public void close() throws Exception {
-            logs.add("Account closed: " + email);
-        }
-    }
-    public class Inbox implements AutoCloseable {
-        public Inbox(Account account){ logs.add("Inbox opened");}
-        public void checkMail(){logs.add("Check inbox");}
-        @Override
-        public void close() throws Exception {
-            logs.add("Inbox closed");
-        }
-    }
-    public class Outbox implements AutoCloseable{
-        public Outbox(Account account){ logs.add("Outbox opened");}
-        public void sendMail(){logs.add("Send mail");}
-        @Override
-        public void close() throws Exception {
-            logs.add("Outbox closed");
-        }
-    }
-
     @Test
-    public void chain_creation_sample(){
+    public void chain_creation_sample() {
         Lazy<String> emailLazy = new Lazy<>(() -> "email@test.com");
         //*/With try-with-resources pattern:
-        try(Lazy<Account> accountLazy = emailLazy.create(Account::new)){
+        try (Lazy<Account> accountLazy = emailLazy.create(Account::new)) {
             Lazy<Inbox> inboxLazy = accountLazy.create(Inbox::new);
             Lazy<Outbox> outboxLazy = accountLazy.create(Outbox::new);
             outboxLazy.getValue().sendMail();
             inboxLazy.getValue().checkMail();
-        }catch (Exception ex){
+        } catch (Exception ex) {
         }
         /*/
         Lazy<Account> accountLazy = emailLazy.create(Account::new);
@@ -182,5 +157,49 @@ public class LazyTest {
                 "Account created: email@test.com", "Outbox opened", "Send mail", "Inbox opened", "Check inbox",
                 "Outbox closed", "Inbox closed", "Account closed: email@test.com"
         }));
+    }
+
+    public class Account implements AutoCloseable {
+        private String email;
+
+        public Account(String email) {
+            this.email = email;
+            logs.add("Account created: " + email);
+        }
+
+        @Override
+        public void close() throws Exception {
+            logs.add("Account closed: " + email);
+        }
+    }
+
+    public class Inbox implements AutoCloseable {
+        public Inbox(Account account) {
+            logs.add("Inbox opened");
+        }
+
+        public void checkMail() {
+            logs.add("Check inbox");
+        }
+
+        @Override
+        public void close() throws Exception {
+            logs.add("Inbox closed");
+        }
+    }
+
+    public class Outbox implements AutoCloseable {
+        public Outbox(Account account) {
+            logs.add("Outbox opened");
+        }
+
+        public void sendMail() {
+            logs.add("Send mail");
+        }
+
+        @Override
+        public void close() throws Exception {
+            logs.add("Outbox closed");
+        }
     }
 }

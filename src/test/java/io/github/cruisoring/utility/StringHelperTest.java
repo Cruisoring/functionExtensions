@@ -1,9 +1,10 @@
 package io.github.cruisoring.utility;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.time.DayOfWeek;
+
+import static org.junit.Assert.assertEquals;
 
 public class StringHelperTest {
 

@@ -16,30 +16,11 @@ import java.util.stream.Stream;
 
 public class StringHelper {
     public final static String PercentageAscii = "&#37";
-
-    /**
-     * Try to convert the String to specific Enum type, returns the converted Enum value if success or the first Enum value if conversion failed
-     * @param enumClass     Type of the concerned Enum
-     * @param enumString    String to be converted
-     * @param <E>           Type of the concerned Enum
-     * @return              the converted Enum value if success or the first Enum value if conversion failed
-     * @throws Exception    any exception that could be thrown when parsing the string to get Enum values
-     */
-    public static <E extends Enum<E>> E parseEnum(Class<E> enumClass, String enumString) throws Exception{
-        E[] enumValues = (E[]) enumClass.getEnumConstants();
-        E matchedOrFirst = Arrays.stream(enumValues)
-                .filter(e -> e.toString().equalsIgnoreCase(enumString))
-                .findFirst()
-                .orElse(enumValues[0]);
-        return matchedOrFirst;
-    }
-
-    private static Object throwsException(String s) throws Exception {
-        throw new Exception();
-    }
-
+    public static final Function<Object, String[]> defaultToStringForms = o -> new String[]{o.toString()};
+    public static final BiPredicate<String, String> contains = (s, k) -> StringUtils.contains(s, k);
+    public static final BiPredicate<String, String> containsIgnoreCase = (s, k) -> StringUtils.containsIgnoreCase(s, k);
     private static final Repository<Class, FunctionThrowable<String, Object>> stringParsers = new Repository<Class, FunctionThrowable<String, Object>>(
-            new HashMap<Class, FunctionThrowable<String, Object>>(){{
+            new HashMap<Class, FunctionThrowable<String, Object>>() {{
                 put(Integer.class, s -> Integer.decode(s));
                 put(int.class, s -> Integer.decode(s).intValue());
                 put(Double.class, s -> Double.valueOf(s));
@@ -61,31 +42,53 @@ public class StringHelper {
             StringHelper::getParser
     );
 
-    private static FunctionThrowable<String, Object> getParser(Class clazz) throws Exception{
+    /**
+     * Try to convert the String to specific Enum type, returns the converted Enum value if success or the first Enum value if conversion failed
+     *
+     * @param enumClass  Type of the concerned Enum
+     * @param enumString String to be converted
+     * @param <E>        Type of the concerned Enum
+     * @return the converted Enum value if success or the first Enum value if conversion failed
+     * @throws Exception any exception that could be thrown when parsing the string to get Enum values
+     */
+    public static <E extends Enum<E>> E parseEnum(Class<E> enumClass, String enumString) throws Exception {
+        E[] enumValues = enumClass.getEnumConstants();
+        E matchedOrFirst = Arrays.stream(enumValues)
+                .filter(e -> e.toString().equalsIgnoreCase(enumString))
+                .findFirst()
+                .orElse(enumValues[0]);
+        return matchedOrFirst;
+    }
+
+    private static Object throwsException(String s) throws Exception {
+        throw new Exception();
+    }
+
+    private static FunctionThrowable<String, Object> getParser(Class clazz) throws Exception {
         Objects.requireNonNull(clazz);
 
-        if(stringParsers.containsKey(clazz))
+        if (stringParsers.containsKey(clazz))
             return stringParsers.get(clazz, null);
 
-        if(TypeHelper.isPrimitive(clazz)){
+        if (TypeHelper.isPrimitive(clazz)) {
             return getParser(TypeHelper.getEquivalentClass(clazz));
         }
-        if(Enum.class.isAssignableFrom(clazz)){
+        if (Enum.class.isAssignableFrom(clazz)) {
             return s -> parseEnum(clazz, s);
         }
 
-        if(clazz.isArray()){
+        if (clazz.isArray()) {
             Class componentClass = clazz.getComponentType();
             FunctionThrowable<String, Object> componentParser = getParser(componentClass);
             TriConsumerThrowable<Object, Integer, Object> equivalentSetter = TypeHelper.getArrayElementSetter(componentClass);
-            if(componentParser == null || equivalentSetter == null) {
+            if (componentParser == null || equivalentSetter == null) {
                 return StringHelper::throwsException;
             }
             return s -> {
                 s = s.trim();
-                if(!s.startsWith("[") || !s.endsWith("]"))
+                if (!s.startsWith("[") || !s.endsWith("]"))
                     throw new MalformedParametersException("Array types shall be wrapped within '[]' and seperated by ','s.");
-                String[] substrings = s.substring(1, s.length()-1).split(",");
+                String[] substrings = s.substring(1, s.length() - 1).split(",");
                 int length = substrings.length;
                 Object parsedValues = ArrayHelper.getNewArray(componentClass, length);
                 for (int i = 0; i < length; i++) {
@@ -98,21 +101,17 @@ public class StringHelper {
         throw new Exception("Not support!");
     }
 
-    public static <T> T parse(String objString, Class<T> objectType, T defaultValue){
-        if(objString == null || objectType == null)
+    public static <T> T parse(String objString, Class<T> objectType, T defaultValue) {
+        if (objString == null || objectType == null)
             return defaultValue;
 
         try {
             FunctionThrowable<String, Object> parser = stringParsers.apply(objectType);
-            return (T)parser.apply(objString);
-        }catch (Exception ex){
+            return (T) parser.apply(objString);
+        } catch (Exception ex) {
             return defaultValue;
         }
     }
-
-    public static final Function<Object, String[]> defaultToStringForms = o -> new String[]{o.toString()};
-    public static final BiPredicate<String, String> contains = (s, k) -> StringUtils.contains(s, k);
-    public static final BiPredicate<String, String> containsIgnoreCase = (s, k) -> StringUtils.containsIgnoreCase(s, k);
 
     private static final Boolean matchAny(BiPredicate<String, String> matcher, String context, String[] keys) {
         if (context == null) return false;
@@ -175,13 +174,14 @@ public class StringHelper {
 
     /**
      * Try to call String.format() and refrain potential IllegalFormatException
-     * @param format    template to compose a string with given arguments
-     * @param args      arguments to be applied to the above template
-     * @return          string formatted with the given or exceptional template.
+     *
+     * @param format template to compose a string with given arguments
+     * @param args   arguments to be applied to the above template
+     * @return string formatted with the given or exceptional template.
      */
     public static String tryFormatString(String format, Object... args) {
         Objects.requireNonNull(format);
-        if(args.length==1 && args[0] instanceof Object[]){
+        if (args.length == 1 && args[0] instanceof Object[]) {
             args = (Object[]) args[0];
         }
         try {

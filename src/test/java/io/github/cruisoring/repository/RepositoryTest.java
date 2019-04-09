@@ -11,6 +11,8 @@ import static org.junit.Assert.assertEquals;
 
 public class RepositoryTest {
 
+    List<String> logs = new ArrayList();
+
     @Test
     public void apply() throws Exception {
         Repository<String, Integer> repository = new Repository<>(s -> s.length());
@@ -25,7 +27,7 @@ public class RepositoryTest {
     @Test
     public void withPredefinedValues() throws Exception {
         Repository<String, Integer> repository = new Repository<>(
-                new HashMap<String, Integer>(){{
+                new HashMap<String, Integer>() {{
                     put("Steel", 100);
                     put("Silver", 200);
                     put("Gold", 500);
@@ -35,8 +37,6 @@ public class RepositoryTest {
         assertEquals(Integer.valueOf(500), repository.get("Gold", 40));
         assertEquals(Integer.valueOf(200), repository.apply("Silver"));
     }
-
-
 
     @Test
     public void get() {
@@ -50,7 +50,7 @@ public class RepositoryTest {
     }
 
     @Test
-    public void repeativeGet(){
+    public void repeativeGet() {
         Repository<Key, Value> repository = new Repository<>(key -> new Value(key.id.length()));
         assertEquals(new Value(0), repository.get(new Key(""), null));
         assertEquals(new Value(1), repository.get(new Key("a"), null));
@@ -63,7 +63,7 @@ public class RepositoryTest {
     }
 
     @Test
-    public void testUpdate() throws Exception{
+    public void testUpdate() throws Exception {
         Repository<String, Integer> repository = new Repository<>(s -> s.length());
         assertEquals(Integer.valueOf(0), repository.apply(""));
         assertEquals(Integer.valueOf(1), repository.apply("a"));
@@ -78,7 +78,7 @@ public class RepositoryTest {
     }
 
     @Test
-    public void testClear() throws Exception{
+    public void testClear() throws Exception {
         Repository<String, Integer> repository = new Repository<>(s -> s.length());
         assertEquals(Integer.valueOf(0), repository.apply(""));
         assertEquals(Integer.valueOf(1), repository.apply("a"));
@@ -100,23 +100,49 @@ public class RepositoryTest {
 
     }
 
-    List<String> logs = new ArrayList();
     class Key implements AutoCloseable {
         private String id;
-        public Key(String s) { id = s;}
-        @Override public void close() throws Exception {
+
+        public Key(String s) {
+            id = s;
+        }
+
+        @Override
+        public void close() throws Exception {
             logs.add(String.format("Key '%s' closed", id));
         }
-        @Override public int hashCode(){return id.hashCode();}
-        @Override public boolean equals(Object other){ return other instanceof Key && ((Key) other).id.equals(this.id); }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Key && ((Key) other).id.equals(this.id);
+        }
     }
+
     class Value implements AutoCloseable {
         private Integer value;
-        public Value(Integer n) {value = n;}
-        @Override public void close() throws Exception {
+
+        public Value(Integer n) {
+            value = n;
+        }
+
+        @Override
+        public void close() throws Exception {
             logs.add(String.format("Value %s closed", value));
         }
-        @Override public int hashCode(){return value.hashCode();}
-        @Override public boolean equals(Object other){ return other instanceof Value && ((Value) other).value.equals(this.value); }
+
+        @Override
+        public int hashCode() {
+            return value.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Value && ((Value) other).value.equals(this.value);
+        }
     }
 }

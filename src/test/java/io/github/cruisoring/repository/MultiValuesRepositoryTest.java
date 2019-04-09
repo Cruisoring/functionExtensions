@@ -51,7 +51,7 @@ public class MultiValuesRepositoryTest {
         assertFalse(repository.containsKey(1233455));
         assertTrue(Arrays.equals(repository.storage.keySet().toArray(new String[3]), new String[]{"", " ", "0123456789?"}));
         assertTrue(Arrays.equals(repository.storage.values().toArray(new Tuple[3]),
-                new Tuple[]{Tuple.create(0,false), Tuple.create(1,false), Tuple.create(11, true)}));
+                new Tuple[]{Tuple.create(0, false), Tuple.create(1, false), Tuple.create(11, true)}));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class MultiValuesRepositoryTest {
         assertFalse(repository.containsKey(1233455));
         assertTrue(Arrays.equals(repository.storage.keySet().toArray(new String[2]), new String[]{" ", "0123456789?"}));
         assertTrue(Arrays.equals(repository.storage.values().toArray(new Tuple[2]),
-                new Tuple[]{Tuple.create(1,false, ' '), Tuple.create(11, true, '0')}));
+                new Tuple[]{Tuple.create(1, false, ' '), Tuple.create(11, true, '0')}));
     }
 
     @Test
@@ -126,7 +126,7 @@ public class MultiValuesRepositoryTest {
         assertFalse(repository.containsKey(' '));
         assertTrue(Arrays.equals(repository.storage.keySet().toArray(new String[2]), new String[]{"abcd?", "0123456789?"}));
         assertTrue(Arrays.equals(repository.storage.values().toArray(new Tuple[2]),
-                new Tuple[]{Tuple.create(5,true, 'a', "abcd?".toCharArray(), ""), Tuple.create(11, true, '0', "0123456789?".toCharArray(), "56789?")}));
+                new Tuple[]{Tuple.create(5, true, 'a', "abcd?".toCharArray(), ""), Tuple.create(11, true, '0', "0123456789?".toCharArray(), "56789?")}));
 
         Tuple5 tuple = repository.retrieve("A test of retrieve");
         assertEquals(3, repository.getSize());
@@ -137,7 +137,7 @@ public class MultiValuesRepositoryTest {
     public void toHaxaValuesRepository() {
         TupleRepository6<String, Integer, Boolean, Character, char[], String, Integer> repository = TupleRepository6.fromKey(s ->
                 Tuple.create(s.length(), s.contains("?"), s.charAt(0), s.toCharArray(), s.substring(5),
-                        Character.getNumericValue(s.charAt(s.length()-1))));
+                        Character.getNumericValue(s.charAt(s.length() - 1))));
         assertEquals(null, repository.getThirdValue(null));
         //StringIndexOutOfBoundsException thrown with strings whose length is less than 5
         assertEquals(null, repository.getFirstValue(""));
@@ -156,7 +156,7 @@ public class MultiValuesRepositoryTest {
         assertFalse(repository.containsKey(' '));
         assertTrue(Arrays.equals(repository.storage.keySet().toArray(new String[2]), new String[]{"?abcd", "?0123456789"}));
         assertTrue(Arrays.equals(repository.storage.values().toArray(new Tuple[2]),
-                new Tuple[]{Tuple.create(5,true, '?', "?abcd".toCharArray(), "", 13),
+                new Tuple[]{Tuple.create(5, true, '?', "?abcd".toCharArray(), "", 13),
                         Tuple.create(11, true, '?', "?0123456789".toCharArray(), "456789", 9)}));
 
         Tuple6 tuple = repository.retrieve("A test of retrieve");
@@ -168,7 +168,7 @@ public class MultiValuesRepositoryTest {
     public void toHeptaValuesRepository() {
         TupleRepository7<String, Integer, Boolean, Character, char[], String, Integer, Boolean> repository = TupleRepository7.fromKey(s ->
                 Tuple.create(s.length(), s.contains("?"), s.charAt(0), s.toCharArray(), s.substring(5),
-                        Character.getNumericValue(s.charAt(s.length()-1)), s.length()>7));
+                        Character.getNumericValue(s.charAt(s.length() - 1)), s.length() > 7));
         assertEquals(null, repository.getThirdValue(null));
         //StringIndexOutOfBoundsException thrown with strings whose length is less than 5
         assertEquals(null, repository.getFirstValue(""));
@@ -187,7 +187,7 @@ public class MultiValuesRepositoryTest {
         assertFalse(repository.containsKey(' '));
         assertTrue(Arrays.equals(repository.storage.keySet().toArray(new String[2]), new String[]{"?abcd", "?0123456789"}));
         assertTrue(Arrays.equals(repository.storage.values().toArray(new Tuple[2]),
-                new Tuple[]{Tuple.create(5,true, '?', "?abcd".toCharArray(), "", 13, false),
+                new Tuple[]{Tuple.create(5, true, '?', "?abcd".toCharArray(), "", 13, false),
                         Tuple.create(11, true, '?', "?0123456789".toCharArray(), "456789", 9, true)}));
 
         Tuple tuple = repository.retrieve("A test of retrieve");

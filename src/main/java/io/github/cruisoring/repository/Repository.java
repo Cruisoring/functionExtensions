@@ -9,8 +9,9 @@ import java.util.function.BiPredicate;
 
 /**
  * Wrapping of Map instance and business logic to get value from key
- * @param <TKey>    the type of keys maintained by this map
- * @param <TValue>  the type of mapped values
+ *
+ * @param <TKey>   the type of keys maintained by this map
+ * @param <TValue> the type of mapped values
  */
 public class Repository<TKey, TValue>
         implements FunctionThrowable<TKey, TValue> {
@@ -20,20 +21,21 @@ public class Repository<TKey, TValue>
 
     final Map<TKey, TValue> storage;
 
-   //Function to map key of TKey type to value of TValue type
+    //Function to map key of TKey type to value of TValue type
     final FunctionThrowable<TKey, TValue> valueFunctionThrowable;
 
     final TriConsumerThrowable<TKey, TValue, TValue> changesConsumer;
 
     /**
      * Construct a repository with given map factory, extra changesConsumer logic and Function to map key to value
-     * @param map   Factory to get a map instance
-     * @param changesConsumer           Extra steps to run before closing() being called.
-     * @param valueFunction     Function to map key of TKey type to value of TValue type
+     *
+     * @param map             Factory to get a map instance
+     * @param changesConsumer Extra steps to run before closing() being called.
+     * @param valueFunction   Function to map key of TKey type to value of TValue type
      */
     public Repository(Map<TKey, TValue> map,
                       TriConsumerThrowable<TKey, TValue, TValue> changesConsumer,
-                      FunctionThrowable<TKey, TValue> valueFunction){
+                      FunctionThrowable<TKey, TValue> valueFunction) {
         storage = map;
         Objects.requireNonNull(valueFunction);
         this.valueFunctionThrowable = valueFunction;
@@ -42,13 +44,14 @@ public class Repository<TKey, TValue>
 
     /**
      * Construct a repository as a HashMap without extra closing action, with function to map key to value
-     * @param valueFunction     Function to map key of TKey type to value of TValue type
+     *
+     * @param valueFunction Function to map key of TKey type to value of TValue type
      */
-    public Repository(FunctionThrowable<TKey, TValue> valueFunction){
+    public Repository(FunctionThrowable<TKey, TValue> valueFunction) {
         this(new HashMap(), null, valueFunction);
     }
 
-    private void defaultChangesLog(TKey key, TValue oldValue, TValue newValue){
+    private void defaultChangesLog(TKey key, TValue oldValue, TValue newValue) {
         Class keyClass = key.getClass();
         Object value = oldValue == null ? newValue : oldValue;
         Class valueClass = value == null ? null : value.getClass();
@@ -59,18 +62,19 @@ public class Repository<TKey, TValue>
 
     /**
      * Try to get cached value of the corresponding key first, mapping and caching key to value only when it is not cached before
-     * @param tKey      The key of type <code>TKey</code> to be mapped to value of type <code>TValue</code>
-     * @return          mapped value of type <code>TValue</code> from the given tKey
+     *
+     * @param tKey The key of type <code>TKey</code> to be mapped to value of type <code>TValue</code>
+     * @return mapped value of type <code>TValue</code> from the given tKey
      * @throws Exception any exception that might be thrown during the evaluation and retrieval
      */
     @Override
     public TValue apply(TKey tKey) throws Exception {
         Objects.requireNonNull(tKey);
         TValue result;
-        if(!storage.containsKey(tKey)){
+        if (!storage.containsKey(tKey)) {
             result = valueFunctionThrowable.apply(tKey);
             storage.put(tKey, result);
-            if(changesConsumer != null)
+            if (changesConsumer != null)
                 changesConsumer.accept(tKey, null, result);
         } else {
             result = storage.get(tKey);
@@ -81,38 +85,40 @@ public class Repository<TKey, TValue>
     /**
      * Update the value mapped from a given key with newValue
      * Notice: this operation is not thread-safe by itself
+     *
      * @param tKey          The key used to get the concerned value
      * @param existingValue The existing value mapped from the given key, or null if the map does not contains the key
      * @param newValue      The value to be used to put or replace the existing value related with the given key
-     * @return              The latest value related with the given key
-     * @throws Exception    Any Exceptions that might be thrown
+     * @return The latest value related with the given key
+     * @throws Exception Any Exceptions that might be thrown
      */
-    public TValue update(TKey tKey, TValue existingValue, TValue newValue) throws Exception{
+    public TValue update(TKey tKey, TValue existingValue, TValue newValue) throws Exception {
         Objects.requireNonNull(tKey);
 
         //No need to update value of the map if there is no changes
-        if(Objects.equals(existingValue, newValue))
+        if (Objects.equals(existingValue, newValue))
             return existingValue;
 
-        if(containsKey(tKey) && !Objects.equals(existingValue, storage.get(tKey))) {
+        if (containsKey(tKey) && !Objects.equals(existingValue, storage.get(tKey))) {
             throw new Exception("The existing value of '" + tKey + "' doesn't match with " + existingValue);
-        } else if (!containsKey(tKey) && existingValue != null ){
+        } else if (!containsKey(tKey) && existingValue != null) {
             throw new Exception("The existingValue shall be null when there is no entry of key of " + tKey);
         }
 
         storage.put(tKey, newValue);
-        if(changesConsumer != null)
+        if (changesConsumer != null)
             changesConsumer.accept(tKey, existingValue, newValue);
         return newValue;
     }
 
     /**
-     *  Remove the key value pairs matched with the given keyValuePredicate
-     *  Notice: this operation is not thread-safe by itself
+     * Remove the key value pairs matched with the given keyValuePredicate
+     * Notice: this operation is not thread-safe by itself
+     *
      * @param keyValuePredicate Predicate to select the key value pairs to remove
-     * @return      Number of key value pairs matched with the given predicate and thus removed
+     * @return Number of key value pairs matched with the given predicate and thus removed
      */
-    public int clear(BiPredicate<TKey, TValue> keyValuePredicate){
+    public int clear(BiPredicate<TKey, TValue> keyValuePredicate) {
         Objects.requireNonNull(keyValuePredicate);
 
         int changes = 0;
@@ -125,10 +131,10 @@ public class Repository<TKey, TValue>
                 if (keyValuePredicate.test(key, value)) {
                     storage.remove(key, value);
                     changes++;
-                    if(changesConsumer != null)
+                    if (changesConsumer != null)
                         changesConsumer.accept(key, value, null);
                 }
-            }catch (Exception ex){
+            } catch (Exception ex) {
             }
         }
 
@@ -137,14 +143,15 @@ public class Repository<TKey, TValue>
 
     /**
      * Wrap the business logic of apply() to refrain throwing Exception by returning defaultValue
-     * @param tKey          The key of type <code>TKey</code> to be mapped to value of type <code>TValue</code>
-     * @param defaultValue  The default value to be returned when there is any Exception thrown by apply(TKey key)
-     * @return          mapped value of type <code>TValue</code> from the given tKey
+     *
+     * @param tKey         The key of type <code>TKey</code> to be mapped to value of type <code>TValue</code>
+     * @param defaultValue The default value to be returned when there is any Exception thrown by apply(TKey key)
+     * @return mapped value of type <code>TValue</code> from the given tKey
      */
-    public TValue get(TKey tKey, TValue defaultValue){
+    public TValue get(TKey tKey, TValue defaultValue) {
         try {
             return apply(tKey);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return defaultValue;
         }
     }
@@ -158,16 +165,16 @@ public class Repository<TKey, TValue>
      *
      * @param tKey key whose presence in this map is to be tested
      * @return <tt>true</tt> if this map contains a mapping for the specified
-     *         key
-     * @throws ClassCastException if the key is of an inappropriate type for
-     *         this map
-     * (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+     * key
+     * @throws ClassCastException   if the key is of an inappropriate type for
+     *                              this map
+     *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified key is null and this map
-     *         does not permit null keys
-     * (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+     *                              does not permit null keys
+     *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
      */
 
-    public boolean containsKey(Object tKey){
+    public boolean containsKey(Object tKey) {
         return storage.containsKey(tKey);
     }
 
@@ -178,7 +185,7 @@ public class Repository<TKey, TValue>
      *
      * @return the number of key-value mappings in this map
      */
-    public int getSize(){
+    public int getSize() {
         return storage.size();
     }
 

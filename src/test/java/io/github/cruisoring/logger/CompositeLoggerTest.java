@@ -3,7 +3,7 @@ package io.github.cruisoring.logger;
 import io.github.cruisoring.AutoCloseableObject;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class CompositeLoggerTest {
 
@@ -14,8 +14,8 @@ public class CompositeLoggerTest {
 
         final CompositeLogger compositeLogger = new CompositeLogger(logger1, logger2, Logger.getDefault());
 
-        ILogger old=null;
-        try(AutoCloseableObject<ILogger> oldLogger = Logger.useInScope(compositeLogger)){
+        ILogger old = null;
+        try (AutoCloseableObject<ILogger> oldLogger = Logger.useInScope(compositeLogger)) {
             Logger.V("verbose shall be logged by logger1");
             Logger.D("debug shall be loggered by both logger1 and oldLogger");
             Logger.I("info shall be logged by all 3 ILogger instances");
@@ -28,11 +28,12 @@ public class CompositeLoggerTest {
 
             old = oldLogger.getValue();
             assertTrue(Logger.Default != old);
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
 
-        assertTrue(old==Logger.getDefault());
+        assertTrue(old == Logger.getDefault());
 
-        try(AutoCloseableObject<ILogger> oldLogger = Logger.useInScope(new CompositeLogger(LogLevel.error, logger1, logger2, Logger.getDefault()))){
+        try (AutoCloseableObject<ILogger> oldLogger = Logger.useInScope(new CompositeLogger(LogLevel.error, logger1, logger2, Logger.getDefault()))) {
             Logger.V("verbose2 shall be logged by logger1");
             Logger.D("debug2 shall be loggered by both logger1 and oldLogger");
             Logger.I("info2 shall be logged by all 3 ILogger instances");
@@ -47,9 +48,10 @@ public class CompositeLoggerTest {
 
             old = oldLogger.getValue();
             assertTrue(Logger.Default != old);
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
 
-        assertTrue(old==Logger.getDefault());
+        assertTrue(old == Logger.getDefault());
     }
 
 }
