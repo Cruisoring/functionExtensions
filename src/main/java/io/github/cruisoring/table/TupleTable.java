@@ -9,37 +9,28 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TupleTable<R extends Tuple> implements ITable<R> {
-    final List<String> columns;
-    final int width;
+    final TableColumns columns;
     final List<R> rows = new ArrayList<>();
-    final Map<String, Integer> columnIndexes;
 
-    protected TupleTable(String... columns) {
+    protected TupleTable(TableColumns columns){
         Objects.requireNonNull(columns);
-        this.columns = Collections.unmodifiableList(Arrays.asList(columns));
+        this.columns = columns;
+    }
+
+    protected TupleTable(String... columnNames) {
+        Objects.requireNonNull(columnNames);
+        this.columns = new TableColumns(columnNames);
         Map<String, Integer> map = new LinkedHashMap<>();
-        for (int i = 0; i < columns.length; i++) {
-            String column = columns[i];
-            if (column == null) {
-                throw new UnsupportedOperationException("Column name at index of " + i + " cannot be null");
-            } else if (map.containsKey(column)) {
-                throw new UnsupportedOperationException("Column name at index of " + i +
-                        " is duplicated with the one at index of " + map.get(column));
-            }
-            map.put(column, i);
-        }
-        columnIndexes = Collections.unmodifiableMap(map);
-        width = columns.length;
     }
 
     @Override
     public int getColumnIndex(String columnName) {
-        return columns.indexOf(columnName);
+        return columns.get(columnName);
     }
 
     @Override
     public Collection<String> getColumns() {
-        return columns;
+        return columns.columnNames;
     }
 
     @Override
@@ -51,12 +42,12 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
     public TupleRow<R> getRow(int rowIndex) {
         if (rowIndex < 0 || rowIndex >= rows.size())
             return null;
-        return new TupleRow<>(columnIndexes, rows.get(rowIndex));
+        return new TupleRow<>(columns, rows.get(rowIndex));
     }
 
     @Override
     public Map<String, Integer> getColumnIndexes() {
-        return columnIndexes;
+        return columns;
     }
 
     @Override
@@ -82,13 +73,13 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
 
     @Override
     public Iterator<TupleRow<R>> iterator() {
-        Stream<TupleRow<R>> stream = rows.stream().map(v -> new TupleRow<R>(columnIndexes, v));
+        Stream<TupleRow<R>> stream = rows.stream().map(v -> new TupleRow<R>(columns, v));
         return stream.iterator();
     }
 
     @Override
     public Object[] toArray() {
-        return rows.stream().map(v -> new TupleRow<R>(columnIndexes, v))
+        return rows.stream().map(v -> new TupleRow<R>(columns, v))
                 .toArray();
     }
 
@@ -106,7 +97,7 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
 
     @Override
     public boolean add(TupleRow<R> row) {
-        if (row == null || row.nameIndexes != this.columnIndexes) {
+        if (row == null || row.columns != this.columns) {
             return false;
         }
 

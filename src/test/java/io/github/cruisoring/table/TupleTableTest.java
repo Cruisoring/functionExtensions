@@ -49,10 +49,10 @@ public class TupleTableTest {
         table2.addValues(Tuple.create("", null));
         assertEquals(4, table2.size());
 
-        Map<String, Integer> indexes = new HashMap<String, Integer>() {{
+        TableColumns indexes = new TableColumns(new HashMap<String, Integer>() {{
             put("Id", 0);
             put("age", 1);
-        }};
+        }});
         assertEquals(new TupleRow(indexes, Tuple.create("Test", 123)), table2.getRow(0));
         assertEquals(new TupleRow(indexes, Tuple.create(null, null)), table2.getRow(1));
         assertEquals(new TupleRow(indexes, Tuple.create("Test", 123)), table2.getRow(2));
@@ -111,8 +111,8 @@ public class TupleTableTest {
         Object[] array = table2.toArray();
         Logger.I(TypeHelper.deepToString(array));
         assertTrue(array.length == 4
-                && array[0].equals(new TupleRow(table2.getColumnIndexes(), Tuple.create("Test", 123)))
-                && array[3].equals(new TupleRow(table2.getColumnIndexes(), Tuple.create("", null))));
+                && array[0].equals(new TupleRow(table2.columns, Tuple.create("Test", 123)))
+                && array[3].equals(new TupleRow(table2.columns, Tuple.create("", null))));
     }
 
     @Test

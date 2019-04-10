@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class TupleRow10<T, U, V, W, X, Y, Z, A, B, C> extends TupleRow<Tuple10<T, U, V, W, X, Y, Z, A, B, C>> {
 
-    public TupleRow10(Map<String, Integer> indexes, Tuple10<T, U, V, W, X, Y, Z, A, B, C> values) {
+    public TupleRow10(TableColumns indexes, Tuple10<T, U, V, W, X, Y, Z, A, B, C> values) {
         super(indexes, values);
     }
 
@@ -15,7 +15,7 @@ public class TupleRow10<T, U, V, W, X, Y, Z, A, B, C> extends TupleRow<Tuple10<T
         super(columns, values);
     }
 
-    public TupleRow10(Map<String, Integer> indexes, final T t, final U u, final V v, final W w, final X x, final Y y,
+    public TupleRow10(TableColumns indexes, final T t, final U u, final V v, final W w, final X x, final Y y,
                       final Z z, final A a, final B b, final C c) {
         super(indexes, Tuple.create(t, u, v, w, x, y, z, a, b, c));
     }

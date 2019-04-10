@@ -8,4 +8,8 @@ public class TupleTable10<T, U, V, W, X, Y, Z, A, B, C>
                            String c7, String c8, String c9, String c10) {
         super(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10);
     }
+
+    protected TupleTable10(TableColumns columns){
+        super(columns);
+    }
 }

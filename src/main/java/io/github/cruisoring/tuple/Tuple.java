@@ -107,8 +107,8 @@ public class Tuple<T extends Object> implements ITuple<T> {
 
             default:
                 return new TuplePlus(elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5], elements[6], elements[7], elements[8], elements[9], elements[10],
-                        Arrays.copyOfRange(elements, 11, length));
+                        elements[5], elements[6], elements[7], elements[8], elements[9],
+                        Arrays.copyOfRange(elements, 10, length));
         }
     }
 
@@ -184,8 +184,8 @@ public class Tuple<T extends Object> implements ITuple<T> {
 
             default:
                 return new TuplePlus.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5], elements[6], elements[7], elements[8], elements[9], elements[10],
-                        Arrays.copyOfRange(elements, 11, length));
+                        elements[5], elements[6], elements[7], elements[8], elements[9],
+                        Arrays.copyOfRange(elements, 10, length));
 
         }
     }

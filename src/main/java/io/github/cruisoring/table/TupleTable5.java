@@ -6,4 +6,8 @@ public class TupleTable5<T, U, V, W, X> extends TupleTable<Tuple5<T, U, V, W, X>
     protected TupleTable5(String c1, String c2, String c3, String c4, String c5) {
         super(c1, c2, c3, c4, c5);
     }
+
+    protected TupleTable5(TableColumns columns){
+        super(columns);
+    }
 }

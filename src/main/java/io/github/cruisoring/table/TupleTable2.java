@@ -6,4 +6,8 @@ public class TupleTable2<T, U> extends TupleTable<Tuple2<T, U>> implements ITabl
     protected TupleTable2(String column1, String column2) {
         super(column1, column2);
     }
+
+    protected TupleTable2(TableColumns columns){
+        super(columns);
+    }
 }
