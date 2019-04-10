@@ -11,12 +11,6 @@ import java.util.Map;
  * @param <R> Type of the table rows that shall be of <code>Tuple</code>
  */
 public interface ITable<R extends Tuple> extends Collection<TupleRow<R>> {
-    /**
-     * Get the tableName of SQL table to be processed.
-     *
-     * @return Name of the table.
-     */
-    String getTablename();
 
     /**
      * Given a solid column tableName, find its ordinal index.
@@ -40,7 +34,13 @@ public interface ITable<R extends Tuple> extends Collection<TupleRow<R>> {
      */
     int width();
 
-    boolean addTuple(R tuple);
+    /**
+     * Add a qualified tuple to the <code>ITable</code> as a new row.
+     *
+     * @param tuple Tuple of the expected values of a new row.
+     * @return <tt>true</tt> if the ITuple changes by adding the values.
+     */
+    boolean addValues(R tuple);
 
     /**
      * Get the row by its index (0 based)

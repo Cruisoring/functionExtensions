@@ -9,14 +9,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TupleTable<R extends Tuple> implements ITable<R> {
-    final String tableName;
     final List<String> columns;
     final int width;
     final List<R> rows = new ArrayList<>();
     final Map<String, Integer> columnIndexes;
 
-    protected TupleTable(String tableName, String[] columns) {
-        this.tableName = tableName;
+    protected TupleTable(String... columns) {
+        Objects.requireNonNull(columns);
         this.columns = Collections.unmodifiableList(Arrays.asList(columns));
         Map<String, Integer> map = new LinkedHashMap<>();
         for (int i = 0; i < columns.length; i++) {
@@ -31,11 +30,6 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
         }
         columnIndexes = Collections.unmodifiableMap(map);
         width = columns.length;
-    }
-
-    @Override
-    public String getTablename() {
-        return tableName;
     }
 
     @Override
@@ -65,7 +59,6 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
         return columnIndexes;
     }
 
-
     @Override
     public int size() {
         return rows.size();
@@ -78,7 +71,13 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
 
     @Override
     public boolean contains(Object o) {
-        return rows.contains(o);
+        if (o instanceof Tuple) {
+            return rows.contains(o);
+        } else if (o instanceof TupleRow) {
+            return rows.contains(((TupleRow) o).getValues());
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -115,7 +114,7 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
     }
 
     @Override
-    public boolean addTuple(R rowValues) {
+    public boolean addValues(R rowValues) {
         if (rowValues == null) {
             return false;
         }
@@ -136,7 +135,15 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return rows.containsAll(c);
+        if (c == null || c.isEmpty()) {
+            return false;
+        }
+        for (Object o : c) {
+            if (!contains(o)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -150,12 +157,19 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return rows.removeAll(c);
+        if (c == null || c.isEmpty()) {
+            return false;
+        }
+        boolean changed = false;
+        for (Object o : c) {
+            changed |= remove(o);
+        }
+        return changed;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return rows.retainAll(c);
+        return false;
     }
 
     @Override

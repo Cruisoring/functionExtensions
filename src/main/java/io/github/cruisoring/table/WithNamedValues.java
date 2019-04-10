@@ -1,6 +1,8 @@
 package io.github.cruisoring.table;
 
-public interface WithNamedValues<T> {
+import io.github.cruisoring.tuple.WithValues;
+
+public interface WithNamedValues<T> extends WithValues<T> {
     /**
      * Retrieve the element at specific index as an Object.
      *
@@ -11,11 +13,9 @@ public interface WithNamedValues<T> {
     T getValue(String name) throws IndexOutOfBoundsException;
 
     /**
-     * Retrieve the element at specific index as an Object.
+     * Convert the values as NamedValuePair array with their natural order.
      *
-     * @param index index of the element to return
-     * @return the element at the specified position in this list
-     * @throws IndexOutOfBoundsException {@inheritDoc}
+     * @return NameValuePair array
      */
-    T getValue(int index) throws IndexOutOfBoundsException;
+    NameValuePair[] asNameValuePairs();
 }

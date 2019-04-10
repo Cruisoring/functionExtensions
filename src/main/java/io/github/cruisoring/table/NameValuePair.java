@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class NameValuePair<T> extends Tuple2<String, T> {
 
-    protected NameValuePair(String name, T value) {
+    public NameValuePair(String name, T value) {
         super(name, value);
         Objects.requireNonNull(name);
     }

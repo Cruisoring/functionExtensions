@@ -1,7 +1,5 @@
 package io.github.cruisoring.tuple;
 
-import java.util.Set;
-
 public interface WithValues<T> {
     /**
      * Retrieve the element at specific index as an Object.
@@ -19,10 +17,4 @@ public interface WithValues<T> {
      */
     int getLength();
 
-    /**
-     * Get the set of this.hashCode() and all its elements' hashCodes as signatures.
-     *
-     * @return the hashCodes of this and its elements as a Set.
-     */
-    Set<Integer> getSignatures();
 }

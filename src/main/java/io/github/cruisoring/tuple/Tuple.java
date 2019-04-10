@@ -13,7 +13,7 @@ import java.util.function.Predicate;
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
  * would close any elements if they are also AutoCloseable.
  */
-public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>, WithValues<T> {
+public class Tuple<T extends Object> implements ITuple<T> {
 
     public static final Tuple0 UNIT = new Tuple0();
     public static final Tuple1 TRUE = new Tuple1(true);
@@ -107,53 +107,85 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
 
             default:
                 return new TuplePlus(elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5], elements[6], elements[7], elements[8], elements[9],
-                        Arrays.copyOfRange(elements, 10, length));
+                        elements[5], elements[6], elements[7], elements[8], elements[9], elements[10],
+                        Arrays.copyOfRange(elements, 11, length));
         }
+    }
+
+    /**
+     * Factory to create a <tt>Tuple</tt> instance of type <tt>T</tt> with elements of the same type, and their type to cope with Tpe Erasure
+     *
+     * @param elements Elements of the same type T
+     * @param <V>      Actually Type of the elements
+     * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
+     */
+    public static <V> Tuple<V> setOf(final V... elements) {
+        Objects.requireNonNull(elements);
+        Class<? extends V> elemntType = (Class<? extends V>) ArrayHelper.getComponentType(elements);
+        return setOfType(elemntType, elements);
+    }
+
+    /**
+     * Factory to create a <code>Tuple</code> of type <code>T</code>
+     *
+     * @param collection  Collection of Elements of type <code>T</code> to be persisted
+     * @param elementType Class of the elements to cope with Java Type Erasure
+     * @param <T>         Declared Type of the elements
+     * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
+     */
+    public static <T> Tuple<T> setFromCollection(Class<? extends T> elementType, Collection<T> collection) {
+        Objects.requireNonNull(collection);
+        Objects.requireNonNull(elementType);
+        T[] array = collection.toArray((T[]) Array.newInstance(elementType, 0));
+        return setOfType(elementType, array);
     }
 
     /**
      * Factory to create a <tt>Tuple</tt> instance with fixed length of elements of the same type <tt>V</tt>
      *
-     * @param elements Elements of same type <tt>V</tt> to be persisted
-     * @param <V>      Type of the given elements
+     * @param elementType Class of the Type of the elements
+     * @param elements    Elements of same type <tt>V</tt> to be persisted
+     * @param <V>         Type of the given elements
      * @return A strong-typed <code>Tuple?.Set&lt;V&gt;</code>Tuple instance
      */
-    public static <V> Tuple<V> setOf(final V... elements) {
+    public static <V> Tuple<V> setOfType(final Class<? extends V> elementType, final V... elements) {
+        Objects.requireNonNull(elementType);
         Objects.requireNonNull(elements);
         int length = elements.length;
+
         switch (length) {
             case 0:
                 return UNIT;
             case 1:
-                return new Tuple1(elements[0]);
+                return new Tuple1.Set<V>(elementType, elements[0]);
             case 2:
-                return new Tuple2.Set<V>(elements[0], elements[1]);
+                return new Tuple2.Set<V>(elementType, elements[0], elements[1]);
             case 3:
-                return new Tuple3.Set<V>(elements[0], elements[1], elements[2]);
+                return new Tuple3.Set<V>(elementType, elements[0], elements[1], elements[2]);
             case 4:
-                return new Tuple4.Set<V>(elements[0], elements[1], elements[2], elements[3]);
+                return new Tuple4.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3]);
             case 5:
-                return new Tuple5.Set<V>(elements[0], elements[1], elements[2], elements[3], elements[4]);
+                return new Tuple5.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4]);
             case 6:
-                return new Tuple6.Set<V>(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
+                return new Tuple6.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
+                        elements[5]);
             case 7:
-                return new Tuple7.Set<V>(elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new Tuple7.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6]);
             case 8:
-                return new Tuple8.Set<V>(elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new Tuple8.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6], elements[7]);
             case 9:
-                return new Tuple9.Set<V>(elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new Tuple9.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6], elements[7], elements[8]);
             case 10:
-                return new Tuple10.Set<V>(elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new Tuple10.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6], elements[7], elements[8], elements[9]);
 
             default:
-                return new TuplePlus.Set<V>(elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5], elements[6], elements[7], elements[8], elements[9],
-                        Arrays.copyOfRange(elements, 10, length));
+                return new TuplePlus.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
+                        elements[5], elements[6], elements[7], elements[8], elements[9], elements[10],
+                        Arrays.copyOfRange(elements, 11, length));
 
         }
     }
@@ -314,6 +346,8 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
         return new Tuple8(t, u, v, w, x, y, z, a);
     }
 
+    //region Factories to create Strong-typed Tuple instances based on the number of given arguments
+
     /**
      * Create a Tuple9 instance that contains 9 elements of 9 types respectively
      *
@@ -373,8 +407,6 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
         return new Tuple10(t, u, v, w, x, y, z, a, b, c);
     }
 
-    //region Factories to create Strong-typed Tuple instances based on the number of given arguments
-
     /**
      * Create a TuplePlus instance that contains more than 20 elements of 20 types respectively
      *
@@ -407,32 +439,6 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
     }
 
     /**
-     * Factory to create a <tt>Tuple</tt> instance of type <tt>T</tt> with elements of the same type, and their type to cope with Tpe Erasure
-     *
-     * @param elementType Class of the Type of the elements
-     * @param elements    Elements of the same type T
-     * @param <T>         Actually Type of the elements
-     * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
-     */
-    public static <T> Tuple<T> setOf(Class<? extends T> elementType, T[] elements) {
-        return new Tuple<T>(elementType, elements);
-    }
-
-    /**
-     * Factory to create a <code>Tuple</code> of type <code>T</code>
-     *
-     * @param collection Collection of Elements of type <code>T</code> to be persisted
-     * @param clazz      Class of the elements to cope with Java Type Erasure
-     * @param <T>        Declared Type of the elements
-     * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
-     */
-    public static <T> Tuple<T> setOf(Collection<T> collection, Class<? extends T> clazz) {
-        Objects.requireNonNull(collection);
-        T[] array = collection.toArray((T[]) Array.newInstance(clazz, 0));
-        return setOf(clazz, array);
-    }
-
-    /**
      * Get new Array of values to prevent changes on the underlying array.
      *
      * @return copied Array of the persistent values
@@ -454,13 +460,7 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
         return values[index];
     }
 
-    /**
-     * Get all Non-null elements matching the given class as an immutable <tt>Tuple</tt>
-     *
-     * @param clazz Class to evaluate the saved values.
-     * @param <U>   Type of the given Class.
-     * @return Immutable <code>Tuple</code> containing matched elements.
-     */
+    @Override
     public <U> Tuple<U> getSetOf(Class<U> clazz) {
         Objects.requireNonNull(clazz);
 
@@ -487,20 +487,13 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
                 }
             }
             Object[] array = list.toArray((U[]) ArrayHelper.getNewArray(equivalent, list.size()));
-            return setOf(equivalent, array);
+            return setOfType(equivalent, (U[]) array);
         } catch (Exception ex) {
             return null;
         }
     }
 
-    /**
-     * Get all Non-null elements of the given class and matched with predefined criteria as an immutable <tt>Tuple</tt>
-     *
-     * @param clazz          Class to evaluate the saved values.
-     * @param valuePredicate predicate to filter elements by their values
-     * @param <S>            Type of the given Class.
-     * @return Immutable <code>Tuple</code> containing matched elements.
-     */
+    @Override
     public <S> Tuple<S> getSetOf(Class<S> clazz, Predicate<S> valuePredicate) {
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(valuePredicate);
@@ -520,18 +513,15 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
             }
         }
         S[] array = (S[]) matched.stream().toArray();
-        return setOf(clazz, array);
+        return setOfType(clazz, array);
     }
 
-    /**
-     * Get the length of the saved values.
-     *
-     * @return length of the values.
-     */
+    @Override
     public int getLength() {
         return values.length;
     }
 
+    @Override
     public int[][] getDeepLength() {
         if (deepLength == null) {
             deepLength = TypeHelper.getDeepLength(values);
@@ -552,7 +542,11 @@ public class Tuple<T extends Object> implements AutoCloseable, Comparable<Tuple>
         return _hashCode;
     }
 
-    @Override
+    /**
+     * Get the set of this.hashCode() and all its elements' hashCodes as signatures.
+     *
+     * @return the hashCodes of this and its elements as a Set.
+     */
     public Set<Integer> getSignatures() {
         if (_signatures == null) {
             Set<Integer> hashCodes = new HashSet<>();

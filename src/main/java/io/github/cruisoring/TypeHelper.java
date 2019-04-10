@@ -208,7 +208,7 @@ public class TypeHelper {
     /**
      * Repository to evaluate a Lambda expression to get its Parameter Types, and return Type.
      * Notice: the parameter types are not always accurate when some extra values are used to compose the lambda
-     *
+     * <p>
      * <tt>FunctionThrowable&lt;TKey, Tuple3&lt;T,U,V&gt;&gt; valueFunction</tt>
      */
     public static final TupleRepository3<WithValueReturned,
@@ -1495,14 +1495,14 @@ public class TypeHelper {
      * array.  If the array contains other arrays as elements, the string
      * representation contains their contents and so on.  This method is
      * designed for converting multidimensional arrays to strings.
-     *
+     * <p>
      * <p>The string representation consists of a list of the array's
      * elements, enclosed in square brackets (<tt>"[]"</tt>).  Adjacent
      * elements are separated by the characters <tt>", "</tt> (a comma
      * followed by a space).  Elements are converted to strings as by
      * <tt>String.valueOf(Object)</tt>, unless they are themselves
      * arrays.
-     *
+     * <p>
      * <p>This method returns <tt>"null"</tt> if the specified array
      * is <tt>null</tt>.
      *
