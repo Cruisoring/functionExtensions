@@ -1,6 +1,8 @@
 package io.github.cruisoring.table;
 
+import io.github.cruisoring.tuple.ITuple;
 import io.github.cruisoring.tuple.Tuple;
+import io.github.cruisoring.tuple.WithValues;
 
 import java.util.Collection;
 import java.util.Map;
@@ -10,7 +12,7 @@ import java.util.Map;
  *
  * @param <R> Type of the table rows that shall be of <code>Tuple</code>
  */
-public interface ITable<R extends Tuple> extends Collection<TupleRow<R>> {
+public interface ITable<R extends WithValues> extends Collection<TupleRow<R>> {
 
     /**
      * Given a solid column tableName, find its ordinal index.

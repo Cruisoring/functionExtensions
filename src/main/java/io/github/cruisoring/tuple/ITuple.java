@@ -30,6 +30,5 @@ public interface ITuple<T extends Object> extends AutoCloseable, Comparable<Tupl
      * NULL_NODE when it is null, EMPTY_ARRAY_NODE when it is an array of 0 length and otherwise NORMAL_VALUE_NODE.
      * The other int values of the int[] are indexes of the node element or its parent array in their container arrays.
      */
-
     int[][] getDeepLength();
 }

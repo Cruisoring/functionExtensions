@@ -66,7 +66,7 @@ public class TupleTableTest {
         assertNull(table2.getRow(8));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void getColumnIndexes() {
         TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
         Map<String, Integer> indexes = table2.getColumnIndexes();

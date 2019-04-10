@@ -17,4 +17,10 @@ public interface WithValues<T> {
      */
     int getLength();
 
+    /**
+     * Assist equals() to check if the other <code>WithValues</code> object can be equal with this ITuple.
+     * @param obj   Object to be evaluated.
+     * @return      <tt>true</tt> if <tt>obj</tt> can be equal with this.
+     */
+    boolean canEqual(Object obj);
 }

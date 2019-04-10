@@ -1,16 +1,18 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.tuple.ITuple;
 import io.github.cruisoring.tuple.Tuple;
+import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TupleTable<R extends Tuple> implements ITable<R> {
+public class TupleTable<R extends WithValues> implements ITable<R> {
     final TableColumns columns;
-    final List<R> rows = new ArrayList<>();
+    final List<WithValues> rows = new ArrayList<>();
 
     protected TupleTable(TableColumns columns){
         Objects.requireNonNull(columns);
@@ -96,7 +98,7 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
     }
 
     @Override
-    public boolean add(TupleRow<R> row) {
+    public boolean add(TupleRow row) {
         if (row == null || row.columns != this.columns) {
             return false;
         }
@@ -105,7 +107,7 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
     }
 
     @Override
-    public boolean addValues(R rowValues) {
+    public boolean addValues(WithValues rowValues) {
         if (rowValues == null) {
             return false;
         }
@@ -142,7 +144,7 @@ public class TupleTable<R extends Tuple> implements ITable<R> {
         if (c == null || c.isEmpty()) {
             return false;
         }
-        Collection<R> values = c.stream().map(row -> row.getValues()).collect(Collectors.toList());
+        Collection<WithValues> values = c.stream().map(row -> row.getValues()).collect(Collectors.toList());
         return rows.addAll(values);
     }
 

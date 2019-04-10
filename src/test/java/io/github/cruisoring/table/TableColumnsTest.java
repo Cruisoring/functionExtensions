@@ -91,7 +91,7 @@ public class TableColumnsTest {
         assertEquals(Integer.valueOf(1), shared.get("First Name"));
         assertEquals(Integer.valueOf(1), shared.get("Given Name"));
         assertEquals(Integer.valueOf(5), shared.get("Address"));
-        assertNull(shared.get("Id"));
+        assertEquals(Integer.valueOf(-1), shared.get("Id"));
     }
 
     @Test
@@ -149,6 +149,8 @@ public class TableColumnsTest {
 
         TupleRow9<Integer, String, LocalDate, String, String, String, Character, Boolean, String> row9 = shared.createRow(123, "Tom", LocalDate.of(2000, 1, 1),
                 "0400111222", null, "somewhere", 'M', true, "Note");
-//        table8.add(row9);
+        table8.add(row9);
+
+        Logger.D("There are %d rows now", table8.size());
     }
 }

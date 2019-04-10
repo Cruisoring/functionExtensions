@@ -2,10 +2,11 @@ package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple7;
+import io.github.cruisoring.tuple.WithValues7;
 
 import java.util.Map;
 
-public class TupleRow7<T, U, V, W, X, Y, Z> extends TupleRow<Tuple7<T, U, V, W, X, Y, Z>> {
+public class TupleRow7<T, U, V, W, X, Y, Z> extends TupleRow<WithValues7<T, U, V, W, X, Y, Z>> {
 
     public TupleRow7(TableColumns indexes, Tuple7<T, U, V, W, X, Y, Z> values) {
         super(indexes, values);

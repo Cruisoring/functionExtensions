@@ -578,6 +578,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
         return TypeHelper.valueEquals(values, other.values, getDeepLength(), other.getDeepLength());
     }
 
+    @Override
     public boolean canEqual(Object obj) {
         if (!(obj instanceof Tuple))
             return false;

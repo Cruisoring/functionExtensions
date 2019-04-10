@@ -1,6 +1,8 @@
 package io.github.cruisoring.table;
 
+import io.github.cruisoring.tuple.ITuple;
 import io.github.cruisoring.tuple.Tuple;
+import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.StringHelper;
 
 import java.util.Collections;
@@ -10,11 +12,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class TupleRow<R extends Tuple> implements WithNamedValues, Comparable<TupleRow> {
+public class TupleRow<R extends WithValues> implements WithNamedValues, Comparable<TupleRow> {
     final TableColumns columns;
-    final R values;
+    final WithValues values;
 
-    public TupleRow(TableColumns indexes, R values) {
+    public TupleRow(TableColumns indexes, WithValues values) {
         this.columns = indexes;
         this.values = values;
     }
@@ -24,7 +26,7 @@ public class TupleRow<R extends Tuple> implements WithNamedValues, Comparable<Tu
         this.values = values;
     }
 
-    public R getValues() {
+    public WithValues getValues() {
         return values;
     }
 
@@ -107,6 +109,6 @@ public class TupleRow<R extends Tuple> implements WithNamedValues, Comparable<Tu
 
     @Override
     public int compareTo(TupleRow o) {
-        return values.compareTo(o.values);
+        return ((Comparable)values).compareTo(o.values);
     }
 }
