@@ -24,5 +24,4 @@ public interface WithValuesByName<T> extends WithValues<T> {
      * @return NameValuePair array
      */
     NameValuePair[] asNameValuePairs();
-
 }

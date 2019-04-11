@@ -20,4 +20,12 @@ public class TupleTable3<T, U, V> extends TupleTable<WithValues3<T, U, V>> {
     public boolean addValues(T t, U u, V v, Object... more) {
         return addValues(Tuple.of(ArrayHelper.append(more, t, u, v)));
     }
+
+    public boolean add(WithValuesByName3<T, U, V> row) {
+        if (row == null) {// || row.getColumnIndexes() != this.columns) {
+            return false;
+        }
+
+        return rows.add(row.getValues());
+    }
 }

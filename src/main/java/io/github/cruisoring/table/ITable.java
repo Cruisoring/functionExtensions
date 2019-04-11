@@ -1,9 +1,11 @@
 package io.github.cruisoring.table;
 
+import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Interface of generic Table which is composed as collection of rows
@@ -47,9 +49,8 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      *
      * @param rowIndex the Index of the concnerned row (0 based)
      * @return The row with index of <code>rowIndex</code> if existing, otherwise null if rowIndex is out of range.
-     * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    WithValues getRow(int rowIndex) throws IndexOutOfBoundsException;
+    WithValuesByName getRow(int rowIndex);
 
     /**
      * Retrieve ALL column columns of a RowDataSupplier, return them as a list with non-key columns before all key columns.
@@ -60,17 +61,54 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
     Map<String, Integer> getColumnIndexes();
 
     /**
+     * Get cell values with index of <code>columnIndex</code> of all rows.
+     * @param columnIndex   index of the concerned column.
+     * @return  <code>null</code> if columnIndex is less than 0, otherwise the Object[] containing all values of these cell.
+     */
+    default Object[] getColumnValues(int columnIndex){
+        if(columnIndex < 0){
+            return null;
+        }
+
+        int size = size();
+        Object[] colValues = new Object[size];
+        for (int i = 0; i < size; i++) {
+            colValues[i] = getCellValue(i, columnIndex);
+        }
+        return colValues;
+    }
+
+    /**
+     * Get cell values with column name of <code>columnName</code> of all rows.
+     * @param columnName   Name of the concerned column.
+     * @return  <code>null</code> if columnName or not defined, otherwise the Object[] containing all values of these cell.
+     */
+    default Object[] getColumnValues(String columnName){
+        if(columnName == null){
+            return null;
+        }
+
+        int columnIndex = getColumnIndex(columnName);
+
+        int size = size();
+        Object[] colValues = new Object[size];
+        for (int i = 0; i < size; i++) {
+            colValues[i] = getCellValue(i, columnIndex);
+        }
+        return colValues;
+    }
+
+    /**
      * Get the value of the cell with its <code>rowIndex</code> and <code>columnIndex</code>
      *
      * @param rowIndex    the Index of the row containting that cell (0 based)
      * @param columnIndex the Index of the column where the cell is in the row (0 based)
      * @return value of the concerned cell if the <code>rowIndex</code> and <code>columnIndex</code> can locate the cell
-     * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    default Object getCellValue(int rowIndex, int columnIndex) throws IndexOutOfBoundsException {
+    default Object getCellValue(int rowIndex, int columnIndex) {
         WithValues row = getRow(rowIndex);
 
-        return row.getValue(columnIndex);
+        return row == null || columnIndex < 0 || columnIndex >= row.getLength() ? null : row.getValue(columnIndex);
     }
 
     /**
@@ -78,14 +116,33 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      *
      * @param rowIndex   the Index of the row containting that cell (0 based)
      * @param columnName the name of the column where the cell is in the row
-     * @return value of the concerned cell if the <code>rowIndex</code> and <code>columnName</code> can locate the cell
-     * @throws IndexOutOfBoundsException {@inheritDoc}
+     * @return value of the concerned cell if the <code>rowIndex</code> and <code>columnName</code> can locate the cell,
+     * otherwise null
      */
-    default Object getCellValue(int rowIndex, String columnName) throws IndexOutOfBoundsException {
+    default Object getCellValue(int rowIndex, String columnName) {
         int columnIndex = getColumnIndexes().getOrDefault(columnName, -1);
         if (columnIndex == -1) {
-            throw new IndexOutOfBoundsException("No column of " + columnName);
+            return null;
         }
         return getCellValue(rowIndex, columnIndex);
+    }
+
+    /**
+     * Remove the <code>WithValues</code> by its values.
+     * @param values    all values including nulls contained by the matched <code>WithValues</code>
+     * @return  <code>true</code> if removal happened, otherwise <code>false</code>
+     */
+    default boolean remove(Object... values){
+        return remove(Tuple.of(values));
+    }
+
+    /**
+     * Check if the <code>WithValues</code> specified by its values is contained by this <code>ITable</code>
+     * @param values    all values including nulls contained by the matched <code>WithValues</code>
+     * @return  <code>true</code> if it does exist such a <code>WithValues</code> with exactly values as specified
+     * , otherwise <code>false</code>
+     */
+    default boolean contains(Object... values){
+        return contains(Tuple.of(values));
     }
 }

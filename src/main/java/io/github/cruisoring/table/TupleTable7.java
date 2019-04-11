@@ -19,4 +19,13 @@ public class TupleTable7<T, U, V, W, X, Y, Z> extends TupleTable<WithValues7<T, 
 
     public boolean addValues(T t, U u, V v, W w, X x, Y y, Z z, Object... more) {
         return addValues(Tuple.create(ArrayHelper.append(more, t, u, v, w, x, y, z)));
-    }}
+    }
+
+    public boolean add(WithValuesByName7<T, U, V, W, X, Y, Z> row) {
+        if (row == null) {// || row.getColumnIndexes() != this.columns) {
+            return false;
+        }
+
+        return rows.add(row.getValues());
+    }
+}

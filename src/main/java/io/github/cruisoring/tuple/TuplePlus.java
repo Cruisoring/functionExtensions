@@ -17,7 +17,7 @@ import io.github.cruisoring.utility.ArrayHelper;
  * @param <C> Type of the 10th persisted element
  */
 public class TuplePlus<T, U, V, W, X, Y, Z, A, B, C> extends Tuple
-        implements WithValues10<T, U, V, W, X, Y, Z, A, B, C> {
+        implements WithValuesPlus<T, U, V, W, X, Y, Z, A, B, C> {
 
     protected TuplePlus(final T t, final U u, final V v, final W w, final X x, final Y y,
                         final Z z, final A a, final B b, final C c, final Object... more) {

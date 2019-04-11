@@ -67,7 +67,8 @@ public class Tuple<T extends Object> implements ITuple<T> {
     }
 
     /**
-     * Create a Tuple instance to keep any number of elements without caring about their Type info.
+     * Create a Tuple instance to keep any number of elements without caring about their Type info. Notice this method
+     * would always try to unfold the <code>elements</code> as an Array while create() might treat elements as a single argument.
      *
      * @param elements All elements to be persisted by the Tuple
      * @return A <tt>Tuple</tt> instance with length of the elements

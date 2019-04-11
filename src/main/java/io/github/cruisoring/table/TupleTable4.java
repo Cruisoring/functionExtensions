@@ -19,4 +19,13 @@ public class TupleTable4<T, U, V, W> extends TupleTable<WithValues4<T, U, V, W>>
 
     public boolean addValues(T t, U u, V v, W w, Object... more) {
         return addValues(Tuple.of(ArrayHelper.append(more, t, u, v, w)));
-    }}
+    }
+
+    public boolean add(WithValuesByName4<T, U, V, W> row) {
+        if (row == null) {// || row.getColumnIndexes() != this.columns) {
+            return false;
+        }
+
+        return rows.add(row.getValues());
+    }
+}

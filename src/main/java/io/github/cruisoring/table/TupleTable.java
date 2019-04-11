@@ -36,11 +36,11 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public int width() {
-        return rows.size();
+        return columns.width();
     }
 
     @Override
-    public TupleRow<R> getRow(int rowIndex) {
+    public WithValuesByName getRow(int rowIndex) {
         if (rowIndex < 0 || rowIndex >= rows.size())
             return null;
         return new TupleRow<>(columns, rows.get(rowIndex));
@@ -63,12 +63,10 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public boolean contains(Object o) {
-        if (o instanceof Tuple) {
-            return rows.contains(o);
-        } else if (o instanceof TupleRow) {
-            return rows.contains(((TupleRow) o).getValues());
-        } else {
+        if(o == null || !(o instanceof WithValues)){
             return false;
+        } else {
+            return rows.contains(((WithValues) o).getValues());
         }
     }
 
@@ -97,15 +95,6 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     }
 
     @Override
-    public boolean add(WithValuesByName row) {
-        if (row == null || row.getColumnIndexes() != this.columns) {
-            return false;
-        }
-
-        return rows.add(row.getValues());
-    }
-
-    @Override
     public boolean addValues(WithValues rowValues) {
         if (rowValues == null) {
             return false;
@@ -115,14 +104,11 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public boolean remove(Object o) {
-        if (o == null) {
+        if (o == null || !(o instanceof WithValues)) {
             return false;
-        } else if (o instanceof TupleRow) {
-            return rows.remove(((TupleRow) o).getValues());
-        } else if (o instanceof Tuple) {
-            return rows.remove(o);
+        } else {
+            return rows.remove(((WithValues) o).getValues());
         }
-        return false;
     }
 
     @Override
@@ -138,13 +124,30 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         return true;
     }
 
+    /**
+     * Placeholder of Collection&lt;WithValuesByName&gt;.add()
+     * @param row   row to be added.
+     * @return always return false and let the sub-classes to add <code>WithValuesByName</code> of matched type
+     * as this <code>TupleTable</code>
+     */
+    @Override
+    public boolean add(WithValuesByName row) {
+        return false;
+    }
+
     @Override
     public boolean addAll(Collection<? extends WithValuesByName> c) {
         if (c == null || c.isEmpty()) {
             return false;
         }
-        Collection<WithValues> values = c.stream().map(row -> row.getValues()).collect(Collectors.toList());
-        return rows.addAll(values);
+
+        boolean added = false;
+        for(WithValuesByName r : c){
+            if(add(r)){
+                added = true;
+            }
+        }
+        return added;
     }
 
     @Override
@@ -161,7 +164,23 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return false;
+        if(c == null){
+            return false;
+        }
+        Set<WithValues> valueSet = c.stream()
+                .filter(item -> item instanceof WithValues)
+                .map(item -> ((WithValues)item).getValues())
+                .collect(Collectors.toSet());
+        int size = size();
+        int removed = 0;
+        for (int i = size-1; i >= 0; i--) {
+            if(!valueSet.contains(rows.get(i))){
+                rows.remove(i);
+                removed++;
+            }
+        }
+
+        return removed != 0;
     }
 
     @Override
