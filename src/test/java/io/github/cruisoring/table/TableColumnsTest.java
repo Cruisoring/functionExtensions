@@ -19,7 +19,7 @@ public class TableColumnsTest {
         put("Phone", 3);
         put("Address", 5);
     }};
-    TableColumns shared = new TableColumns(normalMap);
+    ITableColumns shared = new TableColumns(normalMap);
 
     @Test(expected = UnsupportedOperationException.class)
     public void testConstructor_WithNullStrings(){
@@ -111,6 +111,14 @@ public class TableColumnsTest {
     }
 
     @Test
+    public void keySet(){
+        assertEquals(8, shared.keySet().size());
+        Logger.D(String.join(", ", shared.keySet()));
+        assertEquals("ID, First Name, Given Name, Birthday, Mobile, Phone, Email, Address",
+                String.join(", ", shared.keySet()));
+    }
+
+    @Test
     public void values() {
         assertEquals(8, shared.values().size());
 
@@ -127,9 +135,9 @@ public class TableColumnsTest {
 
         TupleRow row6 = shared.rowOf(123, "Tom", LocalDate.of(2000, 1, 1), "0400111222", null, "somewhere");
         Logger.I(row6.toString());
-        assertEquals("Tom", row6.getValue("Given Name"));
-        assertEquals("0400111222", row6.getValue("Phone"));
-        assertNull(row6.getValue("id"));
+        assertEquals("Tom", row6.getValueByName("Given Name"));
+        assertEquals("0400111222", row6.getValueByName("Phone"));
+        assertNull(row6.getValueByName("id"));
 
         TupleRow8<Integer, String, LocalDate, String, String, String, Character, Boolean> row8 = shared.createRow(123, "Tom", LocalDate.of(2000, 1, 1),
                 "0400111222", null, "somewhere", 'M', true);

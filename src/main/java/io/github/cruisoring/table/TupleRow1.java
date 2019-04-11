@@ -2,13 +2,10 @@ package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple1;
-import io.github.cruisoring.tuple.WithValues1;
 
-import java.util.Map;
+public class TupleRow1<T> extends TupleRow implements WithValuesByName1<T> {
 
-public class TupleRow1<T> extends TupleRow<WithValues1<T>> {
-
-    public TupleRow1(TableColumns indexes, Tuple1<T> values) {
+    public TupleRow1(ITableColumns indexes, Tuple1<T> values) {
         super(indexes, values);
     }
 
@@ -16,7 +13,7 @@ public class TupleRow1<T> extends TupleRow<WithValues1<T>> {
         super(columns, values);
     }
 
-    public TupleRow1(TableColumns indexes, final T t) {
+    public TupleRow1(ITableColumns indexes, final T t) {
         super(indexes, Tuple.create(t));
     }
 

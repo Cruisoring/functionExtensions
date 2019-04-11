@@ -1,6 +1,6 @@
 package io.github.cruisoring.tuple;
 
-public interface WithValues<T> {
+public interface WithValues<T> extends Comparable {
     /**
      * Retrieve the element at specific index as an Object.
      *
@@ -23,4 +23,13 @@ public interface WithValues<T> {
      * @return      <tt>true</tt> if <tt>obj</tt> can be equal with this.
      */
     boolean canEqual(Object obj);
+
+    default WithValues getValues(){
+        return this;
+    }
+
+    @Override
+    default int compareTo(Object o){
+        return o == null ? hashCode() : hashCode() - o.hashCode();
+    }
 }

@@ -2,7 +2,10 @@ package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.WithValues;
 
-public interface WithNamedValues<T> extends WithValues<T> {
+public interface WithValuesByName<T> extends WithValues<T> {
+
+    ITableColumns getColumnIndexes();
+
     /**
      * Retrieve the element at specific index as an Object.
      *
@@ -10,7 +13,10 @@ public interface WithNamedValues<T> extends WithValues<T> {
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    T getValue(String name) throws IndexOutOfBoundsException;
+    default T getValueByName(String name) {
+        Integer index = getColumnIndexes().get(name);
+        return index < 0 ? null : getValue(index);
+    }
 
     /**
      * Convert the values as NamedValuePair array with their natural order.
@@ -18,4 +24,5 @@ public interface WithNamedValues<T> extends WithValues<T> {
      * @return NameValuePair array
      */
     NameValuePair[] asNameValuePairs();
+
 }

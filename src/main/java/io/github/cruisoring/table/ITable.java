@@ -1,7 +1,5 @@
 package io.github.cruisoring.table;
 
-import io.github.cruisoring.tuple.ITuple;
-import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 
 import java.util.Collection;
@@ -12,7 +10,7 @@ import java.util.Map;
  *
  * @param <R> Type of the table rows that shall be of <code>Tuple</code>
  */
-public interface ITable<R extends WithValues> extends Collection<TupleRow<R>> {
+public interface ITable<R extends WithValues> extends Collection<WithValuesByName> {
 
     /**
      * Given a solid column tableName, find its ordinal index.
@@ -51,7 +49,7 @@ public interface ITable<R extends WithValues> extends Collection<TupleRow<R>> {
      * @return The row with index of <code>rowIndex</code> if existing, otherwise null if rowIndex is out of range.
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    TupleRow getRow(int rowIndex) throws IndexOutOfBoundsException;
+    WithValues getRow(int rowIndex) throws IndexOutOfBoundsException;
 
     /**
      * Retrieve ALL column columns of a RowDataSupplier, return them as a list with non-key columns before all key columns.
@@ -70,7 +68,7 @@ public interface ITable<R extends WithValues> extends Collection<TupleRow<R>> {
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     default Object getCellValue(int rowIndex, int columnIndex) throws IndexOutOfBoundsException {
-        WithNamedValues row = getRow(rowIndex);
+        WithValues row = getRow(rowIndex);
 
         return row.getValue(columnIndex);
     }

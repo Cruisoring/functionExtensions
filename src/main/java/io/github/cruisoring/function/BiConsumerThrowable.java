@@ -35,7 +35,6 @@ public interface BiConsumerThrowable<T, U> {
         }
     }
 
-
     /**
      * Convert the BiConsumerThrowable&lt;T,U&gt; to BiConsumer&lt;T,U&gt; with injected Exception Handler
      *
@@ -53,4 +52,27 @@ public interface BiConsumerThrowable<T, U> {
         };
         return biConsumer;
     }
+
+    /**
+     * Convert the BiConsumerThrowable&lt;T,U&gt; to BiConsumer&lt;T,U&gt; with optional alternative BiConsumer&lt;T,U&gt;
+     *
+     * @param alternatives varargs of BiConsumer&lt;T,U&gt; to consume the input.
+     * @return the tryAccept() if no alternatives provided, otherwise a converted BiConsumer&lt;T,U&gt; that
+     *  would use the first BiConsumer&lt;T,U&gt; to finish the job
+     */
+    default BiConsumer<T, U> orElse(BiConsumer<T, U>... alternatives){
+        if(alternatives == null || alternatives.length == 0){
+            return this::tryAccept;
+        }
+
+        BiConsumer<T, U> consumer = (t,u) -> {
+            try {
+                accept(t, u);
+            } catch (Exception e) {
+                alternatives[0].accept(t, u);
+            }
+        };
+        return consumer;
+    }
+
 }

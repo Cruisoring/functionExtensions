@@ -530,11 +530,6 @@ public class Tuple<T extends Object> implements ITuple<T> {
     }
 
     @Override
-    public int compareTo(Tuple o) {
-        return o == null ? hashCode() : hashCode() - o.hashCode();
-    }
-
-    @Override
     public int hashCode() {
         if (_hashCode == null) {
             _hashCode = TypeHelper.deepHashCode(values);
@@ -584,6 +579,30 @@ public class Tuple<T extends Object> implements ITuple<T> {
             return false;
         Tuple other = (Tuple) obj;
         return this._elementType.isAssignableFrom(other._elementType) || other._elementType.isAssignableFrom(this._elementType);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if(o == null){
+            return hashCode();
+        } else if(!(o instanceof WithValues)) {
+            return hashCode() - o.hashCode();
+        }
+
+        WithValues other = (WithValues)o;
+        int thisLength = getLength();
+        int otherLength = other.getLength();
+        int len = thisLength < otherLength ? thisLength : otherLength;
+        for (int i = 0; i < len; i++) {
+            T t1 = getValue(i);
+            int hash1 = t1 == null ? 0 : t1.hashCode();
+            Object t2 = other.getValue(i);
+            int hash2 = t2 == null ? 0 : t2.hashCode();
+            if(hash1 != hash2){
+                return hash1 - hash2;
+            }
+        }
+        return thisLength - otherLength;
     }
 
     @Override

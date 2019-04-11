@@ -61,6 +61,28 @@ public interface PentaConsumerThrowable<T, U, V, W, X> {
     }
 
     /**
+     * Convert the PentaConsumerThrowable&lt;T,U,V,W,X&gt; to PentaConsumer&lt;T,U,V,W,X&gt; with optional alternative PentaConsumer&lt;T,U,V,W,X&gt;
+     *
+     * @param alternatives varargs of PentaConsumer&lt;T,U,V,W,X&gt; to consume the input.
+     * @return the tryAccept() if no alternatives provided, otherwise a converted PentaConsumer&lt;T,U,V,W,X&gt; that 
+     *  would use the first PentaConsumer&lt;T,U,V,W,X&gt; to finish the job
+     */
+    default PentaConsumer<T, U, V, W, X> orElse(PentaConsumer<T, U, V, W, X>... alternatives){
+        if(alternatives == null || alternatives.length == 0){
+            return this::tryAccept;
+        }
+
+        PentaConsumer<T, U, V, W, X> consumer = (t, u, v, w, x) -> {
+            try {
+                accept(t, u, v, w, x);
+            } catch (Exception e) {
+                alternatives[0].accept(t, u, v, w, x);
+            }
+        };
+        return consumer;
+    }
+
+    /**
      * Represents an operation that accepts five input arguments and returns no result.
      *
      * @param <T> Type of the first argument

@@ -81,6 +81,10 @@ public class ArrayHelper<T, R> {
         return newArray;
     }
 
+    public static <T> Object[] append(T[] extras, T... array){
+        return mergeTypedArray(array, extras);
+    }
+
     /**
      * More generic way to merge two arrays that could contain primitive elements, and the result array would be the most
      * fitted type (object type preferred) to containing all elements of the two arrays.

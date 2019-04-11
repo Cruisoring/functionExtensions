@@ -68,6 +68,28 @@ public interface HeptaConsumerThrowable<T, U, V, W, X, Y, Z> {
     }
 
     /**
+     * Convert the HeptaConsumerThrowable&lt;T,U,V,W,X,Y,Z&gt; to HeptaConsumer&lt;T,U,V,W,X,Y,Z&gt; with optional alternative HeptaConsumer&lt;T,U,V,W,X,Y,Z&gt;
+     *
+     * @param alternatives varargs of HeptaConsumer&lt;T,U,V,W,X,Y,Z&gt; to consume the input.
+     * @return the tryAccept() if no alternatives provided, otherwise a converted HeptaConsumer&lt;T,U,V,W,X,Y,Z&gt; that 
+     *  would use the first HeptaConsumer&lt;T,U,V,W,X,Y,Z&gt; to finish the job
+     */
+    default HeptaConsumer<T, U, V, W, X, Y, Z> orElse(HeptaConsumer<T, U, V, W, X, Y, Z>... alternatives){
+        if(alternatives == null || alternatives.length == 0){
+            return this::tryAccept;
+        }
+
+        HeptaConsumer<T, U, V, W, X, Y, Z> consumer = (t, u, v, w, x, y, z) -> {
+            try {
+                accept(t, u, v, w, x, y, z);
+            } catch (Exception e) {
+                alternatives[0].accept(t, u, v, w, x, y, z);
+            }
+        };
+        return consumer;
+    }
+
+    /**
      * Represents an operation that accepts seven input arguments and returns no result.
      *
      * @param <T> Type of the first argument

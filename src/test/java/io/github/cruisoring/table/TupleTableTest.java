@@ -4,7 +4,7 @@ import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
-import io.github.cruisoring.tuple.Tuple5;
+import io.github.cruisoring.tuple.WithValues5;
 import org.junit.Test;
 
 import java.util.*;
@@ -59,7 +59,7 @@ public class TupleTableTest {
         assertEquals(new TupleRow(indexes, Tuple.create("", null)), table2.getRow(3));
 
         TupleRow r2 = table2.getRow(2);
-        assertEquals("Test", r2.getValue("Id"));
+        assertEquals("Test", r2.getValueByName("Id"));
         assertEquals(123, r2.getValue(1));
 
         assertNull(table2.getRow(-1));
@@ -94,7 +94,7 @@ public class TupleTableTest {
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create("", null));
 
-        Iterator<TupleRow<Tuple2<String, Integer>>> iterator = table2.iterator();
+        Iterator<WithValuesByName> iterator = table2.iterator();
         while (iterator.hasNext()) {
             Logger.D(iterator.next().toString());
         }
@@ -132,13 +132,33 @@ public class TupleTableTest {
 
     @Test
     public void add() {
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<>("ID", "First Name", "Last Name", "Gender", "IsActive");
-        Tuple5<Integer, String, String, Character, Boolean> row = Tuple.create(1, "Alice", "Wilson", 'F', true);
-        table5.addValues(row);
+        TableColumns columns = new TableColumns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Score");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
+        WithValues5<Integer, String, String, Character, Boolean> newRow =
+                Tuple.create(1, "Alice", "Wilson", 'F', true);
+        table5.addValues(newRow);
+        table5.addValues(2, "Bob", "Nilson", 'M', false, "Pizza");
+        table5.addValues(3, "Clare", "Neons", 'F', true, "Movie", 95);
+        table5.addValues(4, "Alice", "Wilson", 'F', null, "", 80);
+        newRow = Tuple.create(1, "David", "Wilson", 'T', true, null, 77);
+        table5.addValues(newRow);
+
+        table5.forEach(row -> Logger.D(row.toString()));
+
+        WithValuesByName row2 = table5.getRow(1);
+        String row2String = row2.toString();
     }
 
     @Test
     public void remove() {
+        TableColumns columns = new TableColumns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Score");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
+        table5.addValues(1, "Alice", "Wilson", 'F', true, null, 77, "abc");
+        table5.addValues(2, "Bob", "Nilson", 'M', false, "Pizza");
+        table5.addValues(3, "Clare", "Neons", 'F', true, "Movie", 95);
+        table5.addValues(4, "Alice", "Wilson", 'F', null, "", 80);
+
+        table5.forEach(row -> Logger.D(row.toString()));
     }
 
     @Test

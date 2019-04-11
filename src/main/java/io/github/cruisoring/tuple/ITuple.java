@@ -2,7 +2,7 @@ package io.github.cruisoring.tuple;
 
 import java.util.function.Predicate;
 
-public interface ITuple<T extends Object> extends AutoCloseable, Comparable<Tuple>, WithValues<T> {
+public interface ITuple<T extends Object> extends AutoCloseable, WithValues<T> {
     /**
      * Get all Non-null elements matching the given class as an immutable <tt>Tuple</tt>
      *

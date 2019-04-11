@@ -1,22 +1,19 @@
 package io.github.cruisoring.table;
 
-import io.github.cruisoring.tuple.ITuple;
-import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.StringHelper;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class TupleRow<R extends WithValues> implements WithNamedValues, Comparable<TupleRow> {
-    final TableColumns columns;
+public class TupleRow<R extends WithValues> implements WithValuesByName {
+    final ITableColumns columns;
     final WithValues values;
 
-    public TupleRow(TableColumns indexes, WithValues values) {
+    public TupleRow(ITableColumns indexes, WithValues values) {
         this.columns = indexes;
         this.values = values;
     }
@@ -26,8 +23,13 @@ public class TupleRow<R extends WithValues> implements WithNamedValues, Comparab
         this.values = values;
     }
 
+    @Override
     public WithValues getValues() {
         return values;
+    }
+
+    public int compareTo(WithValues o) {
+        return values.compareTo(o);
     }
 
     public Object getValue(int columnIndex) {
@@ -39,17 +41,13 @@ public class TupleRow<R extends WithValues> implements WithNamedValues, Comparab
     }
 
     @Override
-    public Object getValue(String columnName) {
-        if (!columns.containsKey(columnName)) {
-//            throw new IndexOutOfBoundsException("No column of " + columnName);
-            return null;
-        }
-        return values.getValue(columns.get(columnName));
+    public ITableColumns getColumnIndexes() {
+        return columns;
     }
 
     @Override
     public NameValuePair[] asNameValuePairs() {
-        NameValuePair[] pairs = new NameValuePair[getLength()];
+        NameValuePair[] pairs = new NameValuePair[columns.width()];
         for (String name : columns.getColumnNames()) {
             int index = columns.get(name);
             Object value = getValue(index);
@@ -100,15 +98,11 @@ public class TupleRow<R extends WithValues> implements WithNamedValues, Comparab
     public String toString() {
         int width = columns.width()>values.getLength() ? values.getLength() : columns.width();
 
+        List<String> columnNames = columns.getColumnNames();
         String _string = IntStream.range(0, width).boxed()
-                .map(i -> StringHelper.tryFormatString("\"%s\"=%s", columns.columnNames.get(i), getValue(i)))
+                .map(i -> StringHelper.tryFormatString("\"%s\"=%s", columnNames.get(i), getValue(i)))
                 .collect(Collectors.joining(", "));
 
         return "[" + _string + "]";
-    }
-
-    @Override
-    public int compareTo(TupleRow o) {
-        return ((Comparable)values).compareTo(o.values);
     }
 }

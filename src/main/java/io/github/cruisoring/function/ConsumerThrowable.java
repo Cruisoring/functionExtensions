@@ -47,4 +47,26 @@ public interface ConsumerThrowable<T> {
         };
         return consumer;
     }
+
+    /**
+     * Convert the ConsumerThrowable&lt;T&gt; to Consumer&lt;T&gt; with optional alternative Consumer&lt;T&gt;
+     *
+     * @param alternatives varargs of Consumer&lt;T&gt; to consume the input.
+     * @return the tryAccept() if no alternatives provided, otherwise a converted Consumer&lt;T&gt; that
+     *  would use the first Consumer&lt;T&gt; to finish the job
+     */
+    default Consumer<T> orElse(Consumer<T>... alternatives){
+        if(alternatives == null || alternatives.length == 0){
+            return this::tryAccept;
+        }
+
+        Consumer<T> consumer = t -> {
+            try {
+                accept(t);
+            } catch (Exception e) {
+                alternatives[0].accept(t);
+            }
+        };
+        return consumer;
+    }
 }

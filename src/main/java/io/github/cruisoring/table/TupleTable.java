@@ -1,7 +1,6 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.TypeHelper;
-import io.github.cruisoring.tuple.ITuple;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
@@ -11,10 +10,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TupleTable<R extends WithValues> implements ITable<R> {
-    final TableColumns columns;
+    final ITableColumns columns;
     final List<WithValues> rows = new ArrayList<>();
 
-    protected TupleTable(TableColumns columns){
+    protected TupleTable(ITableColumns columns){
         Objects.requireNonNull(columns);
         this.columns = columns;
     }
@@ -32,7 +31,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public Collection<String> getColumns() {
-        return columns.columnNames;
+        return columns.getColumnNames();
     }
 
     @Override
@@ -74,8 +73,8 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     }
 
     @Override
-    public Iterator<TupleRow<R>> iterator() {
-        Stream<TupleRow<R>> stream = rows.stream().map(v -> new TupleRow<R>(columns, v));
+    public Iterator<WithValuesByName> iterator() {
+        Stream<WithValuesByName> stream = rows.stream().map(v -> new TupleRow<R>(columns, v));
         return stream.iterator();
     }
 
@@ -98,8 +97,8 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     }
 
     @Override
-    public boolean add(TupleRow row) {
-        if (row == null || row.columns != this.columns) {
+    public boolean add(WithValuesByName row) {
+        if (row == null || row.getColumnIndexes() != this.columns) {
             return false;
         }
 
@@ -140,7 +139,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends TupleRow<R>> c) {
+    public boolean addAll(Collection<? extends WithValuesByName> c) {
         if (c == null || c.isEmpty()) {
             return false;
         }

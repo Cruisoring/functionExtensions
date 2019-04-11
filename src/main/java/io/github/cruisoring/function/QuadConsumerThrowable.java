@@ -58,6 +58,28 @@ public interface QuadConsumerThrowable<T, U, V, W> {
     }
 
     /**
+     * Convert the QuadConsumerThrowable&lt;T,U,V,W&gt; to QuadConsumer&lt;T,U,V,W&gt; with optional alternative QuadConsumer&lt;T,U,V,W&gt;
+     *
+     * @param alternatives varargs of QuadConsumer&lt;T,U,V,W&gt; to consume the input.
+     * @return the tryAccept() if no alternatives provided, otherwise a converted QuadConsumer&lt;T,U,V,W&gt; that 
+     *  would use the first QuadConsumer&lt;T,U,V,W&gt; to finish the job
+     */
+    default QuadConsumer<T, U, V, W> orElse(QuadConsumer<T, U, V, W>... alternatives){
+        if(alternatives == null || alternatives.length == 0){
+            return this::tryAccept;
+        }
+
+        QuadConsumer<T, U, V, W> consumer = (t, u, v, w) -> {
+            try {
+                accept(t, u, v, w);
+            } catch (Exception e) {
+                alternatives[0].accept(t, u, v, w);
+            }
+        };
+        return consumer;
+    }
+
+    /**
      * Represents an operation that accepts four input arguments and returns no result.
      *
      * @param <T> Type of the first argument

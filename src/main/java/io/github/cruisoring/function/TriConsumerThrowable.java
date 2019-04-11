@@ -36,7 +36,6 @@ public interface TriConsumerThrowable<T, U, V> {
         }
     }
 
-
     /**
      * Convert the TriConsumerThrowable&lt;T,U,V&gt; to TriConsumer&lt;T,U,V&gt; with injected Exception Handler
      *
@@ -50,6 +49,28 @@ public interface TriConsumerThrowable<T, U, V> {
             } catch (Exception e) {
                 if (exceptionHandler != null)
                     exceptionHandler.accept(e);
+            }
+        };
+        return consumer;
+    }
+
+    /**
+     * Convert the TriConsumerThrowable&lt;T,U,V&gt; to TriConsumer&lt;T,U,V&gt; with optional alternative TriConsumer&lt;T,U,V&gt;
+     *
+     * @param alternatives varargs of TriConsumer&lt;T,U,V&gt; to consume the input.
+     * @return the tryAccept() if no alternatives provided, otherwise a converted TriConsumer&lt;T,U,V&gt; that 
+     *  would use the first TriConsumer&lt;T,U,V&gt; to finish the job
+     */
+    default TriConsumer<T, U, V> orElse(TriConsumer<T, U, V>... alternatives){
+        if(alternatives == null || alternatives.length == 0){
+            return this::tryAccept;
+        }
+
+        TriConsumer<T, U, V> consumer = (t, u, v) -> {
+            try {
+                accept(t, u, v);
+            } catch (Exception e) {
+                alternatives[0].accept(t, u, v);
             }
         };
         return consumer;

@@ -43,4 +43,27 @@ public interface RunnableThrowable {
         };
         return runnable;
     }
+
+    /**
+     * Convert the RunnableThrowable to Runnable with optional alternative Runnable
+     *
+     * @param alternatives varargs of Runnable to consume the input.
+     * @return the tryRun() if no alternatives provided, otherwise a converted Runnable that
+     *  would use the first alternative Runnable to finish the job
+     */
+    default Runnable orElse(Runnable... alternatives){
+        if(alternatives == null || alternatives.length == 0){
+            return this::tryRun;
+        }
+
+        Runnable consumer = () -> {
+            try {
+                run();
+            } catch (Exception e) {
+                alternatives[0].run();
+            }
+        };
+        return consumer;
+    }
+
 }

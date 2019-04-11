@@ -64,6 +64,28 @@ public interface HexaConsumerThrowable<T, U, V, W, X, Y> {
     }
 
     /**
+     * Convert the HexaConsumerThrowable&lt;T,U,V,W,X,Y&gt; to HexaConsumer&lt;T,U,V,W,X,Y&gt; with optional alternative HexaConsumer&lt;T,U,V,W,X,Y&gt;
+     *
+     * @param alternatives varargs of HexaConsumer&lt;T,U,V,W,X,Y&gt; to consume the input.
+     * @return the tryAccept() if no alternatives provided, otherwise a converted HexaConsumer&lt;T,U,V,W,X,Y&gt; that 
+     *  would use the first HexaConsumer&lt;T,U,V,W,X,Y&gt; to finish the job
+     */
+    default HexaConsumer<T, U, V, W, X, Y> orElse(HexaConsumer<T, U, V, W, X, Y>... alternatives){
+        if(alternatives == null || alternatives.length == 0){
+            return this::tryAccept;
+        }
+
+        HexaConsumer<T, U, V, W, X, Y> consumer = (t, u, v, w, x, y) -> {
+            try {
+                accept(t, u, v, w, x, y);
+            } catch (Exception e) {
+                alternatives[0].accept(t, u, v, w, x, y);
+            }
+        };
+        return consumer;
+    }
+    
+    /**
      * Represents an operation that accepts six input arguments and returns no result.
      *
      * @param <T> Type of the first argument
