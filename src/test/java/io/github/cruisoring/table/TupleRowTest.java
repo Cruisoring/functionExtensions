@@ -2,7 +2,6 @@ package io.github.cruisoring.table;
 
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
-import io.github.cruisoring.tuple.Tuple1;
 import io.github.cruisoring.tuple.WithValues;
 import org.junit.Test;
 
@@ -90,9 +89,14 @@ public class TupleRowTest {
 
     @Test
     public void testCompatibility(){
-        WithValuesByName1<Integer> row1 = columns.createRow(1);
-        WithValuesByName2<Integer, String> row2 = columns.createRow(2, "Bob");
+        TupleRow1<Integer> row1 = columns.createRow(1);
+        TupleRow2<Integer, String> row2 = columns.createRow(2, "Bob");
+        TupleRow3<Integer, String, Boolean> row3 = columns.createRow(2, "Bob", true);
+        row1 = row3;
         row1 = row2;
+        row2 = row3;
         Logger.D(row1.toString());
+        Logger.D(row2.toString());
+        //row3 = row2; //Need casting
     }
 }

@@ -3,7 +3,6 @@ package io.github.cruisoring.table;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.StringHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -1,16 +1,16 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.Tuple;
-import io.github.cruisoring.tuple.Tuple10;
+import io.github.cruisoring.tuple.WithValues10;
 
-public class TupleRow10<T, U, V, W, X, Y, Z, A, B, C> extends TupleRow
+public class TupleRow10<T, U, V, W, X, Y, Z, A, B, C> extends TupleRow9<T, U, V, W, X, Y, Z, A, B>
         implements WithValuesByName10<T, U, V, W, X, Y, Z, A, B, C> {
 
-    public TupleRow10(ITableColumns indexes, Tuple10<T, U, V, W, X, Y, Z, A, B, C> values) {
+    public TupleRow10(ITableColumns indexes, WithValues10<T, U, V, W, X, Y, Z, A, B, C> values) {
         super(indexes, values);
     }
 
-    public TupleRow10(String[] columns, Tuple10<T, U, V, W, X, Y, Z, A, B, C> values) {
+    public TupleRow10(String[] columns, WithValues10<T, U, V, W, X, Y, Z, A, B, C> values) {
         super(columns, values);
     }
 

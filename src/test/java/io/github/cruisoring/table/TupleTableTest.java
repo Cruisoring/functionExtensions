@@ -5,7 +5,6 @@ import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.tuple.WithValues;
-import io.github.cruisoring.tuple.WithValues5;
 import org.junit.Test;
 
 import java.time.LocalDate;

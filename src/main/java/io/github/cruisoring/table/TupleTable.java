@@ -39,6 +39,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         return columns.width();
     }
 
+
     @Override
     public WithValuesByName getRow(int rowIndex) {
         if (rowIndex < 0 || rowIndex >= rows.size())
@@ -122,17 +123,6 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
             }
         }
         return true;
-    }
-
-    /**
-     * Placeholder of Collection&lt;WithValuesByName&gt;.add()
-     * @param row   row to be added.
-     * @return always return false and let the sub-classes to add <code>WithValuesByName</code> of matched type
-     * as this <code>TupleTable</code>
-     */
-    @Override
-    public boolean add(WithValuesByName row) {
-        return false;
     }
 
     @Override

@@ -32,6 +32,19 @@ public class TableColumnsTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
+    public void constructWithEmpty(){
+        new TableColumns(new HashMap<>());
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void constructWithIndexMissing(){
+        new TableColumns(new HashMap<String, Integer>(){{
+            put("ID", 0);
+            put("Name", 3);
+        }});
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
     public void testConstructor_WithMissingIndex(){
         Map<String, Integer> incomplete= new HashMap<String, Integer>(){{
             put("ID", 1);
@@ -51,14 +64,12 @@ public class TableColumnsTest {
 
     @Test
     public void width() {
-        assertEquals(0, new TableColumns(new HashMap<>()).width());
         assertEquals(3, new TableColumns("id", "name", "BOD").width());
         assertEquals(6, shared.width());
     }
 
     @Test
     public void size() {
-        assertEquals(0, new TableColumns(new HashMap<>()).size());
         assertEquals(3, new TableColumns("id", "name", "BOD").size());
         assertEquals(8, shared.size());
     }
@@ -106,8 +117,10 @@ public class TableColumnsTest {
 
     @Test
     public void getColumnNames() {
-        Logger.V(String.join(", ", shared.getColumnNames()));
-        assertTrue(Objects.deepEquals(new String[]{"ID", "First Name", "Birthday", "Mobile", "Email", "Address"}, shared.getColumnNames().toArray()));
+        Logger.D(String.join(", ", shared.getColumnNames()));
+        assertTrue(Objects.deepEquals(
+            new String[]{"ID", "First Name", "Birthday", "Mobile", "Email", "Address"},
+            shared.getColumnNames().toArray()));
     }
 
     @Test

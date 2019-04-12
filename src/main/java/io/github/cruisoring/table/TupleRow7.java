@@ -1,17 +1,16 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.Tuple;
-import io.github.cruisoring.tuple.Tuple7;
 import io.github.cruisoring.tuple.WithValues7;
 
-public class TupleRow7<T, U, V, W, X, Y, Z> extends TupleRow
+public class TupleRow7<T, U, V, W, X, Y, Z> extends TupleRow6<T, U, V, W, X, Y>
         implements WithValuesByName7<T, U, V, W, X, Y, Z> {
 
-    public TupleRow7(ITableColumns indexes, Tuple7<T, U, V, W, X, Y, Z> values) {
+    public TupleRow7(ITableColumns indexes, WithValues7<T, U, V, W, X, Y, Z> values) {
         super(indexes, values);
     }
 
-    public TupleRow7(String[] columns, Tuple7<T, U, V, W, X, Y, Z> values) {
+    public TupleRow7(String[] columns, WithValues7<T, U, V, W, X, Y, Z> values) {
         super(columns, values);
     }
 

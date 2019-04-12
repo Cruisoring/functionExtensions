@@ -1,8 +1,8 @@
 package io.github.cruisoring.table;
 
-import io.github.cruisoring.tuple.Tuple;
-
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Keep column names and their indexes as a map, aliases could be defined in the given Map to create
@@ -11,6 +11,7 @@ import java.util.*;
  */
 public class TableColumns implements ITableColumns {
 
+    final Map<Integer, List<String>> indexedColumns;
     final Map<String, Integer> columnIndexes;
     final List<String> columnNames;
 
@@ -19,6 +20,7 @@ public class TableColumns implements ITableColumns {
      * @param columnNames   Names of the columns that cannot be null or duplicated.
      */
     public TableColumns(String... columnNames) {
+        Map<Integer, List<String>> indexes = new HashMap<>();
         Map<String, Integer> map = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
         for (int i = 0; i < columnNames.length; i++) {
@@ -31,39 +33,48 @@ public class TableColumns implements ITableColumns {
             }
             map.put(columnName, i);
             names.add(columnName);
+            indexes.put(i, Arrays.asList(columnName));
         }
+        indexedColumns = Collections.unmodifiableMap(indexes);
         columnIndexes = Collections.unmodifiableMap(map);
         this.columnNames = Collections.unmodifiableList(names);
     }
 
     /**
      * Construct the TableColumns with pre-build indexes with no missing ones, but could have aliases to make one column have multiple names.
-     * @param indexes   Pre-defined column names to position map.
+     * @param cIndexes   Pre-defined column names to position map.
      */
-    public TableColumns(Map<String, Integer> indexes) {
-        Objects.requireNonNull(indexes);
+    public TableColumns(Map<String, Integer> cIndexes) {
+        Objects.requireNonNull(cIndexes);
 
-        List<Map.Entry<String, Integer>> entries = new ArrayList<>(indexes.entrySet());
-        Collections.sort(entries, Comparator.comparing(entry -> entry.getValue()));
-        int next = 0;
-        List<String> names = new ArrayList<>();
-        for (int i = 0; i < entries.size(); i++) {
-            Map.Entry<String, Integer> entry = entries.get(i);
-            int index = entry.getValue();
-            if(index == next){
-                next++;
-                names.add(entry.getKey());
-            } else if(index > next) {
-                throw new UnsupportedOperationException("Missing column name definition for index of " + next);
+        Map<Integer, List<String>> indexes = new HashMap<>();
+        Map<String, Integer> map = new LinkedHashMap<>();
+        Integer max = Integer.MIN_VALUE;
+        for (Entry<String, Integer> entry : cIndexes.entrySet()) {
+            Integer index = entry.getValue();
+            max = index > max ? index : max;
+            String name = entry.getKey();
+            if(indexes.containsKey(index)){
+                indexes.get(index).add(name);
+            } else {
+                indexes.put(index, new ArrayList<>(Arrays.asList(name)));
             }
         }
+        if(max < 0){
+            throw new UnsupportedOperationException();
+        }
 
-        Map<String, Integer> map = new LinkedHashMap<>();
-        //Keep the order by index
-        entries.forEach(entry -> map.put(entry.getKey(), entry.getValue()));
+        IntStream.rangeClosed(0, max).forEach(i -> {
+            if(!indexes.containsKey(i)){
+                throw new UnsupportedOperationException("Missing column name definition for index of " + i);
+            }
+            indexes.get(i).forEach(name -> map.put(name, i));
+        });
 
+        indexedColumns = Collections.unmodifiableMap(indexes);
         columnIndexes = Collections.unmodifiableMap(map);
-        this.columnNames = Collections.unmodifiableList(names);
+        this.columnNames = IntStream.rangeClosed(0, max).boxed()
+            .map(i -> indexedColumns.get(i).get(0)).collect(Collectors.toList());
     }
 
     /**

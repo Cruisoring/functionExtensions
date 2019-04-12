@@ -5,7 +5,6 @@ import io.github.cruisoring.tuple.WithValues;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Interface of generic Table which is composed as collection of rows
@@ -37,12 +36,14 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
     int width();
 
     /**
-     * Add a qualified tuple to the <code>ITable</code> as a new row.
-     *
-     * @param tuple Tuple of the expected values of a new row.
-     * @return <tt>true</tt> if the ITuple changes by adding the values.
+     * Check if the <code>WithValues</code> specified by its values is contained by this <code>ITable</code>
+     * @param values    all values including nulls contained by the matched <code>WithValues</code>
+     * @return  <code>true</code> if it does exist such a <code>WithValues</code> with exactly values as specified
+     * , otherwise <code>false</code>
      */
-    boolean addValues(R tuple);
+    default boolean contains(Object... values){
+        return contains(Tuple.of(values));
+    }
 
     /**
      * Get the row by its index (0 based)
@@ -59,6 +60,59 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return
      */
     Map<String, Integer> getColumnIndexes();
+
+
+    /**
+     * Placeholder of Collection&lt;WithValuesByName&gt;.add()
+     * @param row   row to be added.
+     * @return always return false and let the sub-classes to add <code>WithValuesByName</code> of matched type
+     * as this <code>TupleTable</code>
+     */
+    @Override
+    default boolean add(WithValuesByName row) {
+        return false;
+    }
+
+//    default boolean add(TupleRow row){
+//        return false;
+//    }
+
+    /**
+     * Add a qualified tuple to the <code>ITable</code> as a new row.
+     *
+     * @param tuple Tuple of the expected values of a new row.
+     * @return <tt>true</tt> if the ITuple changes by adding the values.
+     */
+    boolean addValues(R tuple);
+
+    /**
+     * Get the value of the cell with its <code>rowIndex</code> and <code>columnIndex</code>
+     *
+     * @param rowIndex    the Index of the row containting that cell (0 based)
+     * @param columnIndex the Index of the column where the cell is in the row (0 based)
+     * @return value of the concerned cell if the <code>rowIndex</code> and <code>columnIndex</code> can locate the cell
+     */
+    default Object getCellValue(int rowIndex, int columnIndex) {
+        WithValues row = getRow(rowIndex);
+
+        return row == null || columnIndex < 0 || columnIndex >= row.getLength() ? null : row.getValue(columnIndex);
+    }
+
+    /**
+     * Get the value of the cell with its <code>rowIndex</code> and <code>columnName</code>
+     *
+     * @param rowIndex   the Index of the row containting that cell (0 based)
+     * @param columnName the name of the column where the cell is in the row
+     * @return value of the concerned cell if the <code>rowIndex</code> and <code>columnName</code> can locate the cell,
+     * otherwise null
+     */
+    default Object getCellValue(int rowIndex, String columnName) {
+        int columnIndex = getColumnIndexes().getOrDefault(columnName, -1);
+        if (columnIndex == -1) {
+            return null;
+        }
+        return getCellValue(rowIndex, columnIndex);
+    }
 
     /**
      * Get cell values with index of <code>columnIndex</code> of all rows.
@@ -99,50 +153,11 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
     }
 
     /**
-     * Get the value of the cell with its <code>rowIndex</code> and <code>columnIndex</code>
-     *
-     * @param rowIndex    the Index of the row containting that cell (0 based)
-     * @param columnIndex the Index of the column where the cell is in the row (0 based)
-     * @return value of the concerned cell if the <code>rowIndex</code> and <code>columnIndex</code> can locate the cell
-     */
-    default Object getCellValue(int rowIndex, int columnIndex) {
-        WithValues row = getRow(rowIndex);
-
-        return row == null || columnIndex < 0 || columnIndex >= row.getLength() ? null : row.getValue(columnIndex);
-    }
-
-    /**
-     * Get the value of the cell with its <code>rowIndex</code> and <code>columnName</code>
-     *
-     * @param rowIndex   the Index of the row containting that cell (0 based)
-     * @param columnName the name of the column where the cell is in the row
-     * @return value of the concerned cell if the <code>rowIndex</code> and <code>columnName</code> can locate the cell,
-     * otherwise null
-     */
-    default Object getCellValue(int rowIndex, String columnName) {
-        int columnIndex = getColumnIndexes().getOrDefault(columnName, -1);
-        if (columnIndex == -1) {
-            return null;
-        }
-        return getCellValue(rowIndex, columnIndex);
-    }
-
-    /**
      * Remove the <code>WithValues</code> by its values.
      * @param values    all values including nulls contained by the matched <code>WithValues</code>
      * @return  <code>true</code> if removal happened, otherwise <code>false</code>
      */
     default boolean remove(Object... values){
         return remove(Tuple.of(values));
-    }
-
-    /**
-     * Check if the <code>WithValues</code> specified by its values is contained by this <code>ITable</code>
-     * @param values    all values including nulls contained by the matched <code>WithValues</code>
-     * @return  <code>true</code> if it does exist such a <code>WithValues</code> with exactly values as specified
-     * , otherwise <code>false</code>
-     */
-    default boolean contains(Object... values){
-        return contains(Tuple.of(values));
     }
 }

@@ -1,15 +1,15 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.Tuple;
-import io.github.cruisoring.tuple.Tuple4;
+import io.github.cruisoring.tuple.WithValues4;
 
-public class TupleRow4<T, U, V, W> extends TupleRow implements WithValuesByName4<T, U, V, W> {
+public class TupleRow4<T, U, V, W> extends  TupleRow3<T, U, V> implements WithValuesByName4<T, U, V, W> {
 
-    public TupleRow4(ITableColumns indexes, Tuple4<T, U, V, W> values) {
+    public TupleRow4(ITableColumns indexes, WithValues4<T, U, V, W> values) {
         super(indexes, values);
     }
 
-    public TupleRow4(String[] columns, Tuple4<T, U, V, W> values) {
+    public TupleRow4(String[] columns, WithValues4<T, U, V, W> values) {
         super(columns, values);
     }
 

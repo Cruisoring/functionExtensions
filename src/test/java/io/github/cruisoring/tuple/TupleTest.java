@@ -534,6 +534,23 @@ public class TupleTest {
     }
 
     @Test
+    public void testCompabilities(){
+        Tuple1<Integer> t1 = Tuple.create(1);
+        Tuple2<Integer, String> t2 = Tuple.create(1, "OK");
+        Tuple3<Integer, String, Boolean> t3 = Tuple.create(1, "OK", true);
+
+//        Tuple1<Integer> t1_3 = t3;      //Tuple2 is not Tuple1
+
+        WithValues1<Integer> values1 = Tuple.create(1);
+        WithValues2<Integer, String> values2 = Tuple.create(1, "OK");
+        WithValues3<Integer, String, Boolean> values3 = Tuple.create(1, "OK", true);
+
+        WithValues1<Integer> values1_3 = values3;
+        WithValues2<Integer, String> values2_3 = values3;
+        WithValues1<Integer> values1_2 = values2;
+    }
+
+    @Test
     public void getSignatures() {
         TuplePlus<DayOfWeek, A, Object[][], AutoA, AutoB, double[][], Byte[][], Short[], Comparable[], int[][]> tuplePlus =
                 Tuple.create(
