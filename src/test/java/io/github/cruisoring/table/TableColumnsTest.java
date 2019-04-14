@@ -19,26 +19,26 @@ public class TableColumnsTest {
         put("Phone", 3);
         put("Address", 5);
     }};
-    ITableColumns shared = new TableColumns(normalMap);
+    IMetaData shared = new MetaData(normalMap);
 
     @Test(expected = UnsupportedOperationException.class)
     public void testConstructor_WithNullStrings(){
-        TableColumns col = new TableColumns("ID", null, "a");
+        MetaData col = new MetaData("ID", null, "a");
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testConstructor_WithDuplicatedNames(){
-        TableColumns col = new TableColumns("ID", "Age", "ID");
+        MetaData col = new MetaData("ID", "Age", "ID");
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void constructWithEmpty(){
-        new TableColumns(new HashMap<>());
+        new MetaData(new HashMap<>());
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void constructWithIndexMissing(){
-        new TableColumns(new HashMap<String, Integer>(){{
+        new MetaData(new HashMap<String, Integer>(){{
             put("ID", 0);
             put("Name", 3);
         }});
@@ -49,12 +49,12 @@ public class TableColumnsTest {
         Map<String, Integer> incomplete= new HashMap<String, Integer>(){{
             put("ID", 1);
         }};
-        TableColumns col = new TableColumns(incomplete);
+        MetaData col = new MetaData(incomplete);
     }
 
     @Test
     public void getColumnIndexes() {
-        TableColumns columns1 = new TableColumns("id", "name", "BOD");
+        MetaData columns1 = new MetaData("id", "name", "BOD");
         Map<String, Integer> indexes = columns1.getColumnIndexes();
         assertEquals(3, indexes.size());
         assertEquals(Integer.valueOf(2), indexes.get("BOD"));
@@ -64,13 +64,13 @@ public class TableColumnsTest {
 
     @Test
     public void width() {
-        assertEquals(3, new TableColumns("id", "name", "BOD").width());
+        assertEquals(3, new MetaData("id", "name", "BOD").width());
         assertEquals(6, shared.width());
     }
 
     @Test
     public void size() {
-        assertEquals(3, new TableColumns("id", "name", "BOD").size());
+        assertEquals(3, new MetaData("id", "name", "BOD").size());
         assertEquals(8, shared.size());
     }
 

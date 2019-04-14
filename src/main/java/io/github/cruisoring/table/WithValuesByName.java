@@ -4,7 +4,7 @@ import io.github.cruisoring.tuple.WithValues;
 
 public interface WithValuesByName<T> extends WithValues<T> {
 
-    ITableColumns getColumnIndexes();
+    IMetaData getColumnIndexes();
 
     /**
      * Retrieve the element at specific index as an Object.

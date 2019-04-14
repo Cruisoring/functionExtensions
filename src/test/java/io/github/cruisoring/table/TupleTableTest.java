@@ -50,7 +50,7 @@ public class TupleTableTest {
         table2.addValues(Tuple.create("", null));
         assertEquals(4, table2.size());
 
-        TableColumns indexes = new TableColumns(new HashMap<String, Integer>() {{
+        MetaData indexes = new MetaData(new HashMap<String, Integer>() {{
             put("Id", 0);
             put("age", 1);
         }});
@@ -133,8 +133,8 @@ public class TupleTableTest {
 
     @Test
     public void add() {
-        TableColumns columns = new TableColumns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
+        MetaData columns = new MetaData("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<Integer, String, String, Character, Boolean>(columns);
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
@@ -164,7 +164,7 @@ public class TupleTableTest {
 
     @Test
     public void remove() {
-        TableColumns columns = new TableColumns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        MetaData columns = new MetaData("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
         TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
@@ -205,7 +205,7 @@ public class TupleTableTest {
 
     @Test
     public void testContains() {
-        TableColumns columns = new TableColumns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        MetaData columns = new MetaData("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
         TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
@@ -241,7 +241,7 @@ public class TupleTableTest {
 
     @Test
     public void addAll() {
-        TableColumns columns = new TableColumns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        MetaData columns = new MetaData("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
         TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
@@ -266,7 +266,7 @@ public class TupleTableTest {
 
     @Test
     public void removeAll() {
-        TableColumns columns = new TableColumns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        MetaData columns = new MetaData("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
         TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
@@ -285,7 +285,7 @@ public class TupleTableTest {
 
     @Test
     public void retainAll() {
-        TableColumns columns = new TableColumns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        MetaData columns = new MetaData("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
         TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);

@@ -5,7 +5,7 @@ import io.github.cruisoring.tuple.WithValues1;
 
 public class TupleRow1<T> extends TupleRow implements WithValuesByName1<T> {
 
-    public TupleRow1(ITableColumns indexes, WithValues1<T> values) {
+    public TupleRow1(IMetaData indexes, WithValues1<T> values) {
         super(indexes, values);
     }
 
@@ -13,7 +13,7 @@ public class TupleRow1<T> extends TupleRow implements WithValuesByName1<T> {
         super(columns, values);
     }
 
-    public TupleRow1(ITableColumns indexes, final T t) {
+    public TupleRow1(IMetaData indexes, final T t) {
         super(indexes, Tuple.create(t));
     }
 

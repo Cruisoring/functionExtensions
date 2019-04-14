@@ -11,7 +11,7 @@ public class TupleTable5<T, U, V, W, X> extends TupleTable<WithValues5<T, U, V, 
         super(c1, c2, c3, c4, c5);
     }
 
-    protected TupleTable5(ITableColumns columns){
+    protected TupleTable5(IMetaData columns){
         super(columns);
     }
 

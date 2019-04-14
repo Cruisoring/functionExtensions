@@ -9,16 +9,16 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TupleRow<R extends WithValues> implements WithValuesByName {
-    final ITableColumns columns;
+    final IMetaData columns;
     final WithValues values;
 
-    public TupleRow(ITableColumns indexes, WithValues values) {
+    public TupleRow(IMetaData indexes, WithValues values) {
         this.columns = indexes;
         this.values = values;
     }
 
     public TupleRow(String[] columns, R values) {
-        this.columns = new TableColumns(columns);
+        this.columns = new MetaData(columns);
         this.values = values;
     }
 
@@ -40,7 +40,7 @@ public class TupleRow<R extends WithValues> implements WithValuesByName {
     }
 
     @Override
-    public ITableColumns getColumnIndexes() {
+    public IMetaData getColumnIndexes() {
         return columns;
     }
 

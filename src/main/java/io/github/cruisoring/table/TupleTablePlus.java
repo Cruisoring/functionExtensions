@@ -10,7 +10,7 @@ public class TupleTablePlus<T, U, V, W, X, Y, Z, A, B, C> extends TupleTable<Wit
         super(ArrayHelper.mergeTypedArray(new String[]{c1, c2, c3, c4, c5, c6, c7, c8, c9, c10}, more));
     }
 
-    protected TupleTablePlus(ITableColumns columns){
+    protected TupleTablePlus(IMetaData columns){
         super(columns);
     }
 

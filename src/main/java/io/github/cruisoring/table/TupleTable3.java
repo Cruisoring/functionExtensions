@@ -9,7 +9,7 @@ public class TupleTable3<T, U, V> extends TupleTable<WithValues3<T, U, V>> {
         super(c1, c2, c3);
     }
 
-    protected TupleTable3(ITableColumns columns){
+    protected TupleTable3(IMetaData columns){
         super(columns);
     }
 

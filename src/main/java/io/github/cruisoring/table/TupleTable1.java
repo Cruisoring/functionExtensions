@@ -1,19 +1,15 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.Tuple;
-import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.tuple.WithValues1;
 import io.github.cruisoring.utility.ArrayHelper;
-
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 public class TupleTable1<T> extends TupleTable<WithValues1<T>> {
     protected TupleTable1(String column1) {
         super(column1);
     }
 
-    protected TupleTable1(ITableColumns columns){
+    protected TupleTable1(IMetaData columns){
         super(columns);
     }
 

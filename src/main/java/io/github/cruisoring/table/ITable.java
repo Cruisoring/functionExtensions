@@ -3,6 +3,7 @@ package io.github.cruisoring.table;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 
@@ -34,6 +35,11 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return Number of columns identified in the first row.
      */
     int width();
+
+
+    default Type[] getElementTypes(){
+        return new Type[0];
+    }
 
     /**
      * Check if the <code>WithValues</code> specified by its values is contained by this <code>ITable</code>

@@ -5,23 +5,26 @@ import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TupleTable<R extends WithValues> implements ITable<R> {
-    final ITableColumns columns;
-    final List<WithValues> rows = new ArrayList<>();
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    protected TupleTable(ITableColumns columns){
-        Objects.requireNonNull(columns);
-        this.columns = columns;
+public class TupleTable<R extends WithValues> implements ITable<R> {
+    final IMetaData columns;
+    final List<WithValues> rows = new ArrayList<>();
+    protected Type[] elementTypes;
+
+    public TupleTable(IMetaData columns){
+        this.columns = checkNotNull(columns);
+        this.elementTypes = columns.getElementTypes();
     }
 
     protected TupleTable(String... columnNames) {
-        Objects.requireNonNull(columnNames);
-        this.columns = new TableColumns(columnNames);
-        Map<String, Integer> map = new LinkedHashMap<>();
+        this.columns = new MetaData(checkNotNull(columnNames));
+        this.elementTypes = new Type[0];
     }
 
     @Override
