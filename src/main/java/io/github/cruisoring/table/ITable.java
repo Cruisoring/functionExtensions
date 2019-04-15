@@ -74,10 +74,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return always return false and let the sub-classes to add <code>WithValuesByName</code> of matched type
      * as this <code>TupleTable</code>
      */
-    @Override
-    default boolean add(WithValuesByName row) {
-        return false;
-    }
+    boolean add(WithValuesByName row);
 
 //    default boolean add(TupleRow row){
 //        return false;

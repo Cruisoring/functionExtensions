@@ -7,12 +7,12 @@ import io.github.cruisoring.utility.ArrayHelper;
 
 public class TupleTable5<T, U, V, W, X> extends TupleTable<WithValues5<T, U, V, W, X>> {
 
-    protected TupleTable5(String c1, String c2, String c3, String c4, String c5) {
-        super(c1, c2, c3, c4, c5);
-    }
-
-    protected TupleTable5(IMetaData columns){
-        super(columns);
+    protected TupleTable5(IColumns columns, Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
+                          Class<? extends W> typeW, Class<? extends X> typeX) {
+        super(columns, typeT, typeU, typeV, typeW, typeX);
+        if(columns.width() < 5){
+            throw new UnsupportedOperationException("Not enough columns defined!");
+        }
     }
 
 

@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TupleRowTest {
-    MetaData columns = new MetaData("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite");
+    Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite");
 
     @Test
     public void getValues() {

@@ -5,12 +5,15 @@ import io.github.cruisoring.tuple.WithValues3;
 import io.github.cruisoring.utility.ArrayHelper;
 
 public class TupleTable3<T, U, V> extends TupleTable<WithValues3<T, U, V>> {
-    protected TupleTable3(String c1, String c2, String c3) {
-        super(c1, c2, c3);
-    }
+//    protected TupleTable3(String c1, String c2, String c3) {
+//        super(c1, c2, c3);
+//    }
 
-    protected TupleTable3(IMetaData columns){
-        super(columns);
+    protected TupleTable3(IColumns columns, Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV){
+        super(columns, typeT, typeU, typeV);
+        if(columns.width() < 3){
+            throw new UnsupportedOperationException("Not enough columns defined!");
+        }
     }
 
     public boolean addValues(T t, U u, V v) {

@@ -21,12 +21,12 @@ public class TuplePlus<T, U, V, W, X, Y, Z, A, B, C> extends Tuple
 
     protected TuplePlus(final T t, final U u, final V v, final W w, final X x, final Y y,
                         final Z z, final A a, final B b, final C c, final Object... more) {
-        super(ArrayHelper.mergeTypedArray(new Object[]{t, u, v, w, x, y, z, a, b, c}, more));
+        super(ArrayHelper.append(more, t, u, v, w, x, y, z, a, b, c));
     }
 
     protected TuplePlus(final Class elementType, final T t, final U u, final V v, final W w, final X x, final Y y,
                         final Z z, final A a, final B b, final C c, final Object... more) {
-        super(elementType, ArrayHelper.mergeTypedArray(new Object[]{t, u, v, w, x, y, z, a, b, c}, more));
+        super(elementType, ArrayHelper.append(more, t, u, v, w, x, y, z, a, b, c));
     }
 
     /**

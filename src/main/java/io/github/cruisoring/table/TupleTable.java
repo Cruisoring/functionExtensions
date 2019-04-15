@@ -10,21 +10,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class TupleTable<R extends WithValues> implements ITable<R> {
-    final IMetaData columns;
+    final IColumns columns;
     final List<WithValues> rows = new ArrayList<>();
-    protected Type[] elementTypes;
+    final Type[] elementTypes;
 
-    public TupleTable(IMetaData columns){
-        this.columns = checkNotNull(columns);
-        this.elementTypes = columns.getElementTypes();
-    }
-
-    protected TupleTable(String... columnNames) {
-        this.columns = new MetaData(checkNotNull(columnNames));
-        this.elementTypes = new Type[0];
+    protected TupleTable(IColumns columns, Type... elementTypes){
+        Objects.requireNonNull(columns);
+        this.columns = columns;
+        this.elementTypes = elementTypes;
     }
 
     @Override
@@ -39,9 +33,8 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public int width() {
-        return columns.width();
+        return elementTypes.length;
     }
-
 
     @Override
     public WithValuesByName getRow(int rowIndex) {
@@ -99,10 +92,19 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     }
 
     @Override
+    public boolean add(WithValuesByName row) {
+
+
+        return false;
+    }
+
+    @Override
     public boolean addValues(WithValues rowValues) {
         if (rowValues == null) {
             return false;
         }
+
+        
         return rows.add(rowValues);
     }
 

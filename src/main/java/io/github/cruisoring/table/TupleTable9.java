@@ -5,12 +5,14 @@ import io.github.cruisoring.tuple.WithValues9;
 import io.github.cruisoring.utility.ArrayHelper;
 
 public class TupleTable9<T, U, V, W, X, Y, Z, A, B> extends TupleTable<WithValues9<T, U, V, W, X, Y, Z, A, B>> {
-    protected TupleTable9(String c1, String c2, String c3, String c4, String c5, String c6, String c7, String c8, String c9) {
-        super(c1, c2, c3, c4, c5, c6, c7, c8, c9);
-    }
 
-    protected TupleTable9(IMetaData columns){
-        super(columns);
+    protected TupleTable9(IColumns columns, Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
+                          Class<? extends W> typeW, Class<? extends X> typeX, Class<? extends Y> typeY, Class<? extends Z> typeZ,
+                          Class<? extends A> typeA, Class<? extends B> typeB) {
+        super(columns, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB);
+        if(columns.width() < 9){
+            throw new UnsupportedOperationException("Not enough columns defined!");
+        }
     }
 
     public boolean addValues(T t, U u, V v, W w, X x, Y y, Z z, A a, B b) {

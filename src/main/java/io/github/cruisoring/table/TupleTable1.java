@@ -5,12 +5,15 @@ import io.github.cruisoring.tuple.WithValues1;
 import io.github.cruisoring.utility.ArrayHelper;
 
 public class TupleTable1<T> extends TupleTable<WithValues1<T>> {
-    protected TupleTable1(String column1) {
-        super(column1);
-    }
+//    protected TupleTable1(String column1, Class<? extends T> typeT) {
+//        super(new String[]{column1}, typeT);
+//    }
 
-    protected TupleTable1(IMetaData columns){
-        super(columns);
+    protected TupleTable1(IColumns columns, Class<? extends T> typeT){
+        super(columns, typeT);
+        if(columns.width() < 1){
+            throw new UnsupportedOperationException("There is no column defined!");
+        }
     }
 
     public boolean addValues(T t) {
@@ -22,7 +25,7 @@ public class TupleTable1<T> extends TupleTable<WithValues1<T>> {
     }
 
     public boolean add(WithValuesByName1<T> row) {
-        if (row == null) {// || row.getColumnIndexes() != this.columns) {
+        if (row == null) {
             return false;
         }
 

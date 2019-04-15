@@ -1,31 +1,31 @@
 package io.github.cruisoring.table;
 
+import io.github.cruisoring.tuple.WithValues1;
 import io.github.cruisoring.tuple.WithValues2;
 import io.github.cruisoring.utility.ArrayHelper;
 
 import java.lang.reflect.Type;
 import java.util.*;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 /**
  * Keep column names and their indexes as a map, aliases could be defined in the given Map to create
- * <code>MetaData</code> with multiple String keys pointing to the same index.
+ * <code>Columns</code> with multiple String keys pointing to the same index.
  * Combined with <code>TupleRow</code> or underlying <code>Tuple</code> lists, it might be possible to define views on the same row values.
  */
-public class MetaData implements IMetaData {
+public class Columns implements IColumns {
+    public static Comparator<String> DefaultNameComparator = String.CASE_INSENSITIVE_ORDER;
 
+    final Comparator<String> nameComparator;
     final Map<Integer, List<String>> indexedColumns;
     final Map<String, Integer> columnIndexes;
     final List<String> columnNames;
-    final Type[] elementTypes;
 
     /**
-     * Construct the MetaData with column names directly.
+     * Construct the Columns with column names directly.
      * @param columnNames   Names of the columns that cannot be null or duplicated.
      */
-    public MetaData(String... columnNames) {
+    public Columns(String... columnNames) {
+        nameComparator = DefaultNameComparator;
         Map<Integer, List<String>> indexes = new HashMap<>();
         Map<String, Integer> map = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
@@ -44,31 +44,35 @@ public class MetaData implements IMetaData {
         indexedColumns = Collections.unmodifiableMap(indexes);
         columnIndexes = Collections.unmodifiableMap(map);
         this.columnNames = Collections.unmodifiableList(names);
-        this.elementTypes = ArrayHelper.getNewArray(Type.class, columnNames.length, Object.class);
     }
 
 //    /**
-//     * Construct the MetaData with pre-build indexes with no missing ones, but could have aliases to make one column have multiple names.
+//     * Construct the Columns with pre-build indexes with no missing ones, but could have aliases to make one column have multiple names.
 //     * @param cIndexes   Pre-defined column names to position map.
 //     */
-    public MetaData(Map<Integer, WithValues2<Type, String[]>> columnDefintions){
-        checkNotNull(columnDefintions);
+    public Columns(Comparator<String> nameComparator, Map<Integer, WithValues1<String[]>> columnDefintions){
+        Objects.requireNonNull(columnDefintions);
 
+        this.nameComparator = nameComparator==null ? DefaultNameComparator : nameComparator;
         int width = columnDefintions.size();
-        this.elementTypes = new Type[width];
         Map<Integer, List<String>> indexes = new HashMap<>();
         Map<String, Integer> map = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
         for (int i = 0; i < width; i++) {
-            checkState(columnDefintions.containsKey(i));
-            WithValues2<Type, String[]> defintion = columnDefintions.get(i);
-            elementTypes[i] = defintion.getFirst() == null ? Object.class : defintion.getFirst();
-            String[] alias = defintion.getSecond();
+            if(!columnDefintions.containsKey(i)){
+                throw new UnsupportedOperationException("Missing definition of column "+i);
+            }
+            WithValues1<String[]> defintion = columnDefintions.get(i);
+            String[] alias = defintion.getFirst();
             int aliasLength = alias.length;
-            checkState(aliasLength > 0 && Arrays.stream(alias).allMatch(name -> name != null));
+            if(aliasLength==0 || Arrays.stream(alias).anyMatch(name -> name == null)){
+                throw new UnsupportedOperationException("Unsupported definitons of column " + i);
+            }
             indexes.put(i, Arrays.asList(alias));
             for (int j = 0; j < aliasLength; j++) {
-                checkState(!map.containsKey(alias[j]));
+                if(map.containsKey(alias[j])){
+                    throw new UnsupportedOperationException("Duplicated key: "+alias[j]);
+                }
                 map.put(alias[j], i);
             }
             names.add(alias[0]);
@@ -79,8 +83,8 @@ public class MetaData implements IMetaData {
     }
 
     @Override
-    public Type[] getElementTypes() {
-        return new Type[0];
+    public Comparator<String> getNameComparator() {
+        return nameComparator;
     }
 
     /**
@@ -93,7 +97,7 @@ public class MetaData implements IMetaData {
     }
 
     /**
-     * The width describe how many columns have been defiend by this <code>MetaData</code>
+     * The width describe how many columns have been defiend by this <code>Columns</code>
      * @return
      */
     @Override
@@ -108,6 +112,11 @@ public class MetaData implements IMetaData {
     @Override
     public Map<String, Integer> getColumnIndexes(){
         return columnIndexes;
+    }
+
+    @Override
+    public Map<Integer, List<String>> getIndexedColumns() {
+        return indexedColumns;
     }
 
     @Override
