@@ -2,8 +2,8 @@ package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
+import io.github.cruisoring.utility.ArrayHelper;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 
@@ -36,10 +36,11 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      */
     int width();
 
-
-    default Type[] getElementTypes(){
-        return new Type[0];
-    }
+    /**
+     * Get the element types of each columns of this {@code ITable} instance.
+     * @return  Array of types, each type specify the value type at the corresponding column.
+     */
+    Class[] getElementTypes();
 
     /**
      * Check if the <code>WithValues</code> specified by its values is contained by this <code>ITable</code>
@@ -122,16 +123,15 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @param columnIndex   index of the concerned column.
      * @return  <code>null</code> if columnIndex is less than 0, otherwise the Object[] containing all values of these cell.
      */
-    default Object[] getColumnValues(int columnIndex){
-        if(columnIndex < 0){
+    default Object getColumnValues(int columnIndex){
+        if(columnIndex < 0 || columnIndex >= width()){
             return null;
         }
 
         int size = size();
-        Object[] colValues = new Object[size];
-        for (int i = 0; i < size; i++) {
-            colValues[i] = getCellValue(i, columnIndex);
-        }
+        Object colValues = ArrayHelper.getNewArray(getElementTypes()[columnIndex], size);
+        ArrayHelper.setAll(colValues, i -> getCellValue(i, columnIndex));
+
         return colValues;
     }
 
@@ -140,19 +140,13 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @param columnName   Name of the concerned column.
      * @return  <code>null</code> if columnName or not defined, otherwise the Object[] containing all values of these cell.
      */
-    default Object[] getColumnValues(String columnName){
+    default Object getColumnValues(String columnName){
         if(columnName == null){
             return null;
         }
 
         int columnIndex = getColumnIndex(columnName);
-
-        int size = size();
-        Object[] colValues = new Object[size];
-        for (int i = 0; i < size; i++) {
-            colValues[i] = getCellValue(i, columnIndex);
-        }
-        return colValues;
+        return getColumnValues(columnIndex);
     }
 
     /**

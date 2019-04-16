@@ -5,7 +5,6 @@ import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,9 +12,9 @@ import java.util.stream.Stream;
 public class TupleTable<R extends WithValues> implements ITable<R> {
     final IColumns columns;
     final List<WithValues> rows = new ArrayList<>();
-    final Type[] elementTypes;
+    final Class[] elementTypes;
 
-    protected TupleTable(IColumns columns, Type... elementTypes){
+    protected TupleTable(IColumns columns, Class... elementTypes){
         Objects.requireNonNull(columns);
         this.columns = columns;
         this.elementTypes = elementTypes;
@@ -34,6 +33,11 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     @Override
     public int width() {
         return elementTypes.length;
+    }
+
+    @Override
+    public Class[] getElementTypes() {
+        return elementTypes;
     }
 
     @Override

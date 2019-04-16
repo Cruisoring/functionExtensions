@@ -1,10 +1,7 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.WithValues1;
-import io.github.cruisoring.tuple.WithValues2;
-import io.github.cruisoring.utility.ArrayHelper;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -13,7 +10,40 @@ import java.util.*;
  * Combined with <code>TupleRow</code> or underlying <code>Tuple</code> lists, it might be possible to define views on the same row values.
  */
 public class Columns implements IColumns {
+    public final static Comparator<String> NATURAL = String::compareTo;
+
     public static Comparator<String> DefaultNameComparator = String.CASE_INSENSITIVE_ORDER;
+
+    private final static String _defaultEscapedPattern = "\\s|-|_";
+    public final static Comparator<String> ESCAPED = (s1, s2) -> {
+        String escaped1 = s1.replaceAll(_defaultEscapedPattern, "");
+        String escaped2 = s2.replaceAll(_defaultEscapedPattern, "");
+        return escaped1.compareTo(escaped2);
+    };
+
+    public final static Comparator<String> ESCAPED_CASE_INSENSITIVE = (s1, s2) -> {
+        String escaped1 = s1.replaceAll(_defaultEscapedPattern, "");
+        String escaped2 = s2.replaceAll(_defaultEscapedPattern, "");
+        return escaped1.compareToIgnoreCase(escaped2);
+    };
+
+    public static Comparator<String> getEscapedComparator(String escapePattern) {
+        Objects.requireNonNull(escapePattern);
+        return (s1, s2) -> {
+            String escaped1 = s1.replaceAll(escapePattern, "");
+            String escaped2 = s2.replaceAll(escapePattern, "");
+            return escaped1.compareTo(escaped2);
+        };
+    }
+
+    public static Comparator<String> getEscapedInsensitiveComparator(String escapePattern) {
+        Objects.requireNonNull(escapePattern);
+        return (s1, s2) -> {
+            String escaped1 = s1.replaceAll(escapePattern, "");
+            String escaped2 = s2.replaceAll(escapePattern, "");
+            return escaped1.compareToIgnoreCase(escaped2);
+        };
+    }
 
     final Comparator<String> nameComparator;
     final Map<Integer, List<String>> indexedColumns;
@@ -25,7 +55,8 @@ public class Columns implements IColumns {
      * @param columnNames   Names of the columns that cannot be null or duplicated.
      */
     public Columns(String... columnNames) {
-        nameComparator = DefaultNameComparator;
+        //Use String::compareTo() by default
+        nameComparator = NATURAL;
         Map<Integer, List<String>> indexes = new HashMap<>();
         Map<String, Integer> map = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
@@ -46,15 +77,21 @@ public class Columns implements IColumns {
         this.columnNames = Collections.unmodifiableList(names);
     }
 
-//    /**
-//     * Construct the Columns with pre-build indexes with no missing ones, but could have aliases to make one column have multiple names.
-//     * @param cIndexes   Pre-defined column names to position map.
-//     */
-    public Columns(Comparator<String> nameComparator, Map<Integer, WithValues1<String[]>> columnDefintions){
+    /**
+     * Construct the Columns with ordered column names and Comparator&lt;String&gt; for come comparing.
+     * @param columnDefintions  Column names that must be defined consecutively, the first of the String[] is the main
+     *                         key, and others are aliases if defined.
+     * @param nameComparator    Comparator&lt;String&gt; used to compare column names.
+     */
+    public Columns(Map<Integer, WithValues1<String[]>> columnDefintions, Comparator<String> nameComparator){
         Objects.requireNonNull(columnDefintions);
 
         this.nameComparator = nameComparator==null ? DefaultNameComparator : nameComparator;
         int width = columnDefintions.size();
+        if(width < 1){
+            throw new UnsupportedOperationException("No columns defined");
+        }
+
         Map<Integer, List<String>> indexes = new HashMap<>();
         Map<String, Integer> map = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
@@ -82,33 +119,30 @@ public class Columns implements IColumns {
         this.columnNames = Collections.unmodifiableList(names);
     }
 
+    /**
+     * Construct the Columns with ordered column names only.
+     * @param columnDefintions  Column names that must be defined consecutively, the first of the String[] is the main
+     *                         key, and others are aliases if defined.
+     */
+    public Columns(Map<Integer, WithValues1<String[]>> columnDefintions){
+        this(columnDefintions, null);
+    }
+
     @Override
     public Comparator<String> getNameComparator() {
         return nameComparator;
     }
 
-    /**
-     * Get the names for each column in order.
-     * @return  List of the names each represent the column at the same position as these names.
-     */
     @Override
     public List<String> getColumnNames(){
         return columnNames;
     }
 
-    /**
-     * The width describe how many columns have been defiend by this <code>Columns</code>
-     * @return
-     */
     @Override
     public int width(){
         return columnNames.size();
     }
 
-    /**
-     * Retrieve the immutable Column names to indexes map.
-     * @return  Immutable map can be shared safely by multiple TupleRows or TupleTables.
-     */
     @Override
     public Map<String, Integer> getColumnIndexes(){
         return columnIndexes;
@@ -119,6 +153,9 @@ public class Columns implements IColumns {
         return indexedColumns;
     }
 
+
+
+    //region Implementation of Map<String, Integer>
     @Override
     public int size() {
         return columnIndexes.size();
@@ -137,14 +174,6 @@ public class Columns implements IColumns {
     @Override
     public boolean containsValue(Object value) {
         return columnIndexes.containsValue(value);
-    }
-
-    @Override
-    /**
-     * If there is no key matched, it would return -1 instead of throwing NullPointException.
-     */
-    public Integer get(Object key) {
-        return columnIndexes.containsKey(key) ? columnIndexes.get(key) : -1;
     }
 
     @Override
@@ -179,5 +208,6 @@ public class Columns implements IColumns {
     public Set<Entry<String, Integer>> entrySet() {
         return columnIndexes.entrySet();
     }
+    //endregion
 
 }

@@ -15,7 +15,7 @@ public class TupleTablePlus<T, U, V, W, X, Y, Z, A, B, C> extends TupleTable<Wit
     protected TupleTablePlus(IColumns columns, Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
                              Class<? extends W> typeW, Class<? extends X> typeX, Class<? extends Y> typeY, Class<? extends Z> typeZ,
                              Class<? extends A> typeA, Class<? extends B> typeB, Class<? extends C> typeC, Type... moreTypes) {
-        super(columns, (Type[])ArrayHelper.append(moreTypes, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB, typeC));
+        super(columns, (Class[])ArrayHelper.append(moreTypes, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB, typeC));
     }
 
     public boolean addValues(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, Object... more) {

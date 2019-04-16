@@ -1,26 +1,121 @@
 package io.github.cruisoring.table;
 
-import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.tuple.Tuple;
-import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.tuple.WithValues;
+import io.github.cruisoring.tuple.WithValues2;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public interface IColumns extends Map<String, Integer> {
 
+    /**
+     * Get the Comparator&lt;String&gt; that is used to compare names of this <code>IColumns</code>
+     * @return the Comparator&lt;String&gt; of this <code>IColumns</code>
+     */
     Comparator<String> getNameComparator();
 
+    /**
+     * Get the names for each column in order.
+     * @return  List of the names each represent the column at the same position as these names.
+     */
     List<String> getColumnNames();
 
+    /**
+     * The width describe how many columns have been defined by this {@code Columns}
+     * @return
+     */
     int width();
 
+    /**
+     * Retrieve the immutable Column names to indexes map.
+     * @return  Immutable map can be shared safely by multiple TupleRows or TupleTables.
+     */
     Map<String, Integer> getColumnIndexes();
 
+    /**
+     * Retrieve the indexed column names as a {@code Map} with indexes as keys, and corresponding
+     * immutable List of column name+aliases as values.
+     * @return  Immutable Map of indexed column names.
+     */
     Map<Integer, List<String>> getIndexedColumns();
+
+    @Override
+    /**
+     * Returns the value to which the specified key is mapped directly or through the nameComparator,
+     * or {@code -1} if this map contains no mapping for the key.
+     */
+    default Integer get(Object key) {
+        if(key == null || !(key instanceof String)){
+            return -1;
+        }
+
+        String keyString = (String)key;
+        Set<String> keySet = keySet();
+        if(keySet.contains(keyString)){
+            return getColumnIndexes().get(keyString);
+        }
+
+        Comparator<String> nameComparator = getNameComparator();
+        for (String k : keySet) {
+            if(nameComparator.compare(k, keyString)==0){
+                return getColumnIndexes().get(k);
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * With concerned columName, get the pair of matched index of this Columns and other as a
+     * {@code WithValues2<Integer, Integer>}
+     * @param columnName    the columnName recognised by both this and other <tt>IColumns</tt>
+     * @param other         the other <tt>IColumns</tt> instance to be mapped.
+     * @return      {@code null} if the given <tt>columnName</tt> is not defined in this or other,
+     * otherwise a pair of indexes of both parites.
+     */
+    default WithValues2<Integer, Integer> mapIndexes(String columnName, IColumns other){
+        Integer thisIndex = get(columnName);
+        if(thisIndex == -1){
+            return null;
+        } else if (other == this) {
+            return Tuple.create(thisIndex, thisIndex);
+        }
+
+        Integer otherIndex = other.get(columnName);
+        if(otherIndex == -1) {
+            return null;
+        }
+        return Tuple.create(thisIndex, otherIndex);
+    }
+
+    /**
+     * With all column names, get the corresponding indexes of the other {@code IColumns}
+     * @param other     the other <tt>IColumns</tt> instance to be mapped.
+     * @return          {@code WithValues<Integer>} instance holding the mapped indexes in order with concerned {@code IColumns}
+     */
+    default WithValues<Integer> mapIndexes(IColumns other){
+        Objects.requireNonNull(other);
+
+        List<Integer> indexes = new ArrayList<>();
+        Map<Integer, List<String>> thisIndexedColumns = getIndexedColumns();
+        int width = thisIndexedColumns.size();
+        WithValues2<Integer, Integer> indexPair;
+        for (int i = 0; i < width; i++) {
+            List<String> alias = thisIndexedColumns.get(i);
+            for (int j = 0; j < alias.size(); j++) {
+                indexPair = mapIndexes(alias.get(j), other);
+                if(indexPair != null) {
+                    indexes.add(indexPair.getSecond());
+                    break;
+                }
+            }
+            if(indexes.size() < i){
+                indexes.add(null);
+            }
+        }
+        return Tuple.setOf(indexes.toArray(new Integer[0]));
+    }
 
     /**
      * Factory mathod to create strong-typed <code>TableRow</code> instance with given values.

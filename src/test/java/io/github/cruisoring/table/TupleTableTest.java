@@ -5,18 +5,23 @@ import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.tuple.WithValues;
+import io.github.cruisoring.tuple.WithValues1;
 import org.junit.Test;
 
 import java.time.LocalDate;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class TupleTableTest {
 
     @Test
     public void getColumnIndex() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
         assertEquals(0, table2.getColumnIndex("Id"));
         assertEquals(1, table2.getColumnIndex("age"));
         assertEquals(-1, table2.getColumnIndex("agE"));
@@ -27,14 +32,16 @@ public class TupleTableTest {
 
     @Test
     public void getColumns() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
+        TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
         Collection<String> names = table2.getColumns();
         assertTrue(names.containsAll(Arrays.asList("Id", "age")));
     }
 
     @Test
     public void getRowCount() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
         assertEquals(0, table2.size());
         table2.addValues(Tuple.create("Test", 123));
         assertEquals(1, table2.size());
@@ -42,7 +49,8 @@ public class TupleTableTest {
 
     @Test
     public void getRow() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
+        TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
         assertNull(table2.getRow(0));
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
@@ -50,10 +58,7 @@ public class TupleTableTest {
         table2.addValues(Tuple.create("", null));
         assertEquals(4, table2.size());
 
-        Columns indexes = new Columns(new HashMap<String, Integer>() {{
-            put("Id", 0);
-            put("age", 1);
-        }});
+        IColumns indexes = (IColumns)table2.getColumnIndexes();
         assertEquals(new TupleRow(indexes, Tuple.create("Test", 123)), table2.getRow(0));
         assertEquals(new TupleRow(indexes, Tuple.create(null, null)), table2.getRow(1));
         assertEquals(new TupleRow(indexes, Tuple.create("Test", 123)), table2.getRow(2));
@@ -69,14 +74,16 @@ public class TupleTableTest {
 
     @Test
     public void getColumnIndexes() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
         Map<String, Integer> indexes = table2.getColumnIndexes();
         indexes.put("a", 3);
     }
 
     @Test
     public void contains() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
         table2.addValues(Tuple.create("Test", 123));
@@ -89,7 +96,8 @@ public class TupleTableTest {
 
     @Test
     public void iterator() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
         table2.addValues(Tuple.create("Test", 123));
@@ -103,7 +111,8 @@ public class TupleTableTest {
 
     @Test
     public void toArray() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
+        TupleTable2<String, Integer> table2 =new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
         table2.addValues(Tuple.create("Test", 123));
@@ -118,7 +127,8 @@ public class TupleTableTest {
 
     @Test
     public void toTupleArray() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<>("Id", "age");
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
         table2.addValues(Tuple.create("Test", 123));
@@ -132,9 +142,57 @@ public class TupleTableTest {
     }
 
     @Test
+    public void getColumnValues(){
+        Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<Integer, String, String, Character, Boolean>(columns,
+            Integer.class, String.class, String.class, Character.class, Boolean.class);
+        table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
+        table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
+        table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
+        table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
+        table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
+
+        assertTrue(Objects.deepEquals(new Integer[]{0,1,2,3,4}, table5.getColumnValues(0)));
+        assertTrue(Objects.deepEquals(new String[]{"Alice", "Bob", "Clare", "David", "Eddy"}, table5.getColumnValues(1)));
+        assertTrue(Objects.deepEquals(null, table5.getColumnValues(8)));
+        assertTrue(Objects.deepEquals(new String[]{"Wilson", "Nilson", "Neons", "Wilson", "Claks"}, table5.getColumnValues("Last Name")));
+        assertTrue(Objects.deepEquals(new Character[]{'F', 'M', 'F', 'M', 'M'}, table5.getColumnValues("Gender")));
+        assertTrue(Objects.deepEquals(new Boolean[]{true, false, true, null, true}, table5.getColumnValues("IsActive")));
+    }
+
+    @Test
+    public void getColumnValues2(){
+        Map<Integer, WithValues1<String[]>> sharedColumnDefitions = new HashMap<Integer, WithValues1<String[]>>(){{
+            put(0, Tuple.create(new String[]{"ID", "UID", "Unique Id"}));
+            put(1, Tuple.create(new String[]{"First Name", "Given Name", "User Name"}));
+            put(2, Tuple.create(new String[]{"Birthday"}));
+            put(3, Tuple.create(new String[]{"Mobile", "Phone"}));
+            put(4, Tuple.create(new String[]{"Email"}));
+            put(5, Tuple.create(new String[]{"Address"}));
+        }};
+
+         final IColumns columns = new Columns(sharedColumnDefitions, Columns.ESCAPED_CASE_INSENSITIVE);
+         TupleTable6<Integer, String, LocalDate, Integer, String, String> table6 = columns.createTable6(
+             Integer.class, String.class, LocalDate.class, Integer.class, String.class, String.class);
+
+         table6.addValues(0, "Tom", LocalDate.of(2000, 1, 1), 400123456, "tom@email.com", null);
+         table6.addValues(1, "Bob", LocalDate.of(1977, 1, 1), 071234456, null, "Bob's home");
+         table6.addValues(3, "Charlie", null, 400333444, "charlie@email.com", null);
+         table6.addValues(9, "Denis", null, null, null, null);
+         table6.addValues(2, "Eddy", LocalDate.of(1977, 1, 1), 023337747, "eddy@email.com", "Eddy's house");
+
+        assertTrue(Objects.deepEquals(new Integer[]{0,1,3,9,2}, table6.getColumnValues("UID")));
+        assertTrue(Objects.deepEquals(new String[]{"Tom", "Bob", "Charlie", "Denis", "Eddy"}, table6.getColumnValues("user_name")));
+        assertTrue(Objects.deepEquals(new LocalDate[]{LocalDate.of(2000, 1, 1),
+            LocalDate.of(1977, 1, 1), null, null, LocalDate.of(1977, 1, 1)}, table6.getColumnValues("birthday")));
+
+    }
+
+    @Test
     public void add() {
         Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<Integer, String, String, Character, Boolean>(columns);
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<Integer, String, String, Character, Boolean>(columns,
+            Integer.class, String.class, String.class, Character.class, Boolean.class);
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
@@ -165,7 +223,7 @@ public class TupleTableTest {
     @Test
     public void remove() {
         Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(Integer.class, String.class, String.class, Character.class, Boolean.class);
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
@@ -206,7 +264,8 @@ public class TupleTableTest {
     @Test
     public void testContains() {
         Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(
+            Integer.class, String.class, String.class, Character.class, Boolean.class);
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
@@ -242,7 +301,9 @@ public class TupleTableTest {
     @Test
     public void addAll() {
         Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(
+            Integer.class, String.class, String.class, Character.class, Boolean.class
+        );
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
@@ -267,7 +328,8 @@ public class TupleTableTest {
     @Test
     public void removeAll() {
         Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(
+            Integer.class, String.class, String.class, Character.class, Boolean.class);
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
@@ -286,7 +348,8 @@ public class TupleTableTest {
     @Test
     public void retainAll() {
         Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5();
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(
+            Integer.class, String.class, String.class, Character.class, Boolean.class);
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
