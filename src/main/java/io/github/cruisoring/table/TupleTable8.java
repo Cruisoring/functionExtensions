@@ -15,19 +15,7 @@ public class TupleTable8<T, U, V, W, X, Y, Z, A> extends TupleTable<WithValues8<
         }
     }
 
-    public boolean addValues(T t, U u, V v, W w, X x, Y y, Z z, A a) {
-        return addValues(Tuple.create(t, u, v, w, x, y, z, a));
-    }
-
     public boolean addValues(T t, U u, V v, W w, X x, Y y, Z z, A a, Object... more) {
         return addValues(Tuple.of(ArrayHelper.append(more, t, u, v, w, x, y, z, a)));
-    }
-
-    public boolean add(WithValuesByName8<T, U, V, W, X, Y, Z, A> row) {
-        if (row == null) {// || row.getColumnIndexes() != this.columns) {
-            return false;
-        }
-
-        return rows.add(row.getValues());
     }
 }

@@ -34,7 +34,7 @@ public class TupleTableTest {
     public void getColumns() {
         TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(
             new Columns("Id", "age"), String.class, Integer.class);
-        Collection<String> names = table2.getColumns();
+        Collection<String> names = table2.getDisplayedNames();
         assertTrue(names.containsAll(Arrays.asList("Id", "age")));
     }
 
@@ -58,7 +58,7 @@ public class TupleTableTest {
         table2.addValues(Tuple.create("", null));
         assertEquals(4, table2.size());
 
-        IColumns indexes = (IColumns)table2.getColumnIndexes();
+        IColumns indexes = (IColumns)table2.getColumns();
         assertEquals(new TupleRow(indexes, Tuple.create("Test", 123)), table2.getRow(0));
         assertEquals(new TupleRow(indexes, Tuple.create(null, null)), table2.getRow(1));
         assertEquals(new TupleRow(indexes, Tuple.create("Test", 123)), table2.getRow(2));
@@ -76,7 +76,7 @@ public class TupleTableTest {
     public void getColumnIndexes() {
         TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
             new Columns("Id", "age"), String.class, Integer.class);
-        Map<String, Integer> indexes = table2.getColumnIndexes();
+        Map<String, Integer> indexes = table2.getColumns();
         indexes.put("a", 3);
     }
 
@@ -200,13 +200,14 @@ public class TupleTableTest {
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
         assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
         assertFalse(table5.add(columns.createRow(5, "Grey", "Thompson", 6.33, false)));   //Would fail since it calls the add(WithValuesByName) when the TupleRow is of wrong signature
+
 //        table5.addValues(5, "Elisa", "Carter", 'F');           //Not allowed without filling the first 5 arguments
 //        table5.addValues(5, "Elissa", "Carter", "Female", true)  //Not allow any argument with wrong type
 
         table5.forEach(row -> Logger.D(row.toString()));
 
         assertEquals(6, table5.size());
-        assertEquals(7, table5.width());
+        assertEquals(5, table5.width());
         assertEquals(Integer.valueOf(1), table5.getCellValue(1, 0));        //Access cell value by rowIndex and colIndex
         assertEquals(true, table5.getCellValue(4, "IsActive"));    //Access cell value by rowIndex and columnName
         assertEquals(null, table5.getCellValue(0, "Favorite"));    //return null if value is missing

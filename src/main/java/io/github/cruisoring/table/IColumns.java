@@ -94,28 +94,7 @@ public interface IColumns extends Map<String, Integer> {
      * @param other     the other <tt>IColumns</tt> instance to be mapped.
      * @return          {@code WithValues<Integer>} instance holding the mapped indexes in order with concerned {@code IColumns}
      */
-    default WithValues<Integer> mapIndexes(IColumns other){
-        Objects.requireNonNull(other);
-
-        List<Integer> indexes = new ArrayList<>();
-        Map<Integer, List<String>> thisIndexedColumns = getIndexedColumns();
-        int width = thisIndexedColumns.size();
-        WithValues2<Integer, Integer> indexPair;
-        for (int i = 0; i < width; i++) {
-            List<String> alias = thisIndexedColumns.get(i);
-            for (int j = 0; j < alias.size(); j++) {
-                indexPair = mapIndexes(alias.get(j), other);
-                if(indexPair != null) {
-                    indexes.add(indexPair.getSecond());
-                    break;
-                }
-            }
-            if(indexes.size() < i){
-                indexes.add(null);
-            }
-        }
-        return Tuple.setOf(indexes.toArray(new Integer[0]));
-    }
+    WithValues<Integer> mapIndexes(IColumns other);
 
     /**
      * Factory mathod to create strong-typed <code>TableRow</code> instance with given values.

@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class ArrayHelper<T, R> {
@@ -42,6 +43,46 @@ public class ArrayHelper<T, R> {
 
         FunctionThrowable<Integer, Object> factory = TypeHelper.getArrayFactory(clazz);
         return factory.orElse(null).apply(length);
+    }
+
+    /**
+     * Create an array of specific element type and length and filled with given default value.
+     *
+     * @param clazz  Type of the elements of the array
+     * @param length Length of the array
+     * @param defaultValue defaultValue to fill the newly generated array.
+     * @return Array of the specific length of the specific elements if <code>clazz</code> and <code>length</code>
+     * are set correctly; otherwise returns null
+     */
+
+    public static <T> T[] getNewArray(Class<? extends T> clazz, int length, T defaultValue) {
+        T[] array =(T[])  (clazz == Object.class ? new Object[length] : TypeHelper.getArrayFactory(clazz).orElse(null).apply(length));
+
+        for (int i = 0; i < length; i++) {
+            array[i] = defaultValue;
+        }
+        return array;
+    }
+
+    /**
+     * Create an array of specific element type and length and filled with values from the {@code elementSupplier}
+     *
+     * @param clazz  Type of the elements of the array
+     * @param length Length of the array
+     * @param elementSupplier supplier to get element based on index
+     * @return Array of the specific length of the specific elements if <code>clazz</code> and <code>length</code>
+     * are set correctly; otherwise returns null
+     */
+
+    public static <T> T[] create(Class<? extends T> clazz, int length, Function<Integer, T> elementSupplier) {
+        Objects.requireNonNull(elementSupplier);
+
+        T[] array =(T[])  (clazz == Object.class ? new Object[length] : TypeHelper.getArrayFactory(clazz).orElse(null).apply(length));
+
+        for (int i = 0; i < length; i++) {
+            array[i] = elementSupplier.apply(i);
+        }
+        return array;
     }
 
     /**

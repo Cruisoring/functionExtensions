@@ -5,14 +5,22 @@ import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * Interface of generic Table which is composed as collection of rows
  *
- * @param <R> Type of the table rows that shall be of <code>Tuple</code>
+ * @param <R> Type of the table rows, shall be of {@code Tuple}
  */
 public interface ITable<R extends WithValues> extends Collection<WithValuesByName> {
+
+    /**
+     * Retrieve ALL column columns of a RowDataSupplier, return them as a list with non-key columns before all key columns.
+     * Thus both Update and Insert SQL statements could use data in this order.
+     *
+     * @return
+     */
+    IColumns getColumns();
 
     /**
      * Given a solid column tableName, find its ordinal index.
@@ -27,7 +35,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      *
      * @return List of column columns.
      */
-    Collection<String> getColumns();
+    Collection<String> getDisplayedNames();
 
     /**
      * Get total column number that identified as non-empty cells of the first row.
@@ -53,33 +61,12 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
     }
 
     /**
-     * Get the row by its index (0 based)
-     *
-     * @param rowIndex the Index of the concnerned row (0 based)
-     * @return The row with index of <code>rowIndex</code> if existing, otherwise null if rowIndex is out of range.
-     */
-    WithValuesByName getRow(int rowIndex);
-
-    /**
-     * Retrieve ALL column columns of a RowDataSupplier, return them as a list with non-key columns before all key columns.
-     * Thus both Update and Insert SQL statements could use data in this order.
-     *
-     * @return
-     */
-    Map<String, Integer> getColumnIndexes();
-
-
-    /**
      * Placeholder of Collection&lt;WithValuesByName&gt;.add()
      * @param row   row to be added.
      * @return always return false and let the sub-classes to add <code>WithValuesByName</code> of matched type
      * as this <code>TupleTable</code>
      */
     boolean add(WithValuesByName row);
-
-//    default boolean add(TupleRow row){
-//        return false;
-//    }
 
     /**
      * Add a qualified tuple to the <code>ITable</code> as a new row.
@@ -88,6 +75,37 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return <tt>true</tt> if the ITuple changes by adding the values.
      */
     boolean addValues(R tuple);
+
+    /**
+     * Get the row by its index (0 based)
+     *
+     * @param rowIndex the Index of the concnerned row (0 based)
+     * @return The row with index of <code>rowIndex</code> if existing, otherwise null if rowIndex is out of range.
+     */
+    WithValuesByName getRow(int rowIndex);
+
+    /**
+     * Get all rows of values as an array of {@WithValuesByName}
+     *
+     * @return the array of {@WithValuesByName}, each represent the corresponding elements with the {@code IColumns} of this table
+     */
+    WithValuesByName[] getAllRows();
+
+    /**
+     * Get specific values of concerned row and represent with different columns
+     * @param rowIndex      the Index of the concnerned row (0 based)
+     * @param viewColumns   {@code IColumns} of another view with same or different number of columns with different names
+     * @return  {@ WithValuesByName} with values of names specified by the {@code viewColumns}
+     */
+    WithValuesByName getRow(int rowIndex, IColumns viewColumns);
+
+    /**
+     * Get specific values of all rows and represent with different columns
+     * @param viewColumns   {@code IColumns} of another view with same or different number of columns with different names
+     *
+     * @return  the array of {@WithValuesByName}, each represent the corresponding elements specified by the {@code viewColumns}
+     */
+    WithValuesByName[] getAllRows(IColumns viewColumns);
 
     /**
      * Get the value of the cell with its <code>rowIndex</code> and <code>columnIndex</code>
@@ -111,7 +129,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * otherwise null
      */
     default Object getCellValue(int rowIndex, String columnName) {
-        int columnIndex = getColumnIndexes().getOrDefault(columnName, -1);
+        int columnIndex = getColumns().getOrDefault(columnName, -1);
         if (columnIndex == -1) {
             return null;
         }

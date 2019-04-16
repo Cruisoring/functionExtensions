@@ -1,8 +1,12 @@
 package io.github.cruisoring.table;
 
+import io.github.cruisoring.tuple.Tuple;
+import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.tuple.WithValues1;
+import io.github.cruisoring.tuple.WithValues2;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Keep column names and their indexes as a map, aliases could be defined in the given Map to create
@@ -10,6 +14,8 @@ import java.util.*;
  * Combined with <code>TupleRow</code> or underlying <code>Tuple</code> lists, it might be possible to define views on the same row values.
  */
 public class Columns implements IColumns {
+    public static final Map<WithValues2<IColumns, IColumns>, WithValues<Integer>> cachedMappings = new HashMap<>();
+
     public final static Comparator<String> NATURAL = String::compareTo;
 
     public static Comparator<String> DefaultNameComparator = String.CASE_INSENSITIVE_ORDER;
@@ -153,7 +159,42 @@ public class Columns implements IColumns {
         return indexedColumns;
     }
 
+    @Override
+    public WithValues<Integer> mapIndexes(IColumns other){
+        Objects.requireNonNull(other);
 
+        if(this == other){
+            Integer[] indexes = IntStream.range(0, width()).boxed().toArray(size -> new Integer[size]);
+            return Tuple.of(indexes);
+        }
+
+        WithValues2<IColumns, IColumns> key = Tuple.create(this, other);
+        WithValues<Integer> mappings=null;
+        if(!cachedMappings.containsKey(key)){
+            List<Integer> indexes = new ArrayList<>();
+            Map<Integer, List<String>> thisIndexedColumns = getIndexedColumns();
+            int width = thisIndexedColumns.size();
+            WithValues2<Integer, Integer> indexPair;
+            for (int i = 0; i < width; i++) {
+                List<String> alias = thisIndexedColumns.get(i);
+                for (int j = 0; j < alias.size(); j++) {
+                    indexPair = mapIndexes(alias.get(j), other);
+                    if(indexPair != null) {
+                        indexes.add(indexPair.getSecond());
+                        break;
+                    }
+                }
+                if(indexes.size() < i){
+                    indexes.add(null);
+                }
+            }
+            mappings =  Tuple.setOf(indexes.toArray(new Integer[0]));
+            cachedMappings.put(key, mappings);
+        } else {
+            mappings = cachedMappings.get(key);
+        }
+        return mappings;
+    }
 
     //region Implementation of Map<String, Integer>
     @Override
