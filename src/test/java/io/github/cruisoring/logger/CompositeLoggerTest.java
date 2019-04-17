@@ -3,7 +3,7 @@ package io.github.cruisoring.logger;
 import io.github.cruisoring.AutoCloseableObject;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CompositeLoggerTest {
 
@@ -27,11 +27,11 @@ public class CompositeLoggerTest {
             assertTrue(logs1.contains("info shall be logged by all 3 ILogger instances") && logs2.contains("info shall be logged by all 3 ILogger instances"));
 
             old = oldLogger.getValue();
-            assertTrue(Logger.Default != old);
-        } catch (Exception e) {
+            assertNotSame(Logger.Default, old);
+        } catch (Exception ignored) {
         }
 
-        assertTrue(old == Logger.getDefault());
+        assertSame(old, Logger.getDefault());
 
         try (AutoCloseableObject<ILogger> oldLogger = Logger.useInScope(new CompositeLogger(LogLevel.error, logger1, logger2, Logger.getDefault()))) {
             Logger.V("verbose2 shall be logged by logger1");
@@ -47,11 +47,11 @@ public class CompositeLoggerTest {
             assertTrue(logs1.contains("error shall be logged by all 3 ILogger instances") && logs2.contains("error shall be logged by all 3 ILogger instances"));
 
             old = oldLogger.getValue();
-            assertTrue(Logger.Default != old);
-        } catch (Exception e) {
+            assertNotSame(Logger.Default, old);
+        } catch (Exception ignored) {
         }
 
-        assertTrue(old == Logger.getDefault());
+        assertSame(old, Logger.getDefault());
     }
 
 }

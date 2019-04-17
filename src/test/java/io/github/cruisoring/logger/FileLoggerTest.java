@@ -22,13 +22,13 @@ public class FileLoggerTest {
             Logger.setGlobalLevel(LogLevel.info);
             assertTrue(fileLogger.canLog(LogLevel.info) && fileLogger.canLog(LogLevel.warning) && fileLogger.canLog(LogLevel.warning));
             assertFalse(fileLogger.canLog(LogLevel.verbose) || fileLogger.canLog(LogLevel.debug));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         assertEquals(currentLevel, Logger.getGlobalLogLevel());
 
         try (AutoCloseableObject<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
             assertFalse(fileLogger.canLog(LogLevel.verbose) || fileLogger.canLog(LogLevel.info) || fileLogger.canLog(LogLevel.error));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
