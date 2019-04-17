@@ -9,17 +9,7 @@ public class TupleRow5<T, U, V, W, X> extends TupleRow4<T, U, V, W> implements W
         super(indexes, values);
     }
 
-    public TupleRow5(String[] columns, WithValues5<T, U, V, W, X> values) {
-        super(columns, values);
-    }
-
     public TupleRow5(IColumns indexes, final T t, final U u, final V v, final W w, final X x) {
         super(indexes, Tuple.create(t, u, v, w, x));
     }
-
-    public TupleRow5(String[] columns, final T t, final U u, final V v, final W w, final X x) {
-        super(columns, Tuple.create(t, u, v, w, x));
-    }
-
-
 }

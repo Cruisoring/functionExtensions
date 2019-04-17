@@ -10,17 +10,8 @@ public class TupleRow7<T, U, V, W, X, Y, Z> extends TupleRow6<T, U, V, W, X, Y>
         super(indexes, values);
     }
 
-    public TupleRow7(String[] columns, WithValues7<T, U, V, W, X, Y, Z> values) {
-        super(columns, values);
-    }
-
     public TupleRow7(IColumns indexes, final T t, final U u, final V v, final W w, final X x, final Y y,
                      final Z z) {
         super(indexes, Tuple.create(t, u, v, w, x, y, z));
-    }
-
-    public TupleRow7(String[] columns, final T t, final U u, final V v, final W w, final X x, final Y y,
-                     final Z z) {
-        super(columns, Tuple.create(t, u, v, w, x, y, z));
     }
 }

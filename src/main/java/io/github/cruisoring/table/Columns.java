@@ -177,15 +177,16 @@ public class Columns implements IColumns {
             WithValues2<Integer, Integer> indexPair;
             for (int i = 0; i < width; i++) {
                 List<String> alias = thisIndexedColumns.get(i);
-                for (int j = 0; j < alias.size(); j++) {
+                for (int j = 0; j <= alias.size(); j++) {
+                    if(j == alias.size()){
+                        indexes.add(null);
+                        break;
+                    }
                     indexPair = mapIndexes(alias.get(j), other);
                     if(indexPair != null) {
                         indexes.add(indexPair.getSecond());
                         break;
                     }
-                }
-                if(indexes.size() < i){
-                    indexes.add(null);
                 }
             }
             mappings =  Tuple.setOf(indexes.toArray(new Integer[0]));

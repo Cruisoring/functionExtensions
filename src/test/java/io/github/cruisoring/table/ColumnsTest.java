@@ -133,7 +133,24 @@ public class ColumnsTest {
     }
 
     @Test
-    public void mapIndexes_withOtherColumns(){
+    public void mapIndexes_ESCAPED(){
+        IColumns other = new Columns(new HashMap<Integer, WithValues1<String[]>>(){{
+            put(0, Tuple.create(new String[]{"identity", "id"}));
+            put(1, Tuple.create(new String[]{"userName", "name", "GivenName"}));
+            put(2, Tuple.create(new String[]{"contact", "Phone"}));
+            put(3, Tuple.create(new String[]{"address"}));
+            put(4, Tuple.create(new String[]{"DOB", "Birthday"}));
+            put(5, Tuple.create(new String[]{"email"}));
+        }}, Columns.ESCAPED);
+
+        WithValues<Integer> mappedIndexes = shared.mapIndexes(other);
+        assertEquals(Tuple.create(null, 1, 4, 2, null, null), mappedIndexes);
+        mappedIndexes = other.mapIndexes(shared);
+        assertEquals(Tuple.create(0, null, 3, 5, 2, 4), mappedIndexes);
+    }
+
+    @Test
+    public void mapIndexes_ESCAPED_CASE_INSENSITIVE(){
         IColumns other = new Columns(new HashMap<Integer, WithValues1<String[]>>(){{
             put(0, Tuple.create(new String[]{"identity", "id"}));
             put(1, Tuple.create(new String[]{"userName", "name", "GivenName"}));

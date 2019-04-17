@@ -17,11 +17,6 @@ public class TupleRow<R extends WithValues> implements WithValuesByName {
         this.values = values;
     }
 
-    public TupleRow(String[] columns, R values) {
-        this.columns = new Columns(columns);
-        this.values = values;
-    }
-
     @Override
     public WithValues getValues() {
         return values;

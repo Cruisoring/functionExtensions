@@ -31,7 +31,7 @@ public class TupleTableTest {
     }
 
     @Test
-    public void getColumns() {
+    public void getDisplayedNames() {
         TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(
             new Columns("Id", "age"), String.class, Integer.class);
         Collection<String> names = table2.getDisplayedNames();
@@ -241,16 +241,16 @@ public class TupleTableTest {
         assertTrue(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', true)));           //The tuple created is held by the table, thus can be removed
 
         //Test of ITable.remove(Object... values)
-        assertFalse(table5.remove(1, "Bob", "Nilson", null, false, 22));        //Not matched with the "Gender" value
-        assertFalse(table5.remove(1, "Bob", "Nilson", 'M', false, 22, new int[0]));        //Not matched with two extra values
-        assertFalse(table5.remove(1, "Bob", "Nilson", 'M'));                    //Not matched by shorting last 2 values
-        assertTrue(table5.remove(1, "Bob", "Nilson", 'M', false, 99));          //shall be removed
+        assertFalse(table5.removeValues(1, "Bob", "Nilson", null, false, 22));        //Not matched with the "Gender" value
+        assertFalse(table5.removeValues(1, "Bob", "Nilson", 'M', false, 22, new int[0]));        //Not matched with two extra values
+        assertFalse(table5.removeValues(1, "Bob", "Nilson", 'M'));                    //Not matched by shorting last 2 values
+        assertTrue(table5.removeValues(1, "Bob", "Nilson", 'M', false, 99));          //shall be removed
 
         //Remove second to last row by its values
-        assertTrue(table5.remove(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
+        assertTrue(table5.removeValues(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
 
         //Remove last row
-        assertTrue(table5.remove(5, "Fred", "Nil", 'M', false));
+        assertTrue(table5.removeValues(5, "Fred", "Nil", 'M', false));
 
         //Test of removing TupleRows
         WithValuesByName row0 = table5.getRow(0);

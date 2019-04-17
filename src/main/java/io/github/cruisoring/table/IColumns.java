@@ -90,12 +90,13 @@ public interface IColumns extends Map<String, Integer> {
     }
 
     /**
-     * With all column names, get the corresponding indexes of the other {@code IColumns}
+     * For each columns of this  {@code IColumns}, get the corresponding indexes of column of the other {@code IColumns}
      * @param other     the other <tt>IColumns</tt> instance to be mapped.
      * @return          {@code WithValues<Integer>} instance holding the mapped indexes in order with concerned {@code IColumns}
      */
     WithValues<Integer> mapIndexes(IColumns other);
 
+    //region Factory methods to create strong-typed TupleRows
     /**
      * Factory mathod to create strong-typed <code>TableRow</code> instance with given values.
      * @param elements  Values to be used to create the strong-typed <code>TableRow</code> instance
@@ -191,7 +192,9 @@ public interface IColumns extends Map<String, Integer> {
                                                                                                 Z z, A a, B b, C c, Object... more){
         return new TupleRowPlus<T, U, V, W, X, Y, Z, A, B, C>(this, t, u, v, w, x, y, z, a, b, c, more);
     }
+    //endregion
 
+    //region Factory methods to create strong-typed TupleTables
     default <T> TupleTable1<T> createTable1(Class<? extends T> typeT){
         return new TupleTable1<T>(this, typeT);
     }
@@ -247,4 +250,5 @@ public interface IColumns extends Map<String, Integer> {
                                                                                                         Class<? extends A> typeA, Class<? extends B> typeB, Class<? extends C> typeC, Type... moreTypes){
         return new TupleTablePlus<T, U, V, W, X, Y, Z, A, B, C>(this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB, typeC, moreTypes);
     }
+    //endregion
 }

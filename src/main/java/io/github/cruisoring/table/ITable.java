@@ -5,7 +5,6 @@ import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
 
 import java.util.Collection;
-import java.util.Objects;
 
 /**
  * Interface of generic Table which is composed as collection of rows
@@ -172,7 +171,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @param values    all values including nulls contained by the matched <code>WithValues</code>
      * @return  <code>true</code> if removal happened, otherwise <code>false</code>
      */
-    default boolean remove(Object... values){
+    default boolean removeValues(Object... values){
         return remove(Tuple.of(values));
     }
 }

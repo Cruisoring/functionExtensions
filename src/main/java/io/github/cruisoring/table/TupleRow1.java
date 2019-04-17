@@ -9,16 +9,7 @@ public class TupleRow1<T> extends TupleRow implements WithValuesByName1<T> {
         super(indexes, values);
     }
 
-    public TupleRow1(String[] columns, WithValues1<T> values) {
-        super(columns, values);
-    }
-
     public TupleRow1(IColumns indexes, final T t) {
         super(indexes, Tuple.create(t));
     }
-
-    public TupleRow1(String[] columns, final T t) {
-        super(columns, Tuple.create(t));
-    }
-
 }

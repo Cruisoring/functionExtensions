@@ -567,7 +567,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
 
         Tuple other = (Tuple) obj;
         //Notice: tuples with different signatures could still be equal
-        if (!other.canEqual(this) || other.getLength() != values.length) {
+        if (!other.canEqual(this) || other.getLength() != values.length || hashCode() != other.hashCode()) {
             return false;
         }
 
