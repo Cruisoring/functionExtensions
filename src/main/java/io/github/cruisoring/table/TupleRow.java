@@ -40,17 +40,6 @@ public class TupleRow<R extends WithValues> implements WithValuesByName {
     }
 
     @Override
-    public NameValuePair[] asNameValuePairs() {
-        NameValuePair[] pairs = new NameValuePair[columns.width()];
-        for (String name : columns.getColumnNames()) {
-            int index = columns.get(name);
-            Object value = getValue(index);
-            pairs[index] = new NameValuePair(name, value);
-        }
-        return pairs;
-    }
-
-    @Override
     public int hashCode() {
         return values.hashCode();
     }

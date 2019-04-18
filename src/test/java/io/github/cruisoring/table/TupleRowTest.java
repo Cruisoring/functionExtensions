@@ -6,6 +6,8 @@ import io.github.cruisoring.tuple.WithValues;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -67,11 +69,11 @@ public class TupleRowTest {
     }
 
     @Test
-    public void asNameValuePairs() {
+    public void asEntrySet() {
         TupleRow row = columns.createRow(1, "Alice", "Wilson", 'F', true, null, 77, "abc", null);
-        NameValuePair[] pairs = row.asNameValuePairs();
-        assertEquals(6, pairs.length);
-        Logger.D(Arrays.stream(pairs).map(p -> p.toString()).reduce("", (s1, s2) -> s1 + ", " + s2));
+        Set<Map.Entry<String, Object>> pairs = row.asMap().entrySet();
+        assertEquals(6, pairs.size());
+        pairs.forEach(entry -> Logger.D("%s:%s", entry.getKey(), entry.getValue()));
     }
 
     @Test

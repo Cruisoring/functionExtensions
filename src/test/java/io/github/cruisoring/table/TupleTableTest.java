@@ -6,6 +6,7 @@ import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.tuple.WithValues1;
+import io.github.cruisoring.utility.ArrayHelper;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -70,6 +71,44 @@ public class TupleTableTest {
 
         assertNull(table2.getRow(-1));
         assertNull(table2.getRow(8));
+    }
+
+    @Test
+    public void getRow_withViewColumns(){
+        Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(Integer.class, String.class, String.class, Character.class, Boolean.class);
+        table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
+        table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
+        table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
+        table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
+        table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
+        assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
+
+        Columns viewColumns = new Columns(new HashMap<Integer, WithValues1<String[]>>(){{
+            put(0, Tuple.create(new String[]{"id", "Identifier", "ID"}));
+            put(1, Tuple.create(new String[]{"name", "First Name"}));
+            put(2, Tuple.create(new String[]{"active", "IsActive"}));
+        }}, Columns.ESCAPED_CASE_INSENSITIVE);
+
+        WithValuesByName row2 = table5.getRow(2, viewColumns);
+        Map<String, Object> map = row2.asMap();
+        assertTrue(Arrays.deepEquals(new Object[]{2, "Clare", true}, map.values().toArray()));
+    }
+
+    @Test
+    public void getAllRow() {
+        TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(
+            new Columns("Id", "age"), String.class, Integer.class);
+        assertNull(table2.getRow(0));
+        table2.addValues(Tuple.create("Test", 123));
+        table2.addValues(Tuple.create(null, null));
+        table2.addValues(Tuple.create("Third", 456));
+        table2.addValues(Tuple.create("", null));
+        assertEquals(4, table2.size());
+
+        WithValuesByName[] rows = table2.getAllRows();
+        Arrays.stream(rows).forEach(row -> Logger.D(row.toString()));
+        assertEquals(Tuple.create("Third", 456), rows[2].getValues());
     }
 
     @Test
@@ -200,6 +239,8 @@ public class TupleTableTest {
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
         assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
         assertFalse(table5.add(columns.createRow(5, "Grey", "Thompson", 6.33, false)));   //Would fail since it calls the add(WithValuesByName) when the TupleRow is of wrong signature
+
+
 
 //        table5.addValues(5, "Elisa", "Carter", 'F');           //Not allowed without filling the first 5 arguments
 //        table5.addValues(5, "Elissa", "Carter", "Female", true)  //Not allow any argument with wrong type
