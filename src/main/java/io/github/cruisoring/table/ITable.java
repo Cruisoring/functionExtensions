@@ -99,12 +99,11 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
     WithValuesByName getRow(int rowIndex, IColumns viewColumns);
 
     /**
-     * Get specific values of all rows and represent with different columns
-     * @param viewColumns   {@code IColumns} of another view with same or different number of columns with different names
-     *
-     * @return  the array of {@WithValuesByName}, each represent the corresponding elements specified by the {@code viewColumns}
+     * Get the view of this {@code ITable} with its columns definition as another {@code ITable}
+     * @param viewColumns   the Column definition of new view.
+     * @return A new {@code ITable} with the given columns.
      */
-    WithValuesByName[] getAllRows(IColumns viewColumns);
+    ITable getView(IColumns viewColumns);
 
     /**
      * Get the value of the cell with its <code>rowIndex</code> and <code>columnIndex</code>
