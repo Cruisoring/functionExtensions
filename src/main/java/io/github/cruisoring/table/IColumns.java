@@ -35,11 +35,10 @@ public interface IColumns extends Map<String, Integer> {
     Map<String, Integer> getColumnIndexes();
 
     /**
-     * Retrieve the indexed column names as a {@code Map} with indexes as keys, and corresponding
-     * immutable List of column name+aliases as values.
-     * @return  Immutable Map of indexed column names.
+     * Retrieve the indexed column names as a String[][] with column name+aliases as values.
+     * @return  Copy of the column names.
      */
-    Map<Integer, List<String>> getIndexedColumns();
+    String[][] getIndexedColumns();
 
     @Override
     /**

@@ -20,7 +20,7 @@ public class TupleTableTest {
 
     @Test
     public void getColumnIndex() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         assertEquals(0, table2.getColumnIndex("Id"));
         assertEquals(1, table2.getColumnIndex("age"));
@@ -32,7 +32,7 @@ public class TupleTableTest {
 
     @Test
     public void getDisplayedNames() {
-        TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         Collection<String> names = table2.getDisplayedNames();
         assertTrue(names.containsAll(Arrays.asList("Id", "age")));
@@ -40,7 +40,7 @@ public class TupleTableTest {
 
     @Test
     public void getRowCount() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         assertEquals(0, table2.size());
         table2.addValues(Tuple.create("Test", 123));
@@ -49,7 +49,7 @@ public class TupleTableTest {
 
     @Test
     public void getRow() {
-        TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         assertNull(table2.getRow(0));
         table2.addValues(Tuple.create("Test", 123));
@@ -83,11 +83,11 @@ public class TupleTableTest {
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
         assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
 
-        Columns viewColumns = new Columns(new HashMap<Integer, WithValues1<String[]>>(){{
-            put(0, Tuple.create(new String[]{"id", "Identifier", "ID"}));
-            put(1, Tuple.create(new String[]{"name", "First Name"}));
-            put(2, Tuple.create(new String[]{"active", "IsActive"}));
-        }}, Columns.ESCAPED_CASE_INSENSITIVE);
+        Columns viewColumns = new Columns(new String[][]{
+                new String[]{"id", "Identifier", "ID"},
+                new String[]{"name", "First Name"},
+                new String[]{"active", "IsActive"}
+            }, Columns.ESCAPED_CASE_INSENSITIVE);
 
         WithValuesByName row2 = table5.getRow(2, viewColumns);
         Map<String, Object> map = row2.asMap();
@@ -105,11 +105,11 @@ public class TupleTableTest {
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
         assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
 
-        Columns viewColumns = new Columns(new HashMap<Integer, WithValues1<String[]>>() {{
-            put(0, Tuple.create(new String[]{"id", "Identifier", "ID"}));
-            put(1, Tuple.create(new String[]{"name", "First Name"}));
-            put(2, Tuple.create(new String[]{"active", "IsActive"}));
-        }}, Columns.ESCAPED_CASE_INSENSITIVE);
+        Columns viewColumns = new Columns(new String[][]{
+                new String[]{"id", "Identifier", "ID"},
+                new String[]{"name", "First Name"},
+                new String[]{"active", "IsActive"}
+        }, Columns.ESCAPED_CASE_INSENSITIVE);
 
         ITable view = table5.getView(viewColumns);
         view.forEach(r -> Logger.D(r.toString()));
@@ -117,7 +117,7 @@ public class TupleTableTest {
 
     @Test
     public void getAllRow() {
-        TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         assertNull(table2.getRow(0));
         table2.addValues(Tuple.create("Test", 123));
@@ -133,7 +133,7 @@ public class TupleTableTest {
 
     @Test
     public void getColumnIndexes() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         Map<String, Integer> indexes = table2.getColumns();
         indexes.put("a", 3);
@@ -141,7 +141,7 @@ public class TupleTableTest {
 
     @Test
     public void contains() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
@@ -155,7 +155,7 @@ public class TupleTableTest {
 
     @Test
     public void iterator() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
@@ -170,7 +170,7 @@ public class TupleTableTest {
 
     @Test
     public void toArray() {
-        TupleTable2<String, Integer> table2 =new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 =new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
@@ -186,7 +186,7 @@ public class TupleTableTest {
 
     @Test
     public void toTupleArray() {
-        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(
+        TupleTable2<String, Integer> table2 = new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
@@ -203,7 +203,7 @@ public class TupleTableTest {
     @Test
     public void getColumnValues(){
         Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<Integer, String, String, Character, Boolean>(columns,
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<Integer, String, String, Character, Boolean>(null, columns,
             Integer.class, String.class, String.class, Character.class, Boolean.class);
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
@@ -221,14 +221,14 @@ public class TupleTableTest {
 
     @Test
     public void getColumnValues2(){
-        Map<Integer, WithValues1<String[]>> sharedColumnDefitions = new HashMap<Integer, WithValues1<String[]>>(){{
-            put(0, Tuple.create(new String[]{"ID", "UID", "Unique Id"}));
-            put(1, Tuple.create(new String[]{"First Name", "Given Name", "User Name"}));
-            put(2, Tuple.create(new String[]{"Birthday"}));
-            put(3, Tuple.create(new String[]{"Mobile", "Phone"}));
-            put(4, Tuple.create(new String[]{"Email"}));
-            put(5, Tuple.create(new String[]{"Address"}));
-        }};
+        String[][] sharedColumnDefitions = new String[][]{
+                new String[]{"ID", "UID", "Unique Id"},
+                new String[]{"First Name", "Given Name", "User Name"},
+                new String[]{"Birthday"},
+                new String[]{"Mobile", "Phone"},
+                new String[]{"Email"},
+                new String[]{"Address"}
+        };
 
          final IColumns columns = new Columns(sharedColumnDefitions, Columns.ESCAPED_CASE_INSENSITIVE);
          TupleTable6<Integer, String, LocalDate, Integer, String, String> table6 = columns.createTable6(
@@ -250,7 +250,7 @@ public class TupleTableTest {
     @Test
     public void add() {
         Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
-        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<Integer, String, String, Character, Boolean>(columns,
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<Integer, String, String, Character, Boolean>(null, columns,
             Integer.class, String.class, String.class, Character.class, Boolean.class);
         table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
         table5.addValues(1, "Bob", "Nilson", 'M', false, 99);

@@ -29,11 +29,12 @@ public interface WithValuesByName<T> extends WithValues<T> {
      */
     default Map<String, T> asMap(){
         IColumns columns = getColumnIndexes();
-        Map<Integer, List<String>> indexedColumns = columns.getIndexedColumns();
+        String[][] indexedColumns = columns.getIndexedColumns();
         Map<String, T> map = new LinkedHashMap<>();
-        indexedColumns.entrySet().forEach(entry -> {
-            map.put(entry.getValue().get(0), getValue(entry.getKey()));
-        });
+        int len = indexedColumns.length;
+        for (int i = 0; i < len; i++) {
+            map.put(indexedColumns[i][0], getValue(i));
+        }
         return map;
     }
 }

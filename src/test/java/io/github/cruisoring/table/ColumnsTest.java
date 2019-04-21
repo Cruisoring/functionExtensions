@@ -12,14 +12,14 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public class ColumnsTest {
-    static final Map<Integer, WithValues1<String[]>> sharedColumnDefitions = new HashMap<Integer, WithValues1<String[]>>(){{
-        put(0, Tuple.create(new String[]{"ID", "UID", "Unique Id"}));
-        put(1, Tuple.create(new String[]{"First Name", "Given Name", "User Name"}));
-        put(2, Tuple.create(new String[]{"Birthday"}));
-        put(3, Tuple.create(new String[]{"Mobile", "Phone"}));
-        put(4, Tuple.create(new String[]{"Email"}));
-        put(5, Tuple.create(new String[]{"Address"}));
-    }};
+    static final String[][] sharedColumnDefitions = new String[][]{
+            new String[]{"ID", "UID", "Unique Id"},
+            new String[]{"First Name", "Given Name", "User Name"},
+            new String[]{"Birthday"},
+            new String[]{"Mobile", "Phone"},
+            new String[]{"Email"},
+            new String[]{"Address"}
+    };
 
     static final IColumns shared = new Columns(sharedColumnDefitions);
 
@@ -35,23 +35,25 @@ public class ColumnsTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void constructWithEmpty(){
-        new Columns(new HashMap<>());
+        new Columns(new String[0][]);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void constructWithIndexMissing(){
-        new Columns(new HashMap<Integer, WithValues1<String[]>>(){{
-            put(0, Tuple.create(new String[]{"ID"}));
-            put(3, Tuple.create(new String[]{"Mobile", "Phone"}));
-        }});
+        new Columns(new String[][]{
+                new String[]{"ID"},
+                new String[0],
+                new String[]{"Mobile", "Phone"}
+        });
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testConstructor_WithMissingIndex(){
 
-        Columns col = new Columns(new HashMap<Integer, WithValues1<String[]>>(){{
-            put(1, Tuple.create(new String[]{"Mobile", "Phone"}));
-        }});
+        Columns col = new Columns(new String[][]{
+                new String[0],
+                new String[]{"Mobile", "Phone"}
+        });
     }
 
     @Test
@@ -110,14 +112,14 @@ public class ColumnsTest {
 
     @Test
     public void mapIndexes_withColumnName(){
-        IColumns other = new Columns(new HashMap<Integer, WithValues1<String[]>>(){{
-            put(0, Tuple.create(new String[]{"identity", "id"}));
-            put(1, Tuple.create(new String[]{"userName", "name", "GivenName"}));
-            put(2, Tuple.create(new String[]{"contact", "Phone"}));
-            put(3, Tuple.create(new String[]{"address"}));
-            put(4, Tuple.create(new String[]{"DOB", "Birthday"}));
-            put(5, Tuple.create(new String[]{"email"}));
-        }}, Columns.ESCAPED_CASE_INSENSITIVE);
+        IColumns other = new Columns(new String[][]{
+                new String[]{"identity", "id"},
+                new String[]{"userName", "name", "GivenName"},
+                new String[]{"contact", "Phone"},
+                new String[]{"address"},
+                new String[]{"DOB", "Birthday"},
+                new String[]{"email"}
+        }, Columns.ESCAPED_CASE_INSENSITIVE);
 
         assertEquals(Tuple.of(0, 0), shared.mapIndexes("ID", other));
         assertEquals(Tuple.of(1, 1), shared.mapIndexes("User Name", other));
@@ -134,14 +136,14 @@ public class ColumnsTest {
 
     @Test
     public void mapIndexes_ESCAPED(){
-        IColumns other = new Columns(new HashMap<Integer, WithValues1<String[]>>(){{
-            put(0, Tuple.create(new String[]{"identity", "id"}));
-            put(1, Tuple.create(new String[]{"userName", "name", "GivenName"}));
-            put(2, Tuple.create(new String[]{"contact", "Phone"}));
-            put(3, Tuple.create(new String[]{"address"}));
-            put(4, Tuple.create(new String[]{"DOB", "Birthday"}));
-            put(5, Tuple.create(new String[]{"email"}));
-        }}, Columns.ESCAPED);
+        IColumns other = new Columns(new String[][]{
+                new String[]{"identity", "id"},
+                new String[]{"userName", "name", "GivenName"},
+                new String[]{"contact", "Phone"},
+                new String[]{"address"},
+                new String[]{"DOB", "Birthday"},
+                new String[]{"email"}
+        }, Columns.ESCAPED);
 
         WithValues<Integer> mappedIndexes = shared.mapIndexes(other);
         assertEquals(Tuple.create(null, 1, 4, 2, null, null), mappedIndexes);
@@ -151,14 +153,14 @@ public class ColumnsTest {
 
     @Test
     public void mapIndexes_ESCAPED_CASE_INSENSITIVE(){
-        IColumns other = new Columns(new HashMap<Integer, WithValues1<String[]>>(){{
-            put(0, Tuple.create(new String[]{"identity", "id"}));
-            put(1, Tuple.create(new String[]{"userName", "name", "GivenName"}));
-            put(2, Tuple.create(new String[]{"contact", "Phone"}));
-            put(3, Tuple.create(new String[]{"address"}));
-            put(4, Tuple.create(new String[]{"DOB", "Birthday"}));
-            put(5, Tuple.create(new String[]{"email"}));
-        }}, Columns.ESCAPED_CASE_INSENSITIVE);
+        IColumns other = new Columns(new String[][]{
+                new String[]{"identity", "id"},
+                new String[]{"userName", "name", "GivenName"},
+                new String[]{"contact", "Phone"},
+                new String[]{"address"},
+                new String[]{"DOB", "Birthday"},
+                new String[]{"email"}
+        }, Columns.ESCAPED_CASE_INSENSITIVE);
 
         WithValues<Integer> mappedIndexes = shared.mapIndexes(other);
         assertEquals(Tuple.create(0, 1, 4, 2, 5, 3), mappedIndexes);

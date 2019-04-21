@@ -1,9 +1,11 @@
 package io.github.cruisoring.table;
 
+import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.tuple.WithValues1;
 import io.github.cruisoring.tuple.WithValues2;
+import io.github.cruisoring.utility.ArrayHelper;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -52,7 +54,7 @@ public class Columns implements IColumns {
     }
 
     final Comparator<String> nameComparator;
-    final Map<Integer, List<String>> indexedColumns;
+    final String[][] indexedColumns;
     final Map<String, Integer> columnIndexes;
     final List<String> columnNames;
 
@@ -66,6 +68,8 @@ public class Columns implements IColumns {
         Map<Integer, List<String>> indexes = new HashMap<>();
         Map<String, Integer> map = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
+        int len = columnNames.length;
+        indexedColumns = new String[len][];
         for (int i = 0; i < columnNames.length; i++) {
             String columnName = columnNames[i];
             if (columnName == null) {
@@ -77,8 +81,8 @@ public class Columns implements IColumns {
             map.put(columnName, i);
             names.add(columnName);
             indexes.put(i, Arrays.asList(columnName));
+            indexedColumns[i] = new String[]{columnName};
         }
-        indexedColumns = Collections.unmodifiableMap(indexes);
         columnIndexes = Collections.unmodifiableMap(map);
         this.columnNames = Collections.unmodifiableList(names);
     }
@@ -89,38 +93,32 @@ public class Columns implements IColumns {
      *                         key, and others are aliases if defined.
      * @param nameComparator    Comparator&lt;String&gt; used to compare column names.
      */
-    public Columns(Map<Integer, WithValues1<String[]>> columnDefintions, Comparator<String> nameComparator){
+    public Columns(String[][] columnDefintions, Comparator<String> nameComparator){
         Objects.requireNonNull(columnDefintions);
 
         this.nameComparator = nameComparator==null ? DefaultNameComparator : nameComparator;
-        int width = columnDefintions.size();
+        int width = columnDefintions.length;
         if(width < 1){
             throw new UnsupportedOperationException("No columns defined");
         }
 
-        Map<Integer, List<String>> indexes = new HashMap<>();
+        indexedColumns = columnDefintions;
         Map<String, Integer> map = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
         for (int i = 0; i < width; i++) {
-            if(!columnDefintions.containsKey(i)){
-                throw new UnsupportedOperationException("Missing definition of column "+i);
-            }
-            WithValues1<String[]> defintion = columnDefintions.get(i);
-            String[] alias = defintion.getFirst();
-            int aliasLength = alias.length;
-            if(aliasLength==0 || Arrays.stream(alias).anyMatch(name -> name == null)){
+            String[] columnDefinition = columnDefintions[i];
+            int aliasLength = columnDefinition.length;
+            if(aliasLength==0 || Arrays.stream(columnDefinition).anyMatch(name -> name == null)){
                 throw new UnsupportedOperationException("Unsupported definitons of column " + i);
             }
-            indexes.put(i, Arrays.asList(alias));
             for (int j = 0; j < aliasLength; j++) {
-                if(map.containsKey(alias[j])){
-                    throw new UnsupportedOperationException("Duplicated key: "+alias[j]);
+                if(map.containsKey(columnDefinition[j])){
+                    throw new UnsupportedOperationException("Duplicated key: "+columnDefinition[j]);
                 }
-                map.put(alias[j], i);
+                map.put(columnDefinition[j], i);
             }
-            names.add(alias[0]);
+            names.add(columnDefinition[0]);
         }
-        indexedColumns = Collections.unmodifiableMap(indexes);
         columnIndexes = Collections.unmodifiableMap(map);
         this.columnNames = Collections.unmodifiableList(names);
     }
@@ -130,7 +128,7 @@ public class Columns implements IColumns {
      * @param columnDefintions  Column names that must be defined consecutively, the first of the String[] is the main
      *                         key, and others are aliases if defined.
      */
-    public Columns(Map<Integer, WithValues1<String[]>> columnDefintions){
+    public Columns(String[][] columnDefintions){
         this(columnDefintions, null);
     }
 
@@ -155,8 +153,8 @@ public class Columns implements IColumns {
     }
 
     @Override
-    public Map<Integer, List<String>> getIndexedColumns() {
-        return indexedColumns;
+    public String[][] getIndexedColumns() {
+        return ArrayHelper.create(String[].class, indexedColumns.length, i -> indexedColumns[i].clone());
     }
 
     @Override
@@ -172,17 +170,17 @@ public class Columns implements IColumns {
         WithValues<Integer> mappings=null;
         if(!cachedMappings.containsKey(key)){
             List<Integer> indexes = new ArrayList<>();
-            Map<Integer, List<String>> thisIndexedColumns = getIndexedColumns();
-            int width = thisIndexedColumns.size();
+            String[][] thisIndexedColumns = getIndexedColumns();
+            int width = thisIndexedColumns.length;
             WithValues2<Integer, Integer> indexPair;
             for (int i = 0; i < width; i++) {
-                List<String> alias = thisIndexedColumns.get(i);
-                for (int j = 0; j <= alias.size(); j++) {
-                    if(j == alias.size()){
+                String[] alias = thisIndexedColumns[i];
+                for (int j = 0; j <= alias.length; j++) {
+                    if(j == alias.length){
                         indexes.add(null);
                         break;
                     }
-                    indexPair = mapIndexes(alias.get(j), other);
+                    indexPair = mapIndexes(alias[j], other);
                     if(indexPair != null) {
                         indexes.add(indexPair.getSecond());
                         break;
