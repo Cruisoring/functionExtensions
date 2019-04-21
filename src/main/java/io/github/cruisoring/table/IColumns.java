@@ -6,6 +6,7 @@ import io.github.cruisoring.tuple.WithValues2;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Supplier;
 
 public interface IColumns extends Map<String, Integer> {
 
@@ -195,60 +196,102 @@ public interface IColumns extends Map<String, Integer> {
     //endregion
 
     //region Factory methods to create strong-typed TupleTables
+    default TupleTable createTable(Supplier<List<WithValues>> rowsSupplier, Class... types){
+        Objects.requireNonNull(types);
+
+        int length = types.length;
+        switch (length) {
+            case 0:
+                return new TupleTable(rowsSupplier, this);
+            case 1:
+                return new TupleTable1(rowsSupplier, this, types[0]);
+            case 2:
+                return new TupleTable2(rowsSupplier, this, types[0], types[1]);
+            case 3:
+                return new TupleTable3(rowsSupplier, this, types[0], types[1], types[2]);
+            case 4:
+                return new TupleTable4(rowsSupplier, this, types[0], types[1], types[2],
+                        types[3]);
+            case 5:
+                return new TupleTable5(rowsSupplier, this, types[0], types[1], types[2],
+                        types[3], types[4]);
+            case 6:
+                return new TupleTable6(rowsSupplier, this, types[0], types[1], types[2],
+                        types[3], types[4], types[5]);
+            case 7:
+                return new TupleTable7(rowsSupplier, this, types[0], types[1], types[2],
+                        types[3], types[4], types[5], types[6]);
+            case 8:
+                return new TupleTable8(rowsSupplier, this, types[0], types[1], types[2],
+                        types[3], types[4], types[5], types[6], types[7]);
+            case 9:
+                return new TupleTable9(rowsSupplier, this, types[0], types[1], types[2],
+                        types[3], types[4], types[5], types[6], types[7], types[8]);
+            case 10:
+                return new TupleTable10(rowsSupplier, this, types[0], types[1], types[2],
+                        types[3], types[4], types[5], types[6], types[7], types[8], types[9]);
+
+            default:
+                return new TupleTablePlus(rowsSupplier, this, types[0], types[1], types[2],
+                        types[3], types[4], types[5], types[6], types[7], types[8], types[9],
+                        Arrays.copyOfRange(types, 10, length));
+        }
+    }
+    
     default <T> TupleTable1<T> createTable1(Class<? extends T> typeT){
-        return new TupleTable1<T>(this, typeT);
+        return new TupleTable1<T>(null, this, typeT);
     }
 
     default <T, U> TupleTable2<T, U> createTable2(Class<? extends T> typeT, Class<? extends U> typeU){
-        return new TupleTable2<T, U>(this, typeT, typeU);
+        return new TupleTable2<T, U>(null, this, typeT, typeU);
     }
 
     default <T, U, V> TupleTable3<T, U, V> createTable3(Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV){
-        return new TupleTable3<T, U, V>(this, typeT, typeU, typeV);
+        return new TupleTable3<T, U, V>(null, this, typeT, typeU, typeV);
     }
 
     default <T, U, V, W> TupleTable4<T, U, V, W> createTable4(Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
                                                               Class<? extends W> typeW){
-        return new TupleTable4<T, U, V, W>(this, typeT, typeU, typeV, typeW);
+        return new TupleTable4<T, U, V, W>(null, this, typeT, typeU, typeV, typeW);
     }
 
     default <T, U, V, W, X> TupleTable5<T, U, V, W, X> createTable5(Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
                                                                     Class<? extends W> typeW, Class<? extends X> typeX){
-        return new TupleTable5<T, U, V, W, X>(this, typeT, typeU, typeV, typeW, typeX);
+        return new TupleTable5<T, U, V, W, X>(null, this, typeT, typeU, typeV, typeW, typeX);
     }
 
     default <T, U, V, W, X, Y> TupleTable6<T, U, V, W, X, Y> createTable6(Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
                                                                           Class<? extends W> typeW, Class<? extends X> typeX, Class<? extends Y> typeY){
-        return new TupleTable6<T, U, V, W, X, Y>(this, typeT, typeU, typeV, typeW, typeX, typeY);
+        return new TupleTable6<T, U, V, W, X, Y>(null, this, typeT, typeU, typeV, typeW, typeX, typeY);
     }
 
     default <T, U, V, W, X, Y, Z> TupleTable7<T, U, V, W, X, Y, Z> createTable7(Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
                                                                                 Class<? extends W> typeW, Class<? extends X> typeX, Class<? extends Y> typeY, Class<? extends Z> typeZ){
-        return new TupleTable7<T, U, V, W, X, Y, Z>(this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ);
+        return new TupleTable7<T, U, V, W, X, Y, Z>(null, this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ);
     }
 
     default <T, U, V, W, X, Y, Z, A> TupleTable8<T, U, V, W, X, Y, Z, A> createTable8(Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
                                                                                       Class<? extends W> typeW, Class<? extends X> typeX, Class<? extends Y> typeY, Class<? extends Z> typeZ,
                                                                                       Class<? extends A> typeA){
-        return new TupleTable8<T, U, V, W, X, Y, Z, A>(this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA);
+        return new TupleTable8<T, U, V, W, X, Y, Z, A>(null, this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA);
     }
 
     default <T, U, V, W, X, Y, Z, A, B> TupleTable9<T, U, V, W, X, Y, Z, A, B> createTable9(Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
                                                                                             Class<? extends W> typeW, Class<? extends X> typeX, Class<? extends Y> typeY, Class<? extends Z> typeZ,
                                                                                             Class<? extends A> typeA, Class<? extends B> typeB){
-        return new TupleTable9<T, U, V, W, X, Y, Z, A, B>(this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB);
+        return new TupleTable9<T, U, V, W, X, Y, Z, A, B>(null, this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB);
     }
 
     default <T, U, V, W, X, Y, Z, A, B, C> TupleTable10<T, U, V, W, X, Y, Z, A, B, C> createTable10(Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
                                                                                                     Class<? extends W> typeW, Class<? extends X> typeX, Class<? extends Y> typeY, Class<? extends Z> typeZ,
                                                                                                     Class<? extends A> typeA, Class<? extends B> typeB, Class<? extends C> typeC){
-        return new TupleTable10<T, U, V, W, X, Y, Z, A, B, C>(this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB, typeC);
+        return new TupleTable10<T, U, V, W, X, Y, Z, A, B, C>(null, this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB, typeC);
     }
 
     default <T, U, V, W, X, Y, Z, A, B, C> TupleTablePlus<T, U, V, W, X, Y, Z, A, B, C> createTablePlus(Class<? extends T> typeT, Class<? extends U> typeU, Class<? extends V> typeV,
                                                                                                         Class<? extends W> typeW, Class<? extends X> typeX, Class<? extends Y> typeY, Class<? extends Z> typeZ,
                                                                                                         Class<? extends A> typeA, Class<? extends B> typeB, Class<? extends C> typeC, Type... moreTypes){
-        return new TupleTablePlus<T, U, V, W, X, Y, Z, A, B, C>(this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB, typeC, moreTypes);
+        return new TupleTablePlus<T, U, V, W, X, Y, Z, A, B, C>(null, this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB, typeC, moreTypes);
     }
     //endregion
 }

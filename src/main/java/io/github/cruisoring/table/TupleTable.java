@@ -7,19 +7,26 @@ import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class TupleTable<R extends WithValues> implements ITable<R> {
     final IColumns columns;
-    final List<WithValues> rows = new ArrayList<>();
+    final List<WithValues> rows;
     final Class[] elementTypes;
 
-    protected TupleTable(IColumns columns, Class... elementTypes){
+    protected TupleTable(Supplier<List<WithValues>> rowsSupplier, IColumns columns, Class... elementTypes){
         Objects.requireNonNull(columns);
+
         this.columns = columns;
+        this.rows = rowsSupplier == null ? new ArrayList<>() : rowsSupplier.get();
         this.elementTypes = elementTypes;
+    }
+
+    protected TupleTable(IColumns columns, Class... elementTypes){
+        this(null, columns, elementTypes);
     }
 
     @Override
@@ -80,32 +87,6 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         WithValuesByName[] namedRows = ArrayHelper.create(WithValuesByName.class, size(), i -> new TupleRow(columns, rows.get(i)));
         return namedRows;
     }
-
-
-//    @Override
-//    public WithValuesByName[] getAllRows(IColumns viewColumns) {
-//        Objects.requireNonNull(viewColumns);
-//
-//        //More efficient since the mapping is cached for later use
-//        WithValues<Integer> mappedIndex = viewColumns.mapIndexes(getColumns());
-//        if(mappedIndex.anyMatch(v -> v == null)){
-//            return null;        //Cannot find all columns
-//        }
-//
-//        int size = rows.size();
-//        int width = viewColumns.width();
-//        WithValuesByName[] namedRows = new WithValuesByName[size];
-//        for (int i = 0; i < size; i++) {
-//            Object[] viewElements = new Object[width];
-//            WithValues row = rows.get(i);
-//            for (int j = 0; j < width; j++) {
-//                viewElements[j] = row.getValue(mappedIndex.getValue(j));
-//            }
-//            Tuple tuple = Tuple.of(viewElements);
-//            namedRows[i] = new TupleRow(viewColumns, tuple);
-//        }
-//        return namedRows;
-//    }
 
     @Override
     public ITable getView(IColumns viewColumns) {
