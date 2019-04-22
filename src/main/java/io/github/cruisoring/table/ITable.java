@@ -1,10 +1,15 @@
 package io.github.cruisoring.table;
 
+import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Interface of generic Table which is composed as collection of rows
@@ -12,7 +17,6 @@ import java.util.Collection;
  * @param <R> Type of the table rows, shall be of {@code Tuple}
  */
 public interface ITable<R extends WithValues> extends Collection<WithValuesByName> {
-
     /**
      * Retrieve ALL column columns of a RowDataSupplier, return them as a list with non-key columns before all key columns.
      * Thus both Update and Insert SQL statements could use data in this order.
@@ -37,9 +41,9 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
     Collection<String> getDisplayedNames();
 
     /**
-     * Get total column number that identified as non-empty cells of the first row.
+     * Get total number of columns that have element type specified.
      *
-     * @return Number of columns identified in the first row.
+     * @return Number of columns with element type specified.
      */
     int width();
 
@@ -60,12 +64,37 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
     }
 
     /**
+     * Get the index of the concerned row.
+     *
+     * @param row the row concerned with names identified.
+     * @return  index of the row with identical values matched, otherwise <code>-1</code>
+     */
+    int indexOf(WithValuesByName row);
+
+    /**
+     * Get the index of the concerned row whose values have been specified by column names.
+     *
+     * @param valuesByName  Values of the row with only recognizable column names as the key.
+     * @return      index of the first row whose values matched with the given {@code valuesByName}, or <code>-1</code>
+     *              if there is no matching
+     */
+    int indexOf(Map<String, Object> valuesByName);
+
+    /**
      * Placeholder of Collection&lt;WithValuesByName&gt;.add()
      * @param row   row to be added.
      * @return always return false and let the sub-classes to add <code>WithValuesByName</code> of matched type
      * as this <code>TupleTable</code>
      */
     boolean add(WithValuesByName row);
+
+    /**
+     * Add a row whose values are defined as a {@code Map<String, Object>} with missing ones as nulls.
+     *
+     * @param valuesByName  Values of the row with only recognizable column names as the key.
+     * @return      <code>true</code> if the ITuple changes by adding the values, otherwise <code>false</code>
+     */
+    boolean addValues(Map<String, Object> valuesByName);
 
     /**
      * Add a qualified tuple to the <code>ITable</code> as a new row.
@@ -84,11 +113,36 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
     WithValuesByName getRow(int rowIndex);
 
     /**
+     * Get first row whose values have been specified by column names.
+     *
+     * @param valuesByName  Values of the row with only recognizable column names as the key.
+     * @return      the first row with specific values at concerned columns if it does exist, otherwise <code>null</code>
+     */
+    WithValuesByName getRow(Map<String, Object> valuesByName);
+
+
+    /**
      * Get all rows of values as an array of {@WithValuesByName}
      *
      * @return the array of {@WithValuesByName}, each represent the corresponding elements with the {@code IColumns} of this table
      */
     WithValuesByName[] getAllRows();
+
+    /**
+     * Get all rows meeting expected conditions as an array of {@WithValuesByName}.
+     *
+     * @paramc expectedConditions the predicates for values identified by names
+     * @return the array of {@WithValuesByName}, each represent the corresponding elements with the {@code IColumns} of this table
+     */
+    WithValuesByName[] getAllRows(Map<String, PredicateThrowable> expectedConditions);
+
+    /**
+     * Get all rows meeting expected conditions as a Stream of {@WithValuesByName}.
+     *
+     * @param expectedConditions the predicates for values identified by names
+     * @return  the Stream of {@WithValuesByName} all meet conditions specified.
+     */
+    Stream<WithValuesByName> streamOfRows(Map<String, PredicateThrowable> expectedConditions);
 
     /**
      * Get specific values of concerned row and represent with different columns
@@ -104,6 +158,31 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return A new {@code ITable} with the given columns.
      */
     ITable getView(IColumns viewColumns);
+
+    /**
+     * Validate columns exist for each of collection of String keys, and return the corresponding positions as the keys of the map.
+     *
+     * @param valueKeys Concerned keys of values that shall have one-to-one mappings of the columns.
+     * @return      a {@code Map<Integer, String>} instance whose values are the concerned keys of the values, and their
+     *              corresponding positions as the keys.
+     */
+    default Map<Integer, String> getIndexedNames(Collection<String> valueKeys) {
+        Map<Integer, String> map = new HashMap<>();
+        IColumns columns = getColumns();
+        for (String key : valueKeys) {
+            Integer index = columns.get(key);
+            if(index == -1){
+                throw new UnsupportedOperationException("Value key of '" + key + "' is not recognizable!");
+            } else if (map.containsKey(index)){
+                throw new IllegalArgumentException(String.format("'%s' and '%s' are mapped to the same column %s @ %d",
+                        map.get(index), key, columns.getColumnNames().get(index), index));
+            }
+            map.put(index, key);
+        }
+        return map;
+    }
+
+
 
     /**
      * Get the value of the cell with its <code>rowIndex</code> and <code>columnIndex</code>

@@ -250,6 +250,67 @@ public class TupleTest {
     }
 
     @Test
+    public void isMatched() {
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
+                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+
+        assertTrue(tuple.isMatched(new HashMap<Integer, Object>(){{
+            put(0, 1);
+            put(3, "abc");
+        }}));
+
+        assertFalse(tuple.isMatched(new HashMap<Integer, Object>(){{
+            put(0, 2);
+            put(3, "abc");
+        }}));
+    }
+
+    @Test
+    public void meetConditions() {
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
+                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+
+        assertTrue(tuple.meetConditions(new HashMap<Integer, PredicateThrowable>(){{
+            put(0, o -> (Integer)o > 0);
+            put(3, o -> o.toString().startsWith("a"));
+        }}));
+
+        assertFalse(tuple.meetConditions(new HashMap<Integer, PredicateThrowable>(){{
+            put(1, o -> o instanceof Integer);
+        }}));
+    }
+
+    @Test
+    public void anyMatch() {
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
+                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+
+        assertTrue(tuple.anyMatch(o -> o == DayOfWeek.MONDAY));
+
+        assertFalse(tuple.anyMatch(o -> o.toString().length() > 10));
+    }
+
+    @Test
+    public void allMatch() {
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
+                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+
+        assertTrue(tuple.allMatch(o -> o != null));
+
+        assertFalse(tuple.allMatch(o -> o instanceof Number));
+    }
+
+    @Test
+    public void noneMatch() {
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
+                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+
+        assertTrue(tuple.noneMatch(o -> o instanceof LocalDate));
+
+        assertFalse(tuple.noneMatch(o -> o instanceof DayOfWeek));
+    }
+
+    @Test
     public void setOf() {
 
         assertEquals(4, stringSet.getLength());
@@ -580,18 +641,6 @@ public class TupleTest {
 
         Set<Integer> actualSignatures = tuplePlus.getSignatures();
         assertTrue(expectedSignatures.size() == actualSignatures.size() && expectedSignatures.containsAll(actualSignatures));
-//        for (int i = 0; i < expectedSignatures.size(); i++) {
-//            if(!actualSignatures.contains(expectedSignatures.get(i))){
-//                Logger.D("%d at index of %d is not contained", expectedSignatures.get(i), i);
-//            }
-//        }
-//
-//        Set<Integer> actualDif = new HashSet(actualSignatures);
-//        actualDif.removeAll(expectedSignatures);
-//        Set<Integer> expectedDif = new HashSet(expectedSignatures);
-//        expectedDif.removeAll(actualSignatures);
-//
-//        assertTrue(actualDif.size() == 0 && expectedDif.size() ==0);
     }
 
     enum Progress {

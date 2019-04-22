@@ -1,6 +1,7 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
@@ -260,8 +261,6 @@ public class TupleTableTest {
         assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
         assertFalse(table5.add(columns.createRow(5, "Grey", "Thompson", 6.33, false)));   //Would fail since it calls the add(WithValuesByName) when the TupleRow is of wrong signature
 
-
-
 //        table5.addValues(5, "Elisa", "Carter", 'F');           //Not allowed without filling the first 5 arguments
 //        table5.addValues(5, "Elissa", "Carter", "Female", true)  //Not allow any argument with wrong type
 
@@ -278,8 +277,40 @@ public class TupleTableTest {
 
         WithValuesByName row1 = table5.getRow(1);
         assertTrue(table5.add(row1));
+        assertEquals(1, table5.indexOf(row1));
 
         table5.forEach(row -> Logger.D(row.toString()));
+    }
+
+    @Test
+    public void addValuesOfMap() {
+        IColumns columns = new Columns(new String[][]{
+                new String[]{"identity", "id"},
+                new String[]{"given name", "firstName"},
+                new String[]{"Family Name", "name", "Given Name", "last-name"},
+                new String[]{"gender"},
+                new String[]{"is-active"},
+                new String[]{"favorite"},
+                new String[]{"other"}
+        }, Columns.ESCAPED_CASE_INSENSITIVE);
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = new TupleTable5<Integer, String, String, Character, Boolean>(null, columns,
+            Integer.class, String.class, String.class, Character.class, Boolean.class);
+        table5.addValues(new HashMap<String, Object>(){{
+            put("ID", 777);
+            put("First Name", "1st name");
+            put("Last Name", "lastName");
+            put("Gender", null);
+            put("IsActive", false);
+            put("Favorite", "Reading, Riding");
+            put("Other", "N/A");
+        }});
+        table5.addValues(new HashMap<String, Object>(){{
+            put("ID", 888);
+            put("First Name", "secondOne");
+            put("Favorite", "Music");
+        }});
+        assertEquals(2, table5.size());
+        assertNull(table5.getRow(1).getValueByName("IsActive"));
     }
 
     @Test
@@ -430,5 +461,80 @@ public class TupleTableTest {
 
     @Test
     public void clear() {
+        Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(
+                Integer.class, String.class, String.class, Character.class, Boolean.class);
+        table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
+        table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
+        table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
+        table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
+
+        assertEquals(4, table5.size());
+
+        table5.clear();
+        assertEquals(0, table5.size());
+    }
+
+    @Test
+    public void getRow_withMap() {
+        Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(
+                Integer.class, String.class, String.class, Character.class, Boolean.class);
+        table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
+        table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
+        table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
+        table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
+
+        Map<String, Object> map = new HashMap<String, Object>(){{
+            put("ID", 1);
+            put("First Name", "Bob");
+        }};
+
+        WithValuesByName row = table5.getRow(map);
+        assertEquals(99, row.getValueByName("Favorite"));
+
+        map.put("ID", 2);
+        row = table5.getRow(map);
+        assertNull(row);
+    }
+
+    @Test
+    public void getAllRows_withMapOfPredicates() {
+        Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(
+                Integer.class, String.class, String.class, Character.class, Boolean.class);
+        table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
+        table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
+        table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
+        table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
+
+        Map<String, PredicateThrowable> expectedConditions = new HashMap<String, PredicateThrowable>(){{
+            put("Gender", o -> o.equals('M'));
+        }};
+
+        WithValuesByName[] matched = table5.getAllRows(expectedConditions);
+        assertEquals(2, matched.length);
+        assertEquals("David", matched[1].getValueByName("First Name"));
+    }
+
+    @Test
+    public void indexOf_withValuesMap() {
+        Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(
+                Integer.class, String.class, String.class, Character.class, Boolean.class);
+        table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
+        table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
+        table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
+        table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
+
+        Map<String, Object> valuesByName = new HashMap<String, Object>(){{
+            put("Gender", 'F');
+            put("IsActive", false);
+        }};
+
+        assertEquals(-1, table5.indexOf(valuesByName));
+
+        valuesByName.put("Gender", 'M');
+        assertEquals(1, table5.indexOf(valuesByName));
     }
 }

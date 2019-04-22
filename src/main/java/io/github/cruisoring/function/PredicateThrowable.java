@@ -1,5 +1,8 @@
 package io.github.cruisoring.function;
 
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 /**
  * Functional Interface identifying methods, accepting 1 argument and returning value type of boolean
  * while their service logic could throw Exceptions.
@@ -19,4 +22,19 @@ public interface PredicateThrowable<T> extends FunctionThrowable<T, Boolean> {
         return apply(t);
     }
 
+    /**
+     * Convert this {@code PredicateThrowable<T>} to {@code Predicate<T>} by returning <code>false</code> with Exception.
+     *
+     * @return {@code Predicate<T>} with same predicate logic except always return false with Exception.
+     */
+    default Predicate<T> orElse() {
+        Predicate<T> predicate = (t) -> {
+            try {
+                return apply(t);
+            } catch (Exception ignored) {
+                return false;
+            }
+        };
+        return predicate;
+    }
 }

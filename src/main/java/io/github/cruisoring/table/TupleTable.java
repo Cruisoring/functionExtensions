@@ -1,6 +1,7 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
@@ -62,6 +63,13 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     }
 
     @Override
+    public WithValuesByName getRow(Map<String, Object> valuesByName){
+        int index = indexOf(valuesByName);
+
+        return getRow(index);
+    }
+
+    @Override
     public WithValuesByName getRow(int rowIndex, IColumns viewColumns) {
         Objects.requireNonNull(viewColumns);
 
@@ -86,6 +94,35 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     public WithValuesByName[] getAllRows() {
         WithValuesByName[] namedRows = ArrayHelper.create(WithValuesByName.class, size(), i -> new TupleRow(columns, rows.get(i)));
         return namedRows;
+    }
+
+    @Override
+    public WithValuesByName[] getAllRows(Map<String, PredicateThrowable> expectedConditions){
+        WithValuesByName[] matchedRows = streamOfRows(expectedConditions)
+                .toArray(size -> new WithValuesByName[size]);
+
+        return matchedRows;
+    }
+
+    @Override
+    public Stream<WithValuesByName> streamOfRows(Map<String, PredicateThrowable> expectedConditions){
+        Objects.requireNonNull(expectedConditions);
+        if(expectedConditions.isEmpty()){
+            throw new IllegalArgumentException("No expections specified.");
+        }
+
+        Map<Integer, String> map = getIndexedNames(expectedConditions.keySet());
+        Map<Integer, PredicateThrowable> indexedPredicates = map.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey(),
+                        entry -> expectedConditions.get(entry.getValue())
+                ));
+
+        Stream<WithValuesByName> matchedRows = rows.stream()
+                .filter(row -> row.meetConditions(indexedPredicates))
+                .map(row -> new TupleRow(columns, row));
+
+        return matchedRows;
     }
 
     @Override
@@ -145,6 +182,31 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     }
 
     @Override
+    public boolean addValues(Map<String, Object> valuesByName){
+        if(valuesByName == null){
+            return false;
+        }
+
+        Set<String> valueKeys = valuesByName.keySet();
+        int length = width() > columns.width() ? width() : columns.width();
+        String[] orderedKeys = ArrayHelper.getNewArray(String.class, length, null);
+        for (String key : valueKeys) {
+            Integer index = columns.get(key);
+            if(index == -1){
+                throw new UnsupportedOperationException("Value key of '" + key + "' is not recognizable!");
+            } else if (orderedKeys[index] != null){
+                throw new IllegalArgumentException(String.format("'%s' and '%s' are mapped to the same column %s @ %d",
+                        orderedKeys[index], key, columns.getColumnNames().get(index), index));
+            }
+            orderedKeys[index] = key;
+        }
+
+        Object[] values = Arrays.stream(orderedKeys).map(key -> key == null ? null : valuesByName.get(key)).toArray();
+        Tuple row = Tuple.of(values);
+        return addValues(row);
+    }
+
+    @Override
     public boolean addValues(WithValues rowValues) {
         if (rowValues == null) {
             return false;
@@ -196,6 +258,47 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         } else {
             return rows.contains(((WithValues) o).getValues());
         }
+    }
+
+    @Override
+    public int indexOf(WithValuesByName row){
+        if(row == null) {
+            return -1;
+        }
+
+        IColumns rowColumns = row.getColumnIndexes();
+        if(rowColumns == columns){
+            return rows.indexOf(row.getValues());
+        }
+
+        WithValues<Integer> mappedIndexes = columns.mapIndexes(rowColumns);
+        if(mappedIndexes.anyMatch(i -> i==null)){
+            return -1;
+        }
+
+        Object[] elements = IntStream.range(0, width()).boxed().map(i -> mappedIndexes.getValue(i))
+                .map(i -> row.getValue(i)).toArray();
+
+        Tuple values = Tuple.of(elements);
+        return rows.indexOf(values);
+    }
+
+    @Override
+    public int indexOf(Map<String, Object> valuesByName){
+        Map<Integer, String> map = getIndexedNames(valuesByName.keySet());
+
+        final Map<Integer, Object> expectedValues = map.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey(),
+                        entry -> valuesByName.get(entry.getValue())
+                ));
+
+        for (int i = 0; i < size(); i++) {
+            if(rows.get(i).isMatched(expectedValues)){
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override

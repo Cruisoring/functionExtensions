@@ -1,7 +1,9 @@
 package io.github.cruisoring.tuple;
 
+import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.PredicateThrowable;
 
+import java.util.Map;
 import java.util.Objects;
 
 public interface WithValues<T> extends Comparable {
@@ -33,25 +35,34 @@ public interface WithValues<T> extends Comparable {
     }
 
     /**
-     * Returns whether any elements of this stream match the provided
-     * predicate.  May not evaluate the predicate on all elements if not
-     * necessary for determining the result.  If the stream is empty then
-     * {@code false} is returned and the predicate is not evaluated.
+     * With concerned set of values at given positions, check if this {@code WithValues} have matched values.
      *
-     * <p>This is a <a href="package-summary.html#StreamOps">short-circuiting
-     * terminal operation</a>.
-     *
-     * @apiNote
-     * This method evaluates the <em>existential quantification</em> of the
-     * predicate over the elements of the stream (for some x P(x)).
-     *
-     * @param predicate a <a href="package-summary.html#NonInterference">non-interfering</a>,
-     *                  <a href="package-summary.html#Statelessness">stateless</a>
-     *                  predicate to apply to elements of this stream
-     * @return {@code true} if any elements of the stream match the provided
-     * predicate, otherwise {@code false}
+     * @param expectedValues the expected element values at specific positions.
+     * @return      <code>true</code> if element values at the concerned positions are matched, otherwise <code>false</code>
      */
+    default boolean isMatched(Map<Integer, Object> expectedValues){
+        for (Integer index : expectedValues.keySet()) {
+            if(!TypeHelper.valueEquals(expectedValues.get(index), getValue(index))){
+                return false;
+            }
+        }
+        return true;
+    }
 
+    /**
+     * With predicates for values at concerned positions, check if this {@code WithValues} meet the expectations.
+     *
+     * @param expectedConditions the predicates for values at concerned positions
+     * @return      <code>true</code> if element values at the concerned positions meet all conditions, otherwise <code>false</code>
+     */
+    default boolean meetConditions(Map<Integer, PredicateThrowable> expectedConditions){
+        for (Integer index : expectedConditions.keySet()) {
+            if(!expectedConditions.get(index).orElse().test(getValue(index))){
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Returns whether any elements of this {@code WithValues} match the provided
