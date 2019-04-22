@@ -1,6 +1,7 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.function.FunctionThrowable;
 import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
@@ -8,6 +9,7 @@ import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -59,7 +61,8 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     public WithValuesByName getRow(int rowIndex) {
         if (rowIndex < 0 || rowIndex >= rows.size())
             return null;
-        return new TupleRow<>(columns, rows.get(rowIndex));
+
+        return columns.asRow(rows.get(rowIndex));
     }
 
     @Override
@@ -151,6 +154,70 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         return table;
     }
 
+    @Override
+    public boolean replace(WithValuesByName row, Map<String, Object> newValues) {
+        int index = indexOf(row);
+        if(index < 0 || newValues.isEmpty()) {
+            return false;
+        }
+
+        try {
+            WithValues tuple = rows.get(index);
+            Map<Integer, String> indexedNames = getIndexedNames(newValues.keySet());
+            Object[] elements = ArrayHelper.create(Object.class, tuple.getLength(), i -> indexedNames.containsKey(i) ? newValues.get(indexedNames.get(i)) : tuple.getValue(i));
+            WithValues replacement = Tuple.of(elements);
+            rows.remove(index);
+            rows.add(index, replacement);
+            return true;
+        }catch (Exception ignored){
+            return false;
+        }
+    }
+
+    @Override
+    public boolean update(WithValuesByName row, Map<String, FunctionThrowable<WithValuesByName, Object>> valueSuppliers){
+        int index = indexOf(row);
+        if(index < 0) {
+            return false;
+        }
+
+        try {
+            WithValuesByName oldRow = getRow(index);
+            Map<Integer, String> indexedNames = getIndexedNames(valueSuppliers.keySet());
+            Object[] elements = ArrayHelper.create(Object.class, row.getLength(), i ->
+                    indexedNames.containsKey(i) ? valueSuppliers.get(indexedNames.get(i)).orElse(null).apply(oldRow) : oldRow.getValue(i));
+            WithValues replacement = Tuple.of(elements);
+            rows.remove(index);
+            rows.add(index, replacement);
+            return true;
+        }catch (Exception ignored){
+            return false;
+        }
+    }
+
+    @Override
+    public int updateAll(Stream<WithValuesByName> rowsToBeUpdate, Map<String, FunctionThrowable<WithValuesByName, Object>> valueSuppliers) {
+
+        Map<Integer, String> indexedNames = getIndexedNames(valueSuppliers.keySet());
+        Map<Integer, WithValues> replacements = new HashMap<>();
+        for (WithValuesByName row : (Iterable<WithValuesByName>)rowsToBeUpdate::iterator) {
+            int index = indexOf(row);
+            if(index == -1){
+                continue;
+            }
+            WithValues oldRow = rows.get(index);
+            Object[] elements = ArrayHelper.create(Object.class, oldRow.getLength(), i ->
+                    indexedNames.containsKey(i) ? valueSuppliers.get(indexedNames.get(i)).orElse(null).apply(row) : oldRow.getValue(i));
+            replacements.put(index, Tuple.of(elements));
+        }
+
+        for (Map.Entry<Integer, WithValues> entry : replacements.entrySet()) {
+            int index = entry.getKey();
+            rows.remove(index);
+            rows.add(index, entry.getValue());
+        };
+        return replacements.size();
+    }
 
     @Override
     public boolean add(WithValuesByName row) {
@@ -187,32 +254,22 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
             return false;
         }
 
-        Set<String> valueKeys = valuesByName.keySet();
+        Map<Integer, String> indexedNames = getIndexedNames(valuesByName.keySet());
         int length = width() > columns.width() ? width() : columns.width();
-        String[] orderedKeys = ArrayHelper.getNewArray(String.class, length, null);
-        for (String key : valueKeys) {
-            Integer index = columns.get(key);
-            if(index == -1){
-                throw new UnsupportedOperationException("Value key of '" + key + "' is not recognizable!");
-            } else if (orderedKeys[index] != null){
-                throw new IllegalArgumentException(String.format("'%s' and '%s' are mapped to the same column %s @ %d",
-                        orderedKeys[index], key, columns.getColumnNames().get(index), index));
-            }
-            orderedKeys[index] = key;
-        }
-
-        Object[] values = Arrays.stream(orderedKeys).map(key -> key == null ? null : valuesByName.get(key)).toArray();
+        Object[] values = IntStream.range(0, length).boxed()
+                .map(i -> indexedNames.containsKey(i) ? valuesByName.get(indexedNames.get(i)) : null)
+                .toArray();
         Tuple row = Tuple.of(values);
         return addValues(row);
     }
 
     @Override
     public boolean addValues(WithValues rowValues) {
-        if (rowValues == null) {
+        int _width = width();
+        if (rowValues == null || rowValues.getLength() < width()) {
             return false;
         }
 
-        int _width = width();
         for (int i = 0; i < _width; i++) {
             Object value = rowValues.getValue(i);
             Class expectedType = elementTypes[i];

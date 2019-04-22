@@ -1,16 +1,17 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.function.FunctionThrowable;
 import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.tuple.WithValues;
-import io.github.cruisoring.tuple.WithValues1;
 import org.junit.Test;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
@@ -311,6 +312,63 @@ public class TupleTableTest {
         }});
         assertEquals(2, table5.size());
         assertNull(table5.getRow(1).getValueByName("IsActive"));
+    }
+
+    @Test
+    public void replaceUpdateSingelRow() {
+        Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(Integer.class, String.class, String.class, Character.class, Boolean.class);
+        table5.addValues(Tuple.create(0, "Alice", "Wilson", 'F', true));
+        table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
+        table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
+        table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
+        table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
+        WithValuesByName row1 = table5.getRow(1);
+        assertTrue(table5.replace(row1, new HashMap<String, Object>(){{
+            put("Favorite", "Gardening");
+        }}));
+
+        assertFalse(table5.contains(row1));
+        assertEquals("Gardening", table5.getCellValue(1, "Favorite"));
+
+        row1 = table5.getRow(1);
+        assertTrue(table5.update(row1, new HashMap<String, FunctionThrowable<WithValuesByName, Object>>(){{
+            put("Last Name", row -> row.getValueByName("Last Name").toString().replaceAll("i", "y"));
+            put("IsActive", row -> !((Boolean)row.getValueByName("IsActive")));
+        }}));
+
+        assertFalse(table5.contains(row1));
+        assertEquals("Nylson", table5.getCellValue(1, "Last Name"));
+        assertEquals(Boolean.TRUE, table5.getCellValue(1, "IsActive"));
+    }
+
+    @Test
+    public void updateAll() {
+        Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite", "Other");
+        TupleTable5<Integer, String, String, Character, Boolean> table5 = columns.createTable5(Integer.class, String.class, String.class, Character.class, Boolean.class);
+        table5.addValues(Tuple.create(0, "Alice", "Wilson", 'M', true));
+        table5.addValues(1, "Bob", "Nilson", 'M', false, 99);
+        table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
+        table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
+        table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
+        Stream<WithValuesByName> rows = table5.streamOfRows(new HashMap<String, PredicateThrowable>(){{
+            put("ID", o -> (Integer)o < 4);
+            put("Last Name", o -> o.toString().endsWith("lson"));
+        }});
+
+        assertEquals(3, table5.updateAll(rows, new HashMap<String, FunctionThrowable<WithValuesByName, Object>>(){{
+            put("Last Name", row -> row.getValueByName("Last Name").toString().replaceAll("i", "y"));
+            put("IsActive", row -> !((Boolean)row.getValueByName("IsActive")));
+            put("Gender", row -> row.getValueByName("First Name").equals("Alice") ? 'F' : row.getValueByName("Gender"));
+        }}));
+
+        table5.forEach(row -> Logger.D(row.toString()));
+
+        assertTrue(table5.contains(0, "Alice", "Wylson", 'F', false));
+        assertTrue(table5.contains(1, "Bob", "Nylson", 'M', true, 99));
+        assertTrue(table5.contains(2, "Clare", "Neons", 'F', true, "Movie", 25));
+        assertTrue(table5.contains(3, "David", "Wylson", 'M', null, "", 20));
+        assertTrue(table5.contains(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
     }
 
     @Test

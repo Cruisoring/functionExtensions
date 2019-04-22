@@ -3,7 +3,6 @@ package io.github.cruisoring.table;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
-import io.github.cruisoring.tuple.WithValues1;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -202,18 +201,18 @@ public class ColumnsTest {
 
     @Test
     public void rowOf() {
-        TupleRow row0 = shared.rowOf();
+        TupleRow row0 = shared.createRow();
         Logger.D(row0.toString());
-        TupleRow row1 = shared.rowOf(123);
+        TupleRow row1 = shared.createRow(123);
         Logger.D(row1.toString());
 
-        TupleRow row6 = shared.rowOf(123, "Tom", LocalDate.of(2000, 1, 1), "0400111222", null, "somewhere");
+        TupleRow row6 = shared.createRow(123, "Tom", LocalDate.of(2000, 1, 1), "0400111222", null, "somewhere");
         Logger.I(row6.toString());
         assertEquals("Tom", row6.getValueByName("Given Name"));
         assertEquals("0400111222", row6.getValueByName("Phone"));
         assertEquals(123, row6.getValueByName("id"));
 
-        TupleRow8<Integer, String, LocalDate, String, String, String, Character, Boolean> row8 = shared.createRow(123, "Tom", LocalDate.of(2000, 1, 1),
+        TupleRow8<Integer, String, LocalDate, String, String, String, Character, Boolean> row8 = (TupleRow8<Integer, String, LocalDate, String, String, String, Character, Boolean>) shared.createRow(123, "Tom", LocalDate.of(2000, 1, 1),
                 "0400111222", null, "somewhere", 'M', true);
         Logger.I(row8.toString());
         assertEquals(Character.valueOf('M'), row8.getValue(6));
@@ -226,11 +225,11 @@ public class ColumnsTest {
             Integer.class, String.class, LocalDate.class, String.class, String.class, String.class);
         table6.addValues(22, "Alice", LocalDate.of(2001, 12, 1), "0400333222", "alice@d.com", "home", 'F', false);
 
-        TupleRow8<Integer, String, LocalDate, String, String, String, Character, Boolean> row8 = shared.createRow(456, "Tom", LocalDate.of(2000, 1, 1),
+        TupleRow row8 = shared.createRow(456, "Tom", LocalDate.of(2000, 1, 1),
                 "0400111222", null, "library", 'M', true);
         table6.add(row8);
 
-        TupleRow9<Integer, String, LocalDate, String, String, String, Character, Boolean, String> row9 = shared.createRow(789, "Tom", LocalDate.of(2000, 1, 1),
+        TupleRow row9 = shared.createRow(789, "Tom", LocalDate.of(2000, 1, 1),
                 "0400111222", null, "classroom", 'M', true, "Note");
         table6.add(row9);
 

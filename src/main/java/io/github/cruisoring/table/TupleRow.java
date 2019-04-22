@@ -86,6 +86,6 @@ public class TupleRow<R extends WithValues> implements WithValuesByName {
                 .map(i -> StringHelper.tryFormatString("\"%s\"=%s", columnNames.get(i), getValue(i)))
                 .collect(Collectors.joining(", "));
 
-        return "[" + _string + "]";
+        return "{" + _string + "}";
     }
 }

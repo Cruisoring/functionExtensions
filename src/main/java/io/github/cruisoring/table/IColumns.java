@@ -1,8 +1,6 @@
 package io.github.cruisoring.table;
 
-import io.github.cruisoring.tuple.Tuple;
-import io.github.cruisoring.tuple.WithValues;
-import io.github.cruisoring.tuple.WithValues2;
+import io.github.cruisoring.tuple.*;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -102,7 +100,7 @@ public interface IColumns extends Map<String, Integer> {
      * @param elements  Values to be used to create the strong-typed <code>TableRow</code> instance
      * @return      <code>TupleRow</code> created with given values and this <code>Columns</code>
      */
-    default TupleRow rowOf(Object... elements) {
+    default TupleRow createRow(Object... elements) {
         if (elements == null) {
             return new TupleRow(this, null);
         }
@@ -143,54 +141,76 @@ public interface IColumns extends Map<String, Integer> {
         }
     }
 
-    default <T> TupleRow1<T> createRow(T t){
-        return new TupleRow1<T>(this, t);
+    default TupleRow asRow(WithValues tuple){
+        Objects.requireNonNull(tuple);
+
+        int length = tuple.getLength();
+        if(length == 0){
+            throw new UnsupportedOperationException("No columns defined");
+        }
+        switch (length){
+            case 1: return asRow1((WithValues1)tuple);
+            case 2: return asRow2((WithValues2)tuple);
+            case 3: return asRow3((WithValues3)tuple);
+            case 4: return asRow4((WithValues4)tuple);
+            case 5: return asRow5((WithValues5)tuple);
+            case 6: return asRow6((WithValues6)tuple);
+            case 7: return asRow7((WithValues7)tuple);
+            case 8: return asRow8((WithValues8)tuple);
+            case 9: return asRow9((WithValues9)tuple);
+            case 10: return asRow10((WithValues10)tuple);
+            default: return asRowPlus((WithValuesPlus)tuple);
+        }
     }
 
-    default <T, U> TupleRow2<T, U> createRow(T t, U u){
-        return new TupleRow2<T, U>(this, t, u);
+    default <T> TupleRow1<T> asRow1(WithValues1<T> tuple){
+        return new TupleRow1<T>(this, tuple);
     }
 
-    default <T, U, V> TupleRow3<T, U, V> createRow(T t, U u, V v){
-        return new TupleRow3<T, U, V>(this, t, u, v);
+    default <T, U> TupleRow2<T, U> asRow2(WithValues2<T,U> tuple){
+        return new TupleRow2<T, U>(this, tuple);
     }
 
-    default <T, U, V, W> TupleRow4<T, U, V, W> createRow(T t, U u, V v, W w){
-        return new TupleRow4<T, U, V, W>(this, t, u, v, w);
+    default <T, U, V> TupleRow3<T, U, V> asRow3(WithValues3<T,U,V> tuple){
+        return new TupleRow3<T, U, V>(this, tuple);
     }
 
-    default <T, U, V, W, X> TupleRow5<T, U, V, W, X> createRow(T t, U u, V v, W w, X x){
-        return new TupleRow5<T, U, V, W, X>(this, t, u, v, w, x);
+    default <T, U, V, W> TupleRow4<T, U, V, W> asRow4(WithValues4<T,U,V,W> tuple){
+        return new TupleRow4<T, U, V, W>(this, tuple);
     }
 
-    default <T, U, V, W, X, Y> TupleRow6<T, U, V, W, X, Y> createRow(T t, U u, V v, W w, X x,
-                                                                     Y y){
-        return new TupleRow6<T, U, V, W, X, Y>(this, t, u, v, w, x, y);
+    default <T, U, V, W, X> TupleRow5<T, U, V, W, X> asRow5(WithValues5<T,U,V,W,X> tuple){
+        return new TupleRow5<T, U, V, W, X>(this, tuple);
     }
 
-    default <T, U, V, W, X, Y, Z> TupleRow7<T, U, V, W, X, Y, Z> createRow(T t, U u, V v, W w, X x,
-                                                                           Y y, Z z){
-        return new TupleRow7<T, U, V, W, X, Y, Z>(this, t, u, v, w, x, y, z);
+    default <T, U, V, W, X, Y> TupleRow6<T, U, V, W, X, Y> asRow6(
+            WithValues6<T, U, V, W, X, Y> tuple){
+        return new TupleRow6<T, U, V, W, X, Y>(this, tuple);
     }
 
-    default <T, U, V, W, X, Y, Z, A> TupleRow8<T, U, V, W, X, Y, Z, A> createRow(T t, U u, V v, W w,
-                                                                                 X x, Y y, Z z, A a){
-        return new TupleRow8<T, U, V, W, X, Y, Z, A>(this, t, u, v, w, x, y, z, a);
+    default <T, U, V, W, X, Y, Z> TupleRow7<T, U, V, W, X, Y, Z> asRow7(
+            WithValues7<T, U, V, W, X, Y, Z> tuple){
+        return new TupleRow7<T, U, V, W, X, Y, Z>(this, tuple);
     }
 
-    default <T, U, V, W, X, Y, Z, A, B> TupleRow9<T, U, V, W, X, Y, Z, A, B> createRow(T t, U u, V v, W w,
-                                                                                       X x, Y y, Z z, A a, B b){
-        return new TupleRow9<T, U, V, W, X, Y, Z, A, B>(this, t, u, v, w, x, y, z, a, b);
+    default <T, U, V, W, X, Y, Z, A> TupleRow8<T, U, V, W, X, Y, Z, A> asRow8(
+            WithValues8<T, U, V, W, X, Y, Z, A> tuple){
+        return new TupleRow8<T, U, V, W, X, Y, Z, A>(this, tuple);
     }
 
-    default <T, U, V, W, X, Y, Z, A, B, C> TupleRow10<T, U, V, W, X, Y, Z, A, B, C> createRow(T t, U u, V v, W w, X x, Y y,
-                                                                                              Z z, A a, B b, C c){
-        return new TupleRow10<T, U, V, W, X, Y, Z, A, B, C>(this, t, u, v, w, x, y, z, a, b, c);
+    default <T, U, V, W, X, Y, Z, A, B> TupleRow9<T, U, V, W, X, Y, Z, A, B> asRow9(
+            WithValues9<T, U, V, W, X, Y, Z, A, B> tuple){
+        return new TupleRow9<T, U, V, W, X, Y, Z, A, B>(this, tuple);
     }
 
-    default <T, U, V, W, X, Y, Z, A, B, C> TupleRowPlus<T, U, V, W, X, Y, Z, A, B, C> createRow(T t, U u, V v, W w, X x, Y y,
-                                                                                                Z z, A a, B b, C c, Object... more){
-        return new TupleRowPlus<T, U, V, W, X, Y, Z, A, B, C>(this, t, u, v, w, x, y, z, a, b, c, more);
+    default <T, U, V, W, X, Y, Z, A, B, C> TupleRow10<T, U, V, W, X, Y, Z, A, B, C> asRow10(
+            WithValues10<T, U, V, W, X, Y, Z, A, B, C> tuple){
+        return new TupleRow10<T, U, V, W, X, Y, Z, A, B, C>(this, tuple);
+    }
+
+    default <T, U, V, W, X, Y, Z, A, B, C> TupleRowPlus<T, U, V, W, X, Y, Z, A, B, C> asRowPlus(
+            WithValuesPlus<T, U, V, W, X, Y, Z, A, B, C> tuple){
+        return new TupleRowPlus<T, U, V, W, X, Y, Z, A, B, C>(this, tuple);
     }
     //endregion
 
