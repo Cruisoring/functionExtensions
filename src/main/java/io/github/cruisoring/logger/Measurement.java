@@ -1,17 +1,32 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.table.Columns;
+import io.github.cruisoring.table.IColumns;
+import io.github.cruisoring.table.TupleRow;
+import io.github.cruisoring.table.TupleTable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple7;
+import io.github.cruisoring.utility.ArrayHelper;
 import io.github.cruisoring.utility.StackTraceHelper;
 import io.github.cruisoring.utility.StringHelper;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class Measurement {
+    //Common columns used to log info
+    public static final String START = "start";
+    public static final String DURATION = "duration";
+//    public static final String WITH_EXCEPTION = "withException";
+//    public static final String LOAD = "load";
+
+    public static final IColumns DefaultColumns = new Columns(START, DURATION);
+
+    //Identifier to locate the caller stack trace quickly
     static final String getCallerStackTraceKey = Measurement.class.getSimpleName();
 
-    static final Map<String, List<Tuple>> namedMeasurements = new HashMap<>();
+    static final Map<String, TupleTable> namedMeasurements = new HashMap<>();
 
     public static Moment start(String format, Object... args) {
         return new Moment(format, args);
@@ -21,61 +36,77 @@ public class Measurement {
         return new Moment();
     }
 
-    public static void save(String label, Tuple details) {
+    private static Class getClass(Object obj) {
+        return obj == null ? Object.class : obj.getClass();
+    }
+
+    public static void save(String label, TupleRow details) {
         if (!namedMeasurements.containsKey(label)) {
-            namedMeasurements.put(label, new ArrayList<>(Arrays.asList(details)));
-        } else {
-            namedMeasurements.get(label).add(details);
+            if (DefaultColumns == details.getColumnIndexes()) {
+                TupleTable table = DefaultColumns.createTable(null, Long.class, Long.class);
+                namedMeasurements.put(label, table);
+            } else {
+                List<String> columnNames = details.getColumnIndexes().getColumnNames();
+                Class[] classes = ArrayHelper.create(Class.class, columnNames.size(), i -> getClass(details.getValueByName(columnNames.get(i))));
+                IColumns columns = new Columns(columnNames.toArray(new String[0]));
+                TupleTable table = columns.createTable(null, classes);
+                namedMeasurements.put(label, table);
+            }
         }
+        namedMeasurements.get(label).addValues(details);
     }
 
     public static Set<String> getMeasuredLabels() {
         return namedMeasurements.keySet();
     }
 
-    public static List<Tuple> getMeasurements(String label) {
+    public static TupleTable getMeasurements(String label) {
         if (!namedMeasurements.containsKey(label))
             return null;
 
-        return Collections.unmodifiableList(namedMeasurements.get(label));
+        return namedMeasurements.get(label);
     }
 
-    public static Tuple7<String, Long, Long, Long, Long, Long, Double> summaryOf(String label) {
-        List<Tuple> tuples = getMeasurements(label);
-
-        long total = 0;
-        List<Long> elapsedList = new ArrayList<>();
-        double std;
-        for (Tuple tuple : tuples) {
-            Long elapsed = (Long) tuple.getValue(0);
-            total += elapsed;
-            elapsedList.add(elapsed);
+    public static Tuple7<String, Long, Long, Long, Long, Long, Double> defaultSummaryOf(String label) {
+        TupleTable table = getMeasurements(label);
+        if (table == null || !Long.class.equals(table.getColumnElementType(DURATION))) {
+            return null;
         }
-        Collections.sort(elapsedList);
-        int size = tuples.size();
+
+        Long[] durations = (Long[]) table.getColumnValues(DURATION);
+
+        AtomicLong sum = new AtomicLong(0);
+        List<Long> durationList = new ArrayList<>();
+        Arrays.stream(durations).forEach(d -> {
+            durationList.add(d);
+            sum.getAndAdd(d);
+        });
+
+        long total = sum.get();
+        int size = durationList.size();
         long mean = total / size;
-        long min = elapsedList.get(0);
-        long max = elapsedList.get(size - 1);
-        long median = elapsedList.get(size / 2);
+        long min = durationList.get(0);
+        long max = durationList.get(size - 1);
+        long median = durationList.get(size / 2);
 
         double summation = 0;
         long dif;
         for (int i = 0; i < size; i++) {
-            dif = elapsedList.get(i) - mean;
+            dif = durationList.get(i) - mean;
             summation += dif * dif;
         }
         Double standardDeviation = Math.sqrt(summation / size);
-        String summary = String.format("%s: <mean=%d, median=%d, total=%d, min=%d, max=%d, std=%.2f%%>",
-                label, mean, median, total, min, max, standardDeviation);
+        String summary = String.format("%s: <size=%d, mean=%d, median=%d, total=%d, min=%d, max=%d, std=%.2f%%>",
+                label, size, mean, median, total, min, max, standardDeviation);
         return Tuple.create(summary, mean, median, total, min, max, standardDeviation);
     }
 
-    public static Map<String, Tuple7<String, Long, Long, Long, Long, Long, Double>> getAllSummary() {
+    public static Map<String, String> getAllSummary() {
         Set<String> labels = getMeasuredLabels();
-        Map<String, Tuple7<String, Long, Long, Long, Long, Long, Double>> all = labels.stream()
+        Map<String, String> all = labels.stream()
                 .collect(Collectors.toMap(
                         label -> label,
-                        label -> summaryOf(label)
+                        label -> defaultSummaryOf(label).getFirst()
                 ));
         return all;
     }
@@ -101,6 +132,4 @@ public class Measurement {
             createdAt = System.currentTimeMillis();
         }
     }
-
-
 }

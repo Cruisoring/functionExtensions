@@ -7,11 +7,10 @@ import io.github.cruisoring.repository.Repository;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.MalformedParametersException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class StringHelper {
@@ -113,12 +112,39 @@ public class StringHelper {
         }
     }
 
-    private static final Boolean matchAny(BiPredicate<String, String> matcher, String context, String[] keys) {
+    private static final boolean matchAny(BiPredicate<String, String> matcher, String context, String[] keys) {
         if (context == null) return false;
         return Arrays.stream(keys).anyMatch(k -> matcher.test(context, k));
     }
 
-    public static Boolean containsAll(String context, Function<Object, String[]> toStringForms, Object... keys) {
+    public static boolean containsAll(Collection<String> collection, Collection<String> targets) {
+        Objects.requireNonNull(collection);
+        Objects.requireNonNull(targets);
+
+        for (String target : targets) {
+            if (!collection.contains(target)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean containsAllIgnoreCase(Collection<String> collection, Collection<String> targets) {
+        Objects.requireNonNull(collection);
+        Objects.requireNonNull(targets);
+
+        List<String> lowerCases = collection.stream().map(s -> s == null ? null : s.toLowerCase()).collect(Collectors.toList());
+        for (String target : targets) {
+            if (!lowerCases.contains(target == null ? null : target.toLowerCase())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean containsAll(String context, Function<Object, String[]> toStringForms, Object... keys) {
         if (context == null) return false;
 
         return Arrays.stream(keys)
@@ -126,7 +152,7 @@ public class StringHelper {
                 .allMatch(o -> matchAny(contains, context, toStringForms.apply(o)));
     }
 
-    public static Boolean containsAll(String context, Object... keys) {
+    public static boolean containsAll(String context, Object... keys) {
         return containsAll(context, defaultToStringForms, keys);
     }
 
@@ -140,11 +166,11 @@ public class StringHelper {
                                 toStringForms.apply(o)));
     }
 
-    public static Boolean containsAllIgnoreCase(String context, Object... keys) {
+    public static boolean containsAllIgnoreCase(String context, Object... keys) {
         return containsAllIgnoreCase(context, defaultToStringForms, keys);
     }
 
-    public static Boolean containsAny(String context, Function<Object, String[]> toStringForms, Object... keys) {
+    public static boolean containsAny(String context, Function<Object, String[]> toStringForms, Object... keys) {
         if (context == null) {
             return false;
         }
@@ -152,15 +178,15 @@ public class StringHelper {
                 .anyMatch(o -> matchAny(contains, context, toStringForms.apply(o)));
     }
 
-    public static Boolean containsAny(String context, Object... keys) {
+    public static boolean containsAny(String context, Object... keys) {
         return containsAny(context, defaultToStringForms, keys);
     }
 
-    public static Boolean containsAny(String context, String... keys) {
+    public static boolean containsAny(String context, String... keys) {
         return containsAny(context, defaultToStringForms, (Object[]) keys);
     }
 
-    public static Boolean containsAnyIgnoreCase(String context, Function<Object, String[]> toStringForms, Object... keys) {
+    public static boolean containsAnyIgnoreCase(String context, Function<Object, String[]> toStringForms, Object... keys) {
         if (context == null) {
             return false;
         }
@@ -168,7 +194,7 @@ public class StringHelper {
                 .anyMatch(o -> matchAny(containsIgnoreCase, context, toStringForms.apply(o)));
     }
 
-    public static Boolean containsAnyIgnoreCase(String context, Object... keys) {
+    public static boolean containsAnyIgnoreCase(String context, Object... keys) {
         return containsAnyIgnoreCase(context, defaultToStringForms, keys);
     }
 

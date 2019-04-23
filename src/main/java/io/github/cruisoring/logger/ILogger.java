@@ -2,7 +2,6 @@ package io.github.cruisoring.logger;
 
 import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.function.SupplierThrowable;
-import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.utility.StackTraceHelper;
 import io.github.cruisoring.utility.StringHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -64,7 +63,7 @@ public interface ILogger {
      */
     default <R> R measure(Measurement.Moment startMoment, R value, LogLevel... levels) {
         final long elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
-        Measurement.save(startMoment.label, Tuple.create(elapsedMills, startMoment.createdAt));
+        Measurement.save(startMoment.label, Measurement.DefaultColumns.createRow(startMoment.createdAt, elapsedMills));
         if (levels != null && levels.length > 0 && levels[0] != LogLevel.none) {
             log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
         }
@@ -89,7 +88,7 @@ public interface ILogger {
         try {
             R result = supplier.get();
             elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
-            Measurement.save(startMoment.label, Tuple.create(elapsedMills, startMoment.createdAt));
+            Measurement.save(startMoment.label, Measurement.DefaultColumns.createRow(startMoment.createdAt, elapsedMills));
             return result;
         } catch (Exception ex) {
             elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
@@ -118,7 +117,7 @@ public interface ILogger {
         try {
             runnable.run();
             elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
-            Measurement.save(startMoment.label, Tuple.create(elapsedMills, startMoment.createdAt));
+            Measurement.save(startMoment.label, Measurement.DefaultColumns.createRow(startMoment.createdAt, elapsedMills));
         } catch (Exception ex) {
             elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             e = ex;

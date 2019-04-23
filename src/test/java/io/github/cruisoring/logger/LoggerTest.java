@@ -2,7 +2,6 @@ package io.github.cruisoring.logger;
 
 import io.github.cruisoring.AutoCloseableObject;
 import io.github.cruisoring.TypeHelper;
-import io.github.cruisoring.tuple.Tuple7;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -109,7 +108,7 @@ public class LoggerTest {
             String s = logger.measure(Measurement.start("Get String"), withDelay("s", random.nextInt(20) + 190), LogLevel.debug);
         }
 
-        Map<String, Tuple7<String, Long, Long, Long, Long, Long, Double>> all = Measurement.getAllSummary();
+        Map<String, String> all = Measurement.getAllSummary();
         for (String label : all.keySet()) {
             Logger.I("%s: %s", label, all.get(label));
         }
@@ -125,7 +124,7 @@ public class LoggerTest {
             logger.measure(Measurement.start("Sleep 200ms"), () -> justSleep(random.nextInt(20) + 190), LogLevel.debug);
         }
 
-        Map<String, Tuple7<String, Long, Long, Long, Long, Long, Double>> all = Measurement.getAllSummary();
+        Map<String, String> all = Measurement.getAllSummary();
         for (String label : all.keySet()) {
             Logger.I("%s: %s", label, all.get(label));
         }

@@ -1,6 +1,5 @@
 package io.github.cruisoring.table;
 
-import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.FunctionThrowable;
 import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.tuple.Tuple;
@@ -33,6 +32,23 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return Index of the column concerned (0 based)
      */
     int getColumnIndex(String columnName);
+
+    /**
+     * Get the element type of the column specified by its name.
+     *
+     * @param columnName the name of the concerned column.
+     * @return <code>null</code> if the column cannot be found with the given columnName, or {@code Object.class}
+     * if its element type is not specified, otherwise its defined element type.
+     */
+    default Class getColumnElementType(String columnName) {
+        int index = getColumnIndex(columnName);
+        if (index == -1) {
+            return null;
+        }
+
+        Class[] elementTypes = getElementTypes();
+        return index < elementTypes.length ? elementTypes[index] : Object.class;
+    }
 
     /**
      * Get all column columns defined in the RowDataSupplier.

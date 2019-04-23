@@ -2,6 +2,7 @@ package io.github.cruisoring;
 
 import io.github.cruisoring.function.ConsumerThrowable;
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.logger.Measurement;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
 
@@ -10,7 +11,7 @@ import java.util.stream.IntStream;
 
 public class SimplePerformanceTest {
     public static final int timesToRun = 10;
-    public static final int ArraySize = 500000;
+    public static final int ArraySize = 1000000;
     public static final int[] intArray = new int[ArraySize];
     public static final boolean[] booleanArray = new boolean[ArraySize];
 
@@ -46,15 +47,15 @@ public class SimplePerformanceTest {
             }
         };
 
-        long time = getLeastTimeToRun(testMethod);
-        Double millis = time / 1000000.0;
-        Logger.D("Least time to run test_Loops of int[%d]: %.3fms", ArraySize, millis);
+        for (int i = 0; i < 100; i++) {
+            Logger.M(Measurement.start("loops"), testMethod);
+        }
+
+        Logger.D(Measurement.defaultSummaryOf("loops").getFirst());
     }
 
     @Test
     public void test_Stream() {
-
-
         Runnable testMethod = () -> {
             IntStream.range(0, ArraySize).boxed().parallel().forEach(i -> {
                 final boolean[] booleans = booleanArray;
@@ -63,9 +64,11 @@ public class SimplePerformanceTest {
             });
         };
 
-        long time = getLeastTimeToRun(testMethod);
-        Double millis = time / 1000000.0;
-        Logger.D("Least time to run test_StreamParallel of int[%d]: %.3fms", ArraySize, millis);
+        for (int i = 0; i < 100; i++) {
+            Logger.M(Measurement.start("parallel"), testMethod);
+        }
+
+        Logger.D(Measurement.defaultSummaryOf("parallel").getFirst());
     }
 
     @Test
