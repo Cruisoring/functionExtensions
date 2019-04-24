@@ -1,6 +1,6 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.AutoCloseableObject;
+import io.github.cruisoring.Revokable;
 import io.github.cruisoring.TypeHelper;
 import org.junit.Test;
 
@@ -76,7 +76,7 @@ public class LoggerTest {
     public void testSetGlobalLogLeveInScope() {
         Logger.W("This is a warning you shall see.");
 
-        try (AutoCloseableObject closeable = Logger.setLevelInScope(LogLevel.none)) {
+        try (Revokable closeable = Logger.setLevelInScope(LogLevel.none)) {
             Logger.V("But you shall not be able to see this verbose log");
             Logger.E("You shall not be able to see this error log");
         } catch (Exception e) {

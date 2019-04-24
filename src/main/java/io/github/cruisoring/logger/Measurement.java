@@ -1,5 +1,7 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.function.RunnableThrowable;
+import io.github.cruisoring.function.SupplierThrowable;
 import io.github.cruisoring.table.Columns;
 import io.github.cruisoring.table.IColumns;
 import io.github.cruisoring.table.TupleRow;
@@ -24,7 +26,7 @@ public class Measurement {
     public static final IColumns DefaultColumns = new Columns(START, DURATION);
 
     //Identifier to locate the caller stack trace quickly
-    static final String getCallerStackTraceKey = Measurement.class.getSimpleName();
+    static final String getCallerStackTraceKey = Measurement.class.getSimpleName() + ".java";
 
     static final Map<String, TupleTable> namedMeasurements = new HashMap<>();
 
@@ -82,6 +84,7 @@ public class Measurement {
             sum.getAndAdd(d);
         });
 
+        Collections.sort(durationList);
         long total = sum.get();
         int size = durationList.size();
         long mean = total / size;
@@ -109,6 +112,46 @@ public class Measurement {
                         label -> defaultSummaryOf(label).getFirst()
                 ));
         return all;
+    }
+
+    public static <R> R measure(String label, int times, SupplierThrowable<R> supplierThrowable, LogLevel level){
+        Objects.requireNonNull(label);
+        Objects.requireNonNull(supplierThrowable);
+
+        if(namedMeasurements.containsKey(label)){
+            namedMeasurements.get(label).clear();
+        }
+
+        R result=null;
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < times; i++) {
+            result = supplierThrowable.orElse(null).get();
+            save(label, DefaultColumns.createRow(start, System.currentTimeMillis()-start));
+            start = System.currentTimeMillis();
+        }
+
+        Tuple7<String, Long, Long, Long, Long, Long, Double> summary = defaultSummaryOf(label);
+        Logger.getDefault().log(level, summary.getFirst());
+        return result;
+    }
+
+    public static void measure(String label, int times, RunnableThrowable runnableThrowable, LogLevel level){
+        Objects.requireNonNull(label);
+        Objects.requireNonNull(runnableThrowable);
+
+        if(namedMeasurements.containsKey(label)){
+            namedMeasurements.get(label).clear();
+        }
+
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < times; i++) {
+            runnableThrowable.tryRun();
+            save(label, DefaultColumns.createRow(start, System.currentTimeMillis()-start));
+            start = System.currentTimeMillis();
+        }
+
+        Tuple7<String, Long, Long, Long, Long, Long, Double> summary = defaultSummaryOf(label);
+        Logger.getDefault().log(level, summary.getFirst());
     }
 
     public static class Moment {

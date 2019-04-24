@@ -1,6 +1,6 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.AutoCloseableObject;
+import io.github.cruisoring.Revokable;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -18,7 +18,7 @@ public class FileLoggerTest {
     public void canLog() {
         FileLogger fileLogger = new FileLogger("..\\test.log", LogLevel.info);
         LogLevel currentLevel = Logger.getGlobalLogLevel();
-        try (AutoCloseableObject<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
+        try (Revokable<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
             Logger.setGlobalLevel(LogLevel.info);
             assertTrue(fileLogger.canLog(LogLevel.info) && fileLogger.canLog(LogLevel.warning) && fileLogger.canLog(LogLevel.warning));
             assertFalse(fileLogger.canLog(LogLevel.verbose) || fileLogger.canLog(LogLevel.debug));
@@ -26,7 +26,7 @@ public class FileLoggerTest {
         }
         assertEquals(currentLevel, Logger.getGlobalLogLevel());
 
-        try (AutoCloseableObject<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
+        try (Revokable<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
             assertFalse(fileLogger.canLog(LogLevel.verbose) || fileLogger.canLog(LogLevel.info) || fileLogger.canLog(LogLevel.error));
         } catch (Exception ignored) {
         }

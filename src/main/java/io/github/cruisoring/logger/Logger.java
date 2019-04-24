@@ -1,11 +1,10 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.AutoCloseableObject;
+import io.github.cruisoring.Revokable;
 import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.function.SupplierThrowable;
 import io.github.cruisoring.utility.StringHelper;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -38,9 +37,6 @@ public class Logger implements ILogger {
 
     final Consumer<String> recorder;
     final LogLevel minLevel;
-
-//    public static EnumSet<LogLevel> DefaultConcernedLevel = EnumSet.allOf(LogLevel.class);
-    Duration measuredElapsed = null;
 
     /**
      * Compose a Logger with the default value defined by GlobalLogLevel.
@@ -100,23 +96,19 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Set the <code>Logger.Default</code> to a new <code>Logger</code> and return an <code>AutoCloseableObject</code> which
+     * Set the <code>Logger.Default</code> to a new <code>Logger</code> and return an {@code Revocable<ILogger>} which
      * would restore <code>Logger.Default</code> to the existing Logger, so calling static methods of Logger would use the new instance
-     * until the returned <code>AutoCloseableObject</code> is closed to restore the old one.
+     * until the returned {@code Revocable<ILogger>} is closed to restore the old one.
      *
      * @param newLogger New <code>Logger</code> instance to be set to <code>Logger.Default</code>. If it is <code>`null</code>,
-     *                  then no logging would happen before the returned <code>AutoCloseableObject</code> is closed.
-     * @return the AutoCloseableObject&lt;Logger&gt; containing the existing Logger held by <code>Logger.Default</code>.
-     * Once the AutoCloseableObject&lt;Logger&gt; is closed, the <code>Logger.Default</code> would be replaced back to the existing one.
+     *                  then no logging would happen before the returned {@code Revocable<ILogger>} is closed.
+     * @return the {@code Revocable<ILogger>} containing the existing Logger held by <code>Logger.Default</code>.
+     * Once the {@code Revocable<ILogger>} is closed, the <code>Logger.Default</code> would be replaced back to the existing one.
      */
-    public static AutoCloseableObject<ILogger> useInScope(ILogger newLogger) {
-        final ILogger oldLogger = Default;
-        if (newLogger == Default) {
-            //Nothing would change, return simply Lazy<> returning newLogLevel directly
-            return new AutoCloseableObject<ILogger>(newLogger, AutoCloseableObject.DoNothing);
-        }
-        Default = newLogger;
-        return new AutoCloseableObject<>(oldLogger, t -> Default = oldLogger);
+    public static Revokable<ILogger> useInScope(ILogger newLogger) {
+
+        Revokable<ILogger> revokable = new Revokable<ILogger>(() -> Default, l -> Default = l, newLogger);
+        return revokable;
     }
     //endregion
 
@@ -142,22 +134,18 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Set the GlobalLogLevel to a new value and wrap the restore action as an <code>AutoCloseableObject</code> which
+     * Set the GlobalLogLevel to a new value and wrap the restore action as an {@code Revocable<LogLevel>} which
      * would restore <code>GlobalLogLevel</code> to its state before calling this method when closing.
      *
      * @param newLogLevel New LogLevel to be set to <code>GlobalLogLevel</code>. If it is <code>LogLevel.none</code>,
-     *                    then no logging methods would be performed before the returned <code>AutoCloseableObject</code> is closed.
-     * @return the AutoCloseableObject&lt;LogLevel&gt; containing the existing LogLevel held by <code>GlobalLogLevel</code>.
-     * Once the AutoCloseableObject&lt;LogLevel&gt; is closed, the <code>GlobalLogLevel</code> would be restored to its old value.
+     *                    then no logging methods would be performed before the returned {@code Revocable<LogLevel>} is closed.
+     * @return the {@code Revocable<LogLevel>} containing the existing LogLevel held by <code>GlobalLogLevel</code>.
+     * Once the {@code Revocable<LogLevel>} is closed, the <code>GlobalLogLevel</code> would be restored to its old value.
      */
-    public static AutoCloseableObject<LogLevel> setLevelInScope(LogLevel newLogLevel) {
-        if (newLogLevel == GlobalLogLevel || newLogLevel == null) {
-            //Nothing would change, return simply Lazy<> returning newLogLevel directly
-            return new AutoCloseableObject<LogLevel>(GlobalLogLevel, AutoCloseableObject.DoNothing);
-        }
-        final LogLevel oldLevel = GlobalLogLevel;
-        GlobalLogLevel = newLogLevel;
-        return new AutoCloseableObject<>(oldLevel, t -> GlobalLogLevel = oldLevel);
+    public static Revokable<LogLevel> setLevelInScope(LogLevel newLogLevel) {
+
+        Revokable<LogLevel> revokable = new Revokable<LogLevel>(() -> GlobalLogLevel, l -> GlobalLogLevel = l, newLogLevel);
+        return revokable;
     }
 
     /**
@@ -357,10 +345,6 @@ public class Logger implements ILogger {
     @Override
     public String toString() {
         return String.format("Logger of %s or obove.", minLevel);
-    }
-
-    public Duration getMeasuredElapsed() {
-        return measuredElapsed;
     }
 
     public boolean isSuccess(String format) {

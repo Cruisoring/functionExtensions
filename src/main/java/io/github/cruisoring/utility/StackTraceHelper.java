@@ -62,22 +62,32 @@ public class StackTraceHelper {
     public static StackTraceElement getCallerStackTrace(Exception ex, String... keywords) {
         Objects.requireNonNull(keywords);
 
+        if(keywords.length==0){
+            keywords = new String[]{StackTraceHelper.class.getSimpleName() + ".java"};
+        }
         boolean notMatched = true;
         StackTraceElement[] stacks = ex == null ? Thread.currentThread().getStackTrace() : ex.getStackTrace();
         int length = stacks.length;
         for (int i = 0; i < length; i++) {
             StackTraceElement stack = stacks[i];
-            String className = stack.getClassName();
+            String fileName = stack.getFileName();
             if (notMatched) {
-                if (StringHelper.containsAll(className, keywords)) {
+                if (StringHelper.containsAll(fileName, keywords)) {
                     notMatched = false;
                 }
             } else {
-                if (!StringHelper.containsAll(className, keywords)) {
+                if (!StringHelper.containsAll(fileName, keywords)) {
                     return stack;
                 }
             }
         }
         return null;
+    }
+
+    public static String getCallerLabel(Exception ex, String... keywords){
+        StackTraceElement stack = StackTraceHelper.getCallerStackTrace(null, keywords);
+        String label = StringHelper.tryFormatString("%s(%s:%d)",
+                stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
+        return label;
     }
 }
