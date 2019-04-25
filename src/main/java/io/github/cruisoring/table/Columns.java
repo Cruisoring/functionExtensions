@@ -76,10 +76,6 @@ public class Columns implements IColumns {
         indexedColumns = new String[len][];
         for (int i = 0; i < columnNames.length; i++) {
             String columnName = columnNames[i];
-            if (map.containsKey(columnName)) {
-                throw new UnsupportedOperationException("Column name at index of " + i +
-                        " is duplicated with the one at index of " + map.get(columnName));
-            }
             map.put(columnName, i);
             names.add(columnName);
             indexes.put(i, Arrays.asList(columnName));

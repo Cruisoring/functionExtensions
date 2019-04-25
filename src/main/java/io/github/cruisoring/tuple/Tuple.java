@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Functions.checkStates;
 
 /**
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
@@ -123,7 +124,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
      */
     public static <V> Tuple<V> setOf(final V... elements) {
-        checkNotNull(elements);
+        checkStates(elements != null);
         Class<? extends V> elemntType = (Class<? extends V>) ArrayHelper.getComponentType(elements);
         return setOfType(elemntType, elements);
     }

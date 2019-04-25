@@ -37,14 +37,24 @@ public class Functions<R> {
         if (reference == null) {
             throw new NullPointerException();
         }
-        int length = others.length;
-        for (int i = 0; i < length; i++) {
-            if(others[i] == null){
-                throw new NullPointerException("The " + (1+i) + "th reference is null!");
-            }
-        }
 
-        return reference;
+        int length = others.length;
+        if(length==0 && reference.getClass().isArray()){
+            length = Array.getLength(reference);
+            for (int i = 0; i < length; i++) {
+                if(Array.get(reference, i)==null) {
+                    throw new NullPointerException("The " + (1 + i) + "th reference is null!");
+                }
+            }
+            return (T) Array.get(reference, 0);
+        } else {
+            for (int i = 0; i < length; i++) {
+                if (others[i] == null) {
+                    throw new NullPointerException("The " + (1 + i) + "th reference is null!");
+                }
+            }
+            return reference;
+        }
     }
 
     /**

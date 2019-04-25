@@ -22,7 +22,7 @@ public class ColumnsTest {
 
     static final IColumns shared = new Columns(sharedColumnDefitions);
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = NullPointerException.class)
     public void testConstructor_WithNullStrings(){
         Columns col = new Columns("ID", null, "a");
     }

@@ -1282,7 +1282,9 @@ public class TypeHelper {
      * @return Converted Object containing same values in possible different forms
      */
     public static Object toEquivalent(Object obj) {
-        checkNotNull(obj);
+        if(obj==null){
+            return null;
+        }
         return getToEquivalentConverter(obj.getClass()).apply(obj);
     }
 

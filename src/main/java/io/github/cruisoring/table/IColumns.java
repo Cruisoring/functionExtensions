@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Functions.checkStates;
 
 public interface IColumns extends Map<String, Integer> {
 
@@ -103,7 +104,7 @@ public interface IColumns extends Map<String, Integer> {
      * @return      <code>TupleRow</code> created with given values and this <code>Columns</code>
      */
     default TupleRow createRow(Object... elements) {
-        checkNotNull(elements);
+        checkStates(elements != null);
 
         int length = elements.length;
         switch (length) {
