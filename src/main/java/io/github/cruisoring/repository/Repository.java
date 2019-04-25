@@ -7,6 +7,8 @@ import io.github.cruisoring.logger.Logger;
 import java.util.*;
 import java.util.function.BiPredicate;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 /**
  * Wrapping of Map instance and business logic to get value from key
  *
@@ -36,8 +38,7 @@ public class Repository<TKey, TValue>
     public Repository(Map<TKey, TValue> map,
                       TriConsumerThrowable<TKey, TValue, TValue> changesConsumer,
                       FunctionThrowable<TKey, TValue> valueFunction) {
-        storage = map;
-        Objects.requireNonNull(valueFunction);
+        storage = checkNotNull(map, valueFunction);
         this.valueFunctionThrowable = valueFunction;
         this.changesConsumer = changesConsumer != null ? changesConsumer : (USE_DEFAULT_CHNAGES_LOG ? this::defaultChangesLog : null);
     }
@@ -69,7 +70,7 @@ public class Repository<TKey, TValue>
      */
     @Override
     public TValue apply(TKey tKey) throws Exception {
-        Objects.requireNonNull(tKey);
+        checkNotNull(tKey);
         TValue result;
         if (!storage.containsKey(tKey)) {
             result = valueFunctionThrowable.apply(tKey);
@@ -93,7 +94,7 @@ public class Repository<TKey, TValue>
      * @throws Exception Any Exceptions that might be thrown
      */
     public TValue update(TKey tKey, TValue existingValue, TValue newValue) throws Exception {
-        Objects.requireNonNull(tKey);
+        checkNotNull(tKey);
 
         //No need to update value of the map if there is no changes
         if (Objects.equals(existingValue, newValue))
@@ -119,7 +120,7 @@ public class Repository<TKey, TValue>
      * @return Number of key value pairs matched with the given predicate and thus removed
      */
     public int clear(BiPredicate<TKey, TValue> keyValuePredicate) {
-        Objects.requireNonNull(keyValuePredicate);
+        checkNotNull(keyValuePredicate);
 
         int changes = 0;
 

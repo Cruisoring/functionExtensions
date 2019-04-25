@@ -6,6 +6,8 @@ import io.github.cruisoring.function.PredicateThrowable;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 public interface WithValues<T> extends Comparable {
     /**
      * Retrieve the element at specific index as an Object.
@@ -74,7 +76,7 @@ public interface WithValues<T> extends Comparable {
      *          predicate, otherwise {@code false}
      */
     default boolean anyMatch(PredicateThrowable<T> predicateThrowable){
-        Objects.requireNonNull(predicateThrowable);
+        checkNotNull(predicateThrowable);
 
         int len = getLength();
         try {
@@ -97,7 +99,7 @@ public interface WithValues<T> extends Comparable {
      *  provided predicate or there is no element, otherwise {@code false}
      */
     default boolean allMatch(PredicateThrowable<T> predicateThrowable){
-        Objects.requireNonNull(predicateThrowable);
+        checkNotNull(predicateThrowable);
 
         int len = getLength();
         try {
@@ -120,7 +122,7 @@ public interface WithValues<T> extends Comparable {
      *  provided predicate or there is no element, otherwise {@code false}
      */
     default boolean noneMatch(PredicateThrowable<T> predicateThrowable){
-        Objects.requireNonNull(predicateThrowable);
+        checkNotNull(predicateThrowable);
 
         int len = getLength();
         try {

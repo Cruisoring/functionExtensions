@@ -6,6 +6,8 @@ import io.github.cruisoring.logger.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 public class StackTraceHelper {
 
     /**
@@ -60,7 +62,7 @@ public class StackTraceHelper {
      * @return the last caller of the called class/method as specified by <code>keywords</code>
      */
     public static StackTraceElement getCallerStackTrace(Exception ex, String... keywords) {
-        Objects.requireNonNull(keywords);
+        checkNotNull(keywords);
 
         if(keywords.length==0){
             keywords = new String[]{StackTraceHelper.class.getSimpleName() + ".java"};

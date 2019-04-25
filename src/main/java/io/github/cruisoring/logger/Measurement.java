@@ -16,6 +16,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Functions.checkStates;
+
 public class Measurement {
     //Common columns used to log info
     public static final String START = "start";
@@ -43,6 +46,8 @@ public class Measurement {
     }
 
     public static void save(String label, TupleRow details) {
+        checkNotNull(label, details);
+
         if (!namedMeasurements.containsKey(label)) {
             if (DefaultColumns == details.getColumnIndexes()) {
                 TupleTable table = DefaultColumns.createTable(null, Long.class, Long.class);
@@ -70,7 +75,7 @@ public class Measurement {
     }
 
     public static Tuple7<String, Long, Long, Long, Long, Long, Double> defaultSummaryOf(String label) {
-        TupleTable table = getMeasurements(label);
+        TupleTable table = getMeasurements(checkNotNull(label));
         if (table == null || !Long.class.equals(table.getColumnElementType(DURATION))) {
             return null;
         }
@@ -114,9 +119,8 @@ public class Measurement {
         return all;
     }
 
-    public static <R> R measure(String label, int times, SupplierThrowable<R> supplierThrowable, LogLevel level){
-        Objects.requireNonNull(label);
-        Objects.requireNonNull(supplierThrowable);
+    public static <R> R measure(String label, int times, SupplierThrowable<R> supplierThrowable, LogLevel... levels){
+        checkNotNull(label, supplierThrowable);
 
         if(namedMeasurements.containsKey(label)){
             namedMeasurements.get(label).clear();
@@ -131,13 +135,14 @@ public class Measurement {
         }
 
         Tuple7<String, Long, Long, Long, Long, Long, Double> summary = defaultSummaryOf(label);
+        LogLevel level = (levels==null || levels.length==0) ? Logger.DefaultMeasureLogLevel : levels[0];
         Logger.getDefault().log(level, summary.getFirst());
         return result;
     }
 
-    public static void measure(String label, int times, RunnableThrowable runnableThrowable, LogLevel level){
-        Objects.requireNonNull(label);
-        Objects.requireNonNull(runnableThrowable);
+    public static void measure(String label, int times, RunnableThrowable runnableThrowable, LogLevel... levels){
+        checkNotNull(label);
+        checkNotNull(runnableThrowable);
 
         if(namedMeasurements.containsKey(label)){
             namedMeasurements.get(label).clear();
@@ -151,6 +156,7 @@ public class Measurement {
         }
 
         Tuple7<String, Long, Long, Long, Long, Long, Double> summary = defaultSummaryOf(label);
+        LogLevel level = (levels==null || levels.length==0) ? Logger.DefaultMeasureLogLevel : levels[0];
         Logger.getDefault().log(level, summary.getFirst());
     }
 
@@ -168,7 +174,7 @@ public class Measurement {
         }
 
         Moment(String format, Object... args) {
-            Objects.requireNonNull(format);
+            checkNotNull(format);
             label = StringHelper.tryFormatString(format, args);
 
             //Ensure this is the last step to initialize the Moment instance

@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 public class ConsoleLogger extends Logger implements ILogWithColor {
     //region Console color controls
     // Reset
@@ -112,7 +114,7 @@ public class ConsoleLogger extends Logger implements ILogWithColor {
 
     @Override
     public String getMessage(LogLevel level, String format, Object... args) {
-        Objects.requireNonNull(format);
+        checkNotNull(format);
         final String label = String.format("[%s%s]: ", level.label, DefaultTimeStampFormatter == null ? "" : "@" + LocalDateTime.now().format(DefaultTimeStampFormatter));
         String message = levelColors.get(level) + label + RESET;
 

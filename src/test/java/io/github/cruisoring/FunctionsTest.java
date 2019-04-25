@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+import static io.github.cruisoring.Functions.checkNotNull;
 import static org.junit.Assert.*;
 
 public class FunctionsTest {
@@ -355,5 +356,45 @@ public class FunctionsTest {
         assertFalse(predicate.apply("3.0"));
         predicate = predicateThrowable.orElse(true);
         assertTrue(predicate.apply("3.0"));
+    }
+
+    void methodNeedNotNullArguments(Integer num, Number... others){
+        checkNotNull(num, others);
+    }
+
+
+    @Test
+    public void testCheckNotNull_withoutNull() {
+        methodNeedNotNullArguments(1, 22f, 0, 3.2);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCheckNotNull_singlueNull() {
+        methodNeedNotNullArguments(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCheckNotNull() {
+        methodNeedNotNullArguments(123, 4, null, 5.6);
+    }
+
+    @Test
+    public void checStates_singleExpression(){
+        Functions.checkStates(1>0);
+    }
+
+    @Test
+    public void checStates_multipleTrues(){
+        Functions.checkStates(1>0, 2>1, 3>2);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checStates_firstFalse(){
+        Functions.checkStates(1>2);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checStates_lastFalse(){
+        Functions.checkStates(0==0, 1>2);
     }
 }

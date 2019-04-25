@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 /**
  * Utility class to enable automatic revoking.
  * @param <T>
@@ -68,8 +70,8 @@ public class Revokable<T> implements AutoCloseable {
     private boolean isClosed = false;
 
     public Revokable(Supplier <T> getter, ConsumerThrowable<T> setter, T newSetting){
-        Objects.requireNonNull(getter);
-        Objects.requireNonNull(setter);
+        checkNotNull(getter);
+        checkNotNull(setter);
 
         timeStamp = System.currentTimeMillis();
         StackTraceElement stack = StackTraceHelper.getCallerStackTrace(null, getCallerStackTraceKey);
@@ -86,7 +88,7 @@ public class Revokable<T> implements AutoCloseable {
     }
 
     public Revokable(RunnableThrowable runnableThrowable){
-        Objects.requireNonNull(runnableThrowable);
+        checkNotNull(runnableThrowable);
 
         timeStamp = System.currentTimeMillis();
         old = null;

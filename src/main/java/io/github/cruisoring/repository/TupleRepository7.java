@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 /**
  * Generic repository use Tuple.Tuple7 as values to keep 7 elements mapped from a specific key
  *
@@ -461,7 +463,7 @@ public class TupleRepository7<TKey, T, U, V, W, X, Y, Z>
      */
     @Override
     public Tuple7<T, U, V, W, X, Y, Z> update(TKey tKey, Tuple7<T, U, V, W, X, Y, Z> existingValue, Tuple7<T, U, V, W, X, Y, Z> newValue) throws Exception {
-        Objects.requireNonNull(newValue);
+        checkNotNull(newValue);
         return super.update(tKey, existingValue, newValue);
     }
 

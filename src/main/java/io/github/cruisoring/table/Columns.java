@@ -10,6 +10,8 @@ import io.github.cruisoring.utility.ArrayHelper;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 /**
  * Keep column names and their indexes as a map, aliases could be defined in the given Map to create
  * <code>Columns</code> with multiple String keys pointing to the same index.
@@ -36,7 +38,7 @@ public class Columns implements IColumns {
     };
 
     public static Comparator<String> getEscapedComparator(String escapePattern) {
-        Objects.requireNonNull(escapePattern);
+        checkNotNull(escapePattern);
         return (s1, s2) -> {
             String escaped1 = s1.replaceAll(escapePattern, "");
             String escaped2 = s2.replaceAll(escapePattern, "");
@@ -45,7 +47,7 @@ public class Columns implements IColumns {
     }
 
     public static Comparator<String> getEscapedInsensitiveComparator(String escapePattern) {
-        Objects.requireNonNull(escapePattern);
+        checkNotNull(escapePattern);
         return (s1, s2) -> {
             String escaped1 = s1.replaceAll(escapePattern, "");
             String escaped2 = s2.replaceAll(escapePattern, "");
@@ -63,8 +65,10 @@ public class Columns implements IColumns {
      * @param columnNames   Names of the columns that cannot be null or duplicated.
      */
     public Columns(String... columnNames) {
+        checkNotNull(columnNames);
+
         //Use String::compareTo() by default
-        nameComparator = NATURAL;
+        nameComparator = String::compareTo;
         Map<Integer, List<String>> indexes = new HashMap<>();
         Map<String, Integer> map = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
@@ -72,9 +76,7 @@ public class Columns implements IColumns {
         indexedColumns = new String[len][];
         for (int i = 0; i < columnNames.length; i++) {
             String columnName = columnNames[i];
-            if (columnName == null) {
-                throw new UnsupportedOperationException("Column name at index of " + i + " cannot be null");
-            } else if (map.containsKey(columnName)) {
+            if (map.containsKey(columnName)) {
                 throw new UnsupportedOperationException("Column name at index of " + i +
                         " is duplicated with the one at index of " + map.get(columnName));
             }
@@ -94,7 +96,7 @@ public class Columns implements IColumns {
      * @param nameComparator    Comparator&lt;String&gt; used to compare column names.
      */
     public Columns(String[][] columnDefintions, Comparator<String> nameComparator){
-        Objects.requireNonNull(columnDefintions);
+        checkNotNull(columnDefintions);
 
         this.nameComparator = nameComparator==null ? DefaultNameComparator : nameComparator;
         int width = columnDefintions.length;
@@ -159,7 +161,7 @@ public class Columns implements IColumns {
 
     @Override
     public WithValues<Integer> mapIndexes(IColumns other){
-        Objects.requireNonNull(other);
+        checkNotNull(other);
 
         if(this == other){
             Integer[] indexes = IntStream.range(0, width()).boxed().toArray(size -> new Integer[size]);

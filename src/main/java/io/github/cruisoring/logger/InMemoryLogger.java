@@ -1,5 +1,7 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.Functions;
+
 public class InMemoryLogger extends Logger {
     private final StringBuilder stringBuilder;
 
@@ -12,7 +14,7 @@ public class InMemoryLogger extends Logger {
     }
 
     public InMemoryLogger(final StringBuilder sb, LogLevel minLevel) {
-        super(log -> sb.append(log + "\n"), minLevel);
+        super(log -> Functions.checkNotNull(sb).append(log + "\n"), minLevel);
         stringBuilder = sb;
     }
 

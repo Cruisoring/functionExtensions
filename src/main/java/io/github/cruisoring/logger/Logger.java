@@ -13,6 +13,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 public class Logger implements ILogger {
 
     /**
@@ -54,8 +56,7 @@ public class Logger implements ILogger {
      * @param minLevel the minimum <code>LogLevel</code> could be logged by this Logger.
      */
     public Logger(Consumer<String> recorder, LogLevel minLevel) {
-        this.recorder = recorder;
-        Objects.requireNonNull(minLevel);
+        this.recorder = checkNotNull(recorder, minLevel);
 
         this.minLevel = minLevel;
     }
@@ -107,7 +108,7 @@ public class Logger implements ILogger {
      */
     public static Revokable<ILogger> useInScope(ILogger newLogger) {
 
-        Revokable<ILogger> revokable = new Revokable<ILogger>(() -> Default, l -> Default = l, newLogger);
+        Revokable<ILogger> revokable = new Revokable<ILogger>(() -> Default, level -> Default = level, newLogger);
         return revokable;
     }
     //endregion
@@ -144,7 +145,7 @@ public class Logger implements ILogger {
      */
     public static Revokable<LogLevel> setLevelInScope(LogLevel newLogLevel) {
 
-        Revokable<LogLevel> revokable = new Revokable<LogLevel>(() -> GlobalLogLevel, l -> GlobalLogLevel = l, newLogLevel);
+        Revokable<LogLevel> revokable = new Revokable<LogLevel>(() -> GlobalLogLevel, level -> GlobalLogLevel = level, newLogLevel);
         return revokable;
     }
 
@@ -163,7 +164,8 @@ public class Logger implements ILogger {
         if (Default == null)
             return value;
 
-        return Default.measure(startMoment, value, levels);
+        LogLevel level = (levels==null || levels.length==0) ? DefaultMeasureLogLevel : levels[0];
+        return Default.measure(startMoment, value, level);
     }
 
     /**
@@ -182,7 +184,8 @@ public class Logger implements ILogger {
         if (Default == null)
             return supplier.orElse(null).get();
 
-        return Default.measure(startMoment, supplier, levels);
+        LogLevel level = (levels==null || levels.length==0) ? DefaultMeasureLogLevel : levels[0];
+        return Default.measure(startMoment, supplier, level);
     }
 
     /**
@@ -200,7 +203,8 @@ public class Logger implements ILogger {
         if (Default == null)
             return null;
 
-        return Default.measure(startMoment, runnable, levels);
+        LogLevel level = (levels==null || levels.length==0) ? DefaultMeasureLogLevel : levels[0];
+        return Default.measure(startMoment, runnable, level);
     }
     //endregion
 
@@ -402,7 +406,7 @@ public class Logger implements ILogger {
 
     @Override
     public String getMessage(LogLevel level, String format, Object... args) {
-        Objects.requireNonNull(format);
+        checkNotNull(format);
         final String label = String.format("[%s%s]: ", level.label, DefaultTimeStampFormatter == null ? "" : "@" + LocalDateTime.now().format(DefaultTimeStampFormatter));
         String message;
         try {

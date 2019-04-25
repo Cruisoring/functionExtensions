@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Functions.checkStates;
+
 /**
  * Interface of generic Table which is composed as collection of rows
  *
@@ -184,6 +187,8 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      *              corresponding positions as the keys.
      */
     default Map<Integer, String> getIndexedNames(Collection<String> valueKeys) {
+        checkNotNull(valueKeys);
+
         Map<Integer, String> map = new HashMap<>();
         IColumns columns = getColumns();
         for (String key : valueKeys) {
@@ -207,9 +212,12 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return value of the concerned cell if the <code>rowIndex</code> and <code>columnIndex</code> can locate the cell
      */
     default Object getCellValue(int rowIndex, int columnIndex) {
+        checkStates(rowIndex >= 0, columnIndex >= 0);
+
         WithValues row = getRow(rowIndex);
 
-        return row == null || columnIndex < 0 || columnIndex >= row.getLength() ? null : row.getValue(columnIndex);
+        return row == null || columnIndex >= row.getLength() ?
+                null : row.getValue(columnIndex);
     }
 
     /**
@@ -221,6 +229,8 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * otherwise null
      */
     default Object getCellValue(int rowIndex, String columnName) {
+        checkStates(rowIndex>=0, columnName != null);
+
         int columnIndex = getColumns().getOrDefault(columnName, -1);
         if (columnIndex == -1) {
             return null;
@@ -251,9 +261,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return  <code>null</code> if columnName or not defined, otherwise the Object[] containing all values of these cell.
      */
     default Object getColumnValues(String columnName){
-        if(columnName == null){
-            return null;
-        }
+        checkNotNull(columnName);
 
         int columnIndex = getColumnIndex(columnName);
         return getColumnValues(columnIndex);

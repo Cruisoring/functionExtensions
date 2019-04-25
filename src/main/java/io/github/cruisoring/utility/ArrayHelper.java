@@ -17,6 +17,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 public class ArrayHelper<T, R> {
     public static final Class ObjectClass = Object.class;
     //region Repository of setAll functions of any array whose element type is used as the key
@@ -75,7 +77,7 @@ public class ArrayHelper<T, R> {
      */
 
     public static <T> T[] create(Class<? extends T> clazz, int length, Function<Integer, T> elementSupplier) {
-        Objects.requireNonNull(elementSupplier);
+        checkNotNull(elementSupplier);
 
         T[] array =(T[])  (clazz == Object.class ? new Object[length] : TypeHelper.getArrayFactory(clazz).orElse(null).apply(length));
 
@@ -110,8 +112,8 @@ public class ArrayHelper<T, R> {
      * @return Merged array containing all elements of above two arrays
      */
     public static <T> T[] mergeTypedArray(T[] array, T... others) {
-        Objects.requireNonNull(array);
-        Objects.requireNonNull(others);
+        checkNotNull(array);
+        checkNotNull(others);
 
         int length1 = array.length;
         int length2 = others.length;
@@ -144,8 +146,8 @@ public class ArrayHelper<T, R> {
      * </ul>
      */
     public static Object arrayOf(Object first, Object... others) {
-        Objects.requireNonNull(first);
-        Objects.requireNonNull(others);
+        checkNotNull(first);
+        checkNotNull(others);
 
         Class class1 = first.getClass();
         boolean isArray1 = class1.isArray();
@@ -253,7 +255,7 @@ public class ArrayHelper<T, R> {
             BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
             , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
             , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>> getAssetSetter(Class componentClass) {
-        Objects.requireNonNull(componentClass);
+        checkNotNull(componentClass);
         TriConsumerThrowable<Object, Integer, Object> elementSetter;
         elementSetter = TypeHelper.getArrayElementSetter(componentClass);
 

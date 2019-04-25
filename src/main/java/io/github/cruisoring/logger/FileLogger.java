@@ -8,8 +8,8 @@ import java.nio.file.Paths;
 import java.util.function.Consumer;
 
 public class FileLogger extends Logger implements AutoCloseable {
-    final static Consumer<String> _do_nothing = s -> {
-    };
+    final static Consumer<String> _do_nothing = s -> { };
+
     public static String NEW_LINE = "\r\n";
     final File file;
     boolean isValid = true;

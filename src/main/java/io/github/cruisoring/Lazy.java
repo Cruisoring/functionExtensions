@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 /**
  * This generic class encapsulate factory to enable lazy evaluation of the concerned value.
  * It also support AutoCloseable to release resources, including other dependent Lazy instances, when close() is called.
@@ -28,7 +30,7 @@ public class Lazy<T> implements AutoCloseable {
      * @param supplier The factory to create value instance when getValue() is called.
      */
     public Lazy(SupplierThrowable<T> supplier) {
-        Objects.requireNonNull(supplier);
+        checkNotNull(supplier);
         this.supplier = supplier;
         this.actionOnChanges = null;
     }
@@ -40,7 +42,7 @@ public class Lazy<T> implements AutoCloseable {
      * @param actionOnChanges Extra steps to run before closing() being called.
      */
     public Lazy(SupplierThrowable<T> supplier, BiConsumerThrowable<T, T> actionOnChanges) {
-        Objects.requireNonNull(supplier);
+        checkNotNull(supplier);
         this.supplier = supplier;
         this.actionOnChanges = actionOnChanges;
 //        this.closing = actionOnChanges == null ? this::closing : () -> this.resetAfterAction(actionOnChanges);

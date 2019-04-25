@@ -6,6 +6,8 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Arrays;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 public class CompositeLogger implements ILogger {
 
     final ILogger[] loggers;
@@ -30,6 +32,8 @@ public class CompositeLogger implements ILogger {
      *                 null or CompositeLogger would not be accepted.
      */
     public CompositeLogger(LogLevel minLevel, ILogger... loggers) {
+        checkNotNull(minLevel, loggers);
+
         this.minLevel = minLevel;
         this.loggers = Arrays.stream(loggers)
                 .filter(l -> l != null && !(l instanceof CompositeLogger))
@@ -58,7 +62,7 @@ public class CompositeLogger implements ILogger {
     }
 
     @Override
-    public <R> R measure(Measurement.Moment startMoment, R value, LogLevel... levels) {
+    public <R> R measure(Measurement.Moment startMoment, R value, LogLevel... level) {
         throw new NotImplementedException("Not supported");
     }
 

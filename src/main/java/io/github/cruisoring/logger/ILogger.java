@@ -1,5 +1,6 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.Functions;
 import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.function.SupplierThrowable;
 import io.github.cruisoring.utility.StackTraceHelper;
@@ -10,6 +11,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static io.github.cruisoring.Functions.checkNotNull;
 
 /**
  * Interface to abstract Logger instances along with default methods could be used or overriden.
@@ -62,11 +65,12 @@ public interface ILogger {
      * @return the value returned by the concerned time-consuming calculation
      */
     default <R> R measure(Measurement.Moment startMoment, R value, LogLevel... levels) {
+        checkNotNull(startMoment);
+
+        LogLevel level = (levels == null || levels.length==0)? Logger.DefaultMeasureLogLevel : levels[0];
         final long elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
         Measurement.save(startMoment.label, Measurement.DefaultColumns.createRow(startMoment.createdAt, elapsedMills));
-        if (levels != null && levels.length > 0 && levels[0] != LogLevel.none) {
-            log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
-        }
+        log(level, "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
         return value;
     }
 
@@ -83,10 +87,13 @@ public interface ILogger {
      * @return Value returned by the SupplierThrowable or default value of type <tt>R</tt> when it failed.
      */
     default <R> R measure(Measurement.Moment startMoment, SupplierThrowable<R> supplier, LogLevel... levels) {
+        checkNotNull(startMoment, supplier);
+
+        LogLevel level = (levels == null || levels.length==0)? Logger.DefaultMeasureLogLevel : levels[0];
         Exception e = null;
         long elapsedMills = 0;
         try {
-            R result = supplier.get();
+            R result = checkNotNull(supplier).get();
             elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             Measurement.save(startMoment.label, Measurement.DefaultColumns.createRow(startMoment.createdAt, elapsedMills));
             return result;
@@ -95,9 +102,8 @@ public interface ILogger {
             e = ex;
             return null;
         } finally {
-            if (levels != null && levels.length > 0 && levels[0] != LogLevel.none) {
-                log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
-            }
+            log(level, "%s costs %s%s.", startMoment.label, Duration.ofMillis(elapsedMills),
+                    e==null ? "" : " with " + e.getClass().getSimpleName());
         }
     }
 
@@ -112,19 +118,21 @@ public interface ILogger {
      * @return this ILogger instance to be used fluently.
      */
     default ILogger measure(Measurement.Moment startMoment, RunnableThrowable runnable, LogLevel... levels) {
+        checkNotNull(startMoment, runnable);
+
+        LogLevel level = (levels == null || levels.length==0)? Logger.DefaultMeasureLogLevel : levels[0];
         Exception e = null;
         long elapsedMills = 0;
         try {
-            runnable.run();
+            checkNotNull(runnable).run();
             elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             Measurement.save(startMoment.label, Measurement.DefaultColumns.createRow(startMoment.createdAt, elapsedMills));
         } catch (Exception ex) {
             elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             e = ex;
         } finally {
-            if (levels != null && levels.length > 0 && levels[0] != LogLevel.none) {
-                log(levels[0], "%s costs %s.", startMoment.label, Duration.ofMillis(elapsedMills));
-            }
+            log(level, "%s costs %s%s.", startMoment.label, Duration.ofMillis(elapsedMills),
+                    e==null ? "" : " with " + e.getClass().getSimpleName());
             return this;
         }
     }

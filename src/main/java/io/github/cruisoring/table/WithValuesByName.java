@@ -5,6 +5,8 @@ import io.github.cruisoring.tuple.WithValues;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 public interface WithValuesByName<T> extends WithValues<T> {
 
     IColumns getColumnIndexes();
@@ -17,7 +19,7 @@ public interface WithValuesByName<T> extends WithValues<T> {
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     default T getValueByName(String name) {
-        Integer index = getColumnIndexes().get(name);
+        Integer index = getColumnIndexes().get(checkNotNull(name));
         return index < 0 ? null : getValue(index);
     }
 

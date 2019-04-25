@@ -13,6 +13,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.github.cruisoring.Functions.checkNotNull;
+
 public class StringHelper {
     public final static String PercentageAscii = "&#37";
     public static final Function<Object, String[]> defaultToStringForms = o -> new String[]{o.toString()};
@@ -64,7 +66,7 @@ public class StringHelper {
     }
 
     private static FunctionThrowable<String, Object> getParser(Class clazz) throws Exception {
-        Objects.requireNonNull(clazz);
+        checkNotNull(clazz);
 
         if (stringParsers.containsKey(clazz))
             return stringParsers.get(clazz, null);
@@ -118,8 +120,8 @@ public class StringHelper {
     }
 
     public static boolean containsAll(Collection<String> collection, Collection<String> targets) {
-        Objects.requireNonNull(collection);
-        Objects.requireNonNull(targets);
+        checkNotNull(collection);
+        checkNotNull(targets);
 
         for (String target : targets) {
             if (!collection.contains(target)) {
@@ -131,8 +133,8 @@ public class StringHelper {
     }
 
     public static boolean containsAllIgnoreCase(Collection<String> collection, Collection<String> targets) {
-        Objects.requireNonNull(collection);
-        Objects.requireNonNull(targets);
+        checkNotNull(collection);
+        checkNotNull(targets);
 
         List<String> lowerCases = collection.stream().map(s -> s == null ? null : s.toLowerCase()).collect(Collectors.toList());
         for (String target : targets) {
@@ -206,7 +208,7 @@ public class StringHelper {
      * @return string formatted with the given or exceptional template.
      */
     public static String tryFormatString(String format, Object... args) {
-        Objects.requireNonNull(format);
+        checkNotNull(format);
         if (args.length == 1 && args[0] instanceof Object[]) {
             args = (Object[]) args[0];
         }

@@ -1,7 +1,10 @@
 package io.github.cruisoring;
 
 import io.github.cruisoring.function.*;
+import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.StringHelper;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +24,71 @@ import java.util.stream.Stream;
  * either RunnableThrowable or SupplierThrowable depending on if it returns void or some result.
  */
 public class Functions<R> {
+
+    /**
+     * Ensures that all object references passed as a parameter to the calling method is not null.
+     *
+     * @param reference a object reference
+     * @param others other references
+     * @return the first non-null reference that was validated
+     * @throws NullPointerException if {@code reference} is null
+     */
+    public static <T> T checkNotNull(T reference, Object... others) {
+        if (reference == null) {
+            throw new NullPointerException();
+        }
+        int length = others.length;
+        for (int i = 0; i < length; i++) {
+            if(others[i] == null){
+                throw new NullPointerException("The " + (1+i) + "th reference is null!");
+            }
+        }
+
+        return reference;
+    }
+
+    /**
+     * Ensures that an object reference passed as a parameter to the calling method is not null.
+     *
+     * @param reference an object reference
+     * @param format template to compose the error message when {@code reference is null}
+     * @param args  arguments to compose the error message when {@code reference is null}
+     * @return the non-null reference that was validated
+     * @throws NullPointerException if {@code reference} is null
+     */
+    public static <T> T checkNotNull(T reference, String format, Object... args) {
+        if (reference == null) {
+            throw new NullPointerException(StringHelper.tryFormatString(format, args));
+        }
+        return reference;
+    }
+
+    /**
+     *Ensure the state represented by <tt>expression</tt> is true.
+     * @param expressions any number of boolean expressions
+     * @throws IllegalStateException if {@code expression} is false
+     */
+    public static void checkStates(boolean... expressions) {
+        int length = expressions.length;
+        for (int i = 0; i < length; i++) {
+            if(!expressions[i]){
+                throw new IllegalStateException("Failed with " + i + "th expresion");
+            }
+        }
+    }
+
+    /**
+     *Ensure the state represented by <tt>expression</tt> is true.
+     * @param expression a boolean expression
+     * @param format template to compose the error message when {@code reference is null}
+     * @param args  arguments to compose the error message when {@code reference is null}
+     * @throws IllegalStateException if {@code expression} is false
+     */
+    public static void checkState(boolean expression, String format, Object... args) {
+        if (!expression) {
+            throw new IllegalStateException();
+        }
+    }
 
     // Static Functions instance to simply throw RuntimeException whenever an Exception is caught.
     public static final Functions ThrowsRuntimeException = new Functions();
@@ -62,7 +130,7 @@ public class Functions<R> {
      *                         expected by the withValueReturned
      */
     public Functions(Consumer<Exception> exceptionHandler, BiFunction<Exception, WithValueReturned, Object> defaultReturner) {
-        Objects.requireNonNull(exceptionHandler);
+        checkNotNull(exceptionHandler);
         this.handler = exceptionHandler;
         this.defaultReturner = defaultReturner;
     }
@@ -77,8 +145,8 @@ public class Functions<R> {
      */
     public static <R> Functions<R> buildFunctions(Consumer<Exception> exceptionHandler,
                                                   BiFunction<Exception, WithValueReturned, R> defaultValueFactory) {
-        Objects.requireNonNull(exceptionHandler);
-        Objects.requireNonNull(defaultValueFactory);
+        checkNotNull(exceptionHandler);
+        checkNotNull(defaultValueFactory);
         return new Functions(exceptionHandler, defaultValueFactory);
     }
 
