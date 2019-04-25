@@ -2,7 +2,7 @@
 ===================
 
 ##Updates
-### 29/03/2019: 1.2.0
+### 29/03/2019: 2.0.0
  *  Flat Tuple interfaces with duplicated default methods.
 ### 27/03/2019: 1.1.0
  *  Tuple constructors and factory methods accept final arguments only
@@ -30,11 +30,11 @@ For maven users for example:
 <dependency>
     <groupId>io.github.cruisoring</groupId>
     <artifactId>functionExtensions</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
-Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.2.0/)
+Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/2.0.0/)
 
 ##Implementation Techniques
 
