@@ -9,9 +9,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Random;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static io.github.cruisoring.Asserts.assertFalse;
+import static io.github.cruisoring.Asserts.assertTrue;
 public class LoggerTest {
 
     int a() {

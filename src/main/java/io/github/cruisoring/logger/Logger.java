@@ -9,11 +9,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.IllegalFormatException;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class Logger implements ILogger {
 
@@ -56,7 +55,7 @@ public class Logger implements ILogger {
      * @param minLevel the minimum <code>LogLevel</code> could be logged by this Logger.
      */
     public Logger(Consumer<String> recorder, LogLevel minLevel) {
-        this.recorder = checkNotNull(recorder, minLevel);
+        this.recorder = checkWithoutNull(recorder, minLevel);
 
         this.minLevel = minLevel;
     }
@@ -406,7 +405,7 @@ public class Logger implements ILogger {
 
     @Override
     public String getMessage(LogLevel level, String format, Object... args) {
-        checkNotNull(format);
+        checkWithoutNull(format);
         final String label = String.format("[%s%s]: ", level.label, DefaultTimeStampFormatter == null ? "" : "@" + LocalDateTime.now().format(DefaultTimeStampFormatter));
         String message;
         try {

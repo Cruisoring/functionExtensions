@@ -13,10 +13,11 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static io.github.cruisoring.Asserts.assertEquals;
+import static io.github.cruisoring.Asserts.assertFalse;
+import static io.github.cruisoring.TypeHelper.valueEquals;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class TupleTableTest {
 
@@ -213,12 +214,12 @@ public class TupleTableTest {
         table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
 
-        assertTrue(Objects.deepEquals(new Integer[]{0,1,2,3,4}, table5.getColumnValues(0)));
-        assertTrue(Objects.deepEquals(new String[]{"Alice", "Bob", "Clare", "David", "Eddy"}, table5.getColumnValues(1)));
-        assertTrue(Objects.deepEquals(null, table5.getColumnValues(8)));
-        assertTrue(Objects.deepEquals(new String[]{"Wilson", "Nilson", "Neons", "Wilson", "Claks"}, table5.getColumnValues("Last Name")));
-        assertTrue(Objects.deepEquals(new Character[]{'F', 'M', 'F', 'M', 'M'}, table5.getColumnValues("Gender")));
-        assertTrue(Objects.deepEquals(new Boolean[]{true, false, true, null, true}, table5.getColumnValues("IsActive")));
+        assertEquals(new Integer[]{0, 1, 2, 3, 4}, table5.getColumnValues(0));
+        assertEquals(new String[]{"Alice", "Bob", "Clare", "David", "Eddy"}, table5.getColumnValues(1));
+        assertEquals(null, table5.getColumnValues(8));
+        assertEquals(new String[]{"Wilson", "Nilson", "Neons", "Wilson", "Claks"}, table5.getColumnValues("Last Name"));
+        assertEquals(new Character[]{'F', 'M', 'F', 'M', 'M'}, table5.getColumnValues("Gender"));
+        assertEquals(new Boolean[]{true, false, true, null, true}, table5.getColumnValues("IsActive"));
     }
 
     @Test
@@ -242,9 +243,9 @@ public class TupleTableTest {
          table6.addValues(9, "Denis", null, null, null, null);
          table6.addValues(2, "Eddy", LocalDate.of(1977, 1, 1), 023337747, "eddy@email.com", "Eddy's house");
 
-        assertTrue(Objects.deepEquals(new Integer[]{0,1,3,9,2}, table6.getColumnValues("UID")));
-        assertTrue(Objects.deepEquals(new String[]{"Tom", "Bob", "Charlie", "Denis", "Eddy"}, table6.getColumnValues("user_name")));
-        assertTrue(Objects.deepEquals(new LocalDate[]{LocalDate.of(2000, 1, 1),
+        assertEquals(new Integer[]{0, 1, 3, 9, 2}, table6.getColumnValues("UID"));
+        assertEquals(new String[]{"Tom", "Bob", "Charlie", "Denis", "Eddy"}, table6.getColumnValues("user_name"));
+        assertTrue(valueEquals(new LocalDate[]{LocalDate.of(2000, 1, 1),
             LocalDate.of(1977, 1, 1), null, null, LocalDate.of(1977, 1, 1)}, table6.getColumnValues("birthday")));
 
     }
@@ -473,7 +474,7 @@ public class TupleTableTest {
         );
         table5.addAll(collection);
         table5.forEach(row -> Logger.D(row.toString()));
-        assertTrue(Objects.deepEquals(new Object[]{0, 1, 1, 2, 5, 3, 4}, table5.getColumnValues("ID")));
+        assertEquals(new Object[]{0, 1, 1, 2, 5, 3, 4}, table5.getColumnValues("ID"));
     }
 
     @Test
@@ -493,7 +494,7 @@ public class TupleTableTest {
         Tuple tuple = Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11));
         assertTrue(table5.removeAll(Arrays.asList(row0, row3, tuple)));
 
-        assertTrue(Objects.deepEquals(new Object[]{1, 2, 5}, table5.getColumnValues("ID")));
+        assertEquals(new Object[]{1, 2, 5}, table5.getColumnValues("ID"));
     }
 
     @Test
@@ -514,7 +515,7 @@ public class TupleTableTest {
         assertTrue(table5.retainAll(Arrays.asList(row0, row3, tuple)));
 
         table5.forEach(r -> Logger.D(r.toString()));
-        assertTrue(Objects.deepEquals(new Object[]{0, 3, 4}, table5.getColumnValues("ID")));
+        assertEquals(new Object[]{0, 3, 4}, table5.getColumnValues("ID"));
     }
 
     @Test

@@ -14,8 +14,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Functions.checkNotNull;
-import static org.junit.Assert.*;
+import static io.github.cruisoring.Asserts.*;
+
 
 public class FunctionsTest {
 
@@ -359,7 +359,7 @@ public class FunctionsTest {
     }
 
     void methodNeedNotNullArguments(Integer num, Number... others){
-        checkNotNull(num, others);
+        checkWithoutNull(num, others);
     }
 
 
@@ -368,33 +368,33 @@ public class FunctionsTest {
         methodNeedNotNullArguments(1, 22f, 0, 3.2);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testCheckNotNull_singlueNull() {
-        methodNeedNotNullArguments(null);
+        assertException(() -> methodNeedNotNullArguments(null), NullPointerException.class);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testCheckNotNull() {
-        methodNeedNotNullArguments(123, 4, null, 5.6);
+        assertException(() -> methodNeedNotNullArguments(123, 4, null, 5.6), NullPointerException.class);
     }
 
     @Test
     public void checStates_singleExpression(){
-        Functions.checkStates(1>0);
+        checkStates(1>0);
     }
 
     @Test
     public void checStates_multipleTrues(){
-        Functions.checkStates(1>0, 2>1, 3>2);
+        checkStates(1>0, 2>1, 3>2);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void checStates_firstFalse(){
-        Functions.checkStates(1>2);
+        assertException(() -> checkStates(1 > 2), IllegalStateException.class);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void checStates_lastFalse(){
-        Functions.checkStates(0==0, 1>2);
+        assertException(() -> checkStates(0 == 0, 1 > 2), IllegalStateException.class);
     }
 }

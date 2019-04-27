@@ -3,10 +3,13 @@ package io.github.cruisoring.utility;
 import io.github.cruisoring.logger.ILogger;
 import io.github.cruisoring.logger.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class StackTraceHelper {
 
@@ -62,7 +65,7 @@ public class StackTraceHelper {
      * @return the last caller of the called class/method as specified by <code>keywords</code>
      */
     public static StackTraceElement getCallerStackTrace(Exception ex, String... keywords) {
-        checkNotNull(keywords);
+        checkWithoutNull(keywords);
 
         if(keywords.length==0){
             keywords = new String[]{StackTraceHelper.class.getSimpleName() + ".java"};

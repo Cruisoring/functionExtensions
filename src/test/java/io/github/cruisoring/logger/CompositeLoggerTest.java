@@ -3,7 +3,7 @@ package io.github.cruisoring.logger;
 import io.github.cruisoring.Revokable;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static io.github.cruisoring.Asserts.assertTrue;
 
 public class CompositeLoggerTest {
 
@@ -27,11 +27,11 @@ public class CompositeLoggerTest {
             assertTrue(logs1.contains("info shall be logged by all 3 ILogger instances") && logs2.contains("info shall be logged by all 3 ILogger instances"));
 
             old = oldLogger.getValue();
-            assertNotSame(Logger.Default, old);
+            assertTrue(Logger.Default != old);
         } catch (Exception ignored) {
         }
 
-        assertSame(old, Logger.getDefault());
+        assertTrue(old == Logger.getDefault());
 
         try (Revokable<ILogger> oldLogger = Logger.useInScope(new CompositeLogger(LogLevel.error, logger1, logger2, Logger.getDefault()))) {
             Logger.V("verbose2 shall be logged by logger1");
@@ -47,11 +47,11 @@ public class CompositeLoggerTest {
             assertTrue(logs1.contains("error shall be logged by all 3 ILogger instances") && logs2.contains("error shall be logged by all 3 ILogger instances"));
 
             old = oldLogger.getValue();
-            assertNotSame(Logger.Default, old);
+            assertTrue(Logger.Default != old);
         } catch (Exception ignored) {
         }
 
-        assertSame(old, Logger.getDefault());
+        assertTrue(old == Logger.getDefault());
     }
 
 }

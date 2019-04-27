@@ -8,14 +8,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class TupleRow<R extends WithValues> implements WithValuesByName {
     final IColumns columns;
     final WithValues values;
 
     public TupleRow(IColumns indexes, WithValues values) {
-        this.columns = checkNotNull(indexes, values);
+        this.columns = checkWithoutNull(indexes, values);
         this.values = values;
     }
 

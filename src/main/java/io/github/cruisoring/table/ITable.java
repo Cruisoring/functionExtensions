@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static io.github.cruisoring.Functions.checkNotNull;
-import static io.github.cruisoring.Functions.checkStates;
+import static io.github.cruisoring.Asserts.checkStates;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 /**
  * Interface of generic Table which is composed as collection of rows
@@ -187,7 +187,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      *              corresponding positions as the keys.
      */
     default Map<Integer, String> getIndexedNames(Collection<String> valueKeys) {
-        checkNotNull(valueKeys);
+        checkWithoutNull(valueKeys);
 
         Map<Integer, String> map = new HashMap<>();
         IColumns columns = getColumns();
@@ -261,7 +261,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return  <code>null</code> if columnName or not defined, otherwise the Object[] containing all values of these cell.
      */
     default Object getColumnValues(String columnName){
-        checkNotNull(columnName);
+        checkWithoutNull(columnName);
 
         int columnIndex = getColumnIndex(columnName);
         return getColumnValues(columnIndex);

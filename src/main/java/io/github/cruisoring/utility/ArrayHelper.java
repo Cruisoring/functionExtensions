@@ -13,11 +13,12 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkStates;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.TypeHelper.valueEquals;
 
 public class ArrayHelper<T, R> {
     public static final Class ObjectClass = Object.class;
@@ -77,7 +78,7 @@ public class ArrayHelper<T, R> {
      */
 
     public static <T> T[] create(Class<? extends T> clazz, int length, Function<Integer, T> elementSupplier) {
-        checkNotNull(elementSupplier);
+        checkWithoutNull(elementSupplier);
 
         T[] array =(T[])  (clazz == Object.class ? new Object[length] : TypeHelper.getArrayFactory(clazz).orElse(null).apply(length));
 
@@ -112,8 +113,7 @@ public class ArrayHelper<T, R> {
      * @return Merged array containing all elements of above two arrays
      */
     public static <T> T[] mergeTypedArray(T[] array, T... others) {
-        checkNotNull(array);
-        checkNotNull(others);
+        checkStates(array != null, others != null);
 
         int length1 = array.length;
         int length2 = others.length;
@@ -146,8 +146,7 @@ public class ArrayHelper<T, R> {
      * </ul>
      */
     public static Object arrayOf(Object first, Object... others) {
-        checkNotNull(first);
-        checkNotNull(others);
+        checkStates(others != null);
 
         Class class1 = first.getClass();
         boolean isArray1 = class1.isArray();
@@ -193,7 +192,7 @@ public class ArrayHelper<T, R> {
                 : Array.get(array2, i - length1);
         Object resultArray;
         Class resultComponentClass;
-        if (Objects.equals(componentClass1, componentClass2) || TypeHelper.areEquivalent(componentClass1, componentClass2)) {
+        if (valueEquals(componentClass1, componentClass2) || TypeHelper.areEquivalent(componentClass1, componentClass2)) {
             resultComponentClass = (isPremitive1 && !isPremitive2) ? componentClass2 : componentClass1;
         } else if (!isPremitive1 && (componentClass1.isAssignableFrom(componentClass2))
                 || (isPremitive2 && componentClass1.isAssignableFrom(TypeHelper.getEquivalentClass(componentClass2)))) {
@@ -255,7 +254,7 @@ public class ArrayHelper<T, R> {
             BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
             , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
             , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>> getAssetSetter(Class componentClass) {
-        checkNotNull(componentClass);
+        checkWithoutNull(componentClass);
         TriConsumerThrowable<Object, Integer, Object> elementSetter;
         elementSetter = TypeHelper.getArrayElementSetter(componentClass);
 
@@ -341,14 +340,38 @@ public class ArrayHelper<T, R> {
         }
     }
 
-    public static Boolean[] toObject(boolean[] values) {
-        if (values == null)
+    //endregion
+
+    /**
+     * Convert any array of elements of type <tt>T</tt> to {@code Object[]} version.
+     *
+     * @param array the array to be converted.
+     * @param <T>   the element type of the array.
+     * @return the converted {@code Object[]} sharing the same elements as original array.
+     */
+    public static <T> Object[] toObjectArray(T[] array) {
+        if (array == null)
             return null;
+
+        return (Object[]) TypeHelper.convert(array, Object.class);
+    }
+
+    /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     *
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
+    public static Boolean[] toObject(boolean[] values) {
 
         return (Boolean[]) TypeHelper.toEquivalent(values);
     }
-    //endregion
 
+    /**
+     * Convert the {@code byte[]} to corresponding {@code Byte[]}
+     * @param values the array of primtive byte values
+     * @return the array of {@code Byte[]}
+     */
     public static Byte[] toObject(byte[] values) {
         if (values == null)
             return null;
@@ -356,6 +379,11 @@ public class ArrayHelper<T, R> {
         return (Byte[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code char[]} to corresponding {@code Character[]}
+     * @param values the array of primtive char values
+     * @return the array of {@code Character[]}
+     */
     public static Character[] toObject(char[] values) {
         if (values == null)
             return null;
@@ -363,6 +391,11 @@ public class ArrayHelper<T, R> {
         return (Character[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code float[]} to corresponding {@code Float[]}
+     * @param values the array of primtive float values
+     * @return the array of {@code Float[]}
+     */
     public static Float[] toObject(float[] values) {
         if (values == null)
             return null;
@@ -370,6 +403,11 @@ public class ArrayHelper<T, R> {
         return (Float[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code double[]} to corresponding {@code Double[]}
+     * @param values the array of primtive double values
+     * @return the array of {@code Double[]}
+     */
     public static Double[] toObject(double[] values) {
         if (values == null)
             return null;
@@ -377,6 +415,11 @@ public class ArrayHelper<T, R> {
         return (Double[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code int[]} to corresponding {@code Integer[]}
+     * @param values the array of primtive int values
+     * @return the array of {@code Integer[]}
+     */
     public static Integer[] toObject(int[] values) {
         if (values == null)
             return null;
@@ -384,6 +427,11 @@ public class ArrayHelper<T, R> {
         return (Integer[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code shart[]} to corresponding {@code Short[]}
+     * @param values the array of primtive short values
+     * @return the array of {@code Short[]}
+     */
     public static Short[] toObject(short[] values) {
         if (values == null)
             return null;
@@ -391,6 +439,11 @@ public class ArrayHelper<T, R> {
         return (Short[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code long[]} to corresponding {@code Long[]}
+     * @param values the array of primtive long values
+     * @return the array of {@code Long[]}
+     */
     public static Long[] toObject(long[] values) {
         if (values == null)
             return null;
@@ -398,58 +451,138 @@ public class ArrayHelper<T, R> {
         return (Long[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
     public static boolean[] toPrimitive(Boolean[] values) {
-        if (values == null)
+        if (values == null) {
             return null;
+        }
+
+        if (values.length > 0) {
+            checkWithoutNull(values[0], (Boolean[]) TypeHelper.copyOfRange(values, 1, values.length));
+        }
 
         return (boolean[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
     public static byte[] toPrimitive(Byte[] values) {
-        if (values == null)
+        if (values == null) {
             return null;
+        }
+
+        if (values.length > 0) {
+            checkWithoutNull(values[0], (Byte[]) TypeHelper.copyOfRange(values, 1, values.length));
+        }
 
         return (byte[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
     public static char[] toPrimitive(Character[] values) {
-        if (values == null)
+        if (values == null) {
             return null;
+        }
+
+        if (values.length > 0) {
+            checkWithoutNull(values[0], (Character[]) TypeHelper.copyOfRange(values, 1, values.length));
+        }
 
         return (char[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
     public static float[] toPrimitive(Float[] values) {
-        if (values == null)
+        if (values == null) {
             return null;
+        }
+
+        if (values.length > 0) {
+            checkWithoutNull(values[0], (Float[]) TypeHelper.copyOfRange(values, 1, values.length));
+        }
 
         return (float[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
     public static double[] toPrimitive(Double[] values) {
-        if (values == null)
+        if (values == null) {
             return null;
+        }
+
+        if (values.length > 0) {
+            checkWithoutNull(values[0], (Double[]) TypeHelper.copyOfRange(values, 1, values.length));
+        }
 
         return (double[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
     public static int[] toPrimitive(Integer[] values) {
-        if (values == null)
+        if (values == null) {
             return null;
+        }
+
+        if (values.length > 0) {
+            checkWithoutNull(values[0], (Integer[]) TypeHelper.copyOfRange(values, 1, values.length));
+        }
 
         return (int[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
     public static short[] toPrimitive(Short[] values) {
-        if (values == null)
+        if (values == null) {
             return null;
+        }
+
+        if (values.length > 0) {
+            checkWithoutNull(values[0], (Short[]) TypeHelper.copyOfRange(values, 1, values.length));
+        }
 
         return (short[]) TypeHelper.toEquivalent(values);
     }
 
+    /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
     public static long[] toPrimitive(Long[] values) {
-        if (values == null)
+        if (values == null) {
             return null;
+        }
+
+        if (values.length > 0) {
+            checkWithoutNull(values[0], (Long[]) TypeHelper.copyOfRange(values, 1, values.length));
+        }
 
         return (long[]) TypeHelper.toEquivalent(values);
     }

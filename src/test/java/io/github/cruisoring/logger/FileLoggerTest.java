@@ -3,7 +3,7 @@ package io.github.cruisoring.logger;
 import io.github.cruisoring.Revokable;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static io.github.cruisoring.Asserts.*;
 
 public class FileLoggerTest {
 

@@ -1,16 +1,14 @@
 package io.github.cruisoring.table;
 
-import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
-import io.github.cruisoring.tuple.WithValues1;
 import io.github.cruisoring.tuple.WithValues2;
 import io.github.cruisoring.utility.ArrayHelper;
 
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 /**
  * Keep column names and their indexes as a map, aliases could be defined in the given Map to create
@@ -37,35 +35,12 @@ public class Columns implements IColumns {
         return escaped1.compareToIgnoreCase(escaped2);
     };
 
-    public static Comparator<String> getEscapedComparator(String escapePattern) {
-        checkNotNull(escapePattern);
-        return (s1, s2) -> {
-            String escaped1 = s1.replaceAll(escapePattern, "");
-            String escaped2 = s2.replaceAll(escapePattern, "");
-            return escaped1.compareTo(escaped2);
-        };
-    }
-
-    public static Comparator<String> getEscapedInsensitiveComparator(String escapePattern) {
-        checkNotNull(escapePattern);
-        return (s1, s2) -> {
-            String escaped1 = s1.replaceAll(escapePattern, "");
-            String escaped2 = s2.replaceAll(escapePattern, "");
-            return escaped1.compareToIgnoreCase(escaped2);
-        };
-    }
-
-    final Comparator<String> nameComparator;
-    final String[][] indexedColumns;
-    final Map<String, Integer> columnIndexes;
-    final List<String> columnNames;
-
     /**
      * Construct the Columns with column names directly.
      * @param columnNames   Names of the columns that cannot be null or duplicated.
      */
     public Columns(String... columnNames) {
-        checkNotNull(columnNames);
+        checkWithoutNull(columnNames);
 
         //Use String::compareTo() by default
         nameComparator = String::compareTo;
@@ -76,6 +51,10 @@ public class Columns implements IColumns {
         indexedColumns = new String[len][];
         for (int i = 0; i < columnNames.length; i++) {
             String columnName = columnNames[i];
+            if (map.containsKey(columnName)) {
+                throw new UnsupportedOperationException("Column name at index of " + i +
+                        " is duplicated with the one at index of " + map.get(columnName));
+            }
             map.put(columnName, i);
             names.add(columnName);
             indexes.put(i, Arrays.asList(columnName));
@@ -92,7 +71,7 @@ public class Columns implements IColumns {
      * @param nameComparator    Comparator&lt;String&gt; used to compare column names.
      */
     public Columns(String[][] columnDefintions, Comparator<String> nameComparator){
-        checkNotNull(columnDefintions);
+        checkWithoutNull(columnDefintions);
 
         this.nameComparator = nameComparator==null ? DefaultNameComparator : nameComparator;
         int width = columnDefintions.length;
@@ -119,6 +98,29 @@ public class Columns implements IColumns {
         }
         columnIndexes = Collections.unmodifiableMap(map);
         this.columnNames = Collections.unmodifiableList(names);
+    }
+
+    final Comparator<String> nameComparator;
+    final String[][] indexedColumns;
+    final Map<String, Integer> columnIndexes;
+    final List<String> columnNames;
+
+    public static Comparator<String> getEscapedComparator(String escapePattern) {
+        checkWithoutNull(escapePattern);
+        return (s1, s2) -> {
+            String escaped1 = s1.replaceAll(escapePattern, "");
+            String escaped2 = s2.replaceAll(escapePattern, "");
+            return escaped1.compareTo(escaped2);
+        };
+    }
+
+    public static Comparator<String> getEscapedInsensitiveComparator(String escapePattern) {
+        checkWithoutNull(escapePattern);
+        return (s1, s2) -> {
+            String escaped1 = s1.replaceAll(escapePattern, "");
+            String escaped2 = s2.replaceAll(escapePattern, "");
+            return escaped1.compareToIgnoreCase(escaped2);
+        };
     }
 
     /**
@@ -157,7 +159,7 @@ public class Columns implements IColumns {
 
     @Override
     public WithValues<Integer> mapIndexes(IColumns other){
-        checkNotNull(other);
+        checkWithoutNull(other);
 
         if(this == other){
             Integer[] indexes = IntStream.range(0, width()).boxed().toArray(size -> new Integer[size]);

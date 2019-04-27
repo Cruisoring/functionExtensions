@@ -7,17 +7,35 @@ import io.github.cruisoring.repository.Repository;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.MalformedParametersException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Functions.checkState;
 
 public class StringHelper {
     public final static String PercentageAscii = "&#37";
-    public static final Function<Object, String[]> defaultToStringForms = o -> new String[]{o.toString()};
+    public static final Function<Object, String[]> defaultToStringForms = StringHelper::commonToStrings;
+
+    private static final String[] commonToStrings(Object obj) {
+        if (obj == null) {
+            return new String[]{"null", "NULL"};
+        }
+
+        Class objClass = obj.getClass();
+        if (objClass.isArray()) {
+            return new String[]{TypeHelper.deepToString(obj)};
+        }
+
+        return new String[]{obj.toString()};
+    }
+
     public static final BiPredicate<String, String> contains = (s, k) -> StringUtils.contains(s, k);
     public static final BiPredicate<String, String> containsIgnoreCase = (s, k) -> StringUtils.containsIgnoreCase(s, k);
     private static final Repository<Class, FunctionThrowable<String, Object>> stringParsers = new Repository<Class, FunctionThrowable<String, Object>>(
@@ -66,7 +84,7 @@ public class StringHelper {
     }
 
     private static FunctionThrowable<String, Object> getParser(Class clazz) throws Exception {
-        checkNotNull(clazz);
+        checkWithoutNull(clazz);
 
         if (stringParsers.containsKey(clazz))
             return stringParsers.get(clazz, null);
@@ -120,8 +138,8 @@ public class StringHelper {
     }
 
     public static boolean containsAll(Collection<String> collection, Collection<String> targets) {
-        checkNotNull(collection);
-        checkNotNull(targets);
+        checkWithoutNull(collection);
+        checkWithoutNull(targets);
 
         for (String target : targets) {
             if (!collection.contains(target)) {
@@ -133,8 +151,8 @@ public class StringHelper {
     }
 
     public static boolean containsAllIgnoreCase(Collection<String> collection, Collection<String> targets) {
-        checkNotNull(collection);
-        checkNotNull(targets);
+        checkWithoutNull(collection);
+        checkWithoutNull(targets);
 
         List<String> lowerCases = collection.stream().map(s -> s == null ? null : s.toLowerCase()).collect(Collectors.toList());
         for (String target : targets) {
@@ -173,18 +191,14 @@ public class StringHelper {
     }
 
     public static boolean containsAny(String context, Function<Object, String[]> toStringForms, Object... keys) {
-        if (context == null) {
-            return false;
-        }
-        return Arrays.stream(keys).filter(o -> o != null)
+        checkWithoutNull(context, toStringForms, keys);
+        checkState(keys.length > 0, "Need to specify at least one key for evaluation");
+
+        return Arrays.stream(keys)
                 .anyMatch(o -> matchAny(contains, context, toStringForms.apply(o)));
     }
 
     public static boolean containsAny(String context, Object... keys) {
-        return containsAny(context, defaultToStringForms, keys);
-    }
-
-    public static boolean containsAny(String context, String... keys) {
         return containsAny(context, defaultToStringForms, (Object[]) keys);
     }
 
@@ -208,7 +222,6 @@ public class StringHelper {
      * @return string formatted with the given or exceptional template.
      */
     public static String tryFormatString(String format, Object... args) {
-        checkNotNull(format);
         if (args.length == 1 && args[0] instanceof Object[]) {
             args = (Object[]) args[0];
         }
@@ -217,8 +230,8 @@ public class StringHelper {
             formatted = formatted.replaceAll(PercentageAscii, "%");
             return formatted;
         } catch (Exception e) {
-            String[] argStrings = Arrays.stream(args).map(arg -> arg.toString()).toArray(size -> new String[size]);
-            return String.format("MalFormated format: '%s'\nargs: '%s'", format, String.join(", ", argStrings));
+            String[] argStrings = Arrays.stream(args).map(arg -> arg == null ? "null" : arg.toString()).toArray(size -> new String[size]);
+            return String.format("MalFormated format: '%s' where args[%d]: '%s'", format, args.length, String.join(", ", argStrings));
         }
     }
 

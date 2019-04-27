@@ -4,9 +4,8 @@ import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.PredicateThrowable;
 
 import java.util.Map;
-import java.util.Objects;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public interface WithValues<T> extends Comparable {
     /**
@@ -76,7 +75,7 @@ public interface WithValues<T> extends Comparable {
      *          predicate, otherwise {@code false}
      */
     default boolean anyMatch(PredicateThrowable<T> predicateThrowable){
-        checkNotNull(predicateThrowable);
+        checkWithoutNull(predicateThrowable);
 
         int len = getLength();
         try {
@@ -99,7 +98,7 @@ public interface WithValues<T> extends Comparable {
      *  provided predicate or there is no element, otherwise {@code false}
      */
     default boolean allMatch(PredicateThrowable<T> predicateThrowable){
-        checkNotNull(predicateThrowable);
+        checkWithoutNull(predicateThrowable);
 
         int len = getLength();
         try {
@@ -122,7 +121,7 @@ public interface WithValues<T> extends Comparable {
      *  provided predicate or there is no element, otherwise {@code false}
      */
     default boolean noneMatch(PredicateThrowable<T> predicateThrowable){
-        checkNotNull(predicateThrowable);
+        checkWithoutNull(predicateThrowable);
 
         int len = getLength();
         try {

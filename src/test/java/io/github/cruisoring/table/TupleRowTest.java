@@ -8,9 +8,7 @@ import org.junit.Test;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static io.github.cruisoring.Asserts.*;
 public class TupleRowTest {
     Columns columns = new Columns("ID", "First Name", "Last Name", "Gender", "IsActive", "Favorite");
 
@@ -31,16 +29,16 @@ public class TupleRowTest {
         assertEquals(null, row.getValue(8));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void getValueWithInvalidIndex() {
         TupleRow row = columns.createRow(1, "Alice", "Wilson", 'F', true, null, 77, "abc", null);
-        assertEquals(null, row.getValue(-1));
+        assertException(() -> row.getValue(-1), IndexOutOfBoundsException.class);
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void getValueWithInvalidIndex2() {
         TupleRow row = columns.createRow(1, "Alice", "Wilson", 'F', true, null, 77, "abc", null);
-        assertEquals(null, row.getValue(10));
+        assertException(() -> row.getValue(10), IndexOutOfBoundsException.class);
     }
 
     @Test

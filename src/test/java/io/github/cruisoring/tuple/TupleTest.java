@@ -11,7 +11,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static io.github.cruisoring.Asserts.*;
+import static io.github.cruisoring.TypeHelper.valueEquals;
 
 public class TupleTest {
     public static List<String> closeMessages = new ArrayList<>();
@@ -43,15 +44,15 @@ public class TupleTest {
 
     @Test
     public void testArraysDeepFunctions() {
-        Logger.D("%d", Objects.hashCode(new int[]{1, 2, 3}));
+        Logger.D("%d", TypeHelper.deepHashCode(new int[]{1, 2, 3}));
         Logger.D("%d", Arrays.deepHashCode(new Integer[]{1, 2, 3}));
         Logger.D("%d", Arrays.deepHashCode(new int[][]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}}));
         Logger.D("%d", Arrays.deepHashCode(new Object[]{new Integer[]{1, 2, 3}, new int[0], null, new int[]{4, 5}}));
         Logger.D("%d", Arrays.deepHashCode(new Integer[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
 
         assertTrue(Integer.valueOf(1).equals(1));
-        assertTrue(Objects.equals(Integer.valueOf(1), 1));
-        //assertTrue(Objects.deepEquals(new int[]{1,2,3}, new Integer[]{1,2,3}));
+        assertEquals(1, Integer.valueOf(1));
+        //assertEquals(new int[]{1,2,3}, new Integer[]{1,2,3});
 
     }
 
@@ -68,17 +69,17 @@ public class TupleTest {
     }
 
     @Test
-    public void valueEquals() {
-        assertTrue(TypeHelper.valueEquals(new int[]{1, 2, 3}, new Integer[]{1, 2, 3}));
-        assertTrue(TypeHelper.valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+    public void testValueEquals() {
+        assertEquals(new int[]{1, 2, 3}, new Integer[]{1, 2, 3});
+        assertTrue(valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
                 new Object[]{new Integer[]{1, 2, 3}, new Integer[0], null, new int[]{4, 5}}));
-        assertTrue(TypeHelper.valueEquals(new int[][]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+        assertTrue(valueEquals(new int[][]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
                 new Integer[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
 
-        assertTrue(TypeHelper.valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+        assertTrue(valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
                 new Comparable[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
 
-        assertFalse(TypeHelper.valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+        assertFalse(valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
                 new Number[][]{new Number[]{1, 2, 3}, new Number[0], null, new Number[]{4.0, 5}}));
     }
 
@@ -317,7 +318,7 @@ public class TupleTest {
         assertEquals(Tuple4.Set.class, stringSet.getClass());
         assertEquals(stringSet.getValue(0), "");
         assertEquals(stringSet.getValue(1), null);
-        assertTrue(TypeHelper.valueEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray()));
+        assertEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray());
         Tuple tupleSet2 = Tuple.setOf(Tuple.create(), Tuple.create("First"));
         assertEquals(tupleSet, tupleSet2);
     }
@@ -330,12 +331,10 @@ public class TupleTest {
         assertEquals(3, integerSet.getLength());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testArrayToSetWithNull() {
         Integer[] ints = null;
-        Tuple<Integer> intSet = Tuple.setOf(ints);
-        assertEquals(1, intSet.getLength());
-        assertEquals(null, intSet.getValue(0));
+        Tuple<Integer> intSet = assertException(() -> Tuple.setOf(ints), IllegalStateException.class);
     }
 
     @Test
@@ -359,10 +358,10 @@ public class TupleTest {
                         a -> ((String) (a.value)).length() > 5);
 
         Tuple<String> stringSet1 = hepta.getSetOf(String.class);
-        assertTrue(TypeHelper.valueEquals(new String[]{"Seven"}, stringSet1.asArray()));
+        assertEquals(new String[]{"Seven"}, stringSet1.asArray());
 
         Tuple t = Tuple.create(1, 2, 3, null, 4, 5);
-        assertTrue(TypeHelper.valueEquals(new Integer[]{1, 2, 3, 4, 5}, t.getSetOf(int.class).asArray()));
+        assertEquals(new Integer[]{1, 2, 3, 4, 5}, t.getSetOf(int.class).asArray());
 
         Tuple<A> aSet = Tuple.setOf(new A('a'), new A("A"), new A(100));
         Tuple aSet1 = aSet.getSetOf(A.class);
@@ -413,7 +412,7 @@ public class TupleTest {
         Object[] elements = new Object[]{1, "ok", true};
         tuple = Tuple.of(elements);
         assertEquals(3, tuple.getLength());
-        assertTrue(TypeHelper.valueEquals(tuple.values, elements));
+        assertEquals(tuple.values, elements);
 
         elements = new Object[]{1, 2, 3, "abc", 'a', true, Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3), 'b'};
         tuple = Tuple.of(elements);
@@ -491,9 +490,7 @@ public class TupleTest {
 
         Tuple<String> null4 = Tuple.setOf(null, null);
         assertEquals(String.class, null4._elementType);
-        assertFalse(nullDual3.equals(null4));
-        assertNotEquals(null4, nullDual3);
-        assertNotEquals(nullDual3, null4);
+        assertFalse(nullDual3.equals(null4), null4.equals(nullDual3));
 
         Tuple<String> null5 = Tuple.setOf(null, null);
         assertEquals(null5, null4);
@@ -526,7 +523,7 @@ public class TupleTest {
             Logger.D(ex.getMessage());
         }
 
-        assertTrue(TypeHelper.valueEquals(expection, closeMessages.toArray()));
+        assertEquals(expection, closeMessages.toArray());
     }
 
     @Test
@@ -542,10 +539,10 @@ public class TupleTest {
         assertEquals(0, tuple10.getThird().length);
         assertEquals(AutoA.class, tuple10.getFourth().getClass());
         assertEquals(AutoB.class, tuple10.getFifth().getClass());
-        assertTrue(TypeHelper.valueEquals(new double[]{2.2}, tuple10.getSixth()[1]));
+        assertEquals(new double[]{2.2}, tuple10.getSixth()[1]);
         assertNull(tuple10.getSeventh()[1]);
         assertEquals(Short.valueOf("3"), tuple10.getEighth()[2]);
-        assertTrue(TypeHelper.valueEquals(new Object[]{1, 'a'}, tuple10.getNineth()));
+        assertEquals(new Object[]{1, 'a'}, tuple10.getNineth());
         assertEquals(0, tuple10.getTenth()[0].length);
     }
 
@@ -561,10 +558,10 @@ public class TupleTest {
         assertEquals(0, tupleOf.getThird().length);
         assertEquals(AutoA.class, tupleOf.getFourth().getClass());
         assertEquals(AutoB.class, tupleOf.getFifth().getClass());
-        assertTrue(TypeHelper.valueEquals(new double[]{2.2}, tupleOf.getSixth()[1]));
+        assertEquals(new double[]{2.2}, tupleOf.getSixth()[1]);
         assertEquals(null, tupleOf.getSeventh()[1]);
         assertEquals(Short.valueOf("3"), tupleOf.getEighth()[2]);
-        assertTrue(TypeHelper.valueEquals(new Object[]{1, 'a'}, tupleOf.getNineth()));
+        assertEquals(new Object[]{1, 'a'}, tupleOf.getNineth());
         assertEquals(0, tupleOf.getTenth()[0].length);
 
         assertEquals("The 21th", tupleOf.getValue(10));

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.*;
 import static java.util.Comparator.comparing;
 
 public class Range extends Tuple2<Integer, Integer> {
@@ -40,7 +40,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @param endExclusive   EndIndex of the concerned scope that is above the last index of the scope.
      */
     protected Range(Integer startInclusive, Integer endExclusive) {
-        super(checkNotNull(startInclusive), checkNotNull(endExclusive));
+        super(checkWithoutNull(startInclusive), checkWithoutNull(endExclusive));
 
         Functions.checkState(startInclusive <= endExclusive,
                 "Range startInclusive %d shall not be greater or equal to endExclusive %d.", startInclusive, endExclusive);
@@ -61,7 +61,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return True if the range is contained by [0, bufferSize), otherwise False.
      */
     public static boolean isValidOfLength(Range range, Integer length) {
-        Functions.checkStates(length >= 0);
+        checkStates(length >= 0);
 
         return range != null && range._start >= 0 && range._end <= length;
     }
@@ -181,8 +181,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return SubString specified by the given Range.
      */
     public static String subString(CharSequence jsonText, Range range) {
-        Functions.checkStates(StringUtils.isNotBlank(jsonText));
-        Functions.checkStates(Range.isValidOfLength(range, jsonText.length()));
+        checkStates(StringUtils.isNotBlank(jsonText));
+        checkStates(Range.isValidOfLength(range, jsonText.length()));
 
         return jsonText.subSequence(range.getStartInclusive(), range.getEndExclusive()).toString();
     }
@@ -194,8 +194,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return List of the ranges with even indexes as startInclusive, and odd indexes as endInclusive.
      */
     public static List<Range> indexesToRanges(Collection<Integer> indexes) {
-        checkNotNull(indexes);
-        Functions.checkStates(indexes.size() % 2 == 0);
+        checkWithoutNull(indexes);
+        checkStates(indexes.size() % 2 == 0);
 
         return _indexesToRanges(indexes);
     }
@@ -223,8 +223,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return Sublist of the given sorted index list within a specific range.
      */
     public static List<Integer> getIndexesInRange(List<Integer> allIndexes, Range range) {
-        checkNotNull(allIndexes);
-        checkNotNull(range);
+        checkWithoutNull(allIndexes);
+        checkWithoutNull(range);
 
         if (allIndexes.isEmpty()) {
             return new ArrayList<Integer>();
@@ -322,11 +322,11 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return Unmodifiable list of the ranges with one of the index of starting character, and one of the index of the ending character.
      */
     public static List<Range> indexesToRanges(Collection<Integer> startIndexes, Collection<Integer> endIndexes) {
-        checkNotNull(startIndexes);
-        checkNotNull(endIndexes);
+        checkWithoutNull(startIndexes);
+        checkWithoutNull(endIndexes);
 
         int size = startIndexes.size();
-        Functions.checkStates(size == endIndexes.size());
+        checkStates(size == endIndexes.size());
 
         return _indexesToRanges(startIndexes, endIndexes);
     }
@@ -357,9 +357,9 @@ public class Range extends Tuple2<Integer, Integer> {
     }
 
     public static List<Tuple2<Range, Range>> getRangePairs(Collection<Range> ranges1, Collection<Range> ranges2, Predicate<Tuple2<Range, Range>> predicate) {
-        checkNotNull(ranges1);
-        checkNotNull(ranges2);
-        checkNotNull(predicate);
+        checkWithoutNull(ranges1);
+        checkWithoutNull(ranges2);
+        checkWithoutNull(predicate);
 
         int size1 = ranges1.size();
         int size2 = ranges2.size();
@@ -417,7 +417,7 @@ public class Range extends Tuple2<Integer, Integer> {
     }
 
     public boolean containsAll(List<Integer> values) {
-        checkNotNull(values);
+        checkWithoutNull(values);
 
         if (_size == 0) {
             return false;
@@ -446,24 +446,24 @@ public class Range extends Tuple2<Integer, Integer> {
 
 
     public boolean contains(Range other) {
-        checkNotNull(other);
+        checkWithoutNull(other);
         return this._start <= other._start && this._end >= other._end;
     }
 
     public boolean isConnected(Range other) {
-        checkNotNull(other);
+        checkWithoutNull(other);
         return this._start <= other._end && other._start <= this._end;
     }
 
     public boolean overlaps(Range other) {
-        checkNotNull(other);
+        checkWithoutNull(other);
 
         return (_start < other._start && _end > other._start && _end < other._end)
                 || (_start > other._start && _start < other._end && _end > other._end);
     }
 
     public Range intersection(Range other) {
-        checkNotNull(other);
+        checkWithoutNull(other);
 
         int minStart = Math.min(_start, other._start);
         int maxEnd = Math.max(_end, other._end);
@@ -480,7 +480,7 @@ public class Range extends Tuple2<Integer, Integer> {
     }
 
     public Range gapWith(Range other) {
-        checkNotNull(other);
+        checkWithoutNull(other);
 
         if (_start == other._start || _end == other._end || _start == other._end || _end == other._start) {
             return NONE;

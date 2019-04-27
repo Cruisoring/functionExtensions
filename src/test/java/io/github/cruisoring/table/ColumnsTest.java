@@ -1,14 +1,17 @@
 package io.github.cruisoring.table;
 
+import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import org.junit.Test;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static io.github.cruisoring.Asserts.*;
 
 public class ColumnsTest {
     static final String[][] sharedColumnDefitions = new String[][]{
@@ -22,37 +25,37 @@ public class ColumnsTest {
 
     static final IColumns shared = new Columns(sharedColumnDefitions);
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testConstructor_WithNullStrings(){
-        Columns col = new Columns("ID", null, "a");
+        Columns col = assertException(() -> new Columns("ID", null, "a"), NullPointerException.class);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testConstructor_WithDuplicatedNames(){
-        Columns col = new Columns("ID", "Age", "ID");
+        Columns col = assertException(() -> new Columns("ID", "Age", "ID"), UnsupportedOperationException.class);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void constructWithEmpty(){
-        new Columns(new String[0][]);
+        assertException(() -> new Columns(new String[0][]), UnsupportedOperationException.class);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void constructWithIndexMissing(){
-        new Columns(new String[][]{
+        assertException(() -> new Columns(new String[][]{
                 new String[]{"ID"},
                 new String[0],
                 new String[]{"Mobile", "Phone"}
-        });
+        }), UnsupportedOperationException.class);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testConstructor_WithMissingIndex(){
 
-        Columns col = new Columns(new String[][]{
+        Columns col = assertException(() -> new Columns(new String[][]{
                 new String[0],
                 new String[]{"Mobile", "Phone"}
-        });
+        }), UnsupportedOperationException.class);
     }
 
     @Test
@@ -178,7 +181,7 @@ public class ColumnsTest {
     @Test
     public void getColumnNames() {
         Logger.D(String.join(", ", shared.getColumnNames()));
-        assertTrue(Objects.deepEquals(
+        assertTrue(TypeHelper.valueEquals(
             new String[]{"ID", "First Name", "Birthday", "Mobile", "Email", "Address"},
             shared.getColumnNames().toArray()));
     }

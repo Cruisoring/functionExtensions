@@ -1,6 +1,6 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.Functions;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class InMemoryLogger extends Logger {
     private final StringBuilder stringBuilder;
@@ -14,7 +14,7 @@ public class InMemoryLogger extends Logger {
     }
 
     public InMemoryLogger(final StringBuilder sb, LogLevel minLevel) {
-        super(log -> Functions.checkNotNull(sb).append(log + "\n"), minLevel);
+        super(log -> checkWithoutNull(sb).append(log + "\n"), minLevel);
         stringBuilder = sb;
     }
 

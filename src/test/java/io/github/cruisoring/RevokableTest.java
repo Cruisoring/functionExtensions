@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static io.github.cruisoring.Asserts.assertEquals;
 
 public class RevokableTest {
 

@@ -6,7 +6,7 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Arrays;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class CompositeLogger implements ILogger {
 
@@ -32,7 +32,7 @@ public class CompositeLogger implements ILogger {
      *                 null or CompositeLogger would not be accepted.
      */
     public CompositeLogger(LogLevel minLevel, ILogger... loggers) {
-        checkNotNull(minLevel, loggers);
+        checkWithoutNull(minLevel, loggers);
 
         this.minLevel = minLevel;
         this.loggers = Arrays.stream(loggers)

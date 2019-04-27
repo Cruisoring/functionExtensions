@@ -7,7 +7,8 @@ import io.github.cruisoring.logger.Logger;
 import java.util.*;
 import java.util.function.BiPredicate;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.TypeHelper.valueEquals;
 
 /**
  * Wrapping of Map instance and business logic to get value from key
@@ -38,7 +39,7 @@ public class Repository<TKey, TValue>
     public Repository(Map<TKey, TValue> map,
                       TriConsumerThrowable<TKey, TValue, TValue> changesConsumer,
                       FunctionThrowable<TKey, TValue> valueFunction) {
-        storage = checkNotNull(map, valueFunction);
+        storage = checkWithoutNull(map, valueFunction);
         this.valueFunctionThrowable = valueFunction;
         this.changesConsumer = changesConsumer != null ? changesConsumer : (USE_DEFAULT_CHNAGES_LOG ? this::defaultChangesLog : null);
     }
@@ -70,7 +71,7 @@ public class Repository<TKey, TValue>
      */
     @Override
     public TValue apply(TKey tKey) throws Exception {
-        checkNotNull(tKey);
+        checkWithoutNull(tKey);
         TValue result;
         if (!storage.containsKey(tKey)) {
             result = valueFunctionThrowable.apply(tKey);
@@ -94,13 +95,13 @@ public class Repository<TKey, TValue>
      * @throws Exception Any Exceptions that might be thrown
      */
     public TValue update(TKey tKey, TValue existingValue, TValue newValue) throws Exception {
-        checkNotNull(tKey);
+        checkWithoutNull(tKey);
 
         //No need to update value of the map if there is no changes
-        if (Objects.equals(existingValue, newValue))
+        if (valueEquals(existingValue, newValue))
             return existingValue;
 
-        if (containsKey(tKey) && !Objects.equals(existingValue, storage.get(tKey))) {
+        if (containsKey(tKey) && !valueEquals(existingValue, storage.get(tKey))) {
             throw new Exception("The existing value of '" + tKey + "' doesn't match with " + existingValue);
         } else if (!containsKey(tKey) && existingValue != null) {
             throw new Exception("The existingValue shall be null when there is no entry of key of " + tKey);
@@ -120,7 +121,7 @@ public class Repository<TKey, TValue>
      * @return Number of key value pairs matched with the given predicate and thus removed
      */
     public int clear(BiPredicate<TKey, TValue> keyValuePredicate) {
-        checkNotNull(keyValuePredicate);
+        checkWithoutNull(keyValuePredicate);
 
         int changes = 0;
 

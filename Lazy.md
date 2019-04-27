@@ -5,7 +5,7 @@
 To change the behaviour of AutoCloseable.close(), it is possible to include extra closing action to the constructor:
 
 public Lazy(SupplierThrowable<T> supplier, ConsumerThrowable<T> extraClosingAction){
-    Objects.requireNonNull(supplier);
+    checkWithoutNull(supplier);
     this.supplier = supplier;
     this.closing = extraClosingAction == null ? this::reset : () -> this.resetAfterAction(extraClosingAction);
 }

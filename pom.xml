@@ -10,7 +10,7 @@
   <packaging>jar</packaging>
 
   <name>${project.groupId}:${project.artifactId}</name>
-  <description>A library defines throwable functional interfaces, Tuple and Repositories to expedite functional programming with JAVA 8.</description>
+  <description>A library defines throwable functional interfaces, Tuple, TupleTable, Logger and Repository to expedite functional programming with JAVA 8.</description>
   <url>https://github.com/Cruisoring/functionExtensions</url>
 
   <properties>
@@ -61,8 +61,8 @@
 
   <developers>
     <developer>
-      <name>Cruisoring</name>
-      <email>williamjiang0218@gmail.com</email>
+      <name>William JIANG</name>
+      <email>functionExtensions@gmail.com</email>
       <organizationUrl>https://github.com/Cruisoring</organizationUrl>
     </developer>
   </developers>

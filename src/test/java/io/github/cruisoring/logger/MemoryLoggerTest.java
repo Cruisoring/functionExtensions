@@ -2,7 +2,7 @@ package io.github.cruisoring.logger;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import static io.github.cruisoring.Asserts.assertTrue;
 
 public class MemoryLoggerTest {
 

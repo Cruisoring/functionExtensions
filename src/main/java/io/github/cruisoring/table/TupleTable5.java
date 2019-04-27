@@ -1,7 +1,6 @@
 package io.github.cruisoring.table;
 
 import io.github.cruisoring.tuple.Tuple;
-import io.github.cruisoring.tuple.Tuple5;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.tuple.WithValues5;
 import io.github.cruisoring.utility.ArrayHelper;

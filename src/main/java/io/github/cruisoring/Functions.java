@@ -1,13 +1,10 @@
 package io.github.cruisoring;
 
 import io.github.cruisoring.function.*;
-import io.github.cruisoring.utility.ArrayHelper;
 import io.github.cruisoring.utility.StringHelper;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,6 +16,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.github.cruisoring.Asserts.checkWithoutNull;
+
 /**
  * Functional Interface executioner to execute methods with expected 1-7 parameters as
  * either RunnableThrowable or SupplierThrowable depending on if it returns void or some result.
@@ -26,78 +25,19 @@ import java.util.stream.Stream;
 public class Functions<R> {
 
     /**
-     * Ensures that all object references passed as a parameter to the calling method is not null.
+     * Constructor with a Non-nullable ExceptionHandler to define behaviours when execute an WithValueReturned.
+     * Notice: thanks to the Java Type Erasing, the Functions instance created can be used with Lambda expressions of
+     * different return types.
      *
-     * @param reference a object reference
-     * @param others other references
-     * @return the first non-null reference that was validated
-     * @throws NullPointerException if {@code reference} is null
+     * @param exceptionHandler ExceptionHandler instance that could be defined as Lambda to either throw RuntimeException or
+     *                         return default value of type R.
+     * @param defaultReturner  generic Exception handler that handle the thrown Exception and return a default value
+     *                         expected by the withValueReturned
      */
-    public static <T> T checkNotNull(T reference, Object... others) {
-        if (reference == null) {
-            throw new NullPointerException();
-        }
-
-        int length = others.length;
-        if(length==0 && reference.getClass().isArray()){
-            length = Array.getLength(reference);
-            for (int i = 0; i < length; i++) {
-                if(Array.get(reference, i)==null) {
-                    throw new NullPointerException("The " + (1 + i) + "th reference is null!");
-                }
-            }
-            return (T) Array.get(reference, 0);
-        } else {
-            for (int i = 0; i < length; i++) {
-                if (others[i] == null) {
-                    throw new NullPointerException("The " + (1 + i) + "th reference is null!");
-                }
-            }
-            return reference;
-        }
-    }
-
-    /**
-     * Ensures that an object reference passed as a parameter to the calling method is not null.
-     *
-     * @param reference an object reference
-     * @param format template to compose the error message when {@code reference is null}
-     * @param args  arguments to compose the error message when {@code reference is null}
-     * @return the non-null reference that was validated
-     * @throws NullPointerException if {@code reference} is null
-     */
-    public static <T> T checkNotNull(T reference, String format, Object... args) {
-        if (reference == null) {
-            throw new NullPointerException(StringHelper.tryFormatString(format, args));
-        }
-        return reference;
-    }
-
-    /**
-     *Ensure the state represented by <tt>expression</tt> is true.
-     * @param expressions any number of boolean expressions
-     * @throws IllegalStateException if {@code expression} is false
-     */
-    public static void checkStates(boolean... expressions) {
-        int length = expressions.length;
-        for (int i = 0; i < length; i++) {
-            if(!expressions[i]){
-                throw new IllegalStateException("Failed with " + i + "th expresion");
-            }
-        }
-    }
-
-    /**
-     *Ensure the state represented by <tt>expression</tt> is true.
-     * @param expression a boolean expression
-     * @param format template to compose the error message when {@code reference is null}
-     * @param args  arguments to compose the error message when {@code reference is null}
-     * @throws IllegalStateException if {@code expression} is false
-     */
-    public static void checkState(boolean expression, String format, Object... args) {
-        if (!expression) {
-            throw new IllegalStateException();
-        }
+    public Functions(Consumer<Exception> exceptionHandler, BiFunction<Exception, WithValueReturned, Object> defaultReturner) {
+        checkWithoutNull(exceptionHandler);
+        this.handler = exceptionHandler;
+        this.defaultReturner = defaultReturner;
     }
 
     // Static Functions instance to simply throw RuntimeException whenever an Exception is caught.
@@ -130,19 +70,16 @@ public class Functions<R> {
     }
 
     /**
-     * Constructor with a Non-nullable ExceptionHandler to define behaviours when execute an WithValueReturned.
-     * Notice: thanks to the Java Type Erasing, the Functions instance created can be used with Lambda expressions of
-     * different return types.
-     *
-     * @param exceptionHandler ExceptionHandler instance that could be defined as Lambda to either throw RuntimeException or
-     *                         return default value of type R.
-     * @param defaultReturner  generic Exception handler that handle the thrown Exception and return a default value
-     *                         expected by the withValueReturned
+     *Ensure the state represented by <tt>expression</tt> is true.
+     * @param expression a boolean expression
+     * @param format template to compose the error message when {@code reference is null}
+     * @param args  arguments to compose the error message when {@code reference is null}
+     * @throws IllegalStateException if {@code expression} is false
      */
-    public Functions(Consumer<Exception> exceptionHandler, BiFunction<Exception, WithValueReturned, Object> defaultReturner) {
-        checkNotNull(exceptionHandler);
-        this.handler = exceptionHandler;
-        this.defaultReturner = defaultReturner;
+    public static void checkState(boolean expression, String format, Object... args) {
+        if (!expression) {
+            throw new IllegalStateException(StringHelper.tryFormatString(format, args));
+        }
     }
 
     /**
@@ -155,8 +92,8 @@ public class Functions<R> {
      */
     public static <R> Functions<R> buildFunctions(Consumer<Exception> exceptionHandler,
                                                   BiFunction<Exception, WithValueReturned, R> defaultValueFactory) {
-        checkNotNull(exceptionHandler);
-        checkNotNull(defaultValueFactory);
+        checkWithoutNull(exceptionHandler);
+        checkWithoutNull(defaultValueFactory);
         return new Functions(exceptionHandler, defaultValueFactory);
     }
 

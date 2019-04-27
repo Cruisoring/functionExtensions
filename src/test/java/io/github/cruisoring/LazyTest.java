@@ -7,7 +7,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static io.github.cruisoring.Asserts.*;
+
 
 public class LazyTest {
     public static List<String> logs = new ArrayList<>();

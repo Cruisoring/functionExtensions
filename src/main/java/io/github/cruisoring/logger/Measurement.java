@@ -16,8 +16,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import static io.github.cruisoring.Functions.checkNotNull;
-import static io.github.cruisoring.Functions.checkStates;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class Measurement {
     //Common columns used to log info
@@ -46,7 +45,7 @@ public class Measurement {
     }
 
     public static void save(String label, TupleRow details) {
-        checkNotNull(label, details);
+        checkWithoutNull(label, details);
 
         if (!namedMeasurements.containsKey(label)) {
             if (DefaultColumns == details.getColumnIndexes()) {
@@ -75,7 +74,7 @@ public class Measurement {
     }
 
     public static Tuple7<String, Long, Long, Long, Long, Long, Double> defaultSummaryOf(String label) {
-        TupleTable table = getMeasurements(checkNotNull(label));
+        TupleTable table = getMeasurements(checkWithoutNull(label));
         if (table == null || !Long.class.equals(table.getColumnElementType(DURATION))) {
             return null;
         }
@@ -120,7 +119,7 @@ public class Measurement {
     }
 
     public static <R> R measure(String label, int times, SupplierThrowable<R> supplierThrowable, LogLevel... levels){
-        checkNotNull(label, supplierThrowable);
+        checkWithoutNull(label, supplierThrowable);
 
         if(namedMeasurements.containsKey(label)){
             namedMeasurements.get(label).clear();
@@ -141,8 +140,8 @@ public class Measurement {
     }
 
     public static void measure(String label, int times, RunnableThrowable runnableThrowable, LogLevel... levels){
-        checkNotNull(label);
-        checkNotNull(runnableThrowable);
+        checkWithoutNull(label);
+        checkWithoutNull(runnableThrowable);
 
         if(namedMeasurements.containsKey(label)){
             namedMeasurements.get(label).clear();
@@ -174,7 +173,7 @@ public class Measurement {
         }
 
         Moment(String format, Object... args) {
-            checkNotNull(format);
+            checkWithoutNull(format);
             label = StringHelper.tryFormatString(format, args);
 
             //Ensure this is the last step to initialize the Moment instance

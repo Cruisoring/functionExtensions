@@ -6,8 +6,8 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static io.github.cruisoring.Functions.checkNotNull;
-import static io.github.cruisoring.Functions.checkStates;
+import static io.github.cruisoring.Asserts.checkStates;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public interface IColumns extends Map<String, Integer> {
 
@@ -76,7 +76,7 @@ public interface IColumns extends Map<String, Integer> {
      * otherwise a pair of indexes of both parites.
      */
     default WithValues2<Integer, Integer> mapIndexes(String columnName, IColumns other){
-        Integer thisIndex = get(checkNotNull(columnName));
+        Integer thisIndex = get(checkWithoutNull(columnName));
         if(thisIndex == -1){
             return null;
         } else if (other == this) {
@@ -144,7 +144,7 @@ public interface IColumns extends Map<String, Integer> {
     }
 
     default TupleRow asRow(WithValues tuple){
-        checkNotNull(tuple);
+        checkWithoutNull(tuple);
 
         int length = tuple.getLength();
         if(length == 0){
@@ -218,7 +218,7 @@ public interface IColumns extends Map<String, Integer> {
 
     //region Factory methods to create strong-typed TupleTables
     default TupleTable createTable(Supplier<List<WithValues>> rowsSupplier, Class... types){
-        checkNotNull(types);
+        checkWithoutNull(types);
 
         int length = types.length;
         switch (length) {

@@ -7,10 +7,10 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static io.github.cruisoring.Asserts.*;
+
 
 public class TupleTableDemoTest {
     @Test
@@ -176,14 +176,14 @@ public class TupleTableDemoTest {
 
         //The getColumnValues() can be casted to T[] if the type of the corresponding element has been declared as T
         String[] names = (String[]) scoresTable.getColumnValues(1);
-        assertTrue(Objects.deepEquals(new Long[]{1003L, 1008L, 1008L, 1011L}, scoresTable.getColumnValues(0)));
-        assertTrue(Objects.deepEquals(new String[]{"Apple Juicy", "Bob Peterson", "Clark Cooker", "David Simpson"}, names));
+        assertEquals(new Long[]{1003L, 1008L, 1008L, 1011L}, scoresTable.getColumnValues(0));
+        assertEquals(new String[]{"Apple Juicy", "Bob Peterson", "Clark Cooker", "David Simpson"}, names);
         //When the index is out of the TupleTable.width(), it would return null
         assertNull(scoresTable.getColumnValues(5));
 
         //It is also possible to retrieve column values by name
-        assertTrue(Objects.deepEquals(new Character[]{'F', 'M', 'M', 'M'}, scoresTable.getColumnValues("Gender")));
-        assertTrue(Objects.deepEquals(new Double[]{89.5, 99.0, 58.0, 77.5}, scoresTable.getColumnValues("Score")));
+        assertEquals(new Character[]{'F', 'M', 'M', 'M'}, scoresTable.getColumnValues("Gender"));
+        assertEquals(new Double[]{89.5, 99.0, 58.0, 77.5}, scoresTable.getColumnValues("Score"));
         //return null if the index is out of the scope of the TupleTable
         assertNull(scoresTable.getColumnValues("Note"));
     }

@@ -9,13 +9,12 @@ import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class TupleTable<R extends WithValues> implements ITable<R> {
     final IColumns columns;
@@ -23,7 +22,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     final Class[] elementTypes;
 
     protected TupleTable(Supplier<List<WithValues>> rowsSupplier, IColumns columns, Class... elementTypes){
-        this.columns = checkNotNull(columns, elementTypes);
+        this.columns = checkWithoutNull(columns, elementTypes);
         this.rows = rowsSupplier == null ? new ArrayList<>() : rowsSupplier.get();
         this.elementTypes = elementTypes;
     }
@@ -67,7 +66,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public WithValuesByName getRow(Map<String, Object> valuesByName){
-        int index = indexOf(checkNotNull(valuesByName));
+        int index = indexOf(checkWithoutNull(valuesByName));
 
         return getRow(index);
     }
@@ -79,7 +78,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         }
 
         //More efficient since the mapping is cached for later use
-        WithValues<Integer> mappedIndex = checkNotNull(viewColumns).mapIndexes(getColumns());
+        WithValues<Integer> mappedIndex = checkWithoutNull(viewColumns).mapIndexes(getColumns());
         if(mappedIndex.anyMatch(v -> v == null)){
             return null;        //Cannot find all columns
         }
@@ -107,7 +106,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public Stream<WithValuesByName> streamOfRows(Map<String, PredicateThrowable> expectedConditions){
-        checkNotNull(expectedConditions);
+        checkWithoutNull(expectedConditions);
         if(expectedConditions.isEmpty()){
             throw new IllegalArgumentException("No expections specified.");
         }
@@ -128,7 +127,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public ITable getView(IColumns viewColumns) {
-        checkNotNull(viewColumns);
+        checkWithoutNull(viewColumns);
 
         //More efficient since the mapping is cached for later use
         WithValues<Integer> mappedIndex = viewColumns.mapIndexes(getColumns());
@@ -154,7 +153,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public boolean replace(WithValuesByName row, Map<String, Object> newValues) {
-        checkNotNull(row, newValues);
+        checkWithoutNull(row, newValues);
 
         int index = indexOf(row);
         if(index < 0 || newValues.isEmpty()) {
@@ -176,7 +175,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public boolean update(WithValuesByName row, Map<String, FunctionThrowable<WithValuesByName, Object>> valueSuppliers){
-        checkNotNull(row, valueSuppliers);
+        checkWithoutNull(row, valueSuppliers);
 
         int index = indexOf(row);
         if(index < 0) {
@@ -199,7 +198,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public int updateAll(Stream<WithValuesByName> rowsToBeUpdate, Map<String, FunctionThrowable<WithValuesByName, Object>> valueSuppliers) {
-        checkNotNull(rowsToBeUpdate, valueSuppliers);
+        checkWithoutNull(rowsToBeUpdate, valueSuppliers);
 
         Map<Integer, String> indexedNames = getIndexedNames(valueSuppliers.keySet());
         Map<Integer, WithValues> replacements = new HashMap<>();

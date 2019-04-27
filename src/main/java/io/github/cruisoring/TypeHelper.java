@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class TypeHelper {
     private final static Class OBJECT_CLASS = Object.class;
@@ -427,7 +427,7 @@ public class TypeHelper {
     }
 
     private static <T> Function<Object, String> getDeepToString(Class<T> componentClass) {
-        checkNotNull(componentClass);
+        checkWithoutNull(componentClass);
         Function<Object, String> toString = (obj) -> {
             T[] objects = (T[]) obj;
             int length = objects.length;
@@ -745,8 +745,8 @@ public class TypeHelper {
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEquals(Object obj1, Object obj2, int[][] deepLength1, int[][] deepLength2) {
-        checkNotNull(deepLength1);
-        checkNotNull(deepLength2);
+        checkWithoutNull(deepLength1);
+        checkWithoutNull(deepLength2);
 
         if (!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
@@ -802,8 +802,8 @@ public class TypeHelper {
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEqualsParallel(Object obj1, Object obj2, int[][] deepLength1, int[][] deepLength2) {
-        checkNotNull(deepLength1);
-        checkNotNull(deepLength2);
+        checkWithoutNull(deepLength1);
+        checkWithoutNull(deepLength2);
 
         if (!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
@@ -858,8 +858,8 @@ public class TypeHelper {
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEqualsSerially(Object obj1, Object obj2, int[][] deepLength1, int[][] deepLength2) {
-        checkNotNull(deepLength1);
-        checkNotNull(deepLength2);
+        checkWithoutNull(deepLength1);
+        checkWithoutNull(deepLength2);
 
         if (!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
@@ -875,7 +875,7 @@ public class TypeHelper {
     //region Repository with Class as the key, to keep 7 common used attributes or operators
 
     private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(WithValueReturned lambda) {
-        checkNotNull(lambda);
+        checkWithoutNull(lambda);
 
         Class lambdaClass = lambda.getClass();
         ConstantPool constantPool = TypeHelper.getConstantPoolOfClass(lambdaClass);
@@ -956,8 +956,8 @@ public class TypeHelper {
      * @return <code>true</code> if they are equivalent, otherwise <code>false</code>
      */
     public static boolean areEquivalent(Class class1, Class class2) {
-        checkNotNull(class1);
-        checkNotNull(class2);
+        checkWithoutNull(class1);
+        checkWithoutNull(class2);
 
         return classOperators.getFirstValue(class1).test(class2);
     }
@@ -1050,7 +1050,6 @@ public class TypeHelper {
             return null;
         }
     }
-
 
     //region Repository to keep equivalent class and operators of given classes
 
@@ -1182,7 +1181,7 @@ public class TypeHelper {
      * @return true if and only if this class represents a primitive type or an array of primitive type elements
      */
     public static Boolean isPrimitive(Class clazz) {
-        checkNotNull(clazz);
+        checkWithoutNull(clazz);
         Boolean result = baseTypeConverters.getFirstValue(clazz);
         return result == null ? false : result;
     }
@@ -1200,7 +1199,7 @@ public class TypeHelper {
      * a zero-length array of the type of the class, when <code>EMPTY_ARRAY_AS_DEFAULT</code> is true by default
      */
     public static Object getDefaultValue(Class clazz) {
-        checkNotNull(clazz);
+        checkWithoutNull(clazz);
         return baseTypeConverters.getSecondValue(clazz);
     }
 
@@ -1218,7 +1217,7 @@ public class TypeHelper {
      * @return equivalent class of the concerned class
      */
     public static Class getEquivalentClass(Class clazz) {
-        checkNotNull(clazz);
+        checkWithoutNull(clazz);
         return baseTypeConverters.getThirdValue(clazz);
     }
 
@@ -1234,7 +1233,7 @@ public class TypeHelper {
      * @return The converter function to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentParallelConverter(Class clazz) {
-        checkNotNull(clazz);
+        checkWithoutNull(clazz);
         return baseTypeConverters.getFourthValue(clazz);
     }
 
@@ -1250,7 +1249,7 @@ public class TypeHelper {
      * @return The converter function to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentSerialConverter(Class clazz) {
-        checkNotNull(clazz);
+        checkWithoutNull(clazz);
         return baseTypeConverters.getFifthValue(clazz);
     }
 
@@ -1266,7 +1265,7 @@ public class TypeHelper {
      * @return The converter function to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentConverter(Class clazz) {
-        checkNotNull(clazz);
+        checkWithoutNull(clazz);
         return baseTypeConverters.getSixthValue(clazz);
     }
 
@@ -1296,17 +1295,17 @@ public class TypeHelper {
 
     private static Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>
     getDeepEvaluators(Class fromClass, Class toClass) throws Exception {
-        checkNotNull(fromClass);
-        checkNotNull(toClass);
+        checkWithoutNull(fromClass);
+        checkWithoutNull(toClass);
 
         boolean isFromArray = fromClass.isArray();
         boolean isToArray = toClass.isArray();
 
         if (!isFromArray && !isToArray) {
-            if (Objects.equals(fromClass, toClass)) {
+            if (valueEquals(fromClass, toClass)) {
                 //They are identical classes, no converter needed, user the Objects.equals as comparator
                 return Tuple.create(returnsSelf, returnsSelf, returnsSelf);
-            } else if (Objects.equals(getEquivalentClass(fromClass), toClass)) {
+            } else if (valueEquals(getEquivalentClass(fromClass), toClass)) {
                 //One class is primitive, another is its wrapper, so use corresponding converter
                 final Function<Object, Object> singleObjectConverter = getToEquivalentConverter(fromClass);
                 return Tuple.create(singleObjectConverter, singleObjectConverter, singleObjectConverter);
@@ -1485,9 +1484,9 @@ public class TypeHelper {
             return 0;
 
         Class objClass = obj.getClass();
-        if (!objClass.isArray())
-            return Objects.hashCode(obj);
-        else if (isPrimitive(objClass)) {
+        if (!objClass.isArray()) {
+            return obj.hashCode();
+        } else if (isPrimitive(objClass)) {
             obj = toEquivalent(obj);
         }
 

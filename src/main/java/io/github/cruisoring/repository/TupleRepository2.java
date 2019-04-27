@@ -5,9 +5,8 @@ import io.github.cruisoring.tuple.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
-import static io.github.cruisoring.Functions.checkNotNull;
+import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 /**
  * Generic repository use Tuple.Tuple2 as values to keep 2 elements mapped from a specific key
@@ -378,7 +377,7 @@ public class TupleRepository2<TKey, T, U>
      */
     @Override
     public Tuple2<T, U> update(TKey tKey, Tuple2<T, U> existingValue, Tuple2<T, U> newValue) throws Exception {
-        checkNotNull(newValue);
+        checkWithoutNull(newValue);
         return super.update(tKey, existingValue, newValue);
     }
 

@@ -3,9 +3,8 @@ package io.github.cruisoring.logger;
 import io.github.cruisoring.utility.ArrayHelper;
 import org.junit.Test;
 
-import java.util.Objects;
+import static io.github.cruisoring.Asserts.assertEquals;
 
-import static org.junit.Assert.*;
 
 public class MeasureTest {
 
@@ -38,9 +37,9 @@ public class MeasureTest {
         Measurement.measure("setAllSerial", times, () -> ArrayHelper.setAllSerial(integers3, i -> (31+i)*i + 31), LogLevel.info);
         Measurement.measure("conventional", times, () -> fillArray(integers4), LogLevel.info);
 
-        assertTrue(Objects.deepEquals(integers1, integers2));
-        assertTrue(Objects.deepEquals(integers3, integers2));
-        assertTrue(Objects.deepEquals(integers3, integers4));
+        assertEquals(integers1, integers2);
+        assertEquals(integers3, integers2);
+        assertEquals(integers3, integers4);
     }
 
     @Test
@@ -48,6 +47,6 @@ public class MeasureTest {
         Integer[] array1 = Measurement.measure("conventional", times, this::getArray, LogLevel.info);
         Object array2 = Measurement.measure("create", times, () -> ArrayHelper.create(Integer.class, length, i -> (31+i)*i + 31), LogLevel.debug);
 
-        assertTrue(Objects.deepEquals(array1, array2));
+        assertEquals(array1, array2);
     }
 }
