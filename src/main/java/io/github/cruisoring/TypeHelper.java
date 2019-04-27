@@ -248,7 +248,7 @@ public class TypeHelper {
                         , convertWithCasting
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> ((Boolean) fromElement).booleanValue();
+                convertWithCasting = fromElement -> (Boolean) fromElement;
                 put(Boolean.class, Tuple.create(
                         false
                         , false
@@ -264,7 +264,7 @@ public class TypeHelper {
                         , convertWithCasting
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> ((Byte) fromElement).byteValue();
+                convertWithCasting = fromElement -> (Byte) fromElement;
                 put(Byte.class, Tuple.create(
                         false
                         , (byte) 0
@@ -280,7 +280,7 @@ public class TypeHelper {
                         , convertWithCasting
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> ((Character) fromElement).charValue();
+                convertWithCasting = fromElement -> (Character) fromElement;
                 put(Character.class, Tuple.create(
                         false
                         , (char) 0
@@ -296,7 +296,7 @@ public class TypeHelper {
                         , convertWithCasting
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> ((Double) fromElement).doubleValue();
+                convertWithCasting = fromElement -> (Double) fromElement;
                 put(Double.class, Tuple.create(
                         false
                         , 0d
@@ -312,7 +312,7 @@ public class TypeHelper {
                         , convertWithCasting
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> ((Float) fromElement).floatValue();
+                convertWithCasting = fromElement -> (Float) fromElement;
                 put(Float.class, Tuple.create(
                         false
                         , 0f
@@ -328,7 +328,7 @@ public class TypeHelper {
                         , convertWithCasting
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> ((Integer) fromElement).intValue();
+                convertWithCasting = fromElement -> (Integer) fromElement;
                 put(Integer.class, Tuple.create(
                         false
                         , 0
@@ -344,7 +344,7 @@ public class TypeHelper {
                         , convertWithCasting
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> ((Long) fromElement).longValue();
+                convertWithCasting = fromElement -> (Long) fromElement;
                 put(Long.class, Tuple.create(
                         false
                         , 0L
@@ -360,7 +360,7 @@ public class TypeHelper {
                         , convertWithCasting
                         , convertWithCasting
                         , convertWithCasting));
-                convertWithCasting = fromElement -> ((Short) fromElement).shortValue();
+                convertWithCasting = fromElement -> (Short) fromElement;
                 put(Short.class, Tuple.create(
                         false
                         , (short) 0
@@ -488,8 +488,8 @@ public class TypeHelper {
         int selfLength = selfIndexes.length;
         int[] fullPath = Arrays.copyOfRange(fromRoot, 0, fromLength + selfLength);
 
-        for (int i = 0, j = fromLength; i < selfLength; i++) {
-            fullPath[j + i] = selfIndexes[i];
+        for (int i = 0; i < selfLength; i++) {
+            fullPath[fromLength + i] = selfIndexes[i];
         }
         return fullPath;
     }
@@ -886,7 +886,6 @@ public class TypeHelper {
                 functionInterfaceMethod = (Method) constantPool.getMethodAt(index);
                 break;
             } catch (Exception ex) {
-                continue;
             }
         }
         Class[] parameterClasses = functionInterfaceMethod.getParameterTypes();
@@ -1290,11 +1289,11 @@ public class TypeHelper {
     //region Repository to keep deep converters of two classes
 
     private static Map<Tuple2<Class, Class>, Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>> getConverterMap() {
-        return new HashMap<Tuple2<Class, Class>, Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>>();
+        return new HashMap<>();
     }
 
     private static Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>
-    getDeepEvaluators(Class fromClass, Class toClass) throws Exception {
+    getDeepEvaluators(Class fromClass, Class toClass) {
         checkWithoutNull(fromClass);
         checkWithoutNull(toClass);
 
@@ -1506,15 +1505,13 @@ public class TypeHelper {
      * array.  If the array contains other arrays as elements, the string
      * representation contains their contents and so on.  This method is
      * designed for converting multidimensional arrays to strings.
-     * <p>
-     * <p>The string representation consists of a list of the array's
+     * The string representation consists of a list of the array's
      * elements, enclosed in square brackets (<tt>"[]"</tt>).  Adjacent
      * elements are separated by the characters <tt>", "</tt> (a comma
      * followed by a space).  Elements are converted to strings as by
      * <tt>String.valueOf(Object)</tt>, unless they are themselves
      * arrays.
-     * <p>
-     * <p>This method returns <tt>"null"</tt> if the specified array
+     * This method returns <tt>"null"</tt> if the specified array
      * is <tt>null</tt>.
      *
      * @param obj the object whose string representation to be returned

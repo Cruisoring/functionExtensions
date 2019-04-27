@@ -24,7 +24,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * Retrieve ALL column columns of a RowDataSupplier, return them as a list with non-key columns before all key columns.
      * Thus both Update and Insert SQL statements could use data in this order.
      *
-     * @return
+     * @return {@code IColumns} instance used by this {@code ITable} as its headers.
      */
     IColumns getColumns();
 
@@ -142,25 +142,25 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
 
 
     /**
-     * Get all rows of values as an array of {@WithValuesByName}
+     * Get all rows of values as an array of {@code WithValuesByName}
      *
-     * @return the array of {@WithValuesByName}, each represent the corresponding elements with the {@code IColumns} of this table
+     * @return the array of {@code WithValuesByName}, each represent the corresponding elements with the {@code IColumns} of this table
      */
     WithValuesByName[] getAllRows();
 
     /**
-     * Get all rows meeting expected conditions as an array of {@WithValuesByName}.
+     * Get all rows meeting expected conditions as an array of {@code WithValuesByName}.
      *
-     * @paramc expectedConditions the predicates for values identified by names
-     * @return the array of {@WithValuesByName}, each represent the corresponding elements with the {@code IColumns} of this table
+     * @param expectedConditions the predicates for values identified by names
+     * @return the array of {@code WithValuesByName}, each represent the corresponding elements with the {@code IColumns} of this table
      */
     WithValuesByName[] getAllRows(Map<String, PredicateThrowable> expectedConditions);
 
     /**
-     * Get all rows meeting expected conditions as a Stream of {@WithValuesByName}.
+     * Get all rows meeting expected conditions as a Stream of {@code WithValuesByName}.
      *
      * @param expectedConditions the predicates for values identified by names
-     * @return  the Stream of {@WithValuesByName} all meet conditions specified.
+     * @return the Stream of {@code WithValuesByName} all meet conditions specified.
      */
     Stream<WithValuesByName> streamOfRows(Map<String, PredicateThrowable> expectedConditions);
 
@@ -168,7 +168,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * Get specific values of concerned row and represent with different columns
      * @param rowIndex      the Index of the concnerned row (0 based)
      * @param viewColumns   {@code IColumns} of another view with same or different number of columns with different names
-     * @return  {@ WithValuesByName} with values of names specified by the {@code viewColumns}
+     * @return  {@code WithValuesByName} with values of names specified by the {@code viewColumns}
      */
     WithValuesByName getRow(int rowIndex, IColumns viewColumns);
 

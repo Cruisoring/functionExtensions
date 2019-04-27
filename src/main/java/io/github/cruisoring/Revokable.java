@@ -15,7 +15,7 @@ import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 /**
  * Utility class to enable automatic revoking.
- * @param <T>
+ * @param <T>   Type of the settings to be updated/revoked.
  */
 public class Revokable<T> implements AutoCloseable {
     //Identifier to locate the caller stack trace quickly
@@ -33,7 +33,7 @@ public class Revokable<T> implements AutoCloseable {
      * @param <T>           type of the setting.
      */
     public static <T> void register(Supplier <T> getter, ConsumerThrowable<T> setter, T newSetting){
-        Revokable revokable = new Revokable(getter, setter, newSetting);
+        Revokable<T> revokable = new Revokable(getter, setter, newSetting);
         if(revokable.revoker != null){
             All.add(revokable);
         }

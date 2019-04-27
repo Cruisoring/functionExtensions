@@ -54,10 +54,10 @@ public class ArrayHelper<T, R> {
      * @param clazz  Type of the elements of the array
      * @param length Length of the array
      * @param defaultValue defaultValue to fill the newly generated array.
+     * @param <T> element type of the new array.
      * @return Array of the specific length of the specific elements if <code>clazz</code> and <code>length</code>
      * are set correctly; otherwise returns null
      */
-
     public static <T> T[] getNewArray(Class<? extends T> clazz, int length, T defaultValue) {
         T[] array =(T[])  (clazz == Object.class ? new Object[length] : TypeHelper.getArrayFactory(clazz).orElse(null).apply(length));
 
@@ -73,6 +73,7 @@ public class ArrayHelper<T, R> {
      * @param clazz  Type of the elements of the array
      * @param length Length of the array
      * @param elementSupplier supplier to get element based on index
+     * @param <T> element type of the new array.
      * @return Array of the specific length of the specific elements if <code>clazz</code> and <code>length</code>
      * are set correctly; otherwise returns null
      */
@@ -222,28 +223,28 @@ public class ArrayHelper<T, R> {
                 , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
                 , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>>> map = new HashMap();
         BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> parallelSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
-            Arrays.parallelSetAll((int[]) array, i -> ((Integer) intFunction.orElse(0).apply(i)).intValue());
+            Arrays.parallelSetAll((int[]) array, i -> (Integer) intFunction.orElse(0).apply(i));
         };
         BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> serialSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
-            Arrays.setAll((int[]) array, i -> ((Integer) intFunction.orElse(0).apply(i)).intValue());
+            Arrays.setAll((int[]) array, i -> (Integer) intFunction.orElse(0).apply(i));
         };
         BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>> setAll = serialSetAll;
         map.put(int.class, Tuple.create(parallelSetAll, serialSetAll, setAll));
 
         parallelSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
-            Arrays.parallelSetAll((double[]) array, i -> ((Double) intFunction.orElse(0d).apply(i)).doubleValue());
+            Arrays.parallelSetAll((double[]) array, i -> (Double) intFunction.orElse(0d).apply(i));
         };
         serialSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
-            Arrays.setAll((double[]) array, i -> ((Double) intFunction.orElse(0).apply(i)).doubleValue());
+            Arrays.setAll((double[]) array, i -> (Double) intFunction.orElse(0).apply(i));
         };
         setAll = serialSetAll;
         map.put(double.class, Tuple.create(parallelSetAll, serialSetAll, setAll));
 
         parallelSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
-            Arrays.parallelSetAll((long[]) array, i -> ((Long) intFunction.orElse(0L).apply(i)).longValue());
+            Arrays.parallelSetAll((long[]) array, i -> (Long) intFunction.orElse(0L).apply(i));
         };
         serialSetAll = (Object array, FunctionThrowable<Integer, Object> intFunction) -> {
-            Arrays.setAll((long[]) array, i -> ((Long) intFunction.orElse(0L).apply(i)).longValue());
+            Arrays.setAll((long[]) array, i -> (Long) intFunction.orElse(0L).apply(i));
         };
         setAll = serialSetAll;
         map.put(long.class, Tuple.create(parallelSetAll, serialSetAll, setAll));
@@ -310,7 +311,7 @@ public class ArrayHelper<T, R> {
     public static void setAllParallel(Object array, FunctionThrowable<Integer, Object> generator) {
         try {
             arraySetters.getFirstValue(getComponentType(array)).accept(array, generator);
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -323,7 +324,7 @@ public class ArrayHelper<T, R> {
     public static void setAllSerial(Object array, FunctionThrowable<Integer, Object> generator) {
         try {
             arraySetters.getSecondValue(getComponentType(array)).accept(array, generator);
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
     }
 
