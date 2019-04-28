@@ -82,23 +82,23 @@ public class ColumnsTest {
 
     @Test
     public void containsKey() {
-        assertTrue(shared.containsKey("ID"));
-        assertTrue(shared.containsKey("Given Name"));
-        assertTrue(shared.containsKey("Address"));
+        assertTrue(shared.containsKey("ID"),
+                shared.containsKey("Given Name"),
+                shared.containsKey("Address"));
 
-        assertFalse(shared.containsKey(0));
-        assertFalse(shared.containsKey("Id"));
-        assertFalse(shared.containsKey(null));
+        assertFalse(shared.containsKey(0),
+                shared.containsKey("Id"),
+                shared.containsKey(null));
     }
 
     @Test
     public void containsValue() {
-        assertTrue(shared.containsValue(0));
-        assertTrue(shared.containsValue(1));
-        assertTrue(shared.containsValue(2));
-        assertTrue(shared.containsValue(3));
-        assertTrue(shared.containsValue(4));
-        assertTrue(shared.containsValue(5));
+        assertTrue(shared.containsValue(0),
+                shared.containsValue(1),
+                shared.containsValue(2),
+                shared.containsValue(3),
+                shared.containsValue(4),
+                shared.containsValue(5));
     }
 
     @Test

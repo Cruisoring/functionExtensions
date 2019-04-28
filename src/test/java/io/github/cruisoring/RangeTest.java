@@ -236,23 +236,23 @@ public class RangeTest {
         range = Range.indexesOfLength(0);
         assertEquals(Range.NONE, range);
         assertEquals("[0, 0)", range.toString());
-        assertFalse(range.contains(0));
-        assertFalse(range.contains(1));
-        assertFalse(range.contains(-1));
+        assertFalse(range.contains(0),
+                range.contains(1),
+                range.contains(-1));
 
         range = Range.indexesOfLength(1);
         assertEquals("[0, 1)", range.toString());
         assertTrue(range.contains(0));
-        assertFalse(range.contains(1));
-        assertFalse(range.contains(-1));
+        assertFalse(range.contains(1),
+                range.contains(-1));
 
         range = Range.indexesOfLength(3);
         assertEquals("[0, 3)", range.toString());
-        assertTrue(range.contains(0));
-        assertTrue(range.contains(1));
-        assertTrue(range.contains(2));
-        assertFalse(range.contains(3));
-        assertFalse(range.contains(-1));
+        assertTrue(range.contains(0),
+                range.contains(1),
+                range.contains(2));
+        assertFalse(range.contains(3),
+                range.contains(-1));
     }
 
     @Test
@@ -263,32 +263,32 @@ public class RangeTest {
         Range range1_2 = new Range(1, 2);
 
         assertTrue(range0_0.contains(range0_0));
-        assertFalse(range0_0.contains(range0_1));
-        assertFalse(range0_0.contains(range1_1));
-        assertFalse(range0_0.contains(range1_2));
+        assertFalse(range0_0.contains(range0_1),
+                range0_0.contains(range1_1),
+                range0_0.contains(range1_2));
 
         assertTrue(range1_2.contains(range1_1));
-        assertFalse(range1_2.contains(range0_0));
-        assertFalse(range1_2.contains(range0_1));
+        assertFalse(range1_2.contains(range0_0),
+                range1_2.contains(range0_1));
 
         Range range2_4 = new Range(2, 4);
         Range range3_4 = new Range(3, 4);
-        assertFalse(range2_4.contains(range0_0));
-        assertFalse(range2_4.contains(range1_1));
-        assertFalse(range2_4.contains(range1_2));
+        assertFalse(range2_4.contains(range0_0),
+                range2_4.contains(range1_1),
+                range2_4.contains(range1_2));
         assertTrue(range2_4.contains(range3_4));
 
         Range range0_9 = Range.indexesOfLength(9);
-        assertTrue(range0_9.contains(range0_1));
-        assertTrue(range0_9.contains(range1_1));
-        assertTrue(range0_9.contains(range1_2));
-        assertTrue(range0_9.contains(range2_4));
-        assertTrue(range0_9.contains(range3_4));
+        assertTrue(range0_9.contains(range0_1),
+                range0_9.contains(range1_1),
+                range0_9.contains(range1_2),
+                range0_9.contains(range2_4),
+                range0_9.contains(range3_4));
 
         Range range0_9_2 = Range.indexesOfLength(9);
         Range range0_15 = Range.indexesOfLength(15);
-        assertTrue(range0_9.contains(range0_9_2));
-        assertTrue(range0_15.contains(range0_9));
+        assertTrue(range0_9.contains(range0_9_2),
+                range0_15.contains(range0_9));
     }
 
     @Test
@@ -336,43 +336,43 @@ public class RangeTest {
     public void overlaps() {
         Range range1_4 = new Range(1, 4);
 
-        assertFalse(range1_4.overlaps(new Range(-1, 0)));
-        assertFalse(range1_4.overlaps(new Range(0, 1)));
-        assertFalse(range1_4.overlaps(new Range(4, 7)));
-        assertFalse(range1_4.overlaps(new Range(1, 2)));
-        assertFalse(range1_4.overlaps(new Range(1, 4)));
-        assertFalse(range1_4.overlaps(new Range(2, 4)));
-        assertFalse(range1_4.overlaps(Range.aboveOpen(0)));
-        assertFalse(range1_4.overlaps(Range.aboveClosed(0)));
-        assertFalse(range1_4.overlaps(Range.aboveOpen(3)));
-        assertFalse(range1_4.overlaps(Range.aboveOpen(-3)));
-        assertFalse(range1_4.overlaps(Range.belowOpen(1)));
-        assertFalse(range1_4.overlaps(Range.belowOpen(-1)));
-        assertFalse(range1_4.overlaps(Range.belowOpen(4)));
+        assertFalse(range1_4.overlaps(new Range(-1, 0)),
+                range1_4.overlaps(new Range(0, 1)),
+                range1_4.overlaps(new Range(4, 7)),
+                range1_4.overlaps(new Range(1, 2)),
+                range1_4.overlaps(new Range(1, 4)),
+                range1_4.overlaps(new Range(2, 4)),
+                range1_4.overlaps(Range.aboveOpen(0)),
+                range1_4.overlaps(Range.aboveClosed(0)),
+                range1_4.overlaps(Range.aboveOpen(3)),
+                range1_4.overlaps(Range.aboveOpen(-3)),
+                range1_4.overlaps(Range.belowOpen(1)),
+                range1_4.overlaps(Range.belowOpen(-1)),
+                range1_4.overlaps(Range.belowOpen(4)));
 
-        assertTrue(range1_4.overlaps(new Range(-1, 2)));
-        assertTrue(range1_4.overlaps(new Range(0, 3)));
-        assertTrue(range1_4.overlaps(new Range(3, 7)));
-        assertTrue(range1_4.overlaps(new Range(2, 9)));
-        assertTrue(range1_4.overlaps(Range.aboveOpen(1)));
-        assertTrue(range1_4.overlaps(Range.aboveOpen(2)));
-        assertTrue(range1_4.overlaps(Range.aboveClosed(2)));
-        assertTrue(range1_4.overlaps(Range.aboveClosed(3)));
-        assertTrue(range1_4.overlaps(Range.belowOpen(3)));
-        assertTrue(range1_4.overlaps(Range.belowOpen(2)));
-        assertTrue(range1_4.overlaps(Range.belowClosed(1)));
+        assertTrue(range1_4.overlaps(new Range(-1, 2)),
+                range1_4.overlaps(new Range(0, 3)),
+                range1_4.overlaps(new Range(3, 7)),
+                range1_4.overlaps(new Range(2, 9)),
+                range1_4.overlaps(Range.aboveOpen(1)),
+                range1_4.overlaps(Range.aboveOpen(2)),
+                range1_4.overlaps(Range.aboveClosed(2)),
+                range1_4.overlaps(Range.aboveClosed(3)),
+                range1_4.overlaps(Range.belowOpen(3)),
+                range1_4.overlaps(Range.belowOpen(2)),
+                range1_4.overlaps(Range.belowClosed(1)));
 
         Range range2_2 = new Range(2, 2);
-        assertFalse(range2_2.overlaps(new Range(-1, 0)));
-        assertFalse(range2_2.overlaps(new Range(0, 1)));
-        assertFalse(range2_2.overlaps(new Range(4, 7)));
-        assertFalse(range2_2.overlaps(new Range(1, 2)));
-        assertFalse(range2_2.overlaps(new Range(1, 4)));
-        assertFalse(range2_2.overlaps(new Range(2, 4)));
-        assertFalse(range2_2.overlaps(Range.aboveOpen(3)));
-        assertFalse(range2_2.overlaps(Range.aboveOpen(-3)));
-        assertFalse(range2_2.overlaps(Range.belowOpen(1)));
-        assertFalse(range2_2.overlaps(Range.belowOpen(-1)));
+        assertFalse(range2_2.overlaps(new Range(-1, 0)),
+                range2_2.overlaps(new Range(0, 1)),
+                range2_2.overlaps(new Range(4, 7)),
+                range2_2.overlaps(new Range(1, 2)),
+                range2_2.overlaps(new Range(1, 4)),
+                range2_2.overlaps(new Range(2, 4)),
+                range2_2.overlaps(Range.aboveOpen(3)),
+                range2_2.overlaps(Range.aboveOpen(-3)),
+                range2_2.overlaps(Range.belowOpen(1)),
+                range2_2.overlaps(Range.belowOpen(-1)));
     }
 
     @Test

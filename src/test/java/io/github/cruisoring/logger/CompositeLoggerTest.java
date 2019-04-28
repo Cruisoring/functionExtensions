@@ -3,6 +3,7 @@ package io.github.cruisoring.logger;
 import io.github.cruisoring.Revokable;
 import org.junit.Test;
 
+import static io.github.cruisoring.Asserts.assertFalse;
 import static io.github.cruisoring.Asserts.assertTrue;
 
 public class CompositeLoggerTest {
@@ -22,9 +23,12 @@ public class CompositeLoggerTest {
 
             String logs1 = logger1.getHistory();
             String logs2 = logger2.getHistory();
-            assertTrue(logs1.contains("verbose shall be logged by logger1") && !logs2.contains("verbose shall be logged by logger1"));
-            assertTrue(logs1.contains("debug shall be loggered by both logger1 and oldLogger") && !logs2.contains("debug shall be loggered by both logger1 and oldLogger"));
-            assertTrue(logs1.contains("info shall be logged by all 3 ILogger instances") && logs2.contains("info shall be logged by all 3 ILogger instances"));
+            assertTrue(logs1.contains("verbose shall be logged by logger1"),
+                    !logs2.contains("verbose shall be logged by logger1"));
+            assertTrue(logs1.contains("debug shall be loggered by both logger1 and oldLogger"),
+                    !logs2.contains("debug shall be loggered by both logger1 and oldLogger"));
+            assertTrue(logs1.contains("info shall be logged by all 3 ILogger instances"),
+                    logs2.contains("info shall be logged by all 3 ILogger instances"));
 
             old = oldLogger.getValue();
             assertTrue(Logger.Default != old);
@@ -41,10 +45,14 @@ public class CompositeLoggerTest {
 
             String logs1 = logger1.getHistory();
             String logs2 = logger2.getHistory();
-            assertTrue(!logs1.contains("verbose2 shall be logged by logger1") && !logs2.contains("verbose2 shall be logged by logger1"));
-            assertTrue(!logs1.contains("debug2 shall be loggered by both logger1 and oldLogger") && !logs2.contains("debug2 shall be loggered by both logger1 and oldLogger"));
-            assertTrue(!logs1.contains("info2 shall be logged by all 3 ILogger instances") && !logs2.contains("info2 shall be logged by all 3 ILogger instances"));
-            assertTrue(logs1.contains("error shall be logged by all 3 ILogger instances") && logs2.contains("error shall be logged by all 3 ILogger instances"));
+            assertFalse(logs1.contains("verbose2 shall be logged by logger1"),
+                    logs2.contains("verbose2 shall be logged by logger1"));
+            assertFalse(logs1.contains("debug2 shall be loggered by both logger1 and oldLogger"),
+                    logs2.contains("debug2 shall be loggered by both logger1 and oldLogger"));
+            assertFalse(logs1.contains("info2 shall be logged by all 3 ILogger instances"),
+                    logs2.contains("info2 shall be logged by all 3 ILogger instances"));
+            assertFalse(logs1.contains("error shall be logged by all 3 ILogger instances"),
+                    logs2.contains("error shall be logged by all 3 ILogger instances"));
 
             old = oldLogger.getValue();
             assertTrue(Logger.Default != old);

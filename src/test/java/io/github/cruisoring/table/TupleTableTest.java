@@ -13,11 +13,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static io.github.cruisoring.Asserts.assertEquals;
-import static io.github.cruisoring.Asserts.assertFalse;
+import static io.github.cruisoring.Asserts.*;
 import static io.github.cruisoring.TypeHelper.valueEquals;
-import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.assertTrue;
 
 public class TupleTableTest {
 
@@ -61,7 +58,7 @@ public class TupleTableTest {
         table2.addValues(Tuple.create("", null));
         assertEquals(4, table2.size());
 
-        IColumns indexes = (IColumns)table2.getColumns();
+        IColumns indexes = table2.getColumns();
         assertEquals(new TupleRow(indexes, Tuple.create("Test", 123)), table2.getRow(0));
         assertEquals(new TupleRow(indexes, Tuple.create(null, null)), table2.getRow(1));
         assertEquals(new TupleRow(indexes, Tuple.create("Test", 123)), table2.getRow(2));
@@ -151,9 +148,9 @@ public class TupleTableTest {
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create("", null));
 
-        assertTrue(table2.contains(Tuple.create("Test", 123)));
-        assertTrue(table2.contains(Tuple.create(null, null)));
-        assertTrue(table2.contains(Tuple.create("", null)));
+        assertTrue(table2.contains(Tuple.create("Test", 123)),
+                table2.contains(Tuple.create(null, null)),
+                table2.contains(Tuple.create("", null)));
     }
 
     @Test

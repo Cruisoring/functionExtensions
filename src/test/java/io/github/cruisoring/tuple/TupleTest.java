@@ -4,7 +4,6 @@ import io.github.cruisoring.Functions;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.logger.Logger;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.DayOfWeek;
@@ -12,7 +11,6 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static io.github.cruisoring.Asserts.*;
-import static io.github.cruisoring.TypeHelper.valueEquals;
 
 public class TupleTest {
     public static List<String> closeMessages = new ArrayList<>();
@@ -71,16 +69,19 @@ public class TupleTest {
     @Test
     public void testValueEquals() {
         assertEquals(new int[]{1, 2, 3}, new Integer[]{1, 2, 3});
-        assertTrue(valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
-                new Object[]{new Integer[]{1, 2, 3}, new Integer[0], null, new int[]{4, 5}}));
-        assertTrue(valueEquals(new int[][]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
-                new Integer[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
+        assertEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+                new Object[]{new Integer[]{1, 2, 3}, new Integer[0], null, new int[]{4, 5}});
+        assertEquals(new int[][]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+                new Integer[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}});
 
-        assertTrue(valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
-                new Comparable[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
+        assertEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+                new Comparable[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}});
 
-        assertFalse(valueEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
-                new Number[][]{new Number[]{1, 2, 3}, new Number[0], null, new Number[]{4.0, 5}}));
+        assertNotEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+                new Number[][]{new Number[]{1, 2, 3}, new Number[0], null, new Number[]{4, 5}}, true);
+
+        assertEquals(new Object[]{new int[]{1, 2, 3}, new int[0], null, new int[]{4, 5}},
+                new Number[][]{new Number[]{1, 2, 3}, new Number[0], null, new Number[]{4, 5}});
     }
 
     @Test
@@ -146,8 +147,7 @@ public class TupleTest {
 
     @Test
     public void create0() {
-        assertTrue(tuple0 instanceof Tuple0);
-        assertTrue(tuple0 instanceof Tuple);
+        assertTrue(tuple0 instanceof Tuple0, tuple0 instanceof Tuple);
         assertFalse(tuple0 instanceof Tuple1);
         assertEquals(tuple0, Tuple.UNIT);
         assertEquals(0, tuple0.getLength());
@@ -174,8 +174,8 @@ public class TupleTest {
         assertEquals(2, tuple2.getLength());
         assertEquals(2, boolSet2.getLength());
         assertEquals(2, boolSet2.getLength());
-        assertTrue(tuple2 instanceof Tuple2);
-        assertTrue(tuple2 instanceof Tuple);
+        assertTrue(tuple2 instanceof Tuple2,
+                tuple2 instanceof Tuple);
 
         assertTrue(boolSet2 instanceof Tuple);
         assertEquals(boolSet2, Tuple.setOf(Boolean.valueOf(true), Boolean.valueOf("false")));
@@ -183,9 +183,9 @@ public class TupleTest {
         assertEquals(2, _2.getLength());
         assertTrue(_2 instanceof Tuple2);
         Tuple2 _dual = (Tuple2) _2;
-        assertTrue(_dual.getFirst() == null);
-        assertTrue(_dual.getSecond() == null);
-        assertTrue(nullDual.getFirst() == null);
+        assertNull(_dual.getFirst(),
+                _dual.getSecond(),
+                nullDual.getFirst());
         assertEquals(nullDual, _dual);
     }
 
@@ -247,7 +247,7 @@ public class TupleTest {
         A<String> item6 = hepta.getSixth();
         PredicateThrowable<A> item7 = hepta.getSeventh();
         assertEquals(false, item2);
-        Assert.assertEquals(false, Functions.ReturnsDefaultValue.apply(() -> item7.test(item6)));
+        assertEquals(false, Functions.ReturnsDefaultValue.apply(() -> item7.test(item6)));
     }
 
     @Test

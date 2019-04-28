@@ -36,11 +36,11 @@ public class LoggerTest {
 
     @Test
     public void testCompareLogLevel() {
-        assertTrue(LogLevel.none.compareTo(LogLevel.error) > 0 && LogLevel.none.compareTo(LogLevel.verbose) > 0);
-        assertTrue(LogLevel.verbose.compareTo(LogLevel.none) < 0 && LogLevel.error.compareTo(LogLevel.none) < 0);
+        assertTrue(LogLevel.none.compareTo(LogLevel.error) > 0, LogLevel.none.compareTo(LogLevel.verbose) > 0);
+        assertTrue(LogLevel.verbose.compareTo(LogLevel.none) < 0, LogLevel.error.compareTo(LogLevel.none) < 0);
 
-        assertTrue(LogLevel.verbose.compareTo(LogLevel.verbose) == 0 && LogLevel.verbose.compareTo(LogLevel.debug) < 0);
-        assertTrue(LogLevel.error.compareTo(LogLevel.error) >= 0 && LogLevel.error.compareTo(LogLevel.verbose) >= 0);
+        assertTrue(LogLevel.verbose.compareTo(LogLevel.verbose) == 0, LogLevel.verbose.compareTo(LogLevel.debug) < 0);
+        assertTrue(LogLevel.error.compareTo(LogLevel.error) >= 0, LogLevel.error.compareTo(LogLevel.verbose) >= 0);
     }
 
     @Test
@@ -50,21 +50,19 @@ public class LoggerTest {
             ILogger defaultLogger = Logger.Default;
 
             Logger.setGlobalLevel(LogLevel.none);
-            assertFalse(Logger.Default.canLog(defaultLogger.getMinLevel()));
-            assertFalse(Logger.Default.canLog(LogLevel.error));
+            assertFalse(Logger.Default.canLog(defaultLogger.getMinLevel()), Logger.Default.canLog(LogLevel.error));
 
             Logger.setGlobalLevel(LogLevel.verbose);
             Logger.V("The minLevel of Logger.Default is %s", defaultLogger.getMinLevel());
-            assertTrue(Logger.Default.canLog(defaultLogger.getMinLevel()));
-            assertTrue(Logger.Default.canLog(LogLevel.error));
+            assertTrue(Logger.Default.canLog(defaultLogger.getMinLevel()), Logger.Default.canLog(LogLevel.error));
 
             Logger newLogger = new Logger(System.err::println, LogLevel.warning);
-            assertTrue(newLogger.canLog(LogLevel.warning) && newLogger.canLog(LogLevel.error));
-            assertFalse(newLogger.canLog(LogLevel.verbose) || newLogger.canLog(LogLevel.debug) || newLogger.canLog(LogLevel.info));
+            assertTrue(newLogger.canLog(LogLevel.warning), newLogger.canLog(LogLevel.error));
+            assertFalse(newLogger.canLog(LogLevel.verbose), newLogger.canLog(LogLevel.debug), newLogger.canLog(LogLevel.info));
 
             Logger.setGlobalLevel(LogLevel.none);
-            assertFalse(newLogger.canLog(LogLevel.verbose) || newLogger.canLog(LogLevel.debug) || newLogger.canLog(LogLevel.info)
-                    || newLogger.canLog(LogLevel.warning) || newLogger.canLog(LogLevel.error));
+            assertFalse(newLogger.canLog(LogLevel.verbose), newLogger.canLog(LogLevel.debug), newLogger.canLog(LogLevel.info),
+                    newLogger.canLog(LogLevel.warning), newLogger.canLog(LogLevel.error));
 
         } finally {
             Logger.setGlobalLevel(defaultLevel);

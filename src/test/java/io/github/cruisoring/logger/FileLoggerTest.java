@@ -20,14 +20,19 @@ public class FileLoggerTest {
         LogLevel currentLevel = Logger.getGlobalLogLevel();
         try (Revokable<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
             Logger.setGlobalLevel(LogLevel.info);
-            assertTrue(fileLogger.canLog(LogLevel.info) && fileLogger.canLog(LogLevel.warning) && fileLogger.canLog(LogLevel.warning));
-            assertFalse(fileLogger.canLog(LogLevel.verbose) || fileLogger.canLog(LogLevel.debug));
+            assertTrue(fileLogger.canLog(LogLevel.info),
+                    fileLogger.canLog(LogLevel.warning),
+                    fileLogger.canLog(LogLevel.warning));
+            assertFalse(fileLogger.canLog(LogLevel.verbose),
+                    fileLogger.canLog(LogLevel.debug));
         } catch (Exception ignored) {
         }
         assertEquals(currentLevel, Logger.getGlobalLogLevel());
 
         try (Revokable<LogLevel> level = Logger.setLevelInScope(LogLevel.none)) {
-            assertFalse(fileLogger.canLog(LogLevel.verbose) || fileLogger.canLog(LogLevel.info) || fileLogger.canLog(LogLevel.error));
+            assertFalse(fileLogger.canLog(LogLevel.verbose),
+                    fileLogger.canLog(LogLevel.info),
+                    fileLogger.canLog(LogLevel.error));
         } catch (Exception ignored) {
         }
     }

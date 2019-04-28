@@ -25,8 +25,8 @@ public class LazyTest {
         Lazy<Boolean> refBoolean = refInt.create(n -> n % 2 == 0);
 
         assertEquals(false, refBoolean.getValue());
-        assertTrue(refString.isValueInitialized());
-        assertTrue(refInt.isValueInitialized());
+        assertTrue(refString.isValueInitialized(),
+                refInt.isValueInitialized());
     }
 
     @Test
@@ -57,22 +57,22 @@ public class LazyTest {
                 (i0, i1) -> Logger.D("%d would be closing to %d", i0, i1));
         Lazy<Boolean> booleanLazy = integerLazy.create(i -> i % 2 == 0);
 
-        assertTrue(booleanLazy.getValue());
-        assertTrue(integerLazy.isValueInitialized());
-        assertTrue(string1.isValueInitialized());
+        assertTrue(booleanLazy.getValue(),
+                integerLazy.isValueInitialized(),
+                string1.isValueInitialized());
 
         booleanLazy.close();
         assertFalse(booleanLazy.isValueInitialized());
         assertTrue(integerLazy.isValueInitialized());
 
         string1.close();
-        assertFalse(integerLazy.isValueInitialized());
-        assertFalse(booleanLazy.isValueInitialized());
-        assertFalse(string1.isValueInitialized());
+        assertFalse(integerLazy.isValueInitialized(),
+                booleanLazy.isValueInitialized(),
+                string1.isValueInitialized());
 
-        assertTrue(booleanLazy.getValue());
-        assertTrue(integerLazy.isValueInitialized());
-        assertTrue(booleanLazy.isValueInitialized());
+        assertTrue(booleanLazy.getValue(),
+                integerLazy.isValueInitialized(),
+                booleanLazy.isValueInitialized());
         assertTrue(string1.isValueInitialized());
 
     }
@@ -83,9 +83,11 @@ public class LazyTest {
         Lazy<Integer> integerLazy = string1.create(s -> s.length());
         Lazy<Boolean> booleanLazy = integerLazy.create(n -> n == 7);
 
-        assertTrue(booleanLazy.getValue());
-        assertTrue(integerLazy.isValueInitialized() && (integerLazy.getValue() == 7));
-        assertTrue(string1.isValueInitialized() && string1.getValue().equals("string1"));
+        assertTrue(booleanLazy.getValue(),
+                integerLazy.isValueInitialized(),
+                integerLazy.getValue() == 7,
+                string1.isValueInitialized(),
+                string1.getValue().equals("string1"));
     }
 
     private String throwException() {
@@ -105,9 +107,9 @@ public class LazyTest {
 //        assertTrue(!string1.isValueInitialized());
         //The following results are not intended and shall be fixed in future
         assertNull(booleanLazy.getValue());
-        assertTrue(booleanLazy.isValueInitialized());
-        assertTrue(integerLazy.isValueInitialized());
-        assertTrue(string1.isValueInitialized());
+        assertTrue(booleanLazy.isValueInitialized(),
+                integerLazy.isValueInitialized(),
+                string1.isValueInitialized());
     }
 
     @Test
