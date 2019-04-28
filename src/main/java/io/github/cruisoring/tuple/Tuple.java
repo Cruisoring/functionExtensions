@@ -150,7 +150,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @param elementType Class of the Type of the elements
      * @param elements    Elements of same type <tt>V</tt> to be persisted
      * @param <V>         Type of the given elements
-     * @return A strong-typed <code>Tuple?.Set&lt;V&gt;</code>Tuple instance
+     * @return A strong-typed <code>Tuple?.Set1&lt;V&gt;</code>Tuple instance
      */
     public static <V> Tuple<V> setOfType(final Class<? extends V> elementType, final V... elements) {
         checkWithoutNull(elementType);
@@ -161,33 +161,33 @@ public class Tuple<T extends Object> implements ITuple<T> {
             case 0:
                 return UNIT;
             case 1:
-                return new Tuple1.Set<V>(elementType, elements[0]);
+                return new Tuple1.Set1<V>(elementType, elements[0]);
             case 2:
-                return new Tuple2.Set<V>(elementType, elements[0], elements[1]);
+                return new Tuple2.Set2<V>(elementType, elements[0], elements[1]);
             case 3:
-                return new Tuple3.Set<V>(elementType, elements[0], elements[1], elements[2]);
+                return new Tuple3.Set3<V>(elementType, elements[0], elements[1], elements[2]);
             case 4:
-                return new Tuple4.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3]);
+                return new Tuple4.Set4<V>(elementType, elements[0], elements[1], elements[2], elements[3]);
             case 5:
-                return new Tuple5.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4]);
+                return new Tuple5.Set5<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4]);
             case 6:
-                return new Tuple6.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new Tuple6.Set6<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5]);
             case 7:
-                return new Tuple7.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new Tuple7.Set7<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6]);
             case 8:
-                return new Tuple8.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new Tuple8.Set8<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6], elements[7]);
             case 9:
-                return new Tuple9.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new Tuple9.Set9<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6], elements[7], elements[8]);
             case 10:
-                return new Tuple10.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new Tuple10.Set10<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6], elements[7], elements[8], elements[9]);
 
             default:
-                return new TuplePlus.Set<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
+                return new TuplePlus.SetPlus<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6], elements[7], elements[8], elements[9],
                         Arrays.copyOfRange(elements, 10, length));
 
@@ -544,7 +544,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
     /**
      * Get the set of this.hashCode() and all its elements' hashCodes as signatures.
      *
-     * @return the hashCodes of this and its elements as a Set.
+     * @return the hashCodes of this and its elements as a Set1.
      */
     public Set<Integer> getSignatures() {
         if (_signatures == null) {

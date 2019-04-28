@@ -29,10 +29,10 @@ public class Tuple8<T, U, V, W, X, Y, Z, A> extends Tuple
      *
      * @param <T> type of the elements.
      */
-    public static class Set<T> extends Tuple8<T, T, T, T, T, T, T, T> {
+    public static class Set8<T> extends Tuple8<T, T, T, T, T, T, T, T> {
 
-        protected Set(final Class<? extends T> elementType, final T t1, final T t2, final T t3, final T t4, final T t5, final T t6,
-                      final T t7, final T t8) {
+        protected Set8(final Class<? extends T> elementType, final T t1, final T t2, final T t3, final T t4, final T t5, final T t6,
+                       final T t7, final T t8) {
             super(elementType, t1, t2, t3, t4, t5, t6, t7, t8);
         }
     }

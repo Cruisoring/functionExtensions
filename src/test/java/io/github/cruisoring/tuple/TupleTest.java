@@ -315,7 +315,7 @@ public class TupleTest {
     public void setOf() {
 
         assertEquals(4, stringSet.getLength());
-        assertEquals(Tuple4.Set.class, stringSet.getClass());
+        assertEquals(Tuple4.Set4.class, stringSet.getClass());
         assertEquals(stringSet.getValue(0), "");
         assertEquals(stringSet.getValue(1), null);
         assertEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray());

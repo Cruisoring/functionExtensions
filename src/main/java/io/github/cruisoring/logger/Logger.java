@@ -81,7 +81,7 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Set the <code>Logger.Default</code> to a new <code>Logger</code>.
+     * Set1 the <code>Logger.Default</code> to a new <code>Logger</code>.
      *
      * @param newLogger New <code>Logger</code> to be used globally when calling static methods of <code>Logger</code> class. If it is null, then no logging would happen.
      * @return The existing <code>Logger</code> instance.
@@ -96,7 +96,7 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Set the <code>Logger.Default</code> to a new <code>Logger</code> and return an {@code Revocable<ILogger>} which
+     * Set1 the <code>Logger.Default</code> to a new <code>Logger</code> and return an {@code Revocable<ILogger>} which
      * would restore <code>Logger.Default</code> to the existing Logger, so calling static methods of Logger would use the new instance
      * until the returned {@code Revocable<ILogger>} is closed to restore the old one.
      *
@@ -115,7 +115,7 @@ public class Logger implements ILogger {
     //region Logger exception with the Default Logger
 
     /**
-     * Set the GlobalLogLevel to a new <code>LogLevel</code>.
+     * Set1 the GlobalLogLevel to a new <code>LogLevel</code>.
      *
      * @param newLogLevel New LogLevel to be set to <code>GlobalLogLevel</code>. If it is <code>LogLevel.none</code>, then no logging methods would be performed.
      * @return The existing LogLevel held by <code>GlobalLogLevel</code>.
@@ -134,7 +134,7 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Set the GlobalLogLevel to a new value and wrap the restore action as an {@code Revocable<LogLevel>} which
+     * Set1 the GlobalLogLevel to a new value and wrap the restore action as an {@code Revocable<LogLevel>} which
      * would restore <code>GlobalLogLevel</code> to its state before calling this method when closing.
      *
      * @param newLogLevel New LogLevel to be set to <code>GlobalLogLevel</code>. If it is <code>LogLevel.none</code>,

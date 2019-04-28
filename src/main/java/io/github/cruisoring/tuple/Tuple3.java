@@ -23,9 +23,9 @@ public class Tuple3<T, U, V> extends Tuple
      *
      * @param <T> type of the elements.
      */
-    public static class Set<T> extends Tuple3<T, T, T> {
+    public static class Set3<T> extends Tuple3<T, T, T> {
 
-        protected Set(final Class<? extends T> elementType, final T t1, final T t2, final T t3) {
+        protected Set3(final Class<? extends T> elementType, final T t1, final T t2, final T t3) {
             super(elementType, t1, t2, t3);
         }
     }

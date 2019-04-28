@@ -1129,7 +1129,7 @@ public class TypeHelper {
                     //Get original element
                     Object fromElement = Array.get(fromArray, i);
                     //Get the converted element
-                    //Set the converted value to the target array
+                    //Set1 the converted value to the target array
                     equivalentSetter.accept(toArray, i, componentConverter.apply(fromElement));
                 }
                 return toArray;
@@ -1152,7 +1152,7 @@ public class TypeHelper {
                         //Get original element
                         Object fromElement = Array.get(fromArray, i);
                         //Get the converted element
-                        //Set the converted value to the target array
+                        //Set1 the converted value to the target array
                         equivalentSetter.accept(toArray, i, componentConverter.apply(fromElement));
                     }
                     return toArray;

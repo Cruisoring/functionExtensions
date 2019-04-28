@@ -22,9 +22,9 @@ public class Tuple2<T, U> extends Tuple
      *
      * @param <T> type of the elements.
      */
-    public static class Set<T> extends Tuple2<T, T> {
+    public static class Set2<T> extends Tuple2<T, T> {
 
-        protected Set(final Class<? extends T> elementType, final T t1, final T t2) {
+        protected Set2(final Class<? extends T> elementType, final T t1, final T t2) {
             super(elementType, t1, t2);
         }
     }
