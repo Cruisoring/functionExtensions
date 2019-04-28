@@ -244,6 +244,38 @@ public class Asserts {
     }
 
     /**
+     * Asserts that two objects are not equal by themselves nor containing same set of values if both are arrays,
+     * with/without considering their types.
+     * If they are equal, an {@link IllegalStateException} is thrown with brief info.
+     *
+     * @param expected         the expected value to be compared, could be of array or not.
+     * @param actual           the actual value to be compared, could be of array or not.
+     * @param matchTypeExactly indicates if the types of <code>expected</code> and <code>actual</code> shall be identical.
+     * @return Not used, <tt>true</tt> to indicate all good.
+     * @throws IllegalStateException if {@code expected} is equal with {@code actual}
+     */
+    public static boolean assertNotEquals(Object expected, Object actual, boolean matchTypeExactly) {
+        if (expected == null && actual == null) {
+            log("Both values are nulls.");
+            throw new IllegalStateException("Both values are nulls.");
+        } else if (expected == null || actual == null) {
+            return true;
+        }
+
+        if (matchTypeExactly && expected.getClass() != actual.getClass()) {
+            log("Expect value of type %s, but actual value is of type %s",
+                    expected.getClass().getSimpleName(), actual.getClass().getSimpleName());
+            return true;
+        }
+
+        if (valueEquals(expected, actual)) {
+            log("%s !=== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual));
+            throw new IllegalStateException("Values matched");
+        }
+        return true;
+    }
+
+    /**
      * Asserts that two objects are equal by themselves or containing same set of values if both are arrays WITHOUT considering their types.
      * If they are not, an {@link IllegalStateException} is thrown with brief info.
      *
@@ -253,6 +285,19 @@ public class Asserts {
      * @throws IllegalStateException if {@code expected} is not equal with {@code actual}
      */
     public static boolean assertEquals(Object expected, Object actual) {
+        return assertEquals(expected, actual, false);
+    }
+
+    /**
+     * Asserts that two objects are not equal by themselves nor containing same set of values if both are arrays WITHOUT considering their types.
+     * If they are equal, an {@link IllegalStateException} is thrown with brief info.
+     *
+     * @param expected the expected value to be compared, could be of array or not.
+     * @param actual   the actual value to be compared, could be of array or not.
+     * @return Not used, <tt>true</tt> to indicate all good.
+     * @throws IllegalStateException if {@code expected} is equal with {@code actual}
+     */
+    public static boolean assertNotEquals(Object expected, Object actual) {
         return assertEquals(expected, actual, false);
     }
 
