@@ -164,7 +164,7 @@ public class Measurement {
         final long createdAt;
 
         Moment() {
-            StackTraceElement stack = StackTraceHelper.getCallerStackTrace(null, getCallerStackTraceKey);
+            StackTraceElement stack = StackTraceHelper.getCallerStackByEntry(null, getCallerStackTraceKey);
             label = StringHelper.tryFormatString("%s(%s:%d)",
                     stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
 

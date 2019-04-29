@@ -73,7 +73,7 @@ public class Revokable<T> implements AutoCloseable {
         checkWithoutNull(setter);
 
         timeStamp = System.currentTimeMillis();
-        StackTraceElement stack = StackTraceHelper.getCallerStackTrace(null, getCallerStackTraceKey);
+        StackTraceElement stack = StackTraceHelper.getCallerStackByEntry(null, getCallerStackTraceKey);
         label = StringHelper.tryFormatString("%s(%s:%d)",
             stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
 
@@ -91,7 +91,7 @@ public class Revokable<T> implements AutoCloseable {
 
         timeStamp = System.currentTimeMillis();
         old = null;
-        StackTraceElement stack = StackTraceHelper.getCallerStackTrace(null, getCallerStackTraceKey);
+        StackTraceElement stack = StackTraceHelper.getCallerStackByEntry(null, getCallerStackTraceKey);
         label = StringHelper.tryFormatString("%s(%s:%d)",
             stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
         revoker = runnableThrowable;

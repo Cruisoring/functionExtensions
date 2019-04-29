@@ -158,7 +158,7 @@ public interface ILogger {
         if (maxCount == 0) {
             return "";
         }
-        List<StackTraceElement> stacks = StackTraceHelper.getStackTrace(maxCount, ex);
+        List<StackTraceElement> stacks = StackTraceHelper.getFilteredStacks(maxCount, ex);
         if (stacks == null) {
             return "";
         }

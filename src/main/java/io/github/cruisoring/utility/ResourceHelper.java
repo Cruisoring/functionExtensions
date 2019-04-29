@@ -7,7 +7,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -15,6 +17,50 @@ import java.util.*;
  * Helper class for resource retrieval.
  */
 public class ResourceHelper {
+    public final static String[] resourcePaths;
+    public static String MAVEN_TARGET_CLASSES = "target/classes/";
+    public static String MAVEN_TARGET_TEST_CLASSES = "target/test-classes/";
+    public static String MAVEN_MAIN_RESOURCES = "src/main/resources/";
+    public static String MAVEN_TEST_RESOURCES = "src/test/resources/";
+
+    static {
+        resourcePaths = getResourcePaths("sun.reflect", "java.lang");
+    }
+
+    /**
+     * Retrive the ORIGINAL resources folders of all modules involved with the call
+     *
+     * @param negligibles keywords that shall be neglected.
+     * @return String array identifying the absolute paths of related resource folders
+     */
+    private static String[] getResourcePaths(String... negligibles) {
+        List<String> classPaths = new ArrayList<>();
+        List<String> classNames = StackTraceHelper.getFilteredCallers(negligibles);
+        for (int i = 0; i < classNames.size(); i++) {
+            try {
+                String className = classNames.get(i);
+                Class clazz = Class.forName(className);
+                String classPath = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
+
+                if (classPath.endsWith(MAVEN_TARGET_CLASSES)) {
+                    classPath = classPath.replace(MAVEN_TARGET_CLASSES, MAVEN_MAIN_RESOURCES);
+                } else if (classPath.endsWith(MAVEN_TARGET_TEST_CLASSES)) {
+                    classPath = classPath.replace(MAVEN_TARGET_TEST_CLASSES, MAVEN_TEST_RESOURCES);
+                } else {
+                    continue;
+                }
+
+                if (!classPaths.contains(classPath)) {
+                    classPaths.add(classPath);
+                }
+            } catch (Exception ex) {
+                continue;
+            }
+        }
+        Collections.reverse(classPaths);
+        String[] result = classPaths.toArray(new String[0]);
+        return result;
+    }
 
     /**
      * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
@@ -166,5 +212,103 @@ public class ResourceHelper {
             return;
         }
         result.put(propertiesName, properties); //Let it throw Exception if there is duplicated keys.
+    }
+
+    /**
+     * Retrieve the solic file from any possible module.
+     *
+     * @param filename    Name of the file to be handled.
+     * @param folderNames Directory names of the file.
+     * @return File instance if it exist, otherwise null.
+     */
+    public static File getResourceFile(String filename, String... folderNames) {
+        Objects.requireNonNull(filename);
+
+        String folderPath = folderNames == null ? "" : String.join("/", folderNames);
+
+        //Try to load properties if it is not loaded by previous resourcePaths.
+        for (String path : resourcePaths) {
+            File resourceFolder = new File(path, folderPath);
+            File file = new File(resourceFolder, filename);
+            //No such resources defined, continue
+            if (!file.exists()) {
+                continue;
+            }
+
+            return file;
+        }
+
+        return null;
+    }
+
+    /**
+     * Locate the resource identified with filename and its folder names from any possible module.
+     *
+     * @param filename    Name of the file to be handled.
+     * @param folderNames Directory names of the file.
+     * @return the absolute file path if it is found, or null when there is no such resource.
+     */
+    public static Path getResourcePath(String filename, String... folderNames) {
+        Objects.requireNonNull(filename);
+
+        String folderPath = folderNames == null ? "" : String.join("/", folderNames);
+
+        //Try to load properties if it is not loaded by previous resourcePaths.
+        for (String path : resourcePaths) {
+            File resourceFolder = new File(path, folderPath);
+            File file = new File(resourceFolder, filename);
+            //No such resources defined, continue
+            if (!file.exists()) {
+                continue;
+            }
+
+            return file.toPath();
+        }
+
+        String error = String.format("Failed to locate %s in folder of %s from %s", filename, folderPath, String.join(",", resourcePaths));
+        throw new RuntimeException(error);
+    }
+
+    /**
+     * Retrieve the absolute file path from any possible module.
+     *
+     * @param filename    Name of the file to be handled.
+     * @param folderNames Directory names of the file.
+     * @return Path of the expected file.
+     */
+    public static Path getAbsoluteFilePath(String filename, String... folderNames) {
+        Objects.requireNonNull(filename);
+
+        String folderPath = folderNames == null ? "" : String.join("/", folderNames);
+
+        //Output Folder in the original caller module target directory
+        File folder = new File(resourcePaths[0], folderPath);
+
+        File file = new File(folder, filename);
+        return file.toPath();
+    }
+
+    /**
+     * Retrieve the content of the resource file a String.
+     *
+     * @param resourceFilename The relative path of the reourcefile to be checked.
+     * @param folders          Optional folder names.
+     * @return NULL if there is no such resource identified by the relative path, or content of the resource as a String.
+     */
+    public static String getTextFromResourceFile(String resourceFilename, String... folders) {
+        Path path = getResourcePath(resourceFilename, folders);
+//        log.info(String.format("%s would be extracted from %s", resourceFilename, path));
+
+        if (path == null) {
+            return null;
+        }
+
+        try {
+            byte[] encoded = Files.readAllBytes(path);
+            String text = new String(encoded, Charset.defaultCharset());
+            return text;
+        } catch (IOException e) {
+            return null;
+        }
     }
 }
