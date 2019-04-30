@@ -298,7 +298,7 @@ public class Asserts {
      * @throws IllegalStateException if {@code expected} is equal with {@code actual}
      */
     public static boolean assertNotEquals(Object expected, Object actual) {
-        return assertEquals(expected, actual, false);
+        return assertNotEquals(expected, actual, false);
     }
 
     /**
