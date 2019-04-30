@@ -382,7 +382,7 @@ public class Logger implements ILogger {
 
     @Override
     public boolean canLog(LogLevel level) {
-        return GlobalLogLevel != LogLevel.none && level.compareTo(minLevel) >= 0;
+        return level.compareTo(GlobalLogLevel) >= 0 && level.compareTo(minLevel) >= 0;
     }
 
     @Override

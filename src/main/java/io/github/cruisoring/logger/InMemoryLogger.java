@@ -19,7 +19,7 @@ public class InMemoryLogger extends Logger {
     }
 
     public InMemoryLogger(final StringBuilder sb) {
-        this(sb, Logger.GlobalLogLevel);
+        this(sb, LogLevel.verbose);
     }
 
     public StringBuilder getStringBuilder() {

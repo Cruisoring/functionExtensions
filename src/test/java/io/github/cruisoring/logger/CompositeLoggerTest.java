@@ -17,6 +17,8 @@ public class CompositeLoggerTest {
 
         ILogger old = null;
         try (Revokable<ILogger> oldLogger = Logger.useInScope(compositeLogger)) {
+            old = oldLogger.getValue();
+
             Logger.V("verbose shall be logged by logger1");
             Logger.D("debug shall be loggered by both logger1 and oldLogger");
             Logger.I("info shall be logged by all 3 ILogger instances");
@@ -30,7 +32,6 @@ public class CompositeLoggerTest {
             assertTrue(logs1.contains("info shall be logged by all 3 ILogger instances"),
                     logs2.contains("info shall be logged by all 3 ILogger instances"));
 
-            old = oldLogger.getValue();
             assertTrue(Logger.Default != old);
         } catch (Exception ignored) {
         }
