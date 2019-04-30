@@ -14,9 +14,14 @@ public class FileLogger extends Logger implements AutoCloseable {
     final File file;
     boolean isValid = true;
     BufferedWriter bufferedWriter = null;
+
     public FileLogger(String filePath, LogLevel minLevel) {
         super(_do_nothing, minLevel);
         this.file = getFile(filePath);
+    }
+
+    public FileLogger(String filePath) {
+        this(filePath, LogLevel.verbose);
     }
 
     static File getFile(String filePath) {

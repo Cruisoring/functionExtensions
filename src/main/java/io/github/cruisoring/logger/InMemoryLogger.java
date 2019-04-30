@@ -6,7 +6,7 @@ public class InMemoryLogger extends Logger {
     private final StringBuilder stringBuilder;
 
     public InMemoryLogger() {
-        this(new StringBuilder(), GlobalLogLevel);
+        this(new StringBuilder(), LogLevel.verbose);
     }
 
     public InMemoryLogger(LogLevel minLevel) {

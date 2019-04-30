@@ -75,7 +75,7 @@ public class ConsoleLogger extends Logger implements ILogWithColor {
     }
 
     public ConsoleLogger(Consumer<String> recorder) {
-        this(recorder, null);
+        this(recorder, LogLevel.verbose);
     }
 
     @Override
