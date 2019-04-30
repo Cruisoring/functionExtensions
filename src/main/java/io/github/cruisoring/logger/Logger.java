@@ -33,19 +33,19 @@ public class Logger implements ILogger {
     // Use static constructor to ensure Default is created after GlobalLogLevel is initialised.
     static {
         //TODO: load GlobalLogLevel and Default from config
-        Default = new ConsoleLogger(System.out::println, GlobalLogLevel);
+        Default = new ConsoleLogger(System.out::println);
     }
 
     final Consumer<String> recorder;
     final LogLevel minLevel;
 
     /**
-     * Compose a Logger with the default value defined by GlobalLogLevel.
+     * Compose a Logger with the default {@code LogLevel.verbose}.
      *
      * @param recorder the means of keeping a String as a log.
      */
     public Logger(Consumer<String> recorder) {
-        this(recorder, GlobalLogLevel);
+        this(recorder, LogLevel.verbose);
     }
 
     /**
