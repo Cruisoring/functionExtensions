@@ -8,6 +8,9 @@ import java.util.Arrays;
 
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
+/**
+ * The composite logger composed by 0 to many children ILogger instances so as to allow multiple loggers to log same message with different means.
+ */
 public class CompositeLogger implements ILogger {
 
     final ILogger[] loggers;
@@ -40,20 +43,31 @@ public class CompositeLogger implements ILogger {
                 .toArray(size -> new ILogger[size]);
     }
 
-
-    @Override
-    public void save(String message) {
-        throw new NotImplementedException("Not supported");
-    }
-
+    /**
+     * Get the minimum LogLevel of messages can be logged, that means messages with lower levels would not be saved by any children ILoggers.
+     *
+     * @return The minimum LogLevel of messages can be logged.
+     */
     @Override
     public LogLevel getMinLevel() {
         return minLevel;
     }
 
+    /**
+     * Evaluate if the message can be logged as concerned {@code LogLevel}
+     *
+     * @param level {@code LogLevel} of the concerned message.
+     * @return <tt>true</tt> if logging is not disabled and the concerned {@code LogLevel} is supported by
+     * this {@code Logger}, otherwise <tt>false</tt>
+     */
     @Override
     public boolean canLog(LogLevel level) {
         return Logger.getGlobalLogLevel() != LogLevel.none && level.compareTo(minLevel) >= 0;
+    }
+
+    @Override
+    public void save(String message) {
+        throw new NotImplementedException("Not supported");
     }
 
     @Override
@@ -78,7 +92,7 @@ public class CompositeLogger implements ILogger {
 
     @Override
     public ILogger log(LogLevel level, String format, Object... arguments) {
-        if (!canLog(level) || format == null) {
+        if (!canLog(level)) {
             return this;
         }
 

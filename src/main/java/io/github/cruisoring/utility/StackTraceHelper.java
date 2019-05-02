@@ -91,25 +91,25 @@ public class StackTraceHelper {
      * Retrieve the StackTraceElement of the caller of the class/method as specified by the <code>keywords</code>
      *
      * @param ex       Used to get the captured stackTrace when Exception is thrown
-     * @param entryKeywords the keywords of the called class/method to be used to
+     * @param calledKeywords the keywords of the called class/method to be used to
      * @return the last caller of the called class/method as specified by <code>keywords</code>
      */
-    public static StackTraceElement getCallerStackByEntry(Exception ex, String... entryKeywords) {
-        if (entryKeywords == null || entryKeywords.length == 0) {
-            entryKeywords = new String[]{StackTraceHelper.class.getSimpleName() + ".java"};
+    public static StackTraceElement getCallerStackByEntry(Exception ex, String... calledKeywords) {
+        if (calledKeywords == null || calledKeywords.length == 0) {
+            calledKeywords = new String[]{StackTraceHelper.class.getSimpleName() + ".java"};
         }
         boolean notMatched = true;
         StackTraceElement[] stacks = ex == null ? Thread.currentThread().getStackTrace() : ex.getStackTrace();
         int length = stacks.length;
-        for (int i = 1; i < length; i++) {
+        for (int i = 0; i < length; i++) {
             StackTraceElement stack = stacks[i];
-            String fileName = stack.getFileName();
+            String stackString = stack.toString();
             if (notMatched) {
-                if (StringHelper.containsAll(fileName, entryKeywords)) {
+                if (StringHelper.containsAll(stackString, calledKeywords)) {
                     notMatched = false;
                 }
             } else {
-                if (!StringHelper.containsAll(fileName, entryKeywords)) {
+                if (!StringHelper.containsAll(stackString, calledKeywords)) {
                     return stack;
                 }
             }
@@ -121,11 +121,11 @@ public class StackTraceHelper {
      * Get the label to describe the caller.
      *
      * @param ex       Used to get the captured stackTrace when Exception is thrown
-     * @param keywords the keywords of the called class/method to be used to
+     * @param calledKeywords the keywords of the called class/method to be used to
      * @return the label to describe the caller that is identified by the given keywords.
      */
-    public static String getCallerLabel(Exception ex, String... keywords) {
-        StackTraceElement stack = getCallerStackByEntry(ex, keywords);
+    public static String getCallerLabel(Exception ex, String... calledKeywords) {
+        StackTraceElement stack = getCallerStackByEntry(ex, calledKeywords);
         String label = stack == null ? null : StringHelper.tryFormatString("%s(%s:%d)",
                 stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
         return label;

@@ -1,7 +1,6 @@
 package io.github.cruisoring;
 
 import io.github.cruisoring.function.*;
-import io.github.cruisoring.utility.StringHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,19 +66,6 @@ public class Functions<R> {
     private Functions() {
         this.handler = null;
         this.defaultReturner = null;
-    }
-
-    /**
-     *Ensure the state represented by <tt>expression</tt> is true.
-     * @param expression a boolean expression
-     * @param format template to compose the error message when {@code reference is null}
-     * @param args  arguments to compose the error message when {@code reference is null}
-     * @throws IllegalStateException if {@code expression} is false
-     */
-    public static void checkState(boolean expression, String format, Object... args) {
-        if (!expression) {
-            throw new IllegalStateException(StringHelper.tryFormatString(format, args));
-        }
     }
 
     /**

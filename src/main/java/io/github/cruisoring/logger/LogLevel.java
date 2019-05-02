@@ -1,13 +1,13 @@
 package io.github.cruisoring.logger;
 
 public enum LogLevel {
-    verbose("V"),
-    debug("D"),
-    info("I"),
-    warning("W"),
-    error("E"),
+    verbose("V"),   //Most detailed level to log everything
+    debug("D"),     //Detailed level to log information suitable for debugging purposes
+    info("I"),      //Informative level to log major progresses
+    warning("W"),   //Sensitive level to log warning messages
+    error("E"),     //Critical level usually comes with Error or Exception
 
-    none("N");
+    none("N");      //Log nothing to turn off logging as a whole or of Logger instances
 
     public String label;
 

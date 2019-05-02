@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
-public class ConsoleLogger extends Logger implements ILogWithColor {
+public class ConsoleLogger extends Logger implements IWithColor {
     //region Console color controls
     // Reset
     public static final String RESET = "\033[0m";  // Text Reset

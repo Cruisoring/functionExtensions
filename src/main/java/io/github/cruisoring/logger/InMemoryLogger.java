@@ -2,6 +2,9 @@ package io.github.cruisoring.logger;
 
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
+/**
+ * Logger using {@code StringBuilder} as InMemory logger.
+ */
 public class InMemoryLogger extends Logger {
     private final StringBuilder stringBuilder;
 
@@ -26,6 +29,11 @@ public class InMemoryLogger extends Logger {
         return stringBuilder;
     }
 
+    /**
+     * Retrieve the messages that have been logged.
+     *
+     * @return the String of all the messages.
+     */
     public String getHistory() {
         return stringBuilder.toString();
     }

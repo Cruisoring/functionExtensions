@@ -90,4 +90,9 @@ public class TupleRow<R extends WithValues> implements WithValuesByName {
 
         return "{" + _string + "}";
     }
+
+    @Override
+    public Set<Integer> getSignatures() {
+        return values.getSignatures();
+    }
 }

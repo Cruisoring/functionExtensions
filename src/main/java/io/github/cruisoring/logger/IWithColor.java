@@ -5,7 +5,7 @@ import io.github.cruisoring.utility.StringHelper;
 /**
  * Interface to define capabilities to make log messages to be colorful
  */
-public interface ILogWithColor {
+public interface IWithColor {
 
     //Default keywords to be matched with the template to see if message means success
     String[] DefaultSuccessKeywords = new String[]{"success", "passed", "pass"};

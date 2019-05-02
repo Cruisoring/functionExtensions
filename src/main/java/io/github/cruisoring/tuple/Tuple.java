@@ -546,15 +546,12 @@ public class Tuple<T extends Object> implements ITuple<T> {
      *
      * @return the hashCodes of this and its elements as a Set1.
      */
+    @Override
     public Set<Integer> getSignatures() {
         if (_signatures == null) {
             Set<Integer> hashCodes = new HashSet<>();
             hashCodes.add(hashCode());
-            int len = values.length;
-            for (int i = 0; i < len; i++) {
-                T element = values[i];
-                hashCodes.add(element == null ? 0 : element.hashCode());
-            }
+            Arrays.stream(values).forEach(v -> hashCodes.add(v == null ? 0 : v.hashCode()));
             _signatures = Collections.unmodifiableSet(hashCodes);
         }
         return _signatures;

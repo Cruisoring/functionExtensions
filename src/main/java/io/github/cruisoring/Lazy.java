@@ -26,7 +26,7 @@ public class Lazy<T> implements AutoCloseable {
     /**
      * Construct a Lazy object with value factory, instead of value itself.
      *
-     * @param supplier The factory to create value instance when getValue() is called.
+     * @param supplier The factory to create value instance when getOriginalSetting() is called.
      */
     public Lazy(SupplierThrowable<T> supplier) {
         checkWithoutNull(supplier);
@@ -37,7 +37,7 @@ public class Lazy<T> implements AutoCloseable {
     /**
      * Construct a Lazy object with value factory, as well as customer closing logic.
      *
-     * @param supplier        The factory to create value instance when getValue() is called.
+     * @param supplier        The factory to create value instance when getOriginalSetting() is called.
      * @param actionOnChanges Extra steps to run before closing() being called.
      */
     public Lazy(SupplierThrowable<T> supplier, BiConsumerThrowable<T, T> actionOnChanges) {

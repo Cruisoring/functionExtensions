@@ -12,7 +12,7 @@ import java.util.Arrays;
 import static io.github.cruisoring.TypeHelper.valueEquals;
 
 /**
- * Helper to evaluate test outcomes with handy static classes to throw {code Exception} when a test failed to meet expectation.
+ * Helper to evaluate test outcomes with handy static classes to throw {@code Exception} when a test failed to meet expectation.
  */
 public class Asserts {
 
@@ -52,8 +52,22 @@ public class Asserts {
     /**
      * Ensure the state represented by <tt>expression</tt> is true.
      *
-     * @param expressions any number of boolean expressions
+     * @param expression the boolean expression to be validated as <tt>true</tt>
+     * @param format    template to compose the error message when {@code reference is null}
+     * @param args      arguments to compose the error message when {@code reference is null}
      * @throws IllegalStateException if {@code expression} is false
+     */
+    public static void checkState(boolean expression, String format, Object... args) {
+        if (!expression) {
+            throw new IllegalStateException(StringHelper.tryFormatString(format, args));
+        }
+    }
+
+    /**
+     * Ensure all states represented by <tt>expressiosn</tt> are all <tt>true</tt>.
+     *
+     * @param expressions any number of boolean expressions
+     * @throws IllegalStateException if any one of {@code expressions} is false
      */
     public static void checkStates(boolean... expressions) {
         int length = expressions.length;

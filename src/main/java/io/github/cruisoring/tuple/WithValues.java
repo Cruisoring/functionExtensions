@@ -3,7 +3,9 @@ package io.github.cruisoring.tuple;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.PredicateThrowable;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
@@ -33,6 +35,22 @@ public interface WithValues<T> extends Comparable {
 
     default WithValues getValues(){
         return this;
+    }
+
+    /**
+     * Get the set of this.hashCode() and all its elements' hashCodes as signatures.
+     *
+     * @return the hashCodes of this and its elements as a Set1.
+     */
+    default Set<Integer> getSignatures() {
+        Set<Integer> hashCodes = new HashSet<>();
+        hashCodes.add(hashCode());
+        int len = getLength();
+        for (int i = 0; i < len; i++) {
+            T element = getValue(i);
+            hashCodes.add(element == null ? 0 : element.hashCode());
+        }
+        return hashCodes;
     }
 
     /**

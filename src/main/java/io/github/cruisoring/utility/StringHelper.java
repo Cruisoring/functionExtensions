@@ -16,8 +16,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.github.cruisoring.Asserts.checkState;
 import static io.github.cruisoring.Asserts.checkWithoutNull;
-import static io.github.cruisoring.Functions.checkState;
 
 public class StringHelper {
     public final static String PercentageAscii = "&#37";

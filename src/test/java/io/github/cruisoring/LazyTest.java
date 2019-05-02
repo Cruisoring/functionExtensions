@@ -101,9 +101,9 @@ public class LazyTest {
         Lazy<Boolean> booleanLazy = integerLazy.create(i -> i == 13);
 
         //The following step would fail due to the Type Erasures happened with intergerLazy and booleanLazy
-//        assertTrue(booleanLazy.getValue());
-//        assertTrue(integerLazy.isValueInitialized() && (integerLazy.getValue() == 13));
-//        assertTrue(!string1.isValueInitialized() && string1.getValue().equals("vvv"));
+//        assertTrue(booleanLazy.getOriginalSetting());
+//        assertTrue(integerLazy.isValueInitialized() && (integerLazy.getOriginalSetting() == 13));
+//        assertTrue(!string1.isValueInitialized() && string1.getOriginalSetting().equals("vvv"));
 //        assertTrue(!string1.isValueInitialized());
         //The following results are not intended and shall be fixed in future
         assertNull(booleanLazy.getValue());
@@ -115,7 +115,7 @@ public class LazyTest {
     @Test
     public void reset() throws Exception {
         Lazy<String> string1 = new Lazy<String>(() -> "string1");
-        //The value is not created initially, isValueInitialized() returns true after calling getValue()
+        //The value is not created initially, isValueInitialized() returns true after calling getOriginalSetting()
         assertTrue(!string1.isValueInitialized()
                 && string1.getValue().equals("string1")
                 && string1.isValueInitialized()
@@ -151,8 +151,8 @@ public class LazyTest {
         Lazy<Account> accountLazy = emailLazy.create(Account::new);
         Lazy<Inbox> inboxLazy = accountLazy.create(Inbox::new);
         Lazy<Outbox>  outboxLazy = accountLazy.create(Outbox::new);
-        outboxLazy.getValue().sendMail();
-        inboxLazy.getValue().checkMail();
+        outboxLazy.getOriginalSetting().sendMail();
+        inboxLazy.getOriginalSetting().checkMail();
         emailLazy.closing();  //Instead of emailLazy.close() to avoid Exception try-catch
         //*/
 

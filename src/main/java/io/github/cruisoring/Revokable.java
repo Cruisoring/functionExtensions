@@ -5,8 +5,8 @@ import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.logger.LogLevel;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.utility.StackTraceHelper;
-import io.github.cruisoring.utility.StringHelper;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -21,7 +21,8 @@ public class Revokable<T> implements AutoCloseable {
     //Identifier to locate the caller stack trace quickly
     static final String getCallerStackTraceKey = Revokable.class.getSimpleName() + ".java";
 
-    public static LogLevel DefualtLogLevel = LogLevel.debug;
+    public static LogLevel DefaultLogLevel = LogLevel.verbose;
+    public static boolean DefaultCloseNew = false;
 
     static final List<Revokable> All = new ArrayList<>();
 
@@ -60,64 +61,104 @@ public class Revokable<T> implements AutoCloseable {
             All.remove(i);
         }
     }
-    
 
-    final Long timeStamp;
+
+    final LocalDateTime timeStamp;
     final String label;
-    final T old;
+    final T originalSetting;
+    final T newSetting;
     RunnableThrowable revoker;
     private boolean isClosed = false;
 
     public Revokable(Supplier <T> getter, ConsumerThrowable<T> setter, T newSetting){
-        checkWithoutNull(getter);
-        checkWithoutNull(setter);
+        checkWithoutNull(getter, setter);
 
-        timeStamp = System.currentTimeMillis();
-        StackTraceElement stack = StackTraceHelper.getCallerStackByEntry(null, getCallerStackTraceKey);
-        label = StringHelper.tryFormatString("%s(%s:%d)",
-            stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
+        timeStamp = LocalDateTime.now();
+        label = StackTraceHelper.getCallerLabel(null);
 
-        old = getter.get();
+        originalSetting = getter.get();
+        this.newSetting = newSetting;
         try{
             setter.accept(newSetting);
-            revoker = () -> setter.accept(old);
+            revoker = () -> setter.accept(originalSetting);
         }catch (Exception e){
-            Logger.getDefault().log(DefualtLogLevel, e.getMessage());
+            Logger.getDefault().log(DefaultLogLevel, "Failed to update setting: %s", e.getMessage());
         }
     }
 
     public Revokable(RunnableThrowable runnableThrowable){
         checkWithoutNull(runnableThrowable);
 
-        timeStamp = System.currentTimeMillis();
-        old = null;
-        StackTraceElement stack = StackTraceHelper.getCallerStackByEntry(null, getCallerStackTraceKey);
-        label = StringHelper.tryFormatString("%s(%s:%d)",
-            stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
+        timeStamp = LocalDateTime.now();
+        label = StackTraceHelper.getCallerLabel(null);
+
+        originalSetting = null;
+        newSetting = null;
         revoker = runnableThrowable;
     }
-    
-    public T getValue(){
-        return old;
+
+    /**
+     * Get the time when this {@code Revokable} was created.
+     *
+     * @return {@code LocalDateTime} instance when the {@code Revokable} was created.
+     */
+    public LocalDateTime getTimeStamp() {
+        return timeStamp;
+    }
+
+    /**
+     * Get the original setting of this {@code Revokable} that would be reverted when the {@code Revokable} is closed.
+     *
+     * @return the original setting of type <tt>T</tt>, or null when only RunnableThrowable is provided.
+     */
+    public T getOriginalSetting() {
+        return originalSetting;
+    }
+
+    /**
+     * Get the new setting of this {@code Revokable} that has been updated by this {@code Revokable}
+     *
+     * @return the new setting of type <tt>T</tt> updated by this {@code Revokable}, or null when only RunnableThrowable is provided.
+     */
+    public T getNewSetting() {
+        return newSetting;
+    }
+
+    /**
+     * Get the state of this {@code Revokable}
+     *
+     * @return <tt>true</tt> if this {@code Revokable} has been closed which means revoking action has been executed, otherwise <tt>false</tt>
+     */
+    public boolean isClosed() {
+        return isClosed;
     }
 
     /**
      * When value created, closing it and release any resource bounded if the instance is AutoCloseable.
+     * @param closeNew  indicates if the newSetting shall be closed, <tt>true</tt> would close it if it is AutoCloseable.
      */
-    public void closing() {
+    public void closing(boolean closeNew) {
         if (!isClosed) {
             isClosed = true;
             try {
                 revoker.run();
-                Logger.getDefault().log(DefualtLogLevel, "%s is reverted.", label);
+                if (originalSetting == null && newSetting == null) {
+                    Logger.getDefault().log(DefaultLogLevel, "%s is reverted.", label);
+                } else {
+                    Logger.getDefault().log(DefaultLogLevel, "%s is reverted from %s back to %s.",
+                            label, newSetting, originalSetting);
+                }
+                if (closeNew && newSetting != null && newSetting instanceof AutoCloseable) {
+                    ((AutoCloseable) newSetting).close();
+                }
             } catch (Exception e) {
-                Logger.getDefault().log(DefualtLogLevel, e);
+                Logger.getDefault().log(DefaultLogLevel, e);
             }
         }
     }
 
     @Override
     public void close() {
-        closing();
+        closing(DefaultCloseNew);
     }
 }

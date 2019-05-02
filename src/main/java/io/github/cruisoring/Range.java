@@ -42,7 +42,7 @@ public class Range extends Tuple2<Integer, Integer> {
     protected Range(Integer startInclusive, Integer endExclusive) {
         super(checkWithoutNull(startInclusive), checkWithoutNull(endExclusive));
 
-        Functions.checkState(startInclusive <= endExclusive,
+        checkState(startInclusive <= endExclusive,
                 "Range startInclusive %d shall not be greater or equal to endExclusive %d.", startInclusive, endExclusive);
 
         _start = startInclusive <= NEGATIVE_INFINITY + 1 ? NEGATIVE_INFINITY : startInclusive;
@@ -73,7 +73,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return Range of the indexes.
      */
     public static Range indexesOfLength(int length) {
-        Functions.checkState(length >= 0, "Length shall not be negative value: " + length);
+        checkState(length >= 0, "Length shall not be negative value: " + length);
         return length == 0 ? NONE : new Range(0, length);
     }
 
@@ -85,8 +85,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return An Range object between {@code startExclusive} and {@code endExclusive} exclusively.
      */
     public static Range open(int startExclusive, int endExclusive) {
-        Functions.checkState(startExclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowOpen(endExclusive)");
-        Functions.checkState(endExclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveOpen(startExclusive)");
+        checkState(startExclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowOpen(endExclusive)");
+        checkState(endExclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveOpen(startExclusive)");
         return new Range(startExclusive + 1, endExclusive);
     }
 
@@ -98,8 +98,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return An Range object between {@code startExclusive} and {@code endExclusive} inclusively.
      */
     public static Range closed(int startInclusive, int endInclusive) {
-        Functions.checkState(startInclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowClosed(endInclusive)");
-        Functions.checkState(endInclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveClosed(startInclusive)");
+        checkState(startInclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowClosed(endInclusive)");
+        checkState(endInclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveClosed(startInclusive)");
         return new Range(startInclusive, endInclusive + 1);
     }
 
@@ -111,8 +111,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return An Range object between {@code startExclusive} exclusive and {@code endInclusive} inclusive.
      */
     public static Range openClosed(int startExclusive, int endInclusive) {
-        Functions.checkState(startExclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowOpen(endExclusive)");
-        Functions.checkState(endInclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveClosed(startInclusive)");
+        checkState(startExclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowOpen(endExclusive)");
+        checkState(endInclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveClosed(startInclusive)");
         return new Range(startExclusive + 1, endInclusive + 1);
     }
 
@@ -124,8 +124,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return An Range object between {@code startInclusive} exclusive and {@code endExclusive} inclusive.
      */
     public static Range closedOpen(int startInclusive, int endExclusive) {
-        Functions.checkState(startInclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowClosed(endInclusive)");
-        Functions.checkState(endExclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveOpen(startExclusive)");
+        checkState(startInclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowClosed(endInclusive)");
+        checkState(endExclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveOpen(startExclusive)");
         return new Range(startInclusive, endExclusive);
     }
 
@@ -280,7 +280,7 @@ public class Range extends Tuple2<Integer, Integer> {
             if (nameRange != null) {
                 Range gapRange = valueRange.gapWith(nameRange);
                 List<Integer> colonsWithin = indicatorIndexes.stream().filter(i -> gapRange.contains(i)).collect(Collectors.toList());
-                Functions.checkState(colonsWithin.size() == 1,
+                checkState(colonsWithin.size() == 1,
                         String.format("Failed to get one single indictor between '%s' and '%s'", nameRange, valueRange));
                 Range nameValueRange = nameRange.intersection(valueRange);
                 nameRangeSet.remove(nameRange);
@@ -356,6 +356,14 @@ public class Range extends Tuple2<Integer, Integer> {
         return ranges;
     }
 
+    /**
+     * Get the pairs of {@code Range} from two collections meeting condition specified by {@code predicate}
+     *
+     * @param ranges1   the first Collection of {@code Range}
+     * @param ranges2   the second Collection of {@code Range}
+     * @param predicate specify condition of two {@code Range} shall meet.
+     * @return pairs of {@code Range} from two collections meeting specific condition as a list
+     */
     public static List<Tuple2<Range, Range>> getRangePairs(Collection<Range> ranges1, Collection<Range> ranges2, Predicate<Tuple2<Range, Range>> predicate) {
         checkWithoutNull(ranges1);
         checkWithoutNull(ranges2);
@@ -379,6 +387,13 @@ public class Range extends Tuple2<Integer, Integer> {
         return result;
     }
 
+    /**
+     * Get all overlapped {@code Range} pairs from the two given collections.
+     *
+     * @param ranges1 the first Collection of {@code Range}
+     * @param ranges2 the second Collection of {@code Range}
+     * @return pairs of {@code Range} from two collections if they are overlapped.
+     */
     public static List<Tuple2<Range, Range>> getOverlappedRangePairs(Collection<Range> ranges1, Collection<Range> ranges2) {
         return getRangePairs(ranges1, ranges2, overlapPredicate);
     }
@@ -396,6 +411,10 @@ public class Range extends Tuple2<Integer, Integer> {
         return _size == 0;
     }
 
+    /**
+     * Get the valid indexes of this {@code Range} as a {@code Stream}
+     * @return a {@code Stream} of integer indexes of this {@code Range}.
+     */
     public Stream<Integer> getStream() {
         if (_size == 0) {
             return Stream.empty();

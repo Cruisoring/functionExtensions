@@ -350,10 +350,22 @@ public class Logger implements ILogger {
         return String.format("Logger of %s or obove.", minLevel);
     }
 
+    /**
+     * Helper method to guess if the message to be logged means something positive.
+     *
+     * @param format the format to compose the message that would be logged.
+     * @return <tt>true</tt> if this message means something positive, otherwise <tt>false</tt>
+     */
     public boolean isSuccess(String format) {
         return StringHelper.containsAnyIgnoreCase(format, DefaultSuccessKeywords);
     }
 
+    /**
+     * Helper method to guess if the message to be logged means something negative.
+     *
+     * @param format the format to compose the message that would be logged.
+     * @return <tt>true</tt> if this message means something negative, otherwise <tt>false</tt>
+     */
     public boolean isFailed(String format) {
         return StringHelper.containsAnyIgnoreCase(format, DefaultFailedKeywords);
     }
@@ -380,11 +392,24 @@ public class Logger implements ILogger {
         return format;
     }
 
+    /**
+     * Evaluate if the message can be logged as concerned {@code LogLevel}
+     *
+     * @param level {@code LogLevel} of the concerned message.
+     * @return <tt>true</tt> if the concerned {@code LogLevel} is supported by
+     * both globally and by this {@code Logger}, otherwise <tt>false</tt>
+     */
     @Override
     public boolean canLog(LogLevel level) {
         return level.compareTo(GlobalLogLevel) >= 0 && level.compareTo(minLevel) >= 0;
     }
 
+    /**
+     * Get the max lines of stacks to be logged for concerned {@code LogLevel} so as to keep relevant StackTrace only.
+     *
+     * @param level <code>LogLevel</code> to be evaluated.
+     * @return the number of stackTraces to be logged. Positive values wold
+     */
     @Override
     public int getStackTraceCount(LogLevel level) {
         switch (level) {
