@@ -84,7 +84,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         }
 
         WithValues row = rows.get(rowIndex);
-        Object[] viewElements = ArrayHelper.create(Object.class, mappedIndex.getLength(),
+        Object[] viewElements = (Object[]) ArrayHelper.create(Object.class, mappedIndex.getLength(),
                 i -> row.getValue(mappedIndex.getValue(i)));
         Tuple tuple = Tuple.of(viewElements);
         return new TupleRow(viewColumns, tuple);
@@ -92,7 +92,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
     @Override
     public WithValuesByName[] getAllRows() {
-        WithValuesByName[] namedRows = ArrayHelper.create(WithValuesByName.class, size(), i -> new TupleRow(columns, rows.get(i)));
+        WithValuesByName[] namedRows = (WithValuesByName[]) ArrayHelper.create(WithValuesByName.class, size(), i -> new TupleRow(columns, rows.get(i)));
         return namedRows;
     }
 
@@ -145,7 +145,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         int width = indexes.length;
         for (int i = 0; i < size; i++) {
             WithValues row = rows.get(i);
-            Object[] elements = ArrayHelper.create(Object.class, width, vIndex -> row.getValue(indexes[vIndex]));
+            Object[] elements = (Object[]) ArrayHelper.create(Object.class, width, vIndex -> row.getValue(indexes[vIndex]));
             table.rows.add(Tuple.of(elements));
         }
         return table;
@@ -163,7 +163,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         try {
             WithValues tuple = rows.get(index);
             Map<Integer, String> indexedNames = getIndexedNames(newValues.keySet());
-            Object[] elements = ArrayHelper.create(Object.class, tuple.getLength(), i -> indexedNames.containsKey(i) ? newValues.get(indexedNames.get(i)) : tuple.getValue(i));
+            Object[] elements = (Object[]) ArrayHelper.create(Object.class, tuple.getLength(), i -> indexedNames.containsKey(i) ? newValues.get(indexedNames.get(i)) : tuple.getValue(i));
             WithValues replacement = Tuple.of(elements);
             rows.remove(index);
             rows.add(index, replacement);
@@ -185,7 +185,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         try {
             WithValuesByName oldRow = getRow(index);
             Map<Integer, String> indexedNames = getIndexedNames(valueSuppliers.keySet());
-            Object[] elements = ArrayHelper.create(Object.class, row.getLength(), i ->
+            Object[] elements = (Object[]) ArrayHelper.create(Object.class, row.getLength(), i ->
                     indexedNames.containsKey(i) ? valueSuppliers.get(indexedNames.get(i)).orElse(null).apply(oldRow) : oldRow.getValue(i));
             WithValues replacement = Tuple.of(elements);
             rows.remove(index);
@@ -208,7 +208,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
                 continue;
             }
             WithValues oldRow = rows.get(index);
-            Object[] elements = ArrayHelper.create(Object.class, oldRow.getLength(), i ->
+            Object[] elements = (Object[]) ArrayHelper.create(Object.class, oldRow.getLength(), i ->
                     indexedNames.containsKey(i) ? valueSuppliers.get(indexedNames.get(i)).orElse(null).apply(row) : oldRow.getValue(i));
             replacements.put(index, Tuple.of(elements));
         }
@@ -217,7 +217,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
             int index = entry.getKey();
             rows.remove(index);
             rows.add(index, entry.getValue());
-        };
+        }
         return replacements.size();
     }
 
@@ -403,7 +403,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
             Object[] elements = IntStream.range(0, width()).boxed().map(i -> mappedIndexes.getValue(i))
                     .map(i -> other.getValue(i)).toArray();
             Tuple row = Tuple.of(elements);
-            return rows.contains(row) ? rows.remove(row) : false;
+            return rows.contains(row) && rows.remove(row);
         } else {
             return rows.remove(((WithValues) o).getValues());
         }

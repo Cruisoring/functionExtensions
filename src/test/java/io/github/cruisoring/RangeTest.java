@@ -1,5 +1,6 @@
 package io.github.cruisoring;
 
+import io.github.cruisoring.logger.Logger;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -305,6 +306,7 @@ public class RangeTest {
         assertTrue(range0_0.isConnected(range0_1));
         assertTrue(range0_1.isConnected(range1_1));
         assertTrue(range0_1.isConnected(range1_2));
+        assertTrue(range1_2.isConnected(range0_1));
         assertFalse(range0_1.isConnected(range2_4));
 
         assertFalse(range0_0.isConnected(range1_1));
@@ -312,6 +314,7 @@ public class RangeTest {
         assertFalse(range0_0.isConnected(range1_3));
         assertFalse(range1_2.isConnected(range3_4));
         assertTrue(range1_3.isConnected(range3_4));
+        assertTrue(range3_4.isConnected(range1_3));
     }
 
     @Test
@@ -496,5 +499,31 @@ public class RangeTest {
     public void canEqual() {
     }
 
+    private void assertRandomIndexes(Range range) {
+        Integer[] indexes = null;
+        for (int i = 0; i < 10; i++) {
+            indexes = range.getRandomIndexes();
+            for (int j = 1; j < indexes.length; j++) {
+                if (indexes[j] < indexes[j - 1]) {
+                    Logger.D("Shuffled indexes for range of %d: %s", indexes.length,
+                            Arrays.stream(indexes).map(index -> index.toString()).collect(Collectors.joining(", ")));
+                    return;
+                }
+            }
+        }
+        fail("Failed to get randome indexes for range of %d: %s", indexes.length,
+                Arrays.stream(indexes).map(index -> index.toString()).collect(Collectors.joining(", ")));
+    }
 
+    @Test
+    public void getRandomIndexes() {
+        Range range1 = Range.closed(1, 1);
+        assertEquals(new Integer[]{1}, range1.getRandomIndexes());
+
+        assertRandomIndexes(Range.closed(0, 1));
+        assertRandomIndexes(Range.closed(0, 2));
+        assertRandomIndexes(Range.closed(0, 5));
+        assertRandomIndexes(Range.closed(0, 10));
+        assertRandomIndexes(Range.closed(0, 100));
+    }
 }

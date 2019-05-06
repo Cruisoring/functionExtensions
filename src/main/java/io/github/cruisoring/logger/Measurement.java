@@ -75,7 +75,7 @@ public class Measurement {
                 namedMeasurements.put(name, table);
             } else {
                 List<String> columnNames = details.getColumnIndexes().getColumnNames();
-                Class[] classes = ArrayHelper.create(Class.class, columnNames.size(), i -> getClass(details.getValueByName(columnNames.get(i))));
+                Class[] classes = (Class[]) ArrayHelper.create(Class.class, columnNames.size(), i -> getClass(details.getValueByName(columnNames.get(i))));
                 IColumns columns = new Columns(columnNames.toArray(new String[0]));
                 TupleTable table = columns.createTable(null, classes);
                 namedMeasurements.put(name, table);

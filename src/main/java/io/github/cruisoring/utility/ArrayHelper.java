@@ -1,5 +1,6 @@
 package io.github.cruisoring.utility;
 
+import io.github.cruisoring.Range;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.BiConsumerThrowable;
 import io.github.cruisoring.function.FunctionThrowable;
@@ -16,8 +17,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Asserts.checkStates;
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.*;
 import static io.github.cruisoring.TypeHelper.valueEquals;
 
 public class ArrayHelper<T, R> {
@@ -78,13 +78,13 @@ public class ArrayHelper<T, R> {
      * are set correctly; otherwise returns null
      */
 
-    public static <T> T[] create(Class<? extends T> clazz, int length, Function<Integer, T> elementSupplier) {
+    public static <T> Object create(Class<? extends T> clazz, int length, Function<Integer, T> elementSupplier) {
         checkWithoutNull(elementSupplier);
 
-        T[] array =(T[])  (clazz == Object.class ? new Object[length] : TypeHelper.getArrayFactory(clazz).orElse(null).apply(length));
+        Object array = clazz == Object.class ? new Object[length] : TypeHelper.getArrayFactory(clazz).orElse(null).apply(length);
 
         for (int i = 0; i < length; i++) {
-            array[i] = elementSupplier.apply(i);
+            Array.set(array, i, elementSupplier.apply(i));
         }
         return array;
     }
@@ -569,6 +569,26 @@ public class ArrayHelper<T, R> {
         }
 
         return (short[]) TypeHelper.toEquivalent(values);
+    }
+
+    /**
+     * Rearrange the elements of the given array randomely to get a new array with same elements but of different sequence.
+     *
+     * @param original the array to be shuffled.
+     * @return a new array with same elements but of different sequence.
+     */
+    public static Object shuffle(Object original) {
+        Class arrayClass = checkNotNull(original, "The given array is null").getClass();
+        checkState(arrayClass.isArray(), "The given value must be an array!");
+
+        int len = Array.getLength(original);
+        if (len < 2) {
+            return TypeHelper.copyOfRange(original, 0, len);
+        }
+
+        Integer[] indexes = Range.closedOpen(0, len).getRandomIndexes();
+        Object shuffled = create(original.getClass().getComponentType(), len, i -> Array.get(original, indexes[i]));
+        return shuffled;
     }
 
     /**

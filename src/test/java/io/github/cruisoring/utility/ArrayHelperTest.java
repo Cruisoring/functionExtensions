@@ -1,6 +1,7 @@
 package io.github.cruisoring.utility;
 
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.logger.Logger;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
@@ -8,6 +9,7 @@ import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static io.github.cruisoring.Asserts.*;
 import static io.github.cruisoring.TypeHelper.valueEquals;
@@ -266,6 +268,41 @@ public class ArrayHelperTest {
         double[] values = null;
         assertNull(ArrayHelper.toObject(values));
     }
+
+    @Test
+    public void create() {
+        assertTrue(
+                Objects.deepEquals(new int[0], ArrayHelper.create(int.class, 0, i -> 100)),
+                Objects.deepEquals(new int[]{0}, ArrayHelper.create(int.class, 1, i -> i)),
+                Objects.deepEquals(new int[]{100, 99}, ArrayHelper.create(int.class, 2, i -> 100 - i)),
+                Objects.deepEquals(new Integer[]{0, 2, 4}, ArrayHelper.create(Integer.class, 3, i -> 2 * i)),
+                Objects.deepEquals(new String[]{"0", "1", "2", "3", "4"}, ArrayHelper.create(String.class, 5, i -> i.toString()))
+        );
+    }
+
+    @Test
+    public void shuffle() {
+        Object int0 = ArrayHelper.shuffle(new int[0]);
+        assertTrue(int0 instanceof int[]);
+        assertEquals(new int[]{1}, ArrayHelper.shuffle(new int[]{1}));
+        Object character2 = getChangedArray(new Character[]{'a', 'b'});
+        Object double3 = getChangedArray(new double[]{0.1, 2.2, 3.333});
+        Object char5 = getChangedArray(new char[]{'a', 'b', 'c', 'd', 'e'});
+        Object integer10 = getChangedArray(new Integer[]{101, 202, 303, 404, 505, 606, 707, 808, 909, 1001});
+    }
+
+    Object getChangedArray(Object array) {
+        for (int i = 0; i < 100; i++) {
+            Object shuffled = ArrayHelper.shuffle(array);
+            if (!valueEquals(shuffled, array)) {
+                Logger.D(TypeHelper.deepToString(shuffled));
+                return shuffled;
+            }
+        }
+        fail("Failed to get a changed array of %s", TypeHelper.deepToString(array));
+        return null;
+    }
+
 
     class A {
     }

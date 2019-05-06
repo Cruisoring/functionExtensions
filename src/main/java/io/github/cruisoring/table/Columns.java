@@ -154,7 +154,7 @@ public class Columns implements IColumns {
 
     @Override
     public String[][] getIndexedColumns() {
-        return ArrayHelper.create(String[].class, indexedColumns.length, i -> indexedColumns[i].clone());
+        return (String[][]) ArrayHelper.create(String[].class, indexedColumns.length, i -> indexedColumns[i].clone());
     }
 
     @Override

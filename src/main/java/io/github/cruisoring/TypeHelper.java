@@ -510,21 +510,41 @@ public class TypeHelper {
     private static int[][] getDeepLength0(Object object, int[] indexes) {
         if (object == null) {
             return new int[][]{mergeOfInts(indexes, NULL_NODE)};
-        } else if (!object.getClass().isArray()) {
+        }
+
+        Class objectClass = object.getClass();
+        if (objectClass.isArray()) {
+            int length = Array.getLength(object);
+            if (length == 0)
+                return new int[][]{mergeOfInts(indexes, EMPTY_ARRAY_NODE)};
+
+            List<int[]> list = new ArrayList<>();
+            for (int i = 0; i < length; i++) {
+                Object element = Array.get(object, i);
+                int[][] positions = getDeepLength0(element, mergeOfInts(indexes, i));
+                list.addAll(Arrays.asList(positions));
+            }
+            return list.toArray(new int[0][]);
+        } else if (object instanceof Collection) {
+            Collection collection = (Collection) object;
+            int size = collection.size();
+            if (size == 0) {
+                return new int[][]{mergeOfInts(indexes, EMPTY_ARRAY_NODE)};
+            }
+
+            List<int[]> list = new ArrayList<>();
+            Iterator iterator = collection.iterator();
+            int i = 0;
+            while (iterator.hasNext()) {
+                Object element = iterator.next();
+                int[][] positions = getDeepLength0(element, mergeOfInts(indexes, i++));
+                list.addAll(Arrays.asList(positions));
+            }
+            return list.toArray(new int[0][]);
+
+        } else {
             return new int[][]{mergeOfInts(indexes, NORMAL_VALUE_NODE)};
         }
-        Class objectClass = object.getClass();
-        int length = Array.getLength(object);
-        if (length == 0)
-            return new int[][]{mergeOfInts(indexes, EMPTY_ARRAY_NODE)};
-
-        List<int[]> list = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            Object element = Array.get(object, i);
-            int[][] positions = getDeepLength0(element, mergeOfInts(indexes, i));
-            list.addAll(Arrays.asList(positions));
-        }
-        return list.toArray(new int[0][]);
     }
 
     /**

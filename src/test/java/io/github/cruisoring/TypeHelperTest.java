@@ -1,6 +1,7 @@
 package io.github.cruisoring;
 
 import io.github.cruisoring.function.*;
+import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple3;
 import io.github.cruisoring.utility.ArrayHelper;
@@ -10,10 +11,7 @@ import java.lang.reflect.Array;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -118,7 +116,7 @@ public class TypeHelperTest {
         deepLength = TypeHelper.getDeepLength(target);
         assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, 0, 0}, new int[]{1, 1, 0}, new int[]{2, 0, -1}, new int[]{2, 1, 0},
                 new int[]{2, 2, 0}, new int[]{2, 3, 0, 0}, new int[]{2, 3, 1, -1}, new int[]{2, 4, -1}, new int[]{3, -1}, new int[]{4, 0}
-                , new int[]{5, -2}, new int[]{6, 0}, new int[]{7, -2}, new int[]{8, 0, -2}, new int[]{8, 1, -1}}, deepLength);
+                , new int[]{5, -2}, new int[]{6, -2}, new int[]{7, -2}, new int[]{8, 0, -2}, new int[]{8, 1, -1}}, deepLength);
         assertEquals(16, deepLength.length);
 
         Object array = new Object[]{1,
@@ -129,6 +127,16 @@ public class TypeHelperTest {
         deepLength = TypeHelper.getDeepLength(array);
         assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, 0, 0}, new int[]{1, 1, 0}, new int[]{2, 0, -1}, new int[]{2, 1, 0},
                 new int[]{2, 2, 0}, new int[]{2, 3, -1}, new int[]{3, -2}, new int[]{4, 0}}, deepLength);
+    }
+
+    @Test
+    public void testGetDeepLength_withCollection() {
+        List list = Arrays.asList(0, null, true, new int[]{1, 2}, new char[0], null, Arrays.asList(5, null), new boolean[][]{null, new boolean[]{true, false}});
+        int[][] deepLength = TypeHelper.getDeepLength(list);
+        Logger.D(TypeHelper.deepToString(deepLength));
+        assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, -1}, new int[]{2, 0}, new int[]{3, 0, 0}, new int[]{3, 1, 0},
+                new int[]{4, -2}, new int[]{5, -1}, new int[]{6, 0, 0}, new int[]{6, 1, -1}, new int[]{7, 0, -1}, new int[]{7, 1, 0, 0}, new int[]{7, 1, 1, 0}
+        }, deepLength);
     }
 
     @Test

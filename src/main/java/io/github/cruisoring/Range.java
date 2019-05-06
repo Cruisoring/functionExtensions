@@ -29,30 +29,6 @@ public class Range extends Tuple2<Integer, Integer> {
     private static final int _RUN_PARALLEL = 100;
     private final static Predicate<Tuple2<Range, Range>> overlapPredicate = tuple -> tuple.getFirst().overlaps(tuple.getSecond());
 
-    //Represent the size of the range in long, -1 when size is infinite
-    private final long _size;
-    private final int _start, _end;
-
-    /**
-     * Constructor of Range support limited scope specified by the start and end index.
-     *
-     * @param startInclusive StartIndex of the concerned scope which might be included in the scope.
-     * @param endExclusive   EndIndex of the concerned scope that is above the last index of the scope.
-     */
-    protected Range(Integer startInclusive, Integer endExclusive) {
-        super(checkWithoutNull(startInclusive), checkWithoutNull(endExclusive));
-
-        checkState(startInclusive <= endExclusive,
-                "Range startInclusive %d shall not be greater or equal to endExclusive %d.", startInclusive, endExclusive);
-
-        _start = startInclusive <= NEGATIVE_INFINITY + 1 ? NEGATIVE_INFINITY : startInclusive;
-        _end = endExclusive > POSITIVE_INFINITY - 1 ? POSITIVE_INFINITY : endExclusive;
-        if (_start == NEGATIVE_INFINITY || _end == POSITIVE_INFINITY)
-            _size = INFINITE_LENGTH;
-        else
-            _size = new Long(_end) - new Long(_start);
-    }
-
     /**
      * Check if the Range is contained by the indexes of bufferSize.
      *
@@ -398,6 +374,30 @@ public class Range extends Tuple2<Integer, Integer> {
         return getRangePairs(ranges1, ranges2, overlapPredicate);
     }
 
+
+    //Represent the size of the range in long, -1 when size is infinite
+    private final long _size;
+    private final int _start, _end;
+
+    /**
+     * Constructor of Range support limited scope specified by the start and end index.
+     *
+     * @param startInclusive StartIndex of the concerned scope which might be included in the scope.
+     * @param endExclusive   EndIndex of the concerned scope that is above the last index of the scope.
+     */
+    protected Range(Integer startInclusive, Integer endExclusive) {
+        super(checkWithoutNull(startInclusive), checkWithoutNull(endExclusive));
+
+        checkState(startInclusive <= endExclusive,
+                "Range startInclusive %d shall not be greater or equal to endExclusive %d.", startInclusive, endExclusive);
+
+        _start = startInclusive <= NEGATIVE_INFINITY + 1 ? NEGATIVE_INFINITY : startInclusive;
+        _end = endExclusive > POSITIVE_INFINITY - 1 ? POSITIVE_INFINITY : endExclusive;
+        if (_start == NEGATIVE_INFINITY || _end == POSITIVE_INFINITY)
+            _size = INFINITE_LENGTH;
+        else
+            _size = new Long(_end) - new Long(_start);
+    }
     /**
      * Get the size of the range as a long value, -1 when it is infinitive.
      *
@@ -431,49 +431,81 @@ public class Range extends Tuple2<Integer, Integer> {
         }
     }
 
-    public boolean contains(int value) {
-        return _start <= value && value < _end;
+    /**
+     * Check if the {@code Range} contains the value.
+     *
+     * @param index the value to be evaluated.
+     * @return <tt>true</tt> if the {@code Range} does contain the value, otherwise <tt>false</tt>.
+     */
+    public boolean contains(int index) {
+        return _start <= index && index < _end;
     }
 
-    public boolean containsAll(List<Integer> values) {
-        checkWithoutNull(values);
+    /**
+     * Check if all values of the list contained by the {@code Range}
+     *
+     * @param indexes the values to be evaluated as a list
+     * @return <tt>true</tt> if the {@code Range} does contain all the values, otherwise <tt>false</tt>.
+     */
+    public boolean containsAll(List<Integer> indexes) {
+        checkWithoutNull(indexes);
 
         if (_size == 0) {
             return false;
-        } else if (values.isEmpty()) {
+        } else if (indexes.isEmpty()) {
             return true;
         }
 
-        Collections.sort(values);
-        return contains(values.get(0)) && (values.size() == 0 || contains(values.get(values.size() - 1)));
+        Collections.sort(indexes);
+        return contains(indexes.get(0)) && (indexes.size() == 0 || contains(indexes.get(indexes.size() - 1)));
     }
 
-    public boolean containsAll(int... values) {
+    /**
+     * Check if all values of the list contained by the {@code Range}
+     *
+     * @param indexes the values to be evaluated as a varargs
+     * @return <tt>true</tt> if the {@code Range} does contain all the values, otherwise <tt>false</tt>.
+     */
+    public boolean containsAll(int... indexes) {
         if (_size == 0) {
             return false;
-        } else if (values.length == 0) {
+        } else if (indexes.length == 0) {
             return true;
         }
 
         for (int value :
-                values) {
+                indexes) {
             if (!contains(value))
                 return false;
         }
         return true;
     }
 
-
+    /**
+     * Check if the {@code Range} contains all the values of other {@code Range}
+     * @param other  another {@code Range} to be evaluated.
+     * @return  <tt>true</tt> if this {@code Range} does contain all the values of other {@code Range}, otherwise <tt>false</tt>.
+     */
     public boolean contains(Range other) {
         checkWithoutNull(other);
         return this._start <= other._start && this._end >= other._end;
     }
 
+    /**
+     * Check if there is no gap between this {@code Range} and other {@code Range}
+     * @param other the other {@code Range} to be evaluated.
+     * @return      <tt>true</tt> if the two {@code Range} are connected, otherwise <tt>false</tt>
+     */
     public boolean isConnected(Range other) {
         checkWithoutNull(other);
         return this._start <= other._end && other._start <= this._end;
     }
 
+    /**
+     * Check if this {@code Range} and other {@code Range} both contain at least one common value
+     * @param other the other {@code Range} to be evaluated.
+     * @return      <tt>true</tt> if the two {@code Range} share common value, otherwise <tt>false</tt>
+     */
     public boolean overlaps(Range other) {
         checkWithoutNull(other);
 
@@ -481,6 +513,11 @@ public class Range extends Tuple2<Integer, Integer> {
                 || (_start > other._start && _start < other._end && _end > other._end);
     }
 
+    /**
+     * Get the shared values between two {@code Range} as a {@code Range}
+     * @param other the other {@code Range} to be evaluated.
+     * @return  {@code Range} containing all shared values
+     */
     public Range intersection(Range other) {
         checkWithoutNull(other);
 
@@ -498,6 +535,11 @@ public class Range extends Tuple2<Integer, Integer> {
         }
     }
 
+    /**
+     * Get the values between two {@code Range}s but not contained by either of them.
+     * @param other the other {@code Range} to be evaluated.
+     * @return  {@code Range} containing all values between two {@code Range}s but not contained by either of them.
+     */
     public Range gapWith(Range other) {
         checkWithoutNull(other);
 
@@ -510,18 +552,34 @@ public class Range extends Tuple2<Integer, Integer> {
         }
     }
 
+    /**
+     * Get the first value that may or may not be contained by this {@code Range}
+     * @return the least value within this {@code Range} if it is not empty, otherwise the value right ahead of it
+     */
     public int getStartInclusive() {
         return _start;
     }
 
+    /**
+     * Get the value before the first value that may or may not be contained by this {@code Range}
+     * @return the biggest value before the first value denoting the first value of this {@code Range}
+     */
     public int getStartExclusive() {
         return _start == NEGATIVE_INFINITY ? NEGATIVE_INFINITY : _start - 1;
     }
 
+    /**
+     * Get the biggest value may or may not contained by this {@code Range}
+     * @return the biggest value within this {@code Range} if it is not empty, otherwise the value right ahead of it
+     */
     public int getEndInclusive() {
         return _end == POSITIVE_INFINITY ? POSITIVE_INFINITY : _end - 1;
     }
 
+    /**
+     * Get the first value bigger than the largest value of the {@code Range}
+     * @return the first value bigger than the largest value of the {@code Range}
+     */
     public int getEndExclusive() {
         return _end;
     }
@@ -562,12 +620,34 @@ public class Range extends Tuple2<Integer, Integer> {
         return children;
     }
 
+    /**
+     * Use the elements within this {@code Range} to construct a new {@code Range}.
+     * @return a new {@code Range} that contains all insider elements of this {@code Range}.
+     */
     public Range getInside() {
         if (_size <= 2) {
             return NONE;
         } else {
             return new Range(_start + 1, _end - 1);
         }
+    }
+
+    /**
+     * Save all values in this {@code Range} as an array with ruandom orders.
+     *
+     * @return {@code Integer[]} of all values of this {@code Range} as an array with ruandom orders.
+     */
+    public Integer[] getRandomIndexes() {
+        assertFalse(_start == NEGATIVE_INFINITY, _end == POSITIVE_INFINITY);
+
+        //Let it throw ArithmeticException if overflow happens
+        int size = Math.toIntExact(_size);
+        List<Integer> list = new ArrayList();
+        Random random = new Random();
+        for (int count = 0, current = _start; current < _end; current++, count++) {
+            list.add(count == 0 ? 0 : random.nextInt(count + 1), current);
+        }
+        return list.toArray(new Integer[size]);
     }
 
     @Override
