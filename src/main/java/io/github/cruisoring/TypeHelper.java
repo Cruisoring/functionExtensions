@@ -24,6 +24,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
+import static io.github.cruisoring.Asserts.assertTrue;
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class TypeHelper {
@@ -31,6 +32,7 @@ public class TypeHelper {
     private final static int NORMAL_VALUE_NODE = 0;
     final static int NULL_NODE = -1;
     final static int EMPTY_ARRAY_NODE = -2;
+    final static int EMPTY_COLLECTION_NODE = -3;
     private final static boolean EMPTY_ARRAY_AS_DEFAULT;
     public final static int PARALLEL_EVALUATION_THRESHOLD;
     private final static EmptyArrayEquality EMPTY_ARRAY_EQUALITY;
@@ -495,6 +497,64 @@ public class TypeHelper {
     }
 
     /**
+     * Get the element of  at the specific position.
+     *
+     * @param object the {@code Array} or {@code Collection} to be searched.
+     * @param index  the position of the element of the {@code Array} or {@code Collection}
+     * @return the element at the specific position of the given {@code Array} or {@code Collection}
+     * @throws IllegalArgumentException if the index is out o f range
+     *                                  IllegalStateException if the given object is not an {@code Array} or {@code Collection}
+     */
+    public static Object getElement(Object object, int index) {
+        assertTrue(object != null, index >= 0);
+
+        if (object.getClass().isArray()) {
+            int length = Array.getLength(object);
+            if (index >= length) {
+                throw new IllegalArgumentException("Invalid index " + index + " of array with length " + length);
+            }
+            return Array.get(object, index);
+        } else if (object instanceof Collection) {
+            Collection collection = (Collection) object;
+            int size = collection.size();
+            if (index >= size) {
+                throw new IllegalArgumentException("Invalid index " + index + " of Collection with size " + size);
+            }
+            Iterator iterator = collection.iterator();
+            int i = 0;
+            Object next;
+            while (iterator.hasNext()) {
+                next = iterator.next();
+                if (i++ == index) {
+                    return next;
+                }
+            }
+        }
+
+        throw new IllegalStateException("Fail to get element of " + deepToString(object) + " at index " + index);
+    }
+
+    /**
+     * Get the element of a given Object by all indexes of its parent arrays or collections.
+     *
+     * @param object    the object to be searched, it can be a {@code Array}, a {@code Collection} or a normal Java Object.
+     * @param deepIndex indexes as a route to the concerned element. {@code int[0]} stands for the concerned Object by itself.
+     * @return the root Object itself if the indexes is empty; or the element of the concerned Object referred by the given {@code deepIndex}
+     */
+    public static Object getDeepElement(Object object, int[] deepIndex) {
+        assertTrue(deepIndex != null);
+
+        int deepIndexLength = deepIndex.length;
+        if (deepIndexLength == 0) {
+            return object;
+        }
+
+        Object child = getElement(object, deepIndex[0]);
+        int[] childIndex = (int[]) copyOfRange(deepIndex, 1, deepIndexLength);
+        return getDeepElement(child, childIndex);
+    }
+
+    /**
      * Return an array of int[] to get the node type and indexes to access EVERY node elements of the concerned object.
      *
      * @param object Object under concerned
@@ -512,8 +572,7 @@ public class TypeHelper {
             return new int[][]{mergeOfInts(indexes, NULL_NODE)};
         }
 
-        Class objectClass = object.getClass();
-        if (objectClass.isArray()) {
+        if (object.getClass().isArray()) {
             int length = Array.getLength(object);
             if (length == 0)
                 return new int[][]{mergeOfInts(indexes, EMPTY_ARRAY_NODE)};
@@ -529,7 +588,7 @@ public class TypeHelper {
             Collection collection = (Collection) object;
             int size = collection.size();
             if (size == 0) {
-                return new int[][]{mergeOfInts(indexes, EMPTY_ARRAY_NODE)};
+                return new int[][]{mergeOfInts(indexes, EMPTY_COLLECTION_NODE)};
             }
 
             List<int[]> list = new ArrayList<>();
@@ -548,28 +607,6 @@ public class TypeHelper {
     }
 
     /**
-     * Get the node as an Object with all indexes of its parent arrays
-     *
-     * @param obj     root Object to get the specific node
-     * @param indexes array indexes if the specific node is kept as element of an array, or empty if the root Object
-     *                is the specific node
-     * @return the root Object itself if the indexes is empty; or the element in an array
-     * Notice: the returned value is converted to Object automatically. For an element of an int[], the returned
-     * value would be the corresponding Integer
-     */
-    static Object getNode(Object obj, int[] indexes) {
-        int last = indexes.length - 1;
-        if (indexes[last] == NULL_NODE)
-            last--;
-
-        Object result = obj;
-        for (int i = 0; i < last; i++) {
-            result = Array.get(result, indexes[i]);
-        }
-        return result;
-    }
-
-    /**
      * Compare the two nodes of two Objects that share the same indexes to retrieve
      *
      * @param obj1               First Object to be compared
@@ -585,29 +622,44 @@ public class TypeHelper {
         int depth = indexes.length;
         int last = indexes[depth - 1];
 
-        if ((last == NULL_NODE && (nullEquality == NullEquality.TypeIgnored || depth == 1))
-                || (last == EMPTY_ARRAY_NODE && emptyArrayEquality == EmptyArrayEquality.TypeIgnored))
-            return true;
-
-        //node1 and node2 shall not be null
-        //getNode would always cast primitive type values to their wrapper objects
-        Object node1 = getNode(obj1, indexes);
-        Object node2 = getNode(obj2, indexes);
-        Class class1 = node1.getClass();
-        Class class2 = node2.getClass();
         if (last == NULL_NODE) {
+            //Now both nodes are null, return true if TypeIgnored or no access to their parents
+            if (nullEquality == NullEquality.TypeIgnored || depth == 1) {
+                return true;
+            }
+
+            //Otherwise their parents must be assignable in any manner
+            indexes = (int[]) copyOfRange(indexes, 0, depth - 2);
+            Class class1 = getDeepElement(obj1, indexes).getClass();
+            Class class2 = getDeepElement(obj2, indexes).getClass();
             return (nullEquality == NullEquality.SameTypeOnly)
                     ? class1.equals(class2)
                     : areEquivalent(class1, class2)
                     || class1.isAssignableFrom(class2)
                     || class2.isAssignableFrom(class1);
         } else if (last == EMPTY_ARRAY_NODE) {
+            //Now both nodes are empty Array, return true if TypeIgnored
+            if (emptyArrayEquality == EmptyArrayEquality.TypeIgnored) {
+                return true;
+            }
+
+            //Otherwise their classes must be assignable in any manner
+            indexes = (int[]) copyOfRange(indexes, 0, depth - 1);
+            Class class1 = getDeepElement(obj1, indexes).getClass();
+            Class class2 = getDeepElement(obj2, indexes).getClass();
             return emptyArrayEquality == EmptyArrayEquality.SameTypeOnly ?
                     class1.equals(class2) :
                     areEquivalent(class1, class2)
                             || class1.isAssignableFrom(class2)
                             || class2.isAssignableFrom(class1);
+        } else if (last == EMPTY_COLLECTION_NODE) {
+            //Now both nodes are empty Collection, simply return true
+            return true;
         } else {
+            indexes = (int[]) copyOfRange(indexes, 0, depth - 1);
+            //getDeepElement would always cast primitive type values to their wrapper objects
+            Object node1 = getDeepElement(obj1, indexes);
+            Object node2 = getDeepElement(obj2, indexes);
             return node1.equals(node2);
         }
     }
@@ -1057,15 +1109,6 @@ public class TypeHelper {
             TriFunctionThrowable<Object, Integer, Integer, Object> copier = getArrayRangeCopier(array.getClass().getComponentType());
             return copier.apply(array, from, to);
         } catch (Exception ex) {
-            return null;
-        }
-    }
-
-
-    public static Object getElementOfArray(Object array, int index){
-        try {
-            return Array.get(array, index);
-        }catch (Exception ex){
             return null;
         }
     }
@@ -1546,6 +1589,18 @@ public class TypeHelper {
 
         Function<Object, String> arrayToString = getArrayToString(objClass.getComponentType());
         return arrayToString.apply(obj);
+    }
+
+    /**
+     * Convert a variable length of elements to an unmodifiable {@code Set}
+     *
+     * @param elements an array of elements of the same type.
+     * @param <T>      type of the elements
+     * @return an unmodifiable {@code Set} composed by the given elements.
+     */
+    public static <T> Set<T> asSet(T... elements) {
+        Set<T> set = new HashSet<T>(Arrays.asList(elements));
+        return Collections.unmodifiableSet(set);
     }
 
     /**
