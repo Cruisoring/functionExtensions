@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.assertTrue;
@@ -479,7 +480,7 @@ public class TypeHelper {
     }
 
     /**
-     * Merge any numbers of int values with an int array and return the merged copy, used by getDeepLength0()
+     * Merge any numbers of int values with an int array and return the merged copy, used by getDeepIndexes0()
      *
      * @param fromRoot    An existing int array
      * @param selfIndexes new int values to be included
@@ -498,12 +499,11 @@ public class TypeHelper {
 
     /**
      * Get the element of  at the specific position.
-     *
-     * @param object the {@code Array} or {@code Collection} to be searched.
-     * @param index  the position of the element of the {@code Array} or {@code Collection}
+     * @param object    the {@code Array} or {@code Collection} to be searched.
+     * @param index     the position of the element of the {@code Array} or {@code Collection}
      * @return the element at the specific position of the given {@code Array} or {@code Collection}
      * @throws IllegalArgumentException if the index is out o f range
-     *                                  IllegalStateException if the given object is not an {@code Array} or {@code Collection}
+     *          IllegalStateException if the given object is not an {@code Array} or {@code Collection}
      */
     public static Object getElement(Object object, int index) {
         assertTrue(object != null, index >= 0);
@@ -538,14 +538,14 @@ public class TypeHelper {
      * Get the element of a given Object by all indexes of its parent arrays or collections.
      *
      * @param object    the object to be searched, it can be a {@code Array}, a {@code Collection} or a normal Java Object.
-     * @param deepIndex indexes as a route to the concerned element. {@code int[0]} stands for the concerned Object by itself.
+     * @param deepIndex     indexes as a route to the concerned element. {@code int[0]} stands for the concerned Object by itself.
      * @return the root Object itself if the indexes is empty; or the element of the concerned Object referred by the given {@code deepIndex}
      */
     public static Object getDeepElement(Object object, int[] deepIndex) {
         assertTrue(deepIndex != null);
 
         int deepIndexLength = deepIndex.length;
-        if (deepIndexLength == 0) {
+        if (deepIndexLength == 0 || deepIndex[0] < 0) {
             return object;
         }
 
@@ -563,11 +563,11 @@ public class TypeHelper {
      * NULL_NODE when it is null, EMPTY_ARRAY_NODE when it is an array of 0 length and otherwise NORMAL_VALUE_NODE.
      * The other int values of the int[] are indexes of the node element or its parent array in their container arrays.
      */
-    public static int[][] getDeepLength(Object object) {
-        return getDeepLength0(object, new int[0]);
+    public static int[][] getDeepIndexes(Object object) {
+        return getDeepIndexes0(object, new int[0]);
     }
 
-    private static int[][] getDeepLength0(Object object, int[] indexes) {
+    private static int[][] getDeepIndexes0(Object object, int[] indexes) {
         if (object == null) {
             return new int[][]{mergeOfInts(indexes, NULL_NODE)};
         }
@@ -580,7 +580,7 @@ public class TypeHelper {
             List<int[]> list = new ArrayList<>();
             for (int i = 0; i < length; i++) {
                 Object element = Array.get(object, i);
-                int[][] positions = getDeepLength0(element, mergeOfInts(indexes, i));
+                int[][] positions = getDeepIndexes0(element, mergeOfInts(indexes, i));
                 list.addAll(Arrays.asList(positions));
             }
             return list.toArray(new int[0][]);
@@ -596,7 +596,7 @@ public class TypeHelper {
             int i = 0;
             while (iterator.hasNext()) {
                 Object element = iterator.next();
-                int[][] positions = getDeepLength0(element, mergeOfInts(indexes, i++));
+                int[][] positions = getDeepIndexes0(element, mergeOfInts(indexes, i++));
                 list.addAll(Arrays.asList(positions));
             }
             return list.toArray(new int[0][]);
@@ -644,7 +644,6 @@ public class TypeHelper {
             }
 
             //Otherwise their classes must be assignable in any manner
-            indexes = (int[]) copyOfRange(indexes, 0, depth - 1);
             Class class1 = getDeepElement(obj1, indexes).getClass();
             Class class2 = getDeepElement(obj2, indexes).getClass();
             return emptyArrayEquality == EmptyArrayEquality.SameTypeOnly ?
@@ -675,8 +674,8 @@ public class TypeHelper {
      * @param emptyArrayEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return <code>true</code> if they have same set of values, otherwise <code>false</code>
      */
-    static boolean deepLengthEquals(Object obj1, Object obj2, int[][] deepLength,
-                                    NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality) {
+    static boolean deepEquals(Object obj1, Object obj2, int[][] deepLength,
+                              NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality) {
         int length = deepLength.length;
 
         if (length < PARALLEL_EVALUATION_THRESHOLD) {
@@ -786,12 +785,12 @@ public class TypeHelper {
         if (simpleEquals != null)
             return simpleEquals;
 
-        int[][] deepLength1 = getDeepLength(obj1);
-        int[][] deepLength2 = getDeepLength(obj2);
+        int[][] deepLength1 = getDeepIndexes(obj1);
+        int[][] deepLength2 = getDeepIndexes(obj2);
         if (!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
 
-        return deepLengthEquals(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
+        return deepEquals(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
     }
 
     /**
@@ -808,7 +807,7 @@ public class TypeHelper {
     }
 
     /**
-     * Comparing two objects with deepLengthEquals directly when their deepDepth provided
+     * Comparing two objects with deepEquals directly when their deepDepth provided
      *
      * @param obj1        first object to be compared
      * @param obj2        second object to be compared
@@ -823,7 +822,7 @@ public class TypeHelper {
         if (!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
 
-        return deepLengthEquals(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return deepEquals(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
     }
 
     /**
@@ -843,8 +842,8 @@ public class TypeHelper {
         if (singleObjectConverter != null)
             return singleObjectConverter;
 
-        int[][] deepLength1 = getDeepLength(obj1);
-        int[][] deepLength2 = getDeepLength(obj2);
+        int[][] deepLength1 = getDeepIndexes(obj1);
+        int[][] deepLength2 = getDeepIndexes(obj2);
         if (!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
         return deepLengthEqualsParallel(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
@@ -865,7 +864,7 @@ public class TypeHelper {
     //endregion
 
     /**
-     * Comparing two objects with deepLengthEquals in parallel when their deepDepth provided
+     * Comparing two objects with deepEquals in parallel when their deepDepth provided
      *
      * @param obj1        first object to be compared
      * @param obj2        second object to be compared
@@ -900,8 +899,8 @@ public class TypeHelper {
         if (singleObjectConverter != null)
             return singleObjectConverter;
 
-        int[][] deepLength1 = getDeepLength(obj1);
-        int[][] deepLength2 = getDeepLength(obj2);
+        int[][] deepLength1 = getDeepIndexes(obj1);
+        int[][] deepLength2 = getDeepIndexes(obj2);
         if (!Arrays.deepEquals(deepLength1, deepLength2))
             return false;
         return deepLengthEqualsSerial(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
@@ -921,7 +920,7 @@ public class TypeHelper {
     }
 
     /**
-     * Comparing two objects with deepLengthEquals parallelly when their deepDepth provided
+     * Comparing two objects with deepEquals parallelly when their deepDepth provided
      *
      * @param obj1        first object to be compared
      * @param obj2        second object to be compared
@@ -1542,19 +1541,25 @@ public class TypeHelper {
      * @return a deep values based hash code of the <tt>obj</tt>
      */
     public static int deepHashCode(Object obj) {
-        if (obj == null)
+        if (obj == null) {
             return 0;
-
-        Class objClass = obj.getClass();
-        if (!objClass.isArray()) {
+        } else if (obj instanceof Collection) {
+            if (((Collection) obj).size() == 0) {
+                return 37;
+            }
+        } else if (obj.getClass().isArray()) {
+            if (Array.getLength(obj) == 0) {
+                return 37;
+            }
+        } else {
             return obj.hashCode();
-        } else if (isPrimitive(objClass)) {
-            obj = toEquivalent(obj);
         }
 
         int result = 1;
-        for (int i = 0; i < Array.getLength(obj); i++) {
-            Object element = Array.get(obj, i);
+        int[][] deepIndexes = getDeepIndexes(obj);
+        for (int i = 0; i < deepIndexes.length; i++) {
+            int[] deepIndex = deepIndexes[i];
+            Object element = getDeepElement(obj, (int[]) copyOfRange(deepIndex, 0, deepIndex.length - 1));
             int elementHash = deepHashCode(element);
 
             result = 31 * result + elementHash;
@@ -1581,21 +1586,26 @@ public class TypeHelper {
      * @return a string represeting of <tt>obj</tt>
      */
     public static String deepToString(Object obj) {
-        if (obj == null)
+        if (obj == null) {
             return "null";
-        Class objClass = obj.getClass();
-        if (!objClass.isArray())
+        } else if (obj instanceof Collection) {
+            Collection collection = (Collection) obj;
+            List<String> elementStrings = IntStream.range(0, collection.size())
+                    .mapToObj(i -> deepToString(getElement(obj, i)))
+                    .collect(Collectors.toList());
+            return "[" + String.join(", ", elementStrings) + "]";
+        } else if (obj.getClass().isArray()) {
+            Function<Object, String> arrayToString = getArrayToString(obj.getClass().getComponentType());
+            return arrayToString.apply(obj);
+        } else {
             return obj.toString();
-
-        Function<Object, String> arrayToString = getArrayToString(objClass.getComponentType());
-        return arrayToString.apply(obj);
+        }
     }
 
     /**
      * Convert a variable length of elements to an unmodifiable {@code Set}
-     *
-     * @param elements an array of elements of the same type.
-     * @param <T>      type of the elements
+     * @param elements  an array of elements of the same type.
+     * @param <T>       type of the elements
      * @return an unmodifiable {@code Set} composed by the given elements.
      */
     public static <T> Set<T> asSet(T... elements) {

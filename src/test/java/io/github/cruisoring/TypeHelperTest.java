@@ -43,7 +43,7 @@ public class TypeHelperTest {
 
     @Test
     public void testNodeEquals() {
-        int[][] deepLength = getDeepLength(object1);
+        int[][] deepLength = getDeepIndexes(object1);
         //Normal nodes are always compared as Objects, 1 vs 1, 1.2d vs 1.2f, 3 vs 4
         assertTrue(nodeEquals(object1, object2, deepLength[0], NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
         assertFalse(nodeEquals(object1, object2, deepLength[1], NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
@@ -80,7 +80,7 @@ public class TypeHelperTest {
         assertFalse(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
 
         //Comparing null of Number and null of Comparable
-        int[] indexes = getDeepLength(nullNumber)[0];
+        int[] indexes = getDeepIndexes(nullNumber)[0];
         assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.TypeIgnored, EmptyArrayEquality.TypeIgnored));
         assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.BetweenAssignableTypes, EmptyArrayEquality.TypeIgnored));
         assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.SameTypeOnly, EmptyArrayEquality.TypeIgnored));
@@ -127,7 +127,7 @@ public class TypeHelperTest {
     }
 
     @Test
-    public void elementByIndex_withSimpleValue() {
+    public void getDeepElement_withSimpleValue() {
         assertNull(getDeepElement(null, new int[0]));
         assertException(() -> getDeepElement(null, new int[]{0}), IllegalStateException.class);
 
@@ -141,17 +141,21 @@ public class TypeHelperTest {
     }
 
     @Test
-    public void elementByIndex_withEmptyArray() {
+    public void getDeepElement_withEmptyArray() {
         assertEquals(new int[0], getDeepElement(new int[0], new int[0]));
         assertException(() -> getDeepElement(new int[0], new int[]{0}), IllegalArgumentException.class);
 
         assertEquals(new String[]{}, getDeepElement(new String[]{}, new int[0]));
         assertException(() -> getDeepElement(new String[]{}, new int[]{0}), IllegalArgumentException.class);
         assertException(() -> getDeepElement(new String[]{}, new int[]{0, 0}), IllegalArgumentException.class);
+
+        assertEquals(new Number[][]{}, getDeepElement(new Number[][]{}, new int[0]));
+        assertException(() -> getDeepElement(new Number[][]{}, new int[]{0}), IllegalArgumentException.class);
+        assertException(() -> getDeepElement(new String[][]{}, new int[]{0, 0}), IllegalArgumentException.class);
     }
 
     @Test
-    public void elementByIndex_withEmptyCollection() {
+    public void getDeepElement_withEmptyCollection() {
         assertEquals(new ArrayList(), getDeepElement(new ArrayList(), new int[0]));
         assertException(() -> getDeepElement(new int[0], new int[]{0}), IllegalArgumentException.class);
 
@@ -161,21 +165,74 @@ public class TypeHelperTest {
     }
 
     @Test
-    public void testGetDeepLength() {
+    public void getDeepElement_withSimpleArray() {
+        assertEquals(new int[]{1, 2, 3}, getDeepElement(new int[]{1, 2, 3}, new int[0]));
+        assertEquals(1, getDeepElement(new int[]{1, 2, 3}, new int[]{0}));
+        assertEquals(3, getDeepElement(new int[]{1, 2, 3}, new int[]{2}));
+        assertException(() -> getDeepElement(new int[]{1, 2, 3}, new int[]{3}), IllegalArgumentException.class);
+
+        assertEquals(new String[]{"a", null}, getDeepElement(new String[]{"a", null}, new int[0]));
+        assertEquals("a", getDeepElement(new String[]{"a", null}, new int[]{0}));
+        assertEquals(null, getDeepElement(new String[]{"a", null}, new int[]{1}));
+        assertException(() -> getDeepElement(new String[]{"a", null}, new int[]{2}), IllegalArgumentException.class);
+        assertException(() -> getDeepElement(new String[]{"a", null}, new int[]{0, 0}), IllegalStateException.class);
+    }
+
+    @Test
+    public void getDeepElement_withSimpleCollection() {
+        List list = Arrays.asList(1, 2.2, null, "abc", true);
+        assertEquals(list, getDeepElement(list, new int[0]));
+        assertEquals(1, getDeepElement(list, new int[]{0}));
+        assertEquals(2.2, getDeepElement(list, new int[]{1}));
+        assertEquals(null, getDeepElement(list, new int[]{2}));
+        assertEquals(true, getDeepElement(list, new int[]{4}));
+        assertException(() -> getDeepElement(new int[0], new int[]{5}), IllegalArgumentException.class);
+    }
+
+    @Test
+    public void getDeepElement_withMultiDimensionArray() {
+        Object array = new int[][]{new int[]{1}, null, new int[]{2, 3}};
+        assertEquals(1, getDeepElement(array, new int[]{0, 0}));
+        assertEquals(null, getDeepElement(array, new int[]{1}));
+        assertEquals(new int[]{2, 3}, getDeepElement(array, new int[]{2}));
+        assertEquals(2, getDeepElement(array, new int[]{2, 0}));
+        assertEquals(3, getDeepElement(array, new int[]{2, 1}));
+        assertException(() -> getDeepElement(array, new int[]{1, 0}), IllegalStateException.class);
+        assertException(() -> getDeepElement(array, new int[]{2, 2}), IllegalArgumentException.class);
+    }
+
+    @Test
+    public void getDeepElement_withCollectionOfCollection() {
+        List list = Arrays.asList(new int[]{1}, null, new int[]{2, 3}, Arrays.asList(4, null, 6));
+        assertEquals(1, getDeepElement(list, new int[]{0, 0}));
+        assertEquals(null, getDeepElement(list, new int[]{1}));
+        assertEquals(new int[]{2, 3}, getDeepElement(list, new int[]{2}));
+        assertEquals(2, getDeepElement(list, new int[]{2, 0}));
+        assertEquals(3, getDeepElement(list, new int[]{2, 1}));
+        assertEquals(4, getDeepElement(list, new int[]{3, 0}));
+        assertEquals(null, getDeepElement(list, new int[]{3, 1}));
+        assertEquals(6, getDeepElement(list, new int[]{3, 2}));
+        assertException(() -> getDeepElement(list, new int[]{1, 0}), IllegalStateException.class);
+        assertException(() -> getDeepElement(list, new int[]{2, 2}), IllegalArgumentException.class);
+        assertException(() -> getDeepElement(list, new int[]{4}), IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testGetDeepIndexes() {
         Object target = null;
-        int[][] deepLength = getDeepLength(target);
+        int[][] deepLength = getDeepIndexes(target);
         assertEquals(new int[][]{new int[]{-1}}, deepLength);
 
         target = 33;
-        deepLength = getDeepLength(target);
+        deepLength = getDeepIndexes(target);
         assertEquals(new int[][]{new int[]{0}}, deepLength);
 
         target = new Integer[]{null};
-        deepLength = getDeepLength(target);
+        deepLength = getDeepIndexes(target);
         assertEquals(new int[][]{new int[]{0, -1}}, deepLength);
 
         target = new Integer[]{null, null};
-        deepLength = getDeepLength(target);
+        deepLength = getDeepIndexes(target);
         assertEquals(new int[][]{new int[]{0, -1}, new int[]{1, -1}}, deepLength);
 
         target = new Object[]{1,
@@ -187,7 +244,7 @@ public class TypeHelperTest {
                 new ArrayList(),
                 new char[0][],
                 new int[][]{new int[0], null}};
-        deepLength = getDeepLength(target);
+        deepLength = getDeepIndexes(target);
         assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, 0, 0}, new int[]{1, 1, 0}, new int[]{2, 0, -1}, new int[]{2, 1, 0},
                 new int[]{2, 2, 0}, new int[]{2, 3, 0, 0}, new int[]{2, 3, 1, -1}, new int[]{2, 4, -1}, new int[]{3, -1}, new int[]{4, 0}
                 , new int[]{5, -2}, new int[]{6, -3}, new int[]{7, -2}, new int[]{8, 0, -2}, new int[]{8, 1, -1}}, deepLength);
@@ -198,15 +255,29 @@ public class TypeHelperTest {
                 new Object[]{null, '5', '6', null},
                 new char[0],
                 11.0};
-        deepLength = getDeepLength(array);
+        deepLength = getDeepIndexes(array);
         assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, 0, 0}, new int[]{1, 1, 0}, new int[]{2, 0, -1}, new int[]{2, 1, 0},
                 new int[]{2, 2, 0}, new int[]{2, 3, -1}, new int[]{3, -2}, new int[]{4, 0}}, deepLength);
     }
 
     @Test
-    public void testGetDeepLength_withCollection() {
+    public void testDeepToString() {
+        assertEquals("null", deepToString(null));
+        assertEquals("1", deepToString(1));
+        assertEquals("a String", deepToString("a String"));
+
+        assertEquals("[null, 1, true, abc, x]", deepToString(new Object[]{null, 1, true, "abc", 'x'}));
+        assertEquals("[null, 1, true, abc, x]", deepToString(Arrays.asList(null, 1, true, "abc", 'x')));
+
+        assertEquals("[null, [1, null], [true, abc, x]]", deepToString(new Object[]{null, new Object[]{1, null}, new Object[]{true, "abc", 'x'}}));
+        assertEquals("[null, [1, null], [true, abc, x]]", deepToString(Arrays.asList(null, Arrays.asList(1, null), Arrays.asList(true, "abc", 'x'))));
+        assertEquals("[null, [1, null], [true, abc, x]]", deepToString(Arrays.asList(null, Arrays.asList(1, null), new Object[]{true, "abc", 'x'})));
+    }
+
+    @Test
+    public void testGetDeepIndexes_withCollection() {
         List list = Arrays.asList(0, null, true, new int[]{1, 2}, new char[0], null, Arrays.asList(5, null), new boolean[][]{null, new boolean[]{true, false}});
-        int[][] deepLength = getDeepLength(list);
+        int[][] deepLength = getDeepIndexes(list);
         Logger.D(deepToString(deepLength));
         assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, -1}, new int[]{2, 0}, new int[]{3, 0, 0}, new int[]{3, 1, 0},
                 new int[]{4, -2}, new int[]{5, -1}, new int[]{6, 0, 0}, new int[]{6, 1, -1}, new int[]{7, 0, -1}, new int[]{7, 1, 0, 0}, new int[]{7, 1, 1, 0}
@@ -1393,6 +1464,21 @@ public class TypeHelperTest {
         LocalDate date = LocalDate.of(2019, 1, 31);
         assertEquals("2019-01-31", asString(date));
         assertEquals("1-31, 19", asString(date, "M-D, yy"));
+    }
+
+    @Test
+    public void testDeepHashCode() {
+        assertEquals(0, deepHashCode(null));
+        assertEquals(37, deepHashCode(new int[0]));
+        assertEquals(37, deepHashCode(new ArrayList()));
+
+        List listOfNull = new ArrayList();
+        listOfNull.add(null);
+        assertEquals(deepHashCode(listOfNull), deepHashCode(new Integer[]{null}));
+        assertEquals(deepHashCode(new Integer[]{1, 2, 3}), deepHashCode(new int[]{1, 2, 3}));
+        assertEquals(deepHashCode(new int[]{1, 2, 3}), deepHashCode(Arrays.asList(1, 2, 3)));
+        assertEquals(deepHashCode(new Object[]{null, new int[]{1, 5}, new int[][]{null, new int[]{3}, new int[]{7}}}),
+                deepHashCode(Arrays.asList(null, Arrays.asList(1, 5), Arrays.asList(null, Arrays.asList(3), new int[]{7}))));
     }
 
     interface ITest1 {

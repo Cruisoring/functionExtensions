@@ -528,7 +528,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
     @Override
     public int[][] getDeepLength() {
         if (deepLength == null) {
-            deepLength = TypeHelper.getDeepLength(values);
+            deepLength = TypeHelper.getDeepIndexes(values);
         }
         return deepLength;
     }
