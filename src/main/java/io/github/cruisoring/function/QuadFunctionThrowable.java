@@ -27,6 +27,37 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends WithValueReturned<
     R apply(T t, U u, V v, W w) throws Exception;
 
     /**
+     * Execute the given business logic to return the generated value or null if Exception is thrown.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @return the result of type <tt>R</tt> if applying the given argments successfully, or <tt>null</tt> if Exception is thrown.
+     */
+    default R tryApply(T t, U u, V v, W w) {
+        try {
+            return apply(t, u, v, w);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /**
+     * Convert the {@code QuadFunctionThrowable<T, U, V, W, R>} to {@code SupplierThrowable<R>} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @return the {@code SupplierThrowable<R>} instance invoking the original
+     * {@code QuadFunctionThrowable<T, U, V, W, R>} with required arguments
+     */
+    default SupplierThrowable<R> asSupplierThrowable(T t, U u, V v, W w) {
+        return () -> apply(t, u, v, w);
+    }
+
+    /**
      * Convert the QuadFunctionThrowable&lt;T,U,V,W, R&gt; to QuadFunction&lt;T,U,V,W, R&gt; with injected Exception Handler
      *
      * @param exceptionHandler Exception Handler of the caught Exceptions

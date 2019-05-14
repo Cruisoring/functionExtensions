@@ -15,7 +15,6 @@ public interface RunnableThrowable {
      */
     void run() throws Exception;
 
-
     /**
      * Execute <code>run()</code> and ignore any Exceptions thrown.
      */

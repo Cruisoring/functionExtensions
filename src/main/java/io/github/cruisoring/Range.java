@@ -36,7 +36,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @param length Length of the valid range [0, bufferSize)
      * @return True if the range is contained by [0, bufferSize), otherwise False.
      */
-    public static boolean isValidOfLength(Range range, Integer length) {
+    public static boolean withinLength(Range range, Integer length) {
         checkStates(length >= 0);
 
         return range != null && range._start >= 0 && range._end <= length;
@@ -48,7 +48,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @param length Length of the enumerable object, must be greater than or equal to 0.
      * @return Range of the indexes.
      */
-    public static Range indexesOfLength(int length) {
+    public static Range ofLength(int length) {
         checkState(length >= 0, "Length shall not be negative value: " + length);
         return length == 0 ? NONE : new Range(0, length);
     }
@@ -158,7 +158,7 @@ public class Range extends Tuple2<Integer, Integer> {
      */
     public static String subString(CharSequence jsonText, Range range) {
         checkStates(StringUtils.isNotBlank(jsonText));
-        checkStates(Range.isValidOfLength(range, jsonText.length()));
+        checkStates(Range.withinLength(range, jsonText.length()));
 
         return jsonText.subSequence(range.getStartInclusive(), range.getEndExclusive()).toString();
     }

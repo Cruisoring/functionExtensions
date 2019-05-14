@@ -36,6 +36,17 @@ public interface BiConsumerThrowable<T, U> {
     }
 
     /**
+     * Convert the {@code BiConsumerThrowable<T, U>} to {@code RunnableThrowable} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @return the {@code RunnableThrowable} instance invoking the original {@code BiConsumerThrowable<T, U>} with required arguments
+     */
+    default RunnableThrowable asRunnableThrowable(T t, U u) {
+        return () -> accept(t, u);
+    }
+
+    /**
      * Convert the BiConsumerThrowable&lt;T,U&gt; to BiConsumer&lt;T,U&gt; with injected Exception Handler
      *
      * @param exceptionHandler Exception Handler of the caught Exceptions

@@ -46,6 +46,21 @@ public interface HexaConsumerThrowable<T, U, V, W, X, Y> {
     }
 
     /**
+     * Convert the {@code HexaConsumerThrowable<T, U, V, W, X, Y>} to {@code RunnableThrowable} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @param x The fifth argument of type <code>X</code>.
+     * @param y The sixth argument of type <code>Y</code>.
+     * @return the {@code RunnableThrowable} instance invoking the original {@code HexaConsumerThrowable<T, U, V, W, X, Y>} with required arguments
+     */
+    default RunnableThrowable asRunnableThrowable(T t, U u, V v, W w, X x, Y y) {
+        return () -> accept(t, u, v, w, x, y);
+    }
+
+    /**
      * Convert the HexaConsumerThrowable&lt;T,U,V,W,X,Y&gt; to HexaConsumer&lt;T,U,V,W,X,Y&gt; with injected Exception Handler
      *
      * @param exceptionHandler Exception Handler of the caught Exceptions

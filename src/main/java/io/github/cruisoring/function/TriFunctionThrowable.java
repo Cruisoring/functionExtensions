@@ -25,6 +25,35 @@ public interface TriFunctionThrowable<T, U, V, R> extends WithValueReturned<R> {
     R apply(T t, U u, V v) throws Exception;
 
     /**
+     * Execute the given business logic to return the generated value or null if Exception is thrown.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @return the result of type <tt>R</tt> if applying the given argments successfully, or <tt>null</tt> if Exception is thrown.
+     */
+    default R tryApply(T t, U u, V v) {
+        try {
+            return apply(t, u, v);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /**
+     * Convert the {@code TriFunctionThrowable<T, U, V, R>} to {@code SupplierThrowable<R>} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @return the {@code SupplierThrowable<R>} instance invoking the original
+     * {@code TriFunctionThrowable<T, U, V, R>} with required arguments
+     */
+    default SupplierThrowable<R> asSupplierThrowable(T t, U u, V v) {
+        return () -> apply(t, u, v);
+    }
+
+    /**
      * Convert the TriFunctionThrowable&lt;T,U,V, R&gt; to TriFunction&lt;T,U,V, R&gt; with injected Exception Handler
      *
      * @param exceptionHandler Exception Handler of the caught Exceptions

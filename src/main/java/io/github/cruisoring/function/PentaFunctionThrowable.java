@@ -29,6 +29,39 @@ public interface PentaFunctionThrowable<T, U, V, W, X, R> extends WithValueRetur
     R apply(T t, U u, V v, W w, X x) throws Exception;
 
     /**
+     * Execute the given business logic to return the generated value or null if Exception is thrown.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @param x The fifth argument of type <code>X</code>.
+     * @return the result of type <tt>R</tt> if applying the given argments successfully, or <tt>null</tt> if Exception is thrown.
+     */
+    default R tryApply(T t, U u, V v, W w, X x) {
+        try {
+            return apply(t, u, v, w, x);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /**
+     * Convert the {@code PentaFunctionThrowable<T, U, V, W, X, R>} to {@code SupplierThrowable<R>} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @param x The fifth argument of type <code>X</code>.
+     * @return the {@code SupplierThrowable<R>} instance invoking the original
+     * {@code PentaFunctionThrowable<T, U, V, W, X, R>} with required arguments
+     */
+    default SupplierThrowable<R> asSupplierThrowable(T t, U u, V v, W w, X x) {
+        return () -> apply(t, u, v, w, x);
+    }
+
+    /**
      * Convert the PentaFunctionThrowable&lt;T,U,V,W,X, R&gt; to PentaFunction&lt;T,U,V,W,X, R&gt; with injected Exception Handler
      *
      * @param exceptionHandler Exception Handler of the caught Exceptions

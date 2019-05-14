@@ -21,6 +21,19 @@ public interface SupplierThrowable<R> extends WithValueReturned<R> {
     R get() throws Exception;
 
     /**
+     * Execute the given business logic to return the generated value or null if Exception is thrown.
+     *
+     * @return the result of type <tt>T</tt> or <tt>null</tt> if Exception is thrown.
+     */
+    default R tryGet() {
+        try {
+            return get();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /**
      * Convert the SupplierThrowable&lt;R&gt; to Supplier&lt;R&gt;
      *
      * @param exceptionHandler Exception Handler of the caught Exceptions that retuns default value of type R.

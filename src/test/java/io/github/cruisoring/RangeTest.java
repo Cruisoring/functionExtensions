@@ -28,7 +28,7 @@ public class RangeTest {
     @Test
     public void indexesOfLength() {
         Range range;
-        range = Range.indexesOfLength(0);
+        range = Range.ofLength(0);
         assertEquals(Range.NONE, range);
         assertEquals("[0, 0)", range.toString());
         assertEquals(0L, range.size());
@@ -38,7 +38,7 @@ public class RangeTest {
         assertEquals(0, range.getEndExclusive());
         assertEquals(Integer.valueOf(100), range.getStream().findFirst().orElse(100));
 
-        range = Range.indexesOfLength(1);
+        range = Range.ofLength(1);
         assertEquals("[0, 1)", range.toString());
         assertEquals(1L, range.size());
         assertEquals(0, range.getStartInclusive());
@@ -47,7 +47,7 @@ public class RangeTest {
         assertEquals(1, range.getEndExclusive());
         assertEquals(Arrays.asList(0), range.getStream().collect(Collectors.toList()));
 
-        range = Range.indexesOfLength(3);
+        range = Range.ofLength(3);
         assertEquals("[0, 3)", range.toString());
         assertEquals(3L, range.size());
         assertEquals(0, range.getStartInclusive());
@@ -57,7 +57,7 @@ public class RangeTest {
         assertEquals(Arrays.asList(0, 1, 2), range.getStream().collect(Collectors.toList()));
 
         //java.lang.IllegalStateException: Length shall not be negative value: -1
-        //range = Range.indexesOfLength(-1);
+        //range = Range.ofLength(-1);
     }
 
     @Test
@@ -234,20 +234,20 @@ public class RangeTest {
     @Test
     public void contains() {
         Range range;
-        range = Range.indexesOfLength(0);
+        range = Range.ofLength(0);
         assertEquals(Range.NONE, range);
         assertEquals("[0, 0)", range.toString());
         assertFalse(range.contains(0),
                 range.contains(1),
                 range.contains(-1));
 
-        range = Range.indexesOfLength(1);
+        range = Range.ofLength(1);
         assertEquals("[0, 1)", range.toString());
         assertTrue(range.contains(0));
         assertFalse(range.contains(1),
                 range.contains(-1));
 
-        range = Range.indexesOfLength(3);
+        range = Range.ofLength(3);
         assertEquals("[0, 3)", range.toString());
         assertTrue(range.contains(0),
                 range.contains(1),
@@ -279,15 +279,15 @@ public class RangeTest {
                 range2_4.contains(range1_2));
         assertTrue(range2_4.contains(range3_4));
 
-        Range range0_9 = Range.indexesOfLength(9);
+        Range range0_9 = Range.ofLength(9);
         assertTrue(range0_9.contains(range0_1),
                 range0_9.contains(range1_1),
                 range0_9.contains(range1_2),
                 range0_9.contains(range2_4),
                 range0_9.contains(range3_4));
 
-        Range range0_9_2 = Range.indexesOfLength(9);
-        Range range0_15 = Range.indexesOfLength(15);
+        Range range0_9_2 = Range.ofLength(9);
+        Range range0_15 = Range.ofLength(15);
         assertTrue(range0_9.contains(range0_9_2),
                 range0_15.contains(range0_9));
     }

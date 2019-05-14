@@ -13,15 +13,6 @@ public interface IWithColor {
     String[] DefaultFailedKeywords = new String[]{"fail", "error", "exception", "wrong", "mistake", "problem"};
 
     /**
-     * Wrap the text with color asscciated with the given LogLevel.
-     *
-     * @param level the <code>LogLevel</code> of the final log containing the given <code>text</code>
-     * @param text  the text to be displayed with the color of the associated <code>level</code>
-     * @return the modified text which would be displayed with color of the associated <code>level</code>
-     */
-    String withColor(LogLevel level, String text);
-
-    /**
      * Provide replacement for Regex matchings to indicate fail result.
      *
      * @return the replacement of Regex matching that indicate it as fail.

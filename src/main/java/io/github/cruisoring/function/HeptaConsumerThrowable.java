@@ -48,6 +48,22 @@ public interface HeptaConsumerThrowable<T, U, V, W, X, Y, Z> {
         }
     }
 
+    /**
+     * Convert the {@code HeptaConsumerThrowable<T, U, V, W, X, Y, Z>} to {@code RunnableThrowable} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @param x The fifth argument of type <code>X</code>.
+     * @param y The sixth argument of type <code>Y</code>.
+     * @param z The seventh argument of type <code>Z</code>.
+     * @return the {@code RunnableThrowable} instance invoking the original {@code HeptaConsumerThrowable<T, U, V, W, X, Y, Z>} with required arguments
+     */
+    default RunnableThrowable asRunnableThrowable(T t, U u, V v, W w, X x, Y y, Z z) {
+        return () -> accept(t, u, v, w, x, y, z);
+    }
+
 
     /**
      * Convert the HeptaConsumerThrowable&lt;T,U,V,W,X,Y,Z&gt; to HeptaConsumer&lt;T,U,V,W,X,Y,Z&gt; with injected Exception Handler

@@ -37,6 +37,18 @@ public interface TriConsumerThrowable<T, U, V> {
     }
 
     /**
+     * Convert the {@code TriConsumerThrowable<T, U, V>} to {@code RunnableThrowable} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @return the {@code RunnableThrowable} instance invoking the original {@code TriConsumerThrowable<T, U, V>} with required arguments
+     */
+    default RunnableThrowable asRunnableThrowable(T t, U u, V v) {
+        return () -> accept(t, u, v);
+    }
+
+    /**
      * Convert the TriConsumerThrowable&lt;T,U,V&gt; to TriConsumer&lt;T,U,V&gt; with injected Exception Handler
      *
      * @param exceptionHandler Exception Handler of the caught Exceptions

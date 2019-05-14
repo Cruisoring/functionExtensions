@@ -43,6 +43,20 @@ public interface PentaConsumerThrowable<T, U, V, W, X> {
     }
 
     /**
+     * Convert the {@code PentaConsumerThrowable<T, U, V, W, X>} to {@code RunnableThrowable} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @param x The fifth argument of type <code>X</code>.
+     * @return the {@code RunnableThrowable} instance invoking the original {@code PentaConsumerThrowable<T, U, V, W, X>} with required arguments
+     */
+    default RunnableThrowable asRunnableThrowable(T t, U u, V v, W w, X x) {
+        return () -> accept(t, u, v, w, x);
+    }
+
+    /**
      * Convert the PentaConsumerThrowable&lt;T,U,V,W,X&gt; to PentaConsumer&lt;T,U,V,W,X&gt; with injected Exception Handler
      *
      * @param exceptionHandler Exception Handler of the caught Exceptions

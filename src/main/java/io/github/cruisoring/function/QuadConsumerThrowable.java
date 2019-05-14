@@ -40,6 +40,19 @@ public interface QuadConsumerThrowable<T, U, V, W> {
     }
 
     /**
+     * Convert the {@code QuadConsumerThrowable<T, U, V, W>} to {@code RunnableThrowable} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @return the {@code RunnableThrowable} instance invoking the original {@code QuadConsumerThrowable<T, U, V, W>} with required arguments
+     */
+    default RunnableThrowable asRunnableThrowable(T t, U u, V v, W w) {
+        return () -> accept(t, u, v, w);
+    }
+
+    /**
      * Convert the QuadConsumerThrowable&lt;T,U,V,W&gt; to QuadConsumer&lt;T,U,V,W&gt; with injected Exception Handler
      *
      * @param exceptionHandler Exception Handler of the caught Exceptions

@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import java.util.function.BiPredicate;
+
 /**
  * Functional Interface identifying methods, accepting 2 arguments and returning value type of boolean
  * while their service logic could throw Exceptions.
@@ -19,5 +21,21 @@ public interface BiPredicateThrowable<T, U> extends BiFunctionThrowable<T, U, Bo
      */
     default boolean test(T t, U u) throws Exception {
         return apply(t, u);
+    }
+
+    /**
+     * Convert this {@code BiPredicateThrowable<T, U>} to {@code BiPredicate<T, U>} by returning <code>false</code> with Exception.
+     *
+     * @return {@code BiPredicate<T, U>} with same predicate logic except always return false with Exception.
+     */
+    default BiPredicate<T, U> orElse() {
+        BiPredicate<T, U> predicate = (t, u) -> {
+            try {
+                return apply(t, u);
+            } catch (Exception ignored) {
+                return false;
+            }
+        };
+        return predicate;
     }
 }

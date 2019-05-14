@@ -22,6 +22,30 @@ public interface FunctionThrowable<T, R> extends WithValueReturned<R> {
     R apply(T t) throws Exception;
 
     /**
+     * Execute the given business logic to return the generated value or null if Exception is thrown.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @return the result of type <tt>R</tt> if applying the given argments successfully, or <tt>null</tt> if Exception is thrown.
+     */
+    default R tryApply(T t) {
+        try {
+            return apply(t);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /**
+     * Convert the {@code FunctionThrowable<T, R>} to {@code SupplierThrowable<R>} with given argument.
+     *
+     * @param t the argument of type <tt>T</tt>
+     * @return the {@code SupplierThrowable<R>} instance invoking the original {@code FunctionThrowable<T, R>} with required arguments
+     */
+    default SupplierThrowable<R> asSupplierThrowable(T t) {
+        return () -> apply(t);
+    }
+
+    /**
      * Convert the FunctionThrowable&lt;T,R&gt; to Function&lt;T,R&gt; with injected Exception Handler
      *
      * @param exceptionHandler Handler of the caught Exceptions and returns default value

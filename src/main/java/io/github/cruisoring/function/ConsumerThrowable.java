@@ -13,7 +13,7 @@ public interface ConsumerThrowable<T> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 1 argument and returning nothing.
      *
-     * @param t Needed argument of type T.
+     * @param t The first argument of type <code>T</code>.
      * @throws Exception Any Exception could be thrown by the concerned service logic.
      */
     void accept(T t) throws Exception;
@@ -28,6 +28,16 @@ public interface ConsumerThrowable<T> {
             accept(t);
         } catch (Exception e) {
         }
+    }
+
+    /**
+     * Convert the {@code ConsumerThrowable<T>} to {@code RunnableThrowable} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @return the {@code RunnableThrowable} instance invoking the original {@code ConsumerThrowable<T>} with required arguments
+     */
+    default RunnableThrowable asRunnableThrowable(T t) {
+        return () -> accept(t);
     }
 
     /**

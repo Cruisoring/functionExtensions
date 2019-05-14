@@ -107,11 +107,6 @@ public class ConsoleLogger extends Logger implements IWithColor {
     }
 
     @Override
-    public String withColor(LogLevel level, String text) {
-        return null;
-    }
-
-    @Override
     public String getMessage(LogLevel level, String format, Object... args) {
         checkWithoutNull(format);
         final String label = String.format("[%s%s]: ", level.label, DefaultTimeStampFormatter == null ? "" : "@" + LocalDateTime.now().format(DefaultTimeStampFormatter));
