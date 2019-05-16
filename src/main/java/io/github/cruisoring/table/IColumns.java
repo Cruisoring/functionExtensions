@@ -9,6 +9,9 @@ import java.util.function.Supplier;
 import static io.github.cruisoring.Asserts.checkStates;
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
+/**
+ * Interface to specify how Columns of a table shall function which can map Column names to indexes.
+ */
 public interface IColumns extends Map<String, Integer> {
 
     /**
@@ -98,6 +101,7 @@ public interface IColumns extends Map<String, Integer> {
     WithValues<Integer> mapIndexes(IColumns other);
 
     //region Factory methods to create strong-typed TupleRows
+
     /**
      * Factory mathod to create strong-typed <code>TableRow</code> instance with given values.
      * @param elements  Values to be used to create the strong-typed <code>TableRow</code> instance
@@ -143,6 +147,13 @@ public interface IColumns extends Map<String, Integer> {
         }
     }
 
+    /**
+     * Wrap a strong-typed {@code WithValues} instance such as Tuple to a row whose cells can be referred by names
+     *
+     * @param tuple the container to hold the actual data of a single row with orders specified by this {@code IColumns}
+     * @return a light-weight {@code TupleRow} object that hold all its cell values as {@code WithValues}
+     * such as an immutable {@code Tuple} and with shared {@code IColumns} to access them by names.
+     */
     default TupleRow asRow(WithValues tuple){
         checkWithoutNull(tuple);
 
@@ -165,6 +176,7 @@ public interface IColumns extends Map<String, Integer> {
         }
     }
 
+    //region Factory methods to create strong-typed TupleRow instance with both width and value types specified
     default <T> TupleRow1<T> asRow1(WithValues1<T> tuple){
         return new TupleRow1<>(this, tuple);
     }
@@ -215,8 +227,16 @@ public interface IColumns extends Map<String, Integer> {
         return new TupleRowPlus<>(this, tuple);
     }
     //endregion
+    //endregion
 
     //region Factory methods to create strong-typed TupleTables
+
+    /**
+     * Construct a {@code TupleTable} instance with both row values supplier and types of the columns in order
+     * @param rowsSupplier  the supplier of the row data as a list of {@code WithValues}
+     * @param types     types of the columns in order, for example: {@code types[0]} specifies the value types of the first column
+     * @return a {@code TupleTable} instance with both values and value types fixed
+     */
     default TupleTable createTable(Supplier<List<WithValues>> rowsSupplier, Class... types){
         checkWithoutNull(types);
 
@@ -258,7 +278,8 @@ public interface IColumns extends Map<String, Integer> {
                         Arrays.copyOfRange(types, 10, length));
         }
     }
-    
+
+    //region Factory methods to create strong-typed TupleTabale instance with both width and value types of columns fixed
     default <T> TupleTable1<T> createTable1(Class<? extends T> typeT){
         return new TupleTable1<>(null, this, typeT);
     }
@@ -314,5 +335,6 @@ public interface IColumns extends Map<String, Integer> {
                                                                                                         Class<? extends A> typeA, Class<? extends B> typeB, Class<? extends C> typeC, Type... moreTypes){
         return new TupleTablePlus<>(null, this, typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB, typeC, moreTypes);
     }
+    //endregion
     //endregion
 }

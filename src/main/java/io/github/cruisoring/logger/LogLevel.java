@@ -1,5 +1,8 @@
 package io.github.cruisoring.logger;
 
+/**
+ * Enum to specify the level of message to be kept.
+ */
 public enum LogLevel {
     verbose("V"),   //Most detailed level to log everything
     debug("D"),     //Detailed level to log information suitable for debugging purposes

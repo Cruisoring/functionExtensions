@@ -16,13 +16,16 @@ import static io.github.cruisoring.Asserts.checkWithoutNull;
  * @param <T> Type of the instance to be initialized.
  */
 public class Lazy<T> implements AutoCloseable {
+    //region Instance variables
     final SupplierThrowable<T> supplier;
     final BiConsumerThrowable<T, T> actionOnChanges;
     protected List<AutoCloseable> dependencies;
     private boolean isInitialized = false;
     private T value = null;
     private boolean isClosed = false;
+    //endregion
 
+    //region Constructors
     /**
      * Construct a Lazy object with value factory, instead of value itself.
      *
@@ -46,6 +49,7 @@ public class Lazy<T> implements AutoCloseable {
         this.actionOnChanges = actionOnChanges;
 //        this.closing = actionOnChanges == null ? this::closing : () -> this.resetAfterAction(actionOnChanges);
     }
+    //endregion
 
     /**
      * Create a dependent Lazy instance whose value can be generated only with this.value.

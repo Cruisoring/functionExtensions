@@ -18,6 +18,8 @@ import static io.github.cruisoring.Asserts.checkWithoutNull;
  * @param <T>   Type of the settings to be updated/revoked.
  */
 public class Revokable<T> implements AutoCloseable {
+
+    //region Static members and methods
     //Identifier to locate the caller stack trace quickly
     static final String getCallerStackTraceKey = Revokable.class.getSimpleName() + ".java";
 
@@ -61,15 +63,18 @@ public class Revokable<T> implements AutoCloseable {
             All.remove(i);
         }
     }
+    //endregion
 
-
+    //region Instance variables
     final LocalDateTime timeStamp;
     final String label;
     final T originalSetting;
     final T newSetting;
     RunnableThrowable revoker;
     private boolean isClosed = false;
+    //endregion
 
+    //region Constructors
     public Revokable(Supplier <T> getter, ConsumerThrowable<T> setter, T newSetting){
         checkWithoutNull(getter, setter);
 
@@ -96,7 +101,9 @@ public class Revokable<T> implements AutoCloseable {
         newSetting = null;
         revoker = runnableThrowable;
     }
+    //endregion
 
+    //region Instance methods
     /**
      * Get the time when this {@code Revokable} was created.
      *
@@ -161,4 +168,5 @@ public class Revokable<T> implements AutoCloseable {
     public void close() {
         closing(DefaultCloseNew);
     }
+    //endregion
 }

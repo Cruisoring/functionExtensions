@@ -16,6 +16,7 @@ import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 public class Logger implements ILogger {
 
+    //region Static variables
     /**
      * Default Logger to be used to log messages with static methods.
      */
@@ -29,37 +30,17 @@ public class Logger implements ILogger {
      * Global LogLevel to be used as both default LogLevel when new a Logger instance, and also a global switch to turn off any logging when set to <code>LogLevel.none</code>
      */
     static LogLevel GlobalLogLevel = LogLevel.debug;
+    //endregion
 
+    //region Static constructor
     // Use static constructor to ensure Default is created after GlobalLogLevel is initialised.
     static {
         //TODO: load GlobalLogLevel and Default from config
         Default = new ConsoleLogger(System.out::println, LogLevel.verbose);
     }
+    //endregion
 
-    final Consumer<String> recorder;
-    final LogLevel minLevel;
-
-    /**
-     * Compose a Logger with the default {@code LogLevel.verbose}.
-     *
-     * @param recorder the means of keeping a String as a log.
-     */
-    public Logger(Consumer<String> recorder) {
-        this(recorder, LogLevel.verbose);
-    }
-
-    /**
-     * Compose a Logger with its means of keeping logs and minimum <code>LogLevel</code> acceptable for logging.
-     *
-     * @param recorder the means of keeping a String as a log.
-     * @param minLevel the minimum <code>LogLevel</code> could be logged by this Logger.
-     */
-    public Logger(Consumer<String> recorder, LogLevel minLevel) {
-        this.recorder = checkWithoutNull(recorder, minLevel);
-
-        this.minLevel = minLevel;
-    }
-
+    //region Static methods
     /**
      * Get the LogLevel of GlobalLogLevel.
      *
@@ -344,6 +325,36 @@ public class Logger implements ILogger {
 
         return Default.log(LogLevel.error, format, args);
     }
+    //endregion
+
+    //region Instance variables
+    final Consumer<String> recorder;
+    final LogLevel minLevel;
+    //endregion
+
+    //region Constructors
+
+    /**
+     * Compose a Logger with the default {@code LogLevel.verbose}.
+     *
+     * @param recorder the means of keeping a String as a log.
+     */
+    public Logger(Consumer<String> recorder) {
+        this(recorder, LogLevel.verbose);
+    }
+
+    /**
+     * Compose a Logger with its means of keeping logs and minimum <code>LogLevel</code> acceptable for logging.
+     *
+     * @param recorder the means of keeping a String as a log.
+     * @param minLevel the minimum <code>LogLevel</code> could be logged by this Logger.
+     */
+    public Logger(Consumer<String> recorder, LogLevel minLevel) {
+        this.recorder = checkWithoutNull(recorder, minLevel);
+
+        this.minLevel = minLevel;
+    }
+    //endregion
 
     @Override
     public String toString() {

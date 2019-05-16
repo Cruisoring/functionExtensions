@@ -224,6 +224,7 @@ public class Measurement {
         Logger.getDefault().log(level, summary.getFirst());
     }
 
+    //region Definition of Moment class.
     /**
      * The {@code Moment} class identify a measurement with name that would be used to identify an unique set of measurements.
      */
@@ -256,4 +257,5 @@ public class Measurement {
             createdAt = System.currentTimeMillis();
         }
     }
+    //endregion
 }

@@ -54,7 +54,6 @@ public interface HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R> extends WithValu
 
     /**
      * Convert the {@code HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R>} to {@code SupplierThrowable<R>} with given argument.
-     *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
@@ -63,7 +62,7 @@ public interface HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R> extends WithValu
      * @param y The sixth argument of type <code>Y</code>.
      * @param z The seventh argument of type <code>Z</code>.
      * @return the {@code SupplierThrowable<R>} instance invoking the original
-     * {@code HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R>} with required arguments
+     *          {@code HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R>} with required arguments
      */
     default SupplierThrowable<R> asSupplierThrowable(T t, U u, V v, W w, X x, Y y, Z z) {
         return () -> apply(t, u, v, w, x, y, z);

@@ -9,6 +9,11 @@ import java.util.Set;
 
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
+/**
+ * Generic interface to define the expected behaviours of {@code Tuple}
+ *
+ * @param <T> the generic type of the concerned {@code WithValues}
+ */
 public interface WithValues<T> extends Comparable {
     /**
      * Retrieve the element at specific index as an Object.
@@ -33,6 +38,10 @@ public interface WithValues<T> extends Comparable {
      */
     boolean canEqual(Object obj);
 
+    /**
+     * Returns this as an instance of {@code WithValues} that can be overriden by extended interface/class.
+     * @return the {@code WithValues} instance represented by this.
+     */
     default WithValues getValues(){
         return this;
     }

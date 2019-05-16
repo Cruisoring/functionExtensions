@@ -16,6 +16,7 @@ import static io.github.cruisoring.Asserts.checkWithoutNull;
  * Combined with <code>TupleRow</code> or underlying <code>Tuple</code> lists, it might be possible to define views on the same row values.
  */
 public class Columns implements IColumns {
+    //region Static members and methods
     public static final Map<WithValues2<IColumns, IColumns>, WithValues<Integer>> cachedMappings = new HashMap<>();
 
     public final static Comparator<String> NATURAL = String::compareTo;
@@ -34,7 +35,12 @@ public class Columns implements IColumns {
         String escaped2 = s2.replaceAll(_defaultEscapedPattern, "");
         return escaped1.compareToIgnoreCase(escaped2);
     };
-
+    //region Instance variables
+    final Comparator<String> nameComparator;
+    final String[][] indexedColumns;
+    //endregion
+    final Map<String, Integer> columnIndexes;
+    final List<String> columnNames;
     /**
      * Construct the Columns with column names directly.
      * @param columnNames   Names of the columns that cannot be null or duplicated.
@@ -62,6 +68,27 @@ public class Columns implements IColumns {
         }
         columnIndexes = Collections.unmodifiableMap(map);
         this.columnNames = Collections.unmodifiableList(names);
+    }
+
+    public static Comparator<String> getEscapedComparator(String escapePattern) {
+        checkWithoutNull(escapePattern);
+        return (s1, s2) -> {
+            String escaped1 = s1.replaceAll(escapePattern, "");
+            String escaped2 = s2.replaceAll(escapePattern, "");
+            return escaped1.compareTo(escaped2);
+        };
+    }
+    //endregion
+
+    //region Constructors
+
+    public static Comparator<String> getEscapedInsensitiveComparator(String escapePattern) {
+        checkWithoutNull(escapePattern);
+        return (s1, s2) -> {
+            String escaped1 = s1.replaceAll(escapePattern, "");
+            String escaped2 = s2.replaceAll(escapePattern, "");
+            return escaped1.compareToIgnoreCase(escaped2);
+        };
     }
 
     /**
@@ -100,29 +127,6 @@ public class Columns implements IColumns {
         this.columnNames = Collections.unmodifiableList(names);
     }
 
-    final Comparator<String> nameComparator;
-    final String[][] indexedColumns;
-    final Map<String, Integer> columnIndexes;
-    final List<String> columnNames;
-
-    public static Comparator<String> getEscapedComparator(String escapePattern) {
-        checkWithoutNull(escapePattern);
-        return (s1, s2) -> {
-            String escaped1 = s1.replaceAll(escapePattern, "");
-            String escaped2 = s2.replaceAll(escapePattern, "");
-            return escaped1.compareTo(escaped2);
-        };
-    }
-
-    public static Comparator<String> getEscapedInsensitiveComparator(String escapePattern) {
-        checkWithoutNull(escapePattern);
-        return (s1, s2) -> {
-            String escaped1 = s1.replaceAll(escapePattern, "");
-            String escaped2 = s2.replaceAll(escapePattern, "");
-            return escaped1.compareToIgnoreCase(escaped2);
-        };
-    }
-
     /**
      * Construct the Columns with ordered column names only.
      * @param columnDefintions  Column names that must be defined consecutively, the first of the String[] is the main
@@ -131,7 +135,9 @@ public class Columns implements IColumns {
     public Columns(String[][] columnDefintions){
         this(columnDefintions, null);
     }
+    //endregion
 
+    //region Instance methods
     @Override
     public Comparator<String> getNameComparator() {
         return nameComparator;
@@ -194,6 +200,7 @@ public class Columns implements IColumns {
         }
         return mappings;
     }
+    //endregion
 
     //region Implementation of Map<String, Integer>
     @Override
@@ -249,5 +256,4 @@ public class Columns implements IColumns {
         return columnIndexes.entrySet();
     }
     //endregion
-
 }

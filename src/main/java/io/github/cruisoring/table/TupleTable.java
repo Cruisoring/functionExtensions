@@ -16,11 +16,19 @@ import java.util.stream.Stream;
 
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
+/**
+ * Generic table with {@code WithValues} such as Tuples to keep Strong-typed values of row data.
+ *
+ * @param <R> Generic type of the {@code WithValues} such as Tuple
+ */
 public class TupleTable<R extends WithValues> implements ITable<R> {
+    //region Instance variables
     final IColumns columns;
     final List<WithValues> rows;
     final Class[] elementTypes;
+    //endregion
 
+    //region Constructors
     protected TupleTable(Supplier<List<WithValues>> rowsSupplier, IColumns columns, Class... elementTypes){
         this.columns = checkWithoutNull(columns, elementTypes);
         this.rows = rowsSupplier == null ? new ArrayList<>() : rowsSupplier.get();
@@ -30,7 +38,9 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     protected TupleTable(IColumns columns, Class... elementTypes){
         this(null, columns, elementTypes);
     }
+    //endregion
 
+    //region Instance methods
     @Override
     public IColumns getColumns() {
         return columns;
@@ -474,4 +484,5 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     public void clear() {
         rows.clear();
     }
+    //endregion
 }

@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * Helper class for resource retrieval.
+ * Helper class for resource locating and retrieval.
  */
 public class ResourceHelper {
     public final static String[] resourcePaths;

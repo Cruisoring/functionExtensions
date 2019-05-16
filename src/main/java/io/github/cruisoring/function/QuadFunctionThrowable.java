@@ -45,13 +45,12 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends WithValueReturned<
 
     /**
      * Convert the {@code QuadFunctionThrowable<T, U, V, W, R>} to {@code SupplierThrowable<R>} with given argument.
-     *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
      * @param w The fourth argument of type <code>W</code>.
      * @return the {@code SupplierThrowable<R>} instance invoking the original
-     * {@code QuadFunctionThrowable<T, U, V, W, R>} with required arguments
+     *          {@code QuadFunctionThrowable<T, U, V, W, R>} with required arguments
      */
     default SupplierThrowable<R> asSupplierThrowable(T t, U u, V v, W w) {
         return () -> apply(t, u, v, w);

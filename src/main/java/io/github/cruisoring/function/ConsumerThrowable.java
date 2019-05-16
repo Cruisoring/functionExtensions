@@ -32,7 +32,6 @@ public interface ConsumerThrowable<T> {
 
     /**
      * Convert the {@code ConsumerThrowable<T>} to {@code RunnableThrowable} with given argument.
-     *
      * @param t The first argument of type <code>T</code>.
      * @return the {@code RunnableThrowable} instance invoking the original {@code ConsumerThrowable<T>} with required arguments
      */

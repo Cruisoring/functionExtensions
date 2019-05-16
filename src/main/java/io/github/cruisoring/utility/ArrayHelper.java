@@ -20,7 +20,10 @@ import java.util.stream.IntStream;
 import static io.github.cruisoring.Asserts.*;
 import static io.github.cruisoring.TypeHelper.valueEquals;
 
-public class ArrayHelper<T, R> {
+/**
+ * Class to hold helper methods related with array operations.
+ */
+public class ArrayHelper {
     public static final Class ObjectClass = Object.class;
     //region Repository of setAll functions of any array whose element type is used as the key
     private static final TupleRepository3<

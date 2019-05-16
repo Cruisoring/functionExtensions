@@ -15,60 +15,17 @@ import static io.github.cruisoring.Asserts.checkWithoutNull;
 /**
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
  * would close any elements if they are also AutoCloseable.
+ * @param <T>   the generic type of the value held by the {@code Tuple}
  */
 public class Tuple<T extends Object> implements ITuple<T> {
 
+    //region Tuples that are used commonly
     public static final Tuple0 UNIT = new Tuple0();
     public static final Tuple1 TRUE = new Tuple1(true);
     public static final Tuple1 FALSE = new Tuple1(false);
+    //endregion
 
-    protected final Class<? extends T> _elementType;
-    protected final T[] values;
-    protected int[][] deepLength;
-    protected String _toString;
-    protected Integer _hashCode;
-    protected Set<Integer> _signatures;
-    private boolean closed = false;
-
-    /**
-     * Protected constructor to keep the elements as a final array.
-     *
-     * @param eType    type of the elements being specified to cope with <tt>Type Erasure</tt>
-     * @param elements values to be persisted by the Tuple.
-     */
-    protected Tuple(Class<? extends T> eType, final T... elements) {
-        this._elementType = eType;
-        int length = elements == null ? 1 : elements.length;
-        values = (T[]) ArrayHelper.getNewArray(eType, length);
-
-        if (elements == null) {
-            values[0] = null;
-        } else {
-            for (int i = 0; i < length; i++) {
-                values[i] = elements[i];
-            }
-        }
-    }
-
-    /**
-     * Protected constructor to keep the elements as a final array.
-     *
-     * @param elements values to be persisted by the Tuple.
-     */
-    protected Tuple(final T... elements) {
-        this._elementType = (Class<? extends T>) ArrayHelper.getComponentType(elements);
-        int length = elements == null ? 1 : elements.length;
-        values = (T[]) ArrayHelper.getNewArray(_elementType, length);
-
-        if (elements == null) {
-            values[0] = null;
-        } else {
-            for (int i = 0; i < length; i++) {
-                values[i] = elements[i];
-            }
-        }
-    }
-
+    //region Static methods
     /**
      * Create a Tuple instance to keep any number of elements without caring about their Type info. Notice this method
      * would always try to unfold the <code>elements</code> as an Array while create() might treat elements as a single argument.
@@ -193,6 +150,8 @@ public class Tuple<T extends Object> implements ITuple<T> {
 
         }
     }
+
+    //region Factories to create Strong-typed Tuple instances based on the number of given arguments
 
     /**
      * Crate an Tuple0 that has no value saved, shall not be called directly.
@@ -350,8 +309,6 @@ public class Tuple<T extends Object> implements ITuple<T> {
         return new Tuple8(t, u, v, w, x, y, z, a);
     }
 
-    //region Factories to create Strong-typed Tuple instances based on the number of given arguments
-
     /**
      * Create a Tuple9 instance that contains 9 elements of 9 types respectively
      *
@@ -441,7 +398,62 @@ public class Tuple<T extends Object> implements ITuple<T> {
             T t, U u, V v, W w, X x, Y y, Z z, A a, B b, C c, Object... others) {
         return new TuplePlus(t, u, v, w, x, y, z, a, b, c, others);
     }
+    //endregion Factories to create Strong-typed Tuple instances based on the number of given arguments
+    //endregion
 
+    //region Instance variables
+    protected final Class<? extends T> _elementType;
+    protected final T[] values;
+    protected int[][] deepLength;
+    protected String _toString;
+    protected Integer _hashCode;
+    protected Set<Integer> _signatures;
+    private boolean closed = false;
+    //endregion
+
+    //region Constructors
+
+    /**
+     * Protected constructor to keep the elements as a final array.
+     *
+     * @param eType    type of the elements being specified to cope with <tt>Type Erasure</tt>
+     * @param elements values to be persisted by the Tuple.
+     */
+    protected Tuple(Class<? extends T> eType, final T... elements) {
+        this._elementType = eType;
+        int length = elements == null ? 1 : elements.length;
+        values = (T[]) ArrayHelper.getNewArray(eType, length);
+
+        if (elements == null) {
+            values[0] = null;
+        } else {
+            for (int i = 0; i < length; i++) {
+                values[i] = elements[i];
+            }
+        }
+    }
+
+    /**
+     * Protected constructor to keep the elements as a final array.
+     *
+     * @param elements values to be persisted by the Tuple.
+     */
+    protected Tuple(final T... elements) {
+        this._elementType = (Class<? extends T>) ArrayHelper.getComponentType(elements);
+        int length = elements == null ? 1 : elements.length;
+        values = (T[]) ArrayHelper.getNewArray(_elementType, length);
+
+        if (elements == null) {
+            values[0] = null;
+        } else {
+            for (int i = 0; i < length; i++) {
+                values[i] = elements[i];
+            }
+        }
+    }
+    //endregion
+
+    //region Instance methods
     /**
      * Get new Array of values to prevent changes on the underlying array.
      *
@@ -634,7 +646,6 @@ public class Tuple<T extends Object> implements ITuple<T> {
             Logger.V("%s.close() run successfully!", this);
         }
     }
-
-    //endregion Factories to create Strong-typed Tuple instances based on the number of given arguments
+    //endregion
 
 }

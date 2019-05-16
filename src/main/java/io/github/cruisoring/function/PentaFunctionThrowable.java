@@ -48,14 +48,13 @@ public interface PentaFunctionThrowable<T, U, V, W, X, R> extends WithValueRetur
 
     /**
      * Convert the {@code PentaFunctionThrowable<T, U, V, W, X, R>} to {@code SupplierThrowable<R>} with given argument.
-     *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
      * @param w The fourth argument of type <code>W</code>.
      * @param x The fifth argument of type <code>X</code>.
      * @return the {@code SupplierThrowable<R>} instance invoking the original
-     * {@code PentaFunctionThrowable<T, U, V, W, X, R>} with required arguments
+     *          {@code PentaFunctionThrowable<T, U, V, W, X, R>} with required arguments
      */
     default SupplierThrowable<R> asSupplierThrowable(T t, U u, V v, W w, X x) {
         return () -> apply(t, u, v, w, x);

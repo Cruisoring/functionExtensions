@@ -10,6 +10,11 @@ import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
+/**
+ * A wrapper of a table row holding all cells as a strong-typed {@code WithValues}
+ *
+ * @param <R> Generic type of the {@code WithValues} such as Tuple
+ */
 public class TupleRow<R extends WithValues> implements WithValuesByName {
     final IColumns columns;
     final WithValues values;

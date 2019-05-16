@@ -42,12 +42,11 @@ public interface TriFunctionThrowable<T, U, V, R> extends WithValueReturned<R> {
 
     /**
      * Convert the {@code TriFunctionThrowable<T, U, V, R>} to {@code SupplierThrowable<R>} with given argument.
-     *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
      * @return the {@code SupplierThrowable<R>} instance invoking the original
-     * {@code TriFunctionThrowable<T, U, V, R>} with required arguments
+     *          {@code TriFunctionThrowable<T, U, V, R>} with required arguments
      */
     default SupplierThrowable<R> asSupplierThrowable(T t, U u, V v) {
         return () -> apply(t, u, v);

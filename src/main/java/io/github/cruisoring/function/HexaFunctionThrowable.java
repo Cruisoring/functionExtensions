@@ -51,7 +51,6 @@ public interface HexaFunctionThrowable<T, U, V, W, X, Y, R> extends WithValueRet
 
     /**
      * Convert the {@code HexaFunctionThrowable<T, U, V, W, X, Y, R>} to {@code SupplierThrowable<R>} with given argument.
-     *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
@@ -59,7 +58,7 @@ public interface HexaFunctionThrowable<T, U, V, W, X, Y, R> extends WithValueRet
      * @param x The fifth argument of type <code>X</code>.
      * @param y The sixth argument of type <code>Y</code>.
      * @return the {@code SupplierThrowable<R>} instance invoking the original
-     * {@code HexaFunctionThrowable<T, U, V, W, X, Y, R>} with required arguments
+     *          {@code HexaFunctionThrowable<T, U, V, W, X, Y, R>} with required arguments
      */
     default SupplierThrowable<R> asSupplierThrowable(T t, U u, V v, W w, X x, Y y) {
         return () -> apply(t, u, v, w, x, y);

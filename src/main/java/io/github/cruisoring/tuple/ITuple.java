@@ -2,6 +2,11 @@ package io.github.cruisoring.tuple;
 
 import java.util.function.Predicate;
 
+/**
+ * Interface to specify how {@code Tuple} shall behave.
+ *
+ * @param <T> Generic type of the values held by the {@code ITuple}
+ */
 public interface ITuple<T extends Object> extends AutoCloseable, WithValues<T> {
     /**
      * Get all Non-null elements matching the given class as an immutable <tt>Tuple</tt>

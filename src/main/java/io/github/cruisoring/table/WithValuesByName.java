@@ -7,6 +7,11 @@ import java.util.Map;
 
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
+/**
+ * Generic interface definining a structure of multiple strong-typed data values that can be accessed by names.
+ *
+ * @param <T> Generic type of the values held by this {@code WithValuesByName}.
+ */
 public interface WithValuesByName<T> extends WithValues<T> {
 
     IColumns getColumnIndexes();

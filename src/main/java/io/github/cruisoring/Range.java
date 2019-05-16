@@ -2,7 +2,6 @@ package io.github.cruisoring;
 
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -14,6 +13,7 @@ import static io.github.cruisoring.Asserts.*;
 import static java.util.Comparator.comparing;
 
 public class Range extends Tuple2<Integer, Integer> {
+    //region Constants
     public static final long INFINITE_LENGTH = Long.MAX_VALUE;
 
     //Integer number reserved to represent negative infinity: −∞, shall not be used explicitly as argument to specify the below or upper bound
@@ -28,19 +28,12 @@ public class Range extends Tuple2<Integer, Integer> {
     public static final Range NONE = new Range(0, 0);
     private static final int _RUN_PARALLEL = 100;
     private final static Predicate<Tuple2<Range, Range>> overlapPredicate = tuple -> tuple.getFirst().overlaps(tuple.getSecond());
+    //endregion
 
-    /**
-     * Check if the Range is contained by the indexes of bufferSize.
-     *
-     * @param range  Range to be checked.
-     * @param length Length of the valid range [0, bufferSize)
-     * @return True if the range is contained by [0, bufferSize), otherwise False.
-     */
-    public static boolean withinLength(Range range, Integer length) {
-        checkStates(length >= 0);
-
-        return range != null && range._start >= 0 && range._end <= length;
-    }
+    //region Static methods
+    //region Instance variables
+    //Represent the size of the range in long, -1 when size is infinite
+    private final long _size;
 
     /**
      * Returns a range contains all indexes for a enumerable object with specific bufferSize.
@@ -150,17 +143,16 @@ public class Range extends Tuple2<Integer, Integer> {
     }
 
     /**
-     * Get subString of the concerned JSON text with its Range.
+     * Check if the Range is contained by the indexes of bufferSize.
      *
-     * @param jsonText All JSON text to be parsed.
-     * @param range    Range of the subString within the jsonText.
-     * @return SubString specified by the given Range.
+     * @param range  Range to be checked.
+     * @param length Length of the valid range [0, bufferSize)
+     * @return True if the range is contained by [0, bufferSize), otherwise False.
      */
-    public static String subString(CharSequence jsonText, Range range) {
-        checkStates(StringUtils.isNotBlank(jsonText));
-        checkStates(Range.withinLength(range, jsonText.length()));
+    public static boolean withinLength(Range range, Integer length) {
+        checkStates(range != null, length >= 0);
 
-        return jsonText.subSequence(range.getStartInclusive(), range.getEndExclusive()).toString();
+        return range != null && range._start >= 0 && range._end <= length;
     }
 
     /**
@@ -373,12 +365,25 @@ public class Range extends Tuple2<Integer, Integer> {
     public static List<Tuple2<Range, Range>> getOverlappedRangePairs(Collection<Range> ranges1, Collection<Range> ranges2) {
         return getRangePairs(ranges1, ranges2, overlapPredicate);
     }
+    //endregion
 
+    /**
+     * Get subString of the concerned JSON text with its Range.
+     *
+     * @param charSequence All JSON text to be parsed.
+     * @param range        Range of the subString within the charSequence.
+     * @return SubString specified by the given Range.
+     */
+    public static String subString(CharSequence charSequence, Range range) {
+        assertNotNull(charSequence);
+        checkStates(Range.withinLength(range, charSequence.length()));
 
-    //Represent the size of the range in long, -1 when size is infinite
-    private final long _size;
+        return charSequence.subSequence(range.getStartInclusive(), range.getEndExclusive()).toString();
+    }
     private final int _start, _end;
+    //endregion
 
+    //region Constructors
     /**
      * Constructor of Range support limited scope specified by the start and end index.
      *
@@ -398,6 +403,9 @@ public class Range extends Tuple2<Integer, Integer> {
         else
             _size = new Long(_end) - new Long(_start);
     }
+    //endregion
+
+    //region Instance methods
     /**
      * Get the size of the range as a long value, -1 when it is infinitive.
      *
@@ -407,6 +415,10 @@ public class Range extends Tuple2<Integer, Integer> {
         return _size;
     }
 
+    /**
+     * Indicates if the {@code Range} is empty with size of 0.
+     * @return  <tt>true</tt> if its size is 0, otherwise <tt>false</tt>
+     */
     public boolean isEmpty() {
         return _size == 0;
     }
@@ -633,9 +645,11 @@ public class Range extends Tuple2<Integer, Integer> {
     }
 
     /**
-     * Save all values in this {@code Range} as an array with ruandom orders.
+     * Save all values in this {@code Range} as an array with ruandom orders, which for example
+     * can then be used to access elements of an array randomly.
      *
      * @return {@code Integer[]} of all values of this {@code Range} as an array with ruandom orders.
+     * @throws IllegalStateException if the Range is unlimited
      */
     public Integer[] getRandomIndexes() {
         assertFalse(_start == NEGATIVE_INFINITY, _end == POSITIVE_INFINITY);
@@ -648,6 +662,29 @@ public class Range extends Tuple2<Integer, Integer> {
             list.add(count == 0 ? 0 : random.nextInt(count + 1), current);
         }
         return list.toArray(new Integer[size]);
+    }
+
+    /**
+     * Returns a <code>CharSequence</code> that is the denoted part of given sequence specified by this {@code Range}.
+     *
+     * @param charSequence The <code>CharSequence</code> to be referred by this {@code Range}.
+     * @return the specified subsequence
+     */
+    public CharSequence subSequence(CharSequence charSequence) {
+        assertNotNull(charSequence);
+        checkStates(Range.withinLength(this, charSequence.length()));
+
+        return charSequence.subSequence(_start, _end);
+    }
+
+    /**
+     * Returns a subString that is part of the given subsequence specified by this {@code Range}.
+     *
+     * @param charSequence The <code>CharSequence</code> to be referred by this {@code Range}.
+     * @return the specified substring.
+     */
+    public String subString(CharSequence charSequence) {
+        return subSequence(charSequence).toString();
     }
 
     @Override
@@ -691,4 +728,5 @@ public class Range extends Tuple2<Integer, Integer> {
                 _start <= NEGATIVE_INFINITY + 1 ? "(−∞" : String.format("[%d", _start),
                 _end > POSITIVE_INFINITY - 1 ? "+∞)" : String.format("%d)", _end));
     }
+    //endregion
 }

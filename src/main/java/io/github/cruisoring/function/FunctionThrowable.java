@@ -37,8 +37,7 @@ public interface FunctionThrowable<T, R> extends WithValueReturned<R> {
 
     /**
      * Convert the {@code FunctionThrowable<T, R>} to {@code SupplierThrowable<R>} with given argument.
-     *
-     * @param t the argument of type <tt>T</tt>
+     * @param t     the argument of type <tt>T</tt>
      * @return the {@code SupplierThrowable<R>} instance invoking the original {@code FunctionThrowable<T, R>} with required arguments
      */
     default SupplierThrowable<R> asSupplierThrowable(T t) {

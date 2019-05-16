@@ -28,6 +28,9 @@ import java.util.stream.IntStream;
 import static io.github.cruisoring.Asserts.assertTrue;
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
+/**
+ * Container class of type related utilities.
+ */
 public class TypeHelper {
     private final static Class OBJECT_CLASS = Object.class;
     private final static int NORMAL_VALUE_NODE = 0;

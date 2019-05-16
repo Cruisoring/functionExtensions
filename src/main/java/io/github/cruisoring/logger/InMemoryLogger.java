@@ -25,6 +25,11 @@ public class InMemoryLogger extends Logger {
         this(sb, LogLevel.verbose);
     }
 
+    /**
+     * Returns the {@code StringBuilder} instance backing this {@code InMemoryLogger}
+     *
+     * @return the {@code StringBuilder} instance keeping logged messages that shall not be used to perform write operations.
+     */
     public StringBuilder getStringBuilder() {
         return stringBuilder;
     }
