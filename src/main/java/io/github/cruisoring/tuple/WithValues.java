@@ -11,7 +11,6 @@ import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 /**
  * Generic interface to define the expected behaviours of {@code Tuple}
- *
  * @param <T> the generic type of the concerned {@code WithValues}
  */
 public interface WithValues<T> extends Comparable {

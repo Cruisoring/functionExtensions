@@ -11,9 +11,7 @@ import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple3;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -34,6 +32,63 @@ public class ArrayHelper {
             BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>>        //Default setAll method
             arraySetters = TupleRepository3.fromKey(ArrayHelper::getAssetSetter);
     public static int ParalellEvaluationThreashold = 100;
+
+    /**
+     * Convert a given array to an ArrayList with same order.
+     *
+     * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
+     * @param <T>      the type of the elements.
+     * @return the List containing same set of elements with same orders.
+     */
+    public static <T> List<T> asList(T... elements) {
+        List<T> list = new ArrayList<T>();
+        if (elements == null) {
+            list.add(null);
+        } else {
+            for (int i = 0; i < elements.length; i++) {
+                list.add(elements[i]);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Convert a given array to a HashSet that might not keep the same order.
+     *
+     * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
+     * @param <T>      the type of the elements.
+     * @return the Set containing same set of elements.
+     */
+    public static <T> Set<T> asHashSet(T... elements) {
+        Set<T> set = new HashSet<T>();
+        if (elements == null) {
+            set.add(null);
+        } else {
+            for (int i = 0; i < elements.length; i++) {
+                set.add(elements[i]);
+            }
+        }
+        return set;
+    }
+
+    /**
+     * Convert a given array to a HashSet that keep the same order.
+     *
+     * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
+     * @param <T>      the type of the elements.
+     * @return the Set containing same set of elements with orders.
+     */
+    public static <T> Set<T> asLinkedHashSet(T... elements) {
+        Set<T> set = new LinkedHashSet<T>();
+        if (elements == null) {
+            set.add(null);
+        } else {
+            for (int i = 0; i < elements.length; i++) {
+                set.add(elements[i]);
+            }
+        }
+        return set;
+    }
 
     /**
      * Create an array of specific element type and length

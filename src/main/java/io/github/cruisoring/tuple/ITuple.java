@@ -4,8 +4,7 @@ import java.util.function.Predicate;
 
 /**
  * Interface to specify how {@code Tuple} shall behave.
- *
- * @param <T> Generic type of the values held by the {@code ITuple}
+ * @param <T>   Generic type of the values held by the {@code ITuple}
  */
 public interface ITuple<T extends Object> extends AutoCloseable, WithValues<T> {
     /**
@@ -35,5 +34,5 @@ public interface ITuple<T extends Object> extends AutoCloseable, WithValues<T> {
      * NULL_NODE when it is null, EMPTY_ARRAY_NODE when it is an array of 0 length and otherwise NORMAL_VALUE_NODE.
      * The other int values of the int[] are indexes of the node element or its parent array in their container arrays.
      */
-    int[][] getDeepLength();
+    int[][] getDeepIndexes();
 }

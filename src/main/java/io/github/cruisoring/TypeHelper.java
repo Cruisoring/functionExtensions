@@ -35,13 +35,31 @@ public class TypeHelper {
     private final static Class OBJECT_CLASS = Object.class;
     private final static int NORMAL_VALUE_NODE = 0;
     final static int NULL_NODE = -1;
-    final static int EMPTY_ARRAY_NODE = -2;
-    final static int EMPTY_COLLECTION_NODE = -3;
+    public static int EMPTY_ARRAY_NODE = -2;
+    public static int EMPTY_COLLECTION_NODE = -3;
     private final static boolean EMPTY_ARRAY_AS_DEFAULT;
     public final static int PARALLEL_EVALUATION_THRESHOLD;
-    private final static EmptyArrayEquality EMPTY_ARRAY_EQUALITY;
-    private final static NullEquality NULL_EQUALITY;
-    private final static int _defaultParallelEvaluationThread = 100000;
+
+    static EmptyEquality DEFAULT_EMPTY_EQUALITY;
+    static NullEquality DEFAULT_NULL_EQUALITY;
+    static int _defaultParallelEvaluationThread = 100000;
+
+    static {
+        EMPTY_ARRAY_AS_DEFAULT = tryParse("EMPTY_ARRAY_AS_DEFAULT", false);
+        PARALLEL_EVALUATION_THRESHOLD = tryParse("PARALLEL_EVALUATION_THRESHOLD", _defaultParallelEvaluationThread);
+        DEFAULT_EMPTY_EQUALITY = tryParse(EmptyEquality.TypeIgnored);
+        DEFAULT_NULL_EQUALITY = tryParse(NullEquality.TypeIgnored);
+    }
+
+    private static <T> T tryParse(T defaultValue) {
+        Class<T> valueClass = (Class<T>) defaultValue.getClass();
+        String valueKey = valueClass.getSimpleName();
+        String valueString = System.getProperty(valueKey);
+        if (valueString == null)
+            return defaultValue;
+        return StringHelper.parse(valueString, valueClass, defaultValue);
+    }
+
     //region Common functions saved as static variables
     private static final BiFunctionThrowable<Object, Integer, Object> arrayGet = Array::get;
     private static final TriConsumerThrowable<Object, Integer, Object> arraySet = Array::set;
@@ -399,25 +417,9 @@ public class TypeHelper {
     //endregion
     static Repository<String, DateTimeFormatter> dateFormatRepository = new Repository<>(
             DateTimeFormatter::ofPattern);
-
-    static {
-        EMPTY_ARRAY_AS_DEFAULT = tryParse("EMPTY_ARRAY_AS_DEFAULT", false);
-        PARALLEL_EVALUATION_THRESHOLD = tryParse("PARALLEL_EVALUATION_THRESHOLD", _defaultParallelEvaluationThread);
-        EMPTY_ARRAY_EQUALITY = tryParse(EmptyArrayEquality.TypeIgnored);
-        NULL_EQUALITY = tryParse(NullEquality.TypeIgnored);
-    }
-
-    private static <T> T tryParse(T defaultValue) {
-        Class<T> valueClass = (Class<T>) defaultValue.getClass();
-        String valueKey = valueClass.getSimpleName();
-        String valueString = System.getProperty(valueKey);
-        if (valueString == null)
-            return defaultValue;
-        return StringHelper.parse(valueString, valueClass, defaultValue);
-    }
     //endregion
 
-    //region deepLength based objects comparing utilities
+    //region deepIndexes based objects comparing utilities
 
     static <T> T tryParse(String valueKey, T defaultValue) {
         String valueString = System.getProperty(valueKey);
@@ -617,11 +619,11 @@ public class TypeHelper {
      * @param indexes            array indexes if the specific node is kept as element of an array, or empty if the root Object
      *                           is the specific node
      * @param nullEquality       Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
-     * @param emptyArrayEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return <code>true</code> if the two nodes are identical, otherwise <code>false</code>
      */
     static boolean nodeEquals(Object obj1, Object obj2, int[] indexes,
-                              NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality) {
+                              NullEquality nullEquality, EmptyEquality emptyEquality) {
         int depth = indexes.length;
         int last = indexes[depth - 1];
 
@@ -642,14 +644,14 @@ public class TypeHelper {
                     || class2.isAssignableFrom(class1);
         } else if (last == EMPTY_ARRAY_NODE) {
             //Now both nodes are empty Array, return true if TypeIgnored
-            if (emptyArrayEquality == EmptyArrayEquality.TypeIgnored) {
+            if (emptyEquality == EmptyEquality.TypeIgnored) {
                 return true;
             }
 
             //Otherwise their classes must be assignable in any manner
             Class class1 = getDeepElement(obj1, indexes).getClass();
             Class class2 = getDeepElement(obj2, indexes).getClass();
-            return emptyArrayEquality == EmptyArrayEquality.SameTypeOnly ?
+            return emptyEquality == EmptyEquality.SameTypeOnly ?
                     class1.equals(class2) :
                     areEquivalent(class1, class2)
                             || class1.isAssignableFrom(class2)
@@ -667,73 +669,120 @@ public class TypeHelper {
     }
 
     /**
-     * Helper method to validate if the 2 Objects are equal by comparing their deepLength first, then using their deepLength
+     * Helper method to validate if the 2 Objects are equal by comparing their deepIndexes first, then using their deepIndexes
      * to compare their node values either serially or parallelly based on how many nodes they have
      *
      * @param obj1               First Object to be compared
      * @param obj2               Second Object to be compared
-     * @param deepLength         identical deepLength of the above two objects
+     * @param deepIndexes         identical deepIndexes of the above two objects
      * @param nullEquality       Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
-     * @param emptyArrayEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return <code>true</code> if they have same set of values, otherwise <code>false</code>
      */
-    static boolean deepEquals(Object obj1, Object obj2, int[][] deepLength,
-                              NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality) {
-        int length = deepLength.length;
+    static boolean deepEquals(Object obj1, Object obj2, int[][] deepIndexes,
+                              NullEquality nullEquality, EmptyEquality emptyEquality) {
+        int length = deepIndexes.length;
 
         if (length < PARALLEL_EVALUATION_THRESHOLD) {
             for (int i = 0; i < length; i++) {
-                int[] indexes = deepLength[i];
-                if (!nodeEquals(obj1, obj2, indexes, nullEquality, emptyArrayEquality))
+                int[] indexes = deepIndexes[i];
+                if (!nodeEquals(obj1, obj2, indexes, nullEquality, emptyEquality))
                     return false;
             }
             return true;
         } else {
             boolean allEquals = IntStream.range(0, length).boxed().parallel()
-                    .allMatch(i -> nodeEquals(obj1, obj2, deepLength[i], nullEquality, emptyArrayEquality));
+                    .allMatch(i -> nodeEquals(obj1, obj2, deepIndexes[i], nullEquality, emptyEquality));
             return allEquals;
         }
     }
 
     /**
-     * Helper method to validate if the 2 Objects are equal by comparing their deepLength first, then using their deepLength
+     * Helper method to validate if the 2 Objects are equal by comparing their deepIndexes first, then using their deepIndexes
      * to compare their node values parallelly
      *
      * @param obj1               First Object to be compared
      * @param obj2               Second Object to be compared
-     * @param deepLength         identical deepLength of the above two objects
+     * @param deepIndexes         identical deepIndexes of the above two objects
      * @param nullEquality       Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
-     * @param emptyArrayEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return <code>true</code> if they have same set of values, otherwise <code>false</code>
      */
-    static boolean deepLengthEqualsParallel(Object obj1, Object obj2, int[][] deepLength,
-                                            NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality) {
-        int length = deepLength.length;
+    static boolean deepEqualsParallel(Object obj1, Object obj2, int[][] deepIndexes,
+                                      NullEquality nullEquality, EmptyEquality emptyEquality) {
+        int length = deepIndexes.length;
         boolean allEquals = IntStream.range(0, length).boxed().parallel()
-                .allMatch(i -> nodeEquals(obj1, obj2, deepLength[i], nullEquality, emptyArrayEquality));
+                .allMatch(i -> nodeEquals(obj1, obj2, deepIndexes[i], nullEquality, emptyEquality));
         return allEquals;
     }
 
     /**
-     * Helper method to validate if the 2 Objects are equal by comparing their deepLength first, then using their deepLength
+     * Helper method to validate if the 2 Objects are equal by comparing their deepIndexes first, then using their deepIndexes
      * to compare their node values either serially
      *
      * @param obj1               First Object to be compared
      * @param obj2               Second Object to be compared
-     * @param deepLength         identical deepLength of the above two objects
+     * @param deepIndexes         identical deepIndexes of the above two objects
      * @param nullEquality       Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
-     * @param emptyArrayEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return <code>true</code> if they have same set of values, otherwise <code>false</code>
      */
-    private static boolean deepLengthEqualsSerial(Object obj1, Object obj2, int[][] deepLength,
-                                                  NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality) {
-        int length = deepLength.length;
+    private static boolean deepEqualsSerial(Object obj1, Object obj2, int[][] deepIndexes,
+                                            NullEquality nullEquality, EmptyEquality emptyEquality) {
+        int length = deepIndexes.length;
         for (int i = 0; i < length; i++) {
-            int[] indexes = deepLength[i];
-            if (!nodeEquals(obj1, obj2, indexes, nullEquality, emptyArrayEquality))
+            int[] indexes = deepIndexes[i];
+            if (!nodeEquals(obj1, obj2, indexes, nullEquality, emptyEquality))
                 return false;
         }
         return true;
+    }
+
+    /**
+     * Check if the given Object is null or empty array/Collection.
+     *
+     * @param object Object under test.
+     * @return <tt>true</tt> if the given Object is null or empty Array or empty Collection, otherwise <tt>false</tt>
+     */
+    public static boolean isNullOrEmpty(Object object) {
+        if (object == null) {
+            return true;
+        } else if (object instanceof Collection) {
+            return ((Collection) object).isEmpty();
+        } else if (object.getClass().isArray()) {
+            return Array.getLength(object) == 0;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check the two non-null Objects to see if one's value can be assigned to another.
+     *
+     * @param obj1 the first Object to be evaluated.
+     * @param obj2 the second Object to be evaluated.
+     * @return <tt>true</tt> if the value/values of one Object can be assigned to another Object.
+     */
+    public static boolean canBeAssignedBetween(Object obj1, Object obj2) {
+        checkWithoutNull(obj1, obj2);
+
+        Class class1 = obj1.getClass();
+        Class class2 = obj2.getClass();
+        boolean isArray1 = class1.isArray();
+        if (isArray1 != class2.isArray()) {
+            return false;
+        } else if (!isArray1) {
+            return obj1.equals(obj2);
+        }
+
+        Class componentType1 = class1.getComponentType();
+        componentType1 = componentType1.isPrimitive() ? TypeHelper.getEquivalentClass(componentType1) : componentType1;
+        Class componentType2 = class2.getComponentType();
+        componentType2 = componentType2.isPrimitive() ? TypeHelper.getEquivalentClass(componentType2) : componentType2;
+        if (areEquivalent(componentType1, componentType2) || componentType1.isAssignableFrom(componentType2) || componentType2.isAssignableFrom(componentType1))
+            return false;
+
+        return false;
     }
 
     /**
@@ -741,32 +790,48 @@ public class TypeHelper {
      *
      * @param obj1 first Object to be compared
      * @param obj2 second Object to be compared
+     * @param emptyEquality     Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return <code>true</code> if they are equal,
      * <code>false</code> if they are not equal or cannot be assignedFrom,
      * otherwise <code>null</code>
      */
-    private static Boolean simpleValueEquals(Object obj1, Object obj2) {
-        if (obj1 == obj2 || (obj1 != null && obj1.equals(obj2)))
+    private static Boolean simpleValueEquals(Object obj1, Object obj2, EmptyEquality emptyEquality) {
+        if (obj1 == obj2 || (obj1 != null && obj1.equals(obj2))) {
             return true;
-        else if (obj1 == null || obj2 == null)
+        } else if (emptyEquality == EmptyEquality.EmptyAsNull) {
+            if (isNullOrEmpty(obj1)) {
+                return isNullOrEmpty(obj2);
+            } else if (isNullOrEmpty(obj2)) {
+                return false;
+            }
+        } else if (obj1 == null || obj2 == null) {
             return false;
+        } else if (emptyEquality == EmptyEquality.SameTypeOnly) {
+            if (obj1.getClass() != obj2.getClass()) {
+                return false;
+            } else {
+                return null;
+            }
+        }
 
-        Class class1 = obj1.getClass();
-        Class class2 = obj2.getClass();
-        boolean isArray1 = class1.isArray();
-        boolean isArray2 = class2.isArray();
+        if (emptyEquality == EmptyEquality.BetweenAssignableTypes) {
+            Class class1 = obj1.getClass();
+            Class class2 = obj2.getClass();
 
-        if (isArray1 != isArray2)
-            return false;
-        else if (!isArray1)
-            return obj1.equals(obj2);
+            boolean isArray1 = class1.isArray();
+            if (isArray1 != class2.isArray()) {
+                return false;
+            } else if (!isArray1) {
+                return obj1.equals(obj2);
+            }
 
-        Class componentType1 = class1.getComponentType();
-        componentType1 = componentType1.isPrimitive() ? TypeHelper.getEquivalentClass(componentType1) : componentType1;
-        Class componentType2 = class2.getComponentType();
-        componentType2 = componentType2.isPrimitive() ? TypeHelper.getEquivalentClass(componentType2) : componentType2;
-        if (areEquivalent(componentType1, componentType2) || componentType1.isAssignableFrom(componentType2) || componentType2.isAssignableFrom(componentType1))
-            return null;
+            Class componentType1 = class1.getComponentType();
+            componentType1 = componentType1.isPrimitive() ? TypeHelper.getEquivalentClass(componentType1) : componentType1;
+            Class componentType2 = class2.getComponentType();
+            componentType2 = componentType2.isPrimitive() ? TypeHelper.getEquivalentClass(componentType2) : componentType2;
+            if (areEquivalent(componentType1, componentType2) || componentType1.isAssignableFrom(componentType2) || componentType2.isAssignableFrom(componentType1))
+                return null;
+        }
 
         return false;
     }
@@ -779,21 +844,21 @@ public class TypeHelper {
      * @param obj1               first object to be compared
      * @param obj2               second object to be compared
      * @param nullEquality       Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
-     * @param emptyArrayEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyEquality     Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEquals(Object obj1, Object obj2,
-                                      NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality) {
-        final Boolean simpleEquals = simpleValueEquals(obj1, obj2);
+                                      NullEquality nullEquality, EmptyEquality emptyEquality) {
+        final Boolean simpleEquals = simpleValueEquals(obj1, obj2, emptyEquality);
         if (simpleEquals != null)
             return simpleEquals;
 
-        int[][] deepLength1 = getDeepIndexes(obj1);
-        int[][] deepLength2 = getDeepIndexes(obj2);
-        if (!Arrays.deepEquals(deepLength1, deepLength2))
+        int[][] deepIndexes1 = getDeepIndexes(obj1);
+        int[][] deepIndexes2 = getDeepIndexes(obj2);
+        if (!Arrays.deepEquals(deepIndexes1, deepIndexes2))
             return false;
 
-        return deepEquals(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
+        return deepEquals(obj1, obj2, deepIndexes1, nullEquality, emptyEquality);
     }
 
     /**
@@ -806,7 +871,7 @@ public class TypeHelper {
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEquals(Object obj1, Object obj2) {
-        return valueEquals(obj1, obj2, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return valueEquals(obj1, obj2, DEFAULT_NULL_EQUALITY, DEFAULT_EMPTY_EQUALITY);
     }
 
     /**
@@ -814,18 +879,18 @@ public class TypeHelper {
      *
      * @param obj1        first object to be compared
      * @param obj2        second object to be compared
-     * @param deepLength1 deepLength of the first object
-     * @param deepLength2 deepLength of the second object
+     * @param deepIndexes1 deepIndexes of the first object
+     * @param deepIndexes2 deepIndexes of the second object
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
-    public static boolean valueEquals(Object obj1, Object obj2, int[][] deepLength1, int[][] deepLength2) {
-        checkWithoutNull(deepLength1);
-        checkWithoutNull(deepLength2);
+    public static boolean valueEquals(Object obj1, Object obj2, int[][] deepIndexes1, int[][] deepIndexes2) {
+        checkWithoutNull(deepIndexes1);
+        checkWithoutNull(deepIndexes2);
 
-        if (!Arrays.deepEquals(deepLength1, deepLength2))
+        if (!Arrays.deepEquals(deepIndexes1, deepIndexes2))
             return false;
 
-        return deepEquals(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return deepEquals(obj1, obj2, deepIndexes1, DEFAULT_NULL_EQUALITY, DEFAULT_EMPTY_EQUALITY);
     }
 
     /**
@@ -836,20 +901,20 @@ public class TypeHelper {
      * @param obj1               first object to be compared
      * @param obj2               second object to be compared
      * @param nullEquality       Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
-     * @param emptyArrayEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEqualsParallel(Object obj1, Object obj2,
-                                              NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality) {
-        final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2);
+                                              NullEquality nullEquality, EmptyEquality emptyEquality) {
+        final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2, emptyEquality);
         if (singleObjectConverter != null)
             return singleObjectConverter;
 
-        int[][] deepLength1 = getDeepIndexes(obj1);
-        int[][] deepLength2 = getDeepIndexes(obj2);
-        if (!Arrays.deepEquals(deepLength1, deepLength2))
+        int[][] deepIndexes1 = getDeepIndexes(obj1);
+        int[][] deepIndexes2 = getDeepIndexes(obj2);
+        if (!Arrays.deepEquals(deepIndexes1, deepIndexes2))
             return false;
-        return deepLengthEqualsParallel(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
+        return deepEqualsParallel(obj1, obj2, deepIndexes1, nullEquality, emptyEquality);
     }
 
     /**
@@ -862,7 +927,7 @@ public class TypeHelper {
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEqualsParallel(Object obj1, Object obj2) {
-        return valueEqualsParallel(obj1, obj2, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return valueEqualsParallel(obj1, obj2, DEFAULT_NULL_EQUALITY, DEFAULT_EMPTY_EQUALITY);
     }
     //endregion
 
@@ -871,18 +936,18 @@ public class TypeHelper {
      *
      * @param obj1        first object to be compared
      * @param obj2        second object to be compared
-     * @param deepLength1 deepLength of the first object
-     * @param deepLength2 deepLength of the second object
+     * @param deepIndexes1 deepIndexes of the first object
+     * @param deepIndexes2 deepIndexes of the second object
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
-    public static boolean valueEqualsParallel(Object obj1, Object obj2, int[][] deepLength1, int[][] deepLength2) {
-        checkWithoutNull(deepLength1);
-        checkWithoutNull(deepLength2);
+    public static boolean valueEqualsParallel(Object obj1, Object obj2, int[][] deepIndexes1, int[][] deepIndexes2) {
+        checkWithoutNull(deepIndexes1);
+        checkWithoutNull(deepIndexes2);
 
-        if (!Arrays.deepEquals(deepLength1, deepLength2))
+        if (!Arrays.deepEquals(deepIndexes1, deepIndexes2))
             return false;
 
-        return deepLengthEqualsParallel(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return deepEqualsParallel(obj1, obj2, deepIndexes1, DEFAULT_NULL_EQUALITY, DEFAULT_EMPTY_EQUALITY);
     }
 
     /**
@@ -893,20 +958,20 @@ public class TypeHelper {
      * @param obj1               first object to be compared
      * @param obj2               second object to be compared
      * @param nullEquality       Strategy to compare nodes when both are nulls: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
-     * @param emptyArrayEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
+     * @param emptyEquality Strategy to compare nodes when both are empty arrays: TypeIgnored, BetweenAssignableTypes, SameTypeOnly
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEqualsSerial(Object obj1, Object obj2,
-                                            NullEquality nullEquality, EmptyArrayEquality emptyArrayEquality) {
-        final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2);
+                                            NullEquality nullEquality, EmptyEquality emptyEquality) {
+        final Boolean singleObjectConverter = simpleValueEquals(obj1, obj2, emptyEquality);
         if (singleObjectConverter != null)
             return singleObjectConverter;
 
-        int[][] deepLength1 = getDeepIndexes(obj1);
-        int[][] deepLength2 = getDeepIndexes(obj2);
-        if (!Arrays.deepEquals(deepLength1, deepLength2))
+        int[][] deepIndexes1 = getDeepIndexes(obj1);
+        int[][] deepIndexes2 = getDeepIndexes(obj2);
+        if (!Arrays.deepEquals(deepIndexes1, deepIndexes2))
             return false;
-        return deepLengthEqualsSerial(obj1, obj2, deepLength1, nullEquality, emptyArrayEquality);
+        return deepEqualsSerial(obj1, obj2, deepIndexes1, nullEquality, emptyEquality);
     }
 
     /**
@@ -919,7 +984,7 @@ public class TypeHelper {
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEqualsSerial(Object obj1, Object obj2) {
-        return valueEqualsSerial(obj1, obj2, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return valueEqualsSerial(obj1, obj2, DEFAULT_NULL_EQUALITY, DEFAULT_EMPTY_EQUALITY);
     }
 
     /**
@@ -927,18 +992,18 @@ public class TypeHelper {
      *
      * @param obj1        first object to be compared
      * @param obj2        second object to be compared
-     * @param deepLength1 deepLength of the first object
-     * @param deepLength2 deepLength of the second object
+     * @param deepIndexes1 deepIndexes of the first object
+     * @param deepIndexes2 deepIndexes of the second object
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
-    public static boolean valueEqualsSerially(Object obj1, Object obj2, int[][] deepLength1, int[][] deepLength2) {
-        checkWithoutNull(deepLength1);
-        checkWithoutNull(deepLength2);
+    public static boolean valueEqualsSerially(Object obj1, Object obj2, int[][] deepIndexes1, int[][] deepIndexes2) {
+        checkWithoutNull(deepIndexes1);
+        checkWithoutNull(deepIndexes2);
 
-        if (!Arrays.deepEquals(deepLength1, deepLength2))
+        if (!Arrays.deepEquals(deepIndexes1, deepIndexes2))
             return false;
 
-        return deepLengthEqualsSerial(obj1, obj2, deepLength1, NULL_EQUALITY, EMPTY_ARRAY_EQUALITY);
+        return deepEqualsSerial(obj1, obj2, deepIndexes1, DEFAULT_NULL_EQUALITY, DEFAULT_EMPTY_EQUALITY);
     }
 
     protected static ConstantPool getConstantPoolOfClass(Class objectClass) {
@@ -1666,13 +1731,21 @@ public class TypeHelper {
     }
 
     /**
-     * Strategy to compare two variables when both of them are empty array.
+     * Strategy to compare two variables when both are empty arrays or collections.
      */
-    public enum EmptyArrayEquality {
-        TypeIgnored,            //Two empty arrays are regarded as equal even if they are declared as different types,
-        // for example: Integer[0] and Double[0]
-        BetweenAssignableTypes, //Two null variables are regarded as equal if one can be assigned from another,
+    public enum EmptyEquality {
+        //Treat empty object as null
+        EmptyAsNull,
+
+        //Two empty objects are regarded as equal even if they are declared as different types,
+        // for example: Integer[0] and Double[0], or Integer[0] and new ArrayList(), but null != Integer[0]
+        TypeIgnored,
+
+        //Two null variables are regarded as equal if one can be assigned from another,
         // for example: Comparable[0] and Integer[0], or int[0] and Integer[0]
-        SameTypeOnly            //Two null variables are regarded as equal only when they are of the same type
+        BetweenAssignableTypes,
+
+        //Two null variables are regarded as equal only when they are of the same type
+        SameTypeOnly
     }
 }

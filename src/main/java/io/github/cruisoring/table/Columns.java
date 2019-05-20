@@ -35,12 +35,7 @@ public class Columns implements IColumns {
         String escaped2 = s2.replaceAll(_defaultEscapedPattern, "");
         return escaped1.compareToIgnoreCase(escaped2);
     };
-    //region Instance variables
-    final Comparator<String> nameComparator;
-    final String[][] indexedColumns;
-    //endregion
-    final Map<String, Integer> columnIndexes;
-    final List<String> columnNames;
+
     /**
      * Construct the Columns with column names directly.
      * @param columnNames   Names of the columns that cannot be null or duplicated.
@@ -78,6 +73,13 @@ public class Columns implements IColumns {
             return escaped1.compareTo(escaped2);
         };
     }
+    //endregion
+
+    //region Instance variables
+    final Comparator<String> nameComparator;
+    final String[][] indexedColumns;
+    final Map<String, Integer> columnIndexes;
+    final List<String> columnNames;
     //endregion
 
     //region Constructors

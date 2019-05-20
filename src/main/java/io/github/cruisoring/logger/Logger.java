@@ -333,7 +333,6 @@ public class Logger implements ILogger {
     //endregion
 
     //region Constructors
-
     /**
      * Compose a Logger with the default {@code LogLevel.verbose}.
      *

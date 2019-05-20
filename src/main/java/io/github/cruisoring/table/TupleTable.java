@@ -18,8 +18,7 @@ import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 /**
  * Generic table with {@code WithValues} such as Tuples to keep Strong-typed values of row data.
- *
- * @param <R> Generic type of the {@code WithValues} such as Tuple
+ * @param <R>   Generic type of the {@code WithValues} such as Tuple
  */
 public class TupleTable<R extends WithValues> implements ITable<R> {
     //region Instance variables

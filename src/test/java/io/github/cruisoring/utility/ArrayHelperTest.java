@@ -7,9 +7,7 @@ import org.junit.Test;
 import java.lang.reflect.Array;
 import java.time.DayOfWeek;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static io.github.cruisoring.Asserts.*;
 import static io.github.cruisoring.TypeHelper.valueEquals;
@@ -301,6 +299,59 @@ public class ArrayHelperTest {
         }
         fail("Failed to get a changed array of %s", TypeHelper.deepToString(array));
         return null;
+    }
+
+    @Test
+    public void asList() {
+        assertEquals(new ArrayList(Arrays.asList()), ArrayHelper.asList());
+        ArrayList expected = new ArrayList();
+        expected.add(null);
+        assertEquals(expected, ArrayHelper.asList(null));
+        expected.add(null);
+        assertEquals(expected, ArrayHelper.asList(null, null));
+        expected.add(1, true);
+        assertEquals(expected, ArrayHelper.asList(null, true, null));
+    }
+
+    @Test
+    public void asHashSet() {
+        Set expected = new HashSet();
+        assertEquals(expected, ArrayHelper.asHashSet());
+        expected.add(null);
+        assertEquals(expected, ArrayHelper.asHashSet(null));
+        assertEquals(expected, ArrayHelper.asHashSet(null, null));
+        expected.add(true);
+        assertEquals(expected, ArrayHelper.asHashSet(null, true, null));
+        assertEquals(expected, ArrayHelper.asHashSet(null, null, true));
+
+        //validate the order might not be kept
+        expected.clear();
+        expected.add(123);
+        expected.add(true);
+        expected.add(0);
+        expected.add(null);
+        assertEquals(expected, ArrayHelper.asHashSet(null, 0, true, 123));
+    }
+
+    @Test
+    public void asLinkedHashSet() {
+        Set expected = new LinkedHashSet();
+        assertEquals(expected, ArrayHelper.asLinkedHashSet());
+        expected.add(null);
+        assertEquals(expected, ArrayHelper.asLinkedHashSet(null));
+        assertEquals(expected, ArrayHelper.asLinkedHashSet(null, null));
+        expected.add(true);
+        assertEquals(expected, ArrayHelper.asLinkedHashSet(null, true, null));
+        assertEquals(expected, ArrayHelper.asLinkedHashSet(null, null, true));
+
+        //validate the order might not be kept
+        expected.clear();
+        expected.add(123);
+        expected.add(true);
+        expected.add(0);
+        expected.add(null);
+        expected.add(0);
+        assertEquals(expected, ArrayHelper.asLinkedHashSet(123, true, 0, null));
     }
 
 

@@ -404,7 +404,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
     //region Instance variables
     protected final Class<? extends T> _elementType;
     protected final T[] values;
-    protected int[][] deepLength;
+    protected int[][] deepIndexes;
     protected String _toString;
     protected Integer _hashCode;
     protected Set<Integer> _signatures;
@@ -412,7 +412,6 @@ public class Tuple<T extends Object> implements ITuple<T> {
     //endregion
 
     //region Constructors
-
     /**
      * Protected constructor to keep the elements as a final array.
      *
@@ -538,11 +537,11 @@ public class Tuple<T extends Object> implements ITuple<T> {
     }
 
     @Override
-    public int[][] getDeepLength() {
-        if (deepLength == null) {
-            deepLength = TypeHelper.getDeepIndexes(values);
+    public int[][] getDeepIndexes() {
+        if (deepIndexes == null) {
+            deepIndexes = TypeHelper.getDeepIndexes(values);
         }
-        return deepLength;
+        return deepIndexes;
     }
 
     @Override
@@ -583,7 +582,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
             return false;
         }
 
-        return TypeHelper.valueEquals(values, other.values, getDeepLength(), other.getDeepLength());
+        return TypeHelper.valueEquals(values, other.values, getDeepIndexes(), other.getDeepIndexes());
     }
 
     @Override

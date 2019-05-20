@@ -43,47 +43,47 @@ public class TypeHelperTest {
 
     @Test
     public void testNodeEquals() {
-        int[][] deepLength = getDeepIndexes(object1);
+        int[][] deepIndexes = getDeepIndexes(object1);
         //Normal nodes are always compared as Objects, 1 vs 1, 1.2d vs 1.2f, 3 vs 4
-        assertTrue(nodeEquals(object1, object2, deepLength[0], NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
-        assertFalse(nodeEquals(object1, object2, deepLength[1], NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
-        assertFalse(nodeEquals(object1, object2, deepLength[2], NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
-        assertTrue(nodeEquals(object1, object2, deepLength[7], NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
-        assertTrue(nodeEquals(object1, object2, deepLength[10], NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
+        assertTrue(nodeEquals(object1, object2, deepIndexes[0], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
+        assertFalse(nodeEquals(object1, object2, deepIndexes[1], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
+        assertFalse(nodeEquals(object1, object2, deepIndexes[2], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
+        assertTrue(nodeEquals(object1, object2, deepIndexes[7], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
+        assertTrue(nodeEquals(object1, object2, deepIndexes[10], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
 
         //Empty Arrays
         //int[0] vs double[0]
-        assertTrue(nodeEquals(object1, object2, new int[]{1, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.TypeIgnored));
-        assertFalse(nodeEquals(object1, object2, new int[]{1, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{1, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.SameTypeOnly));
+        assertTrue(nodeEquals(object1, object2, new int[]{1, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
+        assertFalse(nodeEquals(object1, object2, new int[]{1, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.BetweenAssignableTypes));
+        assertFalse(nodeEquals(object1, object2, new int[]{1, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.SameTypeOnly));
         //int[0] vs Integer[0]
-        assertTrue(nodeEquals(object1, object2, new int[]{2, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.TypeIgnored));
-        assertTrue(nodeEquals(object1, object2, new int[]{2, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{2, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.SameTypeOnly));
+        assertTrue(nodeEquals(object1, object2, new int[]{2, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
+        assertTrue(nodeEquals(object1, object2, new int[]{2, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.BetweenAssignableTypes));
+        assertFalse(nodeEquals(object1, object2, new int[]{2, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.SameTypeOnly));
         //Number[0] vs Comparable[0]
-        assertTrue(nodeEquals(object1, object2, new int[]{3, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.TypeIgnored));
-        assertFalse(nodeEquals(object1, object2, new int[]{3, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{3, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.SameTypeOnly));
+        assertTrue(nodeEquals(object1, object2, new int[]{3, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
+        assertFalse(nodeEquals(object1, object2, new int[]{3, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.BetweenAssignableTypes));
+        assertFalse(nodeEquals(object1, object2, new int[]{3, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.SameTypeOnly));
 
         //Null values
         //between null of Comparable and null of Number
-        assertTrue(nodeEquals(object1, object2, new int[]{4, 0, NULL_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.TypeIgnored));
-        assertFalse(nodeEquals(object1, object2, new int[]{4, 0, NULL_NODE}, NullEquality.BetweenAssignableTypes, EmptyArrayEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{4, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
+        assertTrue(nodeEquals(object1, object2, new int[]{4, 0, NULL_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
+        assertFalse(nodeEquals(object1, object2, new int[]{4, 0, NULL_NODE}, NullEquality.BetweenAssignableTypes, EmptyEquality.BetweenAssignableTypes));
+        assertFalse(nodeEquals(object1, object2, new int[]{4, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
         //between null of Object and null of Integer
-        assertTrue(nodeEquals(object1, object2, new int[]{5, 0, NULL_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.TypeIgnored));
-        assertTrue(nodeEquals(object1, object2, new int[]{5, 0, NULL_NODE}, NullEquality.BetweenAssignableTypes, EmptyArrayEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{5, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
+        assertTrue(nodeEquals(object1, object2, new int[]{5, 0, NULL_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
+        assertTrue(nodeEquals(object1, object2, new int[]{5, 0, NULL_NODE}, NullEquality.BetweenAssignableTypes, EmptyEquality.BetweenAssignableTypes));
+        assertFalse(nodeEquals(object1, object2, new int[]{5, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
         //between null of int[] and null of Object
-        assertTrue(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.TypeIgnored, EmptyArrayEquality.TypeIgnored));
-        assertTrue(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.BetweenAssignableTypes, EmptyArrayEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyArrayEquality.SameTypeOnly));
+        assertTrue(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
+        assertTrue(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.BetweenAssignableTypes, EmptyEquality.BetweenAssignableTypes));
+        assertFalse(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
 
         //Comparing null of Number and null of Comparable
         int[] indexes = getDeepIndexes(nullNumber)[0];
-        assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.TypeIgnored, EmptyArrayEquality.TypeIgnored));
-        assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.BetweenAssignableTypes, EmptyArrayEquality.TypeIgnored));
-        assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.SameTypeOnly, EmptyArrayEquality.TypeIgnored));
+        assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
+        assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.BetweenAssignableTypes, EmptyEquality.TypeIgnored));
+        assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.SameTypeOnly, EmptyEquality.TypeIgnored));
     }
 
     @Test
@@ -218,22 +218,26 @@ public class TypeHelperTest {
     }
 
     @Test
-    public void testGetDeepIndexes() {
+    public void testGetDeepIndexes_ofSimpleOrArray() {
         Object target = null;
-        int[][] deepLength = getDeepIndexes(target);
-        assertEquals(new int[][]{new int[]{-1}}, deepLength);
+        int[][] deepIndexes = getDeepIndexes(target);
+        assertEquals(new int[][]{new int[]{-1}}, deepIndexes);
 
         target = 33;
-        deepLength = getDeepIndexes(target);
-        assertEquals(new int[][]{new int[]{0}}, deepLength);
+        deepIndexes = getDeepIndexes(target);
+        assertEquals(new int[][]{new int[]{0}}, deepIndexes);
+
+        target = new Object[0];
+        deepIndexes = getDeepIndexes(target);
+        assertEquals(new int[][]{new int[]{-2}}, deepIndexes);
 
         target = new Integer[]{null};
-        deepLength = getDeepIndexes(target);
-        assertEquals(new int[][]{new int[]{0, -1}}, deepLength);
+        deepIndexes = getDeepIndexes(target);
+        assertEquals(new int[][]{new int[]{0, -1}}, deepIndexes);
 
         target = new Integer[]{null, null};
-        deepLength = getDeepIndexes(target);
-        assertEquals(new int[][]{new int[]{0, -1}, new int[]{1, -1}}, deepLength);
+        deepIndexes = getDeepIndexes(target);
+        assertEquals(new int[][]{new int[]{0, -1}, new int[]{1, -1}}, deepIndexes);
 
         target = new Object[]{1,
                 new int[]{2, 3},
@@ -244,20 +248,64 @@ public class TypeHelperTest {
                 new ArrayList(),
                 new char[0][],
                 new int[][]{new int[0], null}};
-        deepLength = getDeepIndexes(target);
+        deepIndexes = getDeepIndexes(target);
         assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, 0, 0}, new int[]{1, 1, 0}, new int[]{2, 0, -1}, new int[]{2, 1, 0},
                 new int[]{2, 2, 0}, new int[]{2, 3, 0, 0}, new int[]{2, 3, 1, -1}, new int[]{2, 4, -1}, new int[]{3, -1}, new int[]{4, 0}
-                , new int[]{5, -2}, new int[]{6, -3}, new int[]{7, -2}, new int[]{8, 0, -2}, new int[]{8, 1, -1}}, deepLength);
-        assertEquals(16, deepLength.length);
+                , new int[]{5, -2}, new int[]{6, -3}, new int[]{7, -2}, new int[]{8, 0, -2}, new int[]{8, 1, -1}}, deepIndexes);
+        assertEquals(16, deepIndexes.length);
 
         Object array = new Object[]{1,
                 new int[]{2, 3},
                 new Object[]{null, '5', '6', null},
                 new char[0],
                 11.0};
-        deepLength = getDeepIndexes(array);
+        deepIndexes = getDeepIndexes(array);
         assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, 0, 0}, new int[]{1, 1, 0}, new int[]{2, 0, -1}, new int[]{2, 1, 0},
-                new int[]{2, 2, 0}, new int[]{2, 3, -1}, new int[]{3, -2}, new int[]{4, 0}}, deepLength);
+                new int[]{2, 2, 0}, new int[]{2, 3, -1}, new int[]{3, -2}, new int[]{4, 0}}, deepIndexes);
+    }
+
+    @Test
+    public void testGetDeepIndexes_ofCollections() {
+        assertEquals(new int[][]{new int[]{-3}}, getDeepIndexes(ArrayHelper.asList()));
+
+        Object target = ArrayHelper.asList(null);
+        int[][] deepIndexes = getDeepIndexes(target);
+        assertEquals(new int[][]{new int[]{0, -1}}, deepIndexes);
+
+        target = ArrayHelper.asList(null, null);
+        deepIndexes = getDeepIndexes(target);
+        assertEquals(new int[][]{new int[]{0, -1}, new int[]{1, -1}}, deepIndexes);
+
+        target = ArrayHelper.asList(1,
+                new int[]{2, 3},
+                ArrayHelper.asList(null, '5', '6', ArrayHelper.asList('7', null), null),
+                null,
+                11.0,
+                new char[0],
+                new ArrayList(),
+                new char[0][],
+                new int[][]{new int[0], null});
+        deepIndexes = getDeepIndexes(target);
+        assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, 0, 0}, new int[]{1, 1, 0}, new int[]{2, 0, -1}, new int[]{2, 1, 0},
+                new int[]{2, 2, 0}, new int[]{2, 3, 0, 0}, new int[]{2, 3, 1, -1}, new int[]{2, 4, -1}, new int[]{3, -1}, new int[]{4, 0}
+                , new int[]{5, -2}, new int[]{6, -3}, new int[]{7, -2}, new int[]{8, 0, -2}, new int[]{8, 1, -1}}, deepIndexes);
+        assertEquals(16, deepIndexes.length);
+
+        target = ArrayHelper.asList(1,
+                ArrayHelper.asHashSet(2, 3),
+                new Object[]{null, '5', '6', null},
+                new char[0],
+                11.0);
+        deepIndexes = getDeepIndexes(target);
+        assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, 0, 0}, new int[]{1, 1, 0}, new int[]{2, 0, -1}, new int[]{2, 1, 0},
+                new int[]{2, 2, 0}, new int[]{2, 3, -1}, new int[]{3, -2}, new int[]{4, 0}}, deepIndexes);
+
+        List list = Arrays.asList(0, null, true, new int[]{1, 2}, new char[0], null, Arrays.asList(5, null), new boolean[][]{null, new boolean[]{true, false}});
+        deepIndexes = getDeepIndexes(list);
+        Logger.D(deepToString(deepIndexes));
+        assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, -1}, new int[]{2, 0}, new int[]{3, 0, 0}, new int[]{3, 1, 0},
+                new int[]{4, -2}, new int[]{5, -1}, new int[]{6, 0, 0}, new int[]{6, 1, -1}, new int[]{7, 0, -1}, new int[]{7, 1, 0, 0}, new int[]{7, 1, 1, 0}
+        }, deepIndexes);
     }
 
     @Test
@@ -272,16 +320,6 @@ public class TypeHelperTest {
         assertEquals("[null, [1, null], [true, abc, x]]", deepToString(new Object[]{null, new Object[]{1, null}, new Object[]{true, "abc", 'x'}}));
         assertEquals("[null, [1, null], [true, abc, x]]", deepToString(Arrays.asList(null, Arrays.asList(1, null), Arrays.asList(true, "abc", 'x'))));
         assertEquals("[null, [1, null], [true, abc, x]]", deepToString(Arrays.asList(null, Arrays.asList(1, null), new Object[]{true, "abc", 'x'})));
-    }
-
-    @Test
-    public void testGetDeepIndexes_withCollection() {
-        List list = Arrays.asList(0, null, true, new int[]{1, 2}, new char[0], null, Arrays.asList(5, null), new boolean[][]{null, new boolean[]{true, false}});
-        int[][] deepLength = getDeepIndexes(list);
-        Logger.D(deepToString(deepLength));
-        assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, -1}, new int[]{2, 0}, new int[]{3, 0, 0}, new int[]{3, 1, 0},
-                new int[]{4, -2}, new int[]{5, -1}, new int[]{6, 0, 0}, new int[]{6, 1, -1}, new int[]{7, 0, -1}, new int[]{7, 1, 0, 0}, new int[]{7, 1, 1, 0}
-        }, deepLength);
     }
 
     @Test
@@ -322,10 +360,10 @@ public class TypeHelperTest {
                 new Object[]{new Integer[]{3, 2, 1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}});
         assertFalse(valueEquals(new Object[]{new int[]{3, 2, 1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
                 new Object[]{new Integer[]{3, 2, 1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}},
-                NullEquality.SameTypeOnly, EmptyArrayEquality.TypeIgnored));
+                NullEquality.SameTypeOnly, EmptyEquality.TypeIgnored));
         assertFalse(valueEquals(new Object[]{new int[]{3, 2, 1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
                 new Object[]{new Integer[]{3, 2, 1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}},
-                NullEquality.TypeIgnored, EmptyArrayEquality.SameTypeOnly));
+                NullEquality.TypeIgnored, EmptyEquality.SameTypeOnly));
     }
 
     @Test
@@ -1479,6 +1517,38 @@ public class TypeHelperTest {
         assertEquals(deepHashCode(new int[]{1, 2, 3}), deepHashCode(Arrays.asList(1, 2, 3)));
         assertEquals(deepHashCode(new Object[]{null, new int[]{1, 5}, new int[][]{null, new int[]{3}, new int[]{7}}}),
                 deepHashCode(Arrays.asList(null, Arrays.asList(1, 5), Arrays.asList(null, Arrays.asList(3), new int[]{7}))));
+    }
+
+    @Test
+    public void testValueEquals() {
+        assertTrue(valueEquals(null, null));
+        assertTrue(valueEquals(true, true));
+        assertTrue(valueEquals(new int[]{1, 2, 3}, new Number[]{1, 2, 3}));
+        assertTrue(valueEquals(new Integer[]{null}, ArrayHelper.asList(null)));
+
+    }
+
+    @Test
+    public void testValueEqualsParallel() {
+    }
+
+    @Test
+    public void testValueEqualsSerial() {
+    }
+
+    @Test
+    public void areEquivalent() {
+        assertTrue(TypeHelper.areEquivalent(int.class, Integer.class),
+                TypeHelper.areEquivalent(boolean[].class, Boolean[].class),
+                TypeHelper.areEquivalent(boolean[][].class, Boolean[][].class),
+                TypeHelper.areEquivalent(int.class, int.class),
+                TypeHelper.areEquivalent(float[][][].class, Float[][][].class));
+
+        assertFalse(TypeHelper.areEquivalent(int.class, int[].class),
+                TypeHelper.areEquivalent(int.class, byte.class),
+                TypeHelper.areEquivalent(Integer[][].class, Number[][].class));
+
+        assertException(() -> TypeHelper.areEquivalent(int.class, null), NullPointerException.class);
     }
 
     interface ITest1 {

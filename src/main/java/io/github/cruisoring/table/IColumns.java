@@ -101,7 +101,6 @@ public interface IColumns extends Map<String, Integer> {
     WithValues<Integer> mapIndexes(IColumns other);
 
     //region Factory methods to create strong-typed TupleRows
-
     /**
      * Factory mathod to create strong-typed <code>TableRow</code> instance with given values.
      * @param elements  Values to be used to create the strong-typed <code>TableRow</code> instance
@@ -149,7 +148,6 @@ public interface IColumns extends Map<String, Integer> {
 
     /**
      * Wrap a strong-typed {@code WithValues} instance such as Tuple to a row whose cells can be referred by names
-     *
      * @param tuple the container to hold the actual data of a single row with orders specified by this {@code IColumns}
      * @return a light-weight {@code TupleRow} object that hold all its cell values as {@code WithValues}
      * such as an immutable {@code Tuple} and with shared {@code IColumns} to access them by names.

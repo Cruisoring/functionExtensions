@@ -125,11 +125,10 @@ public class StringHelper {
 
     /**
      * Parse a given String as value of given type, return it if parse successfully or the default value if failed.
-     *
-     * @param objString    the String to be intepreted as given type.
-     * @param objectType   the class of the value represented by the given String.
-     * @param defaultValue the default value to be returned if given values are illegal or parsing failed.
-     * @param <T>          type of the value represented by the given String.
+     * @param objString     the String to be intepreted as given type.
+     * @param objectType    the class of the value represented by the given String.
+     * @param defaultValue  the default value to be returned if given values are illegal or parsing failed.
+     * @param <T>     type of the value represented by the given String.
      * @return the parsed value of type <tt>T</tt> if success, or the given {@code defaultValue} if something wrong.
      */
     public static <T> T parse(String objString, Class<T> objectType, T defaultValue) {

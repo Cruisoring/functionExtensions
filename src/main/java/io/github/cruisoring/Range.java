@@ -371,7 +371,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * Get subString of the concerned JSON text with its Range.
      *
      * @param charSequence All JSON text to be parsed.
-     * @param range        Range of the subString within the charSequence.
+     * @param range    Range of the subString within the charSequence.
      * @return SubString specified by the given Range.
      */
     public static String subString(CharSequence charSequence, Range range) {
@@ -666,8 +666,7 @@ public class Range extends Tuple2<Integer, Integer> {
 
     /**
      * Returns a <code>CharSequence</code> that is the denoted part of given sequence specified by this {@code Range}.
-     *
-     * @param charSequence The <code>CharSequence</code> to be referred by this {@code Range}.
+     * @param charSequence  The <code>CharSequence</code> to be referred by this {@code Range}.
      * @return the specified subsequence
      */
     public CharSequence subSequence(CharSequence charSequence) {
@@ -679,8 +678,7 @@ public class Range extends Tuple2<Integer, Integer> {
 
     /**
      * Returns a subString that is part of the given subsequence specified by this {@code Range}.
-     *
-     * @param charSequence The <code>CharSequence</code> to be referred by this {@code Range}.
+     * @param charSequence  The <code>CharSequence</code> to be referred by this {@code Range}.
      * @return the specified substring.
      */
     public String subString(CharSequence charSequence) {
