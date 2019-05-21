@@ -21,21 +21,31 @@ import static io.github.cruisoring.TypeHelper.*;
 
 public class TypeHelperTest {
 
-    static Object object1 = new Object[]{new Object[]{1, 1.2d, 3},
+    static Object object1 = new Object[]{
+            new Object[]{1, 1.2d, 3},
             new int[0],
             new int[0],
             new Number[0],
             new Comparable[]{null, 2, 3},
             new Object[]{null, 4},
-            new int[][]{null, new int[]{5, 6}}
+            new int[][]{null, new int[]{5, 6}},
+            null,
+            Arrays.asList(1, null, true),
+            Arrays.asList(1, null, true),
+            new HashSet<Number>(Arrays.asList(2.0f, 1, 3.0))
     };
-    static Object object2 = new Object[]{new Number[]{1, 1.2f, 4},
+    static Object object2 = new Object[]{
+            new Number[]{1, 1.2f, 4},
             new double[0],
             new Integer[0],
             new Comparable[0],
             new Number[]{null, 2, 3},
             new Integer[]{null, 4},
-            new Object[]{null, new int[]{5, 6}}
+            new Object[]{null, new int[]{5, 6}},
+            null,
+            Arrays.asList(1, null, true),
+            new Comparable[]{1, null, true},
+            new Number[]{2.0f, 1, 3.0}
     };
     static Number nullNumber = null;
     static Comparable nullComparable = null;
@@ -43,47 +53,140 @@ public class TypeHelperTest {
 
     @Test
     public void testNodeEquals() {
-        int[][] deepIndexes = getDeepIndexes(object1);
-        //Normal nodes are always compared as Objects, 1 vs 1, 1.2d vs 1.2f, 3 vs 4
-        assertTrue(nodeEquals(object1, object2, deepIndexes[0], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
-        assertFalse(nodeEquals(object1, object2, deepIndexes[1], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
-        assertFalse(nodeEquals(object1, object2, deepIndexes[2], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
-        assertTrue(nodeEquals(object1, object2, deepIndexes[7], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
-        assertTrue(nodeEquals(object1, object2, deepIndexes[10], NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
+        Logger.D(deepToString(getDeepIndexes(object1)));
 
-        //Empty Arrays
-        //int[0] vs double[0]
-        assertTrue(nodeEquals(object1, object2, new int[]{1, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
-        assertFalse(nodeEquals(object1, object2, new int[]{1, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{1, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.SameTypeOnly));
-        //int[0] vs Integer[0]
-        assertTrue(nodeEquals(object1, object2, new int[]{2, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
-        assertTrue(nodeEquals(object1, object2, new int[]{2, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{2, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.SameTypeOnly));
-        //Number[0] vs Comparable[0]
-        assertTrue(nodeEquals(object1, object2, new int[]{3, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
-        assertFalse(nodeEquals(object1, object2, new int[]{3, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{3, EMPTY_ARRAY_NODE}, NullEquality.TypeIgnored, EmptyEquality.SameTypeOnly));
+        //Normal nodes are always compared as Objects, 1 vs 1, 1.2d vs 1.2f, 3 vs 4 with Same type only
+        assertTrue(
+                nodeEquals(object1, object2, new int[]{0, 0, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{4, 1, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{4, 2, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{5, 1, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{5, 1, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{6, 1, 0, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{6, 1, 1, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{7, -1}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{8, 0, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{8, 1, -1}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{8, 2, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{9, 0, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{9, 2, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{10, 0, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{10, 1, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{10, 2, 0}, EqualityStategy.SameTypeOnly)
+        );
+        assertFalse(
+                nodeEquals(object1, object2, new int[]{0, 1, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{0, 2, 0}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{1, -2}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{2, -2}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{3, -2}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{4, 0, -1}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{5, 0, -1}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{6, 0, -1}, EqualityStategy.SameTypeOnly),
+                nodeEquals(object1, object2, new int[]{9, 1, -1}, EqualityStategy.SameTypeOnly)
+        );
 
-        //Null values
-        //between null of Comparable and null of Number
-        assertTrue(nodeEquals(object1, object2, new int[]{4, 0, NULL_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
-        assertFalse(nodeEquals(object1, object2, new int[]{4, 0, NULL_NODE}, NullEquality.BetweenAssignableTypes, EmptyEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{4, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
-        //between null of Object and null of Integer
-        assertTrue(nodeEquals(object1, object2, new int[]{5, 0, NULL_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
-        assertTrue(nodeEquals(object1, object2, new int[]{5, 0, NULL_NODE}, NullEquality.BetweenAssignableTypes, EmptyEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{5, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
-        //between null of int[] and null of Object
-        assertTrue(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
-        assertTrue(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.BetweenAssignableTypes, EmptyEquality.BetweenAssignableTypes));
-        assertFalse(nodeEquals(object1, object2, new int[]{6, 0, NULL_NODE}, NullEquality.SameTypeOnly, EmptyEquality.SameTypeOnly));
+        //Both as BetweenAssignableTypes
+        assertTrue(
+                nodeEquals(object1, object2, new int[]{0, 0, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{4, 1, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{4, 2, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{5, 1, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{5, 1, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{6, 1, 0, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{6, 1, 1, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{7, -1}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{8, 0, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{8, 1, -1}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{8, 2, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{9, 0, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{9, 2, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{10, 0, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{10, 1, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{10, 2, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{2, -2}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{5, 0, -1}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{6, 0, -1}, EqualityStategy.BetweenAssignableTypes)
+        );
 
-        //Comparing null of Number and null of Comparable
-        int[] indexes = getDeepIndexes(nullNumber)[0];
-        assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.TypeIgnored, EmptyEquality.TypeIgnored));
-        assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.BetweenAssignableTypes, EmptyEquality.TypeIgnored));
-        assertTrue(nodeEquals(nullNumber, nullComparable, indexes, NullEquality.SameTypeOnly, EmptyEquality.TypeIgnored));
+        assertFalse(
+                nodeEquals(object1, object2, new int[]{0, 1, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{0, 2, 0}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{1, -2}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{3, -2}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{4, 0, -1}, EqualityStategy.BetweenAssignableTypes),
+                nodeEquals(object1, object2, new int[]{9, 1, -1}, EqualityStategy.BetweenAssignableTypes)
+        );
+
+        //Both as TypeIgnored
+        assertTrue(
+                nodeEquals(object1, object2, new int[]{0, 0, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{4, 1, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{4, 2, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{5, 1, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{5, 1, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{6, 1, 0, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{6, 1, 1, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{7, -1}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{8, 0, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{8, 1, -1}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{8, 2, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{9, 0, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{9, 2, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{10, 0, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{10, 1, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{10, 2, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{1, -2}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{2, -2}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{3, -2}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{4, 0, -1}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{5, 0, -1}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{6, 0, -1}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{9, 1, -1}, EqualityStategy.TypeIgnored)
+        );
+
+        assertFalse(
+                nodeEquals(object1, object2, new int[]{0, 1, 0}, EqualityStategy.TypeIgnored),
+                nodeEquals(object1, object2, new int[]{0, 2, 0}, EqualityStategy.TypeIgnored)
+        );
+
+        Revokable.register(() -> TypeHelper.EMPTY_ARRAY_NODE, emptyArray -> TypeHelper.EMPTY_ARRAY_NODE = emptyArray, TypeHelper.NULL_NODE);
+        Revokable.register(() -> TypeHelper.EMPTY_COLLECTION_NODE, empty -> TypeHelper.EMPTY_COLLECTION_NODE = empty, TypeHelper.NULL_NODE);
+        assertEquals("[[0, 0, 0], [0, 1, 0], [0, 2, 0], [1, -1], [2, -1], [3, -1], [4, 0, -1], [4, 1, 0], [4, 2, 0], [5, 0, -1], [5, 1, 0], [6, 0, -1], [6, 1, 0, 0], [6, 1, 1, 0], [7, -1], [8, 0, 0], [8, 1, -1], [8, 2, 0], [9, 0, 0], [9, 1, -1], [9, 2, 0], [10, 0, 0], [10, 1, 0], [10, 2, 0]]",
+                deepToString(getDeepIndexes(object1)));
+
+        assertTrue(
+                nodeEquals(object1, object2, new int[]{0, 0, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{4, 1, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{4, 2, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{5, 1, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{5, 1, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{6, 1, 0, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{6, 1, 1, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{7, -1}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{8, 0, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{8, 1, -1}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{8, 2, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{9, 0, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{9, 2, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{10, 0, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{10, 1, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{10, 2, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{1, -1}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{2, -1}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{3, -1}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{4, 0, -1}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{5, 0, -1}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{6, 0, -1}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{9, 1, -1}, EqualityStategy.EmptyAsNull)
+        );
+
+        assertFalse(
+                nodeEquals(object1, object2, new int[]{0, 1, 0}, EqualityStategy.EmptyAsNull),
+                nodeEquals(object1, object2, new int[]{0, 2, 0}, EqualityStategy.EmptyAsNull)
+        );
+
+        Revokable.revokeAll();
     }
 
     @Test
@@ -358,12 +461,14 @@ public class TypeHelperTest {
                 new Object[]{new Integer[]{3, 2, 1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}});
         assertEquals(new Object[]{new int[]{3, 2, 1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
                 new Object[]{new Integer[]{3, 2, 1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}});
-        assertFalse(valueEquals(new Object[]{new int[]{3, 2, 1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
+        assertTrue(
+                valueEquals(new Object[]{new int[]{3, 2, 1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
                 new Object[]{new Integer[]{3, 2, 1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}},
-                NullEquality.SameTypeOnly, EmptyEquality.TypeIgnored));
-        assertFalse(valueEquals(new Object[]{new int[]{3, 2, 1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
+                        EqualityStategy.TypeIgnored));
+        assertFalse(
+                valueEquals(new Object[]{new int[]{3, 2, 1}, new short[0], 1.1d, null, new String[]{"S1", "S2", null}, new Integer[]{null, 23}},
                 new Object[]{new Integer[]{3, 2, 1}, new Short[0], Double.valueOf(1.1), null, new Comparable[]{"S1", "S2", null}, new Number[]{null, 23}},
-                NullEquality.TypeIgnored, EmptyEquality.SameTypeOnly));
+                        EqualityStategy.SameTypeOnly));
     }
 
     @Test
@@ -1549,6 +1654,154 @@ public class TypeHelperTest {
                 TypeHelper.areEquivalent(Integer[][].class, Number[][].class));
 
         assertException(() -> TypeHelper.areEquivalent(int.class, null), NullPointerException.class);
+    }
+
+    @Test
+    public void testCanBeAssigned() {
+        assertTrue(canBeAssigned(Number.class, Integer.class),
+                canBeAssigned(Number.class, int.class),
+                canBeAssigned(int.class, Integer.class),
+                canBeAssigned(Comparable.class, int.class),
+                canBeAssigned(Comparable.class, Integer.class),
+                canBeAssigned(Comparable[].class, int[].class),
+                canBeAssigned(Comparable[].class, Integer[].class),
+                canBeAssigned(Number[][].class, float[][].class),
+                canBeAssigned(Object.class, int.class),
+                canBeAssigned(Object.class, boolean[].class),
+                canBeAssigned(Object.class, Character[][].class),
+                canBeAssigned(Object[].class, char[][].class),
+                canBeAssigned(Object[].class, Comparable[][].class),
+                canBeAssigned(Object[].class, Enum[].class)
+        );
+
+        assertFalse(canBeAssigned(Integer.class, Number.class),
+                canBeAssigned(int.class, Number.class),
+                canBeAssigned(int.class, Integer[].class),
+                canBeAssigned(int[].class, Integer.class),
+                canBeAssigned(int.class, Comparable.class),
+                canBeAssigned(Integer.class, Comparable.class),
+                canBeAssigned(int[].class, Comparable[].class),
+                canBeAssigned(Double[].class, Integer[].class),
+                canBeAssigned(float[][].class, Number[][].class),
+                canBeAssigned(int.class, Object.class),
+                canBeAssigned(boolean[].class, Object.class),
+                canBeAssigned(Character[].class, Object[].class),
+                canBeAssigned(char[][].class, Object[].class)
+        );
+
+        assertException(() -> canBeAssigned(Object.class, null), NullPointerException.class);
+        assertException(() -> canBeAssigned(null, null), NullPointerException.class);
+    }
+
+    @Test
+    public void testCanValueEquals() {
+        assertTrue(
+                canValueEquals(null, null, null),
+                canValueEquals(1, Integer.valueOf(1), null),
+                canValueEquals("abc", "abc", null)
+        );
+
+        assertFalse(
+                canValueEquals(null, "", null),
+                canValueEquals(1, 2, null),
+                canValueEquals("abc", null, null)
+        );
+
+        assertTrue(
+                canValueEquals(null, null, EqualityStategy.EmptyAsNull),
+                canValueEquals(null, new int[0], EqualityStategy.EmptyAsNull),
+                canValueEquals(new HashSet(), null, EqualityStategy.EmptyAsNull),
+                canValueEquals(new ArrayList(), new char[0], EqualityStategy.EmptyAsNull),
+                canValueEquals(new char[0], new LinkedHashSet(), EqualityStategy.EmptyAsNull),
+                canValueEquals(new int[0], Arrays.asList(), EqualityStategy.EmptyAsNull)
+        );
+
+        assertFalse(
+                canValueEquals(null, new int[]{1}, EqualityStategy.EmptyAsNull),
+                canValueEquals(new Integer[]{null}, null, EqualityStategy.EmptyAsNull),
+                canValueEquals(Arrays.asList(1), new char[0], EqualityStategy.EmptyAsNull),
+                canValueEquals(new char[0], new char[]{'a'}, EqualityStategy.EmptyAsNull),
+                canValueEquals(new int[0], Arrays.asList(0), EqualityStategy.EmptyAsNull)
+        );
+
+        assertTrue(
+                canValueEquals(null, null, EqualityStategy.SameTypeOnly),
+                canValueEquals(1, Integer.valueOf(1), EqualityStategy.SameTypeOnly),
+                canValueEquals(Tuple.TRUE, Tuple.of(true), EqualityStategy.SameTypeOnly)
+        );
+
+        assertFalse(
+                canValueEquals(null, new int[0], EqualityStategy.SameTypeOnly),
+                canValueEquals(new Integer[0], new int[0], EqualityStategy.SameTypeOnly),
+                canValueEquals(Arrays.asList(1), new char[0], EqualityStategy.SameTypeOnly),
+                canValueEquals(new char[0], new Character[]{'a'}, EqualityStategy.SameTypeOnly),
+                canValueEquals(new int[0], Arrays.asList(0), EqualityStategy.SameTypeOnly)
+        );
+
+        assertNull(
+                canValueEquals(new int[]{1, 2}, new int[]{1, 2}, EqualityStategy.SameTypeOnly),
+                canValueEquals(new char[0], new char[]{'a'}, EqualityStategy.SameTypeOnly),
+                canValueEquals(new Object[0], new Object[]{null}, EqualityStategy.SameTypeOnly)
+        );
+
+        assertFalse(
+                canValueEquals(null, new int[0], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Integer[0], null, EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(Arrays.asList(1), new char[0], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new char[0][], new char[0], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new byte[0], new char[0], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(Arrays.asList(1), new HashSet(), EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0], new ArrayList(), EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Number[0], new Comparable[0], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new int[0], Arrays.asList(0), EqualityStategy.BetweenAssignableTypes)
+        );
+
+        assertNull(
+                canValueEquals(new Object[0], new char[0][], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new char[0], new Character[]{'a'}, EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Integer[0], new int[0], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new int[]{1, 2}, new int[]{}, EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0], new char[]{'a'}, EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0][], new Number[0][], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0][], new char[0][][], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0], new List[0], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0], new List[0][], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0], new Set[0], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0], new Set[0][], EqualityStategy.BetweenAssignableTypes)
+        );
+
+        assertTrue(
+                canValueEquals(null, null, EqualityStategy.TypeIgnored),
+                canValueEquals(1, Integer.valueOf(1), EqualityStategy.TypeIgnored),
+                canValueEquals(Tuple.TRUE, Tuple.of(true), EqualityStategy.TypeIgnored),
+                canValueEquals(new int[0], Arrays.asList(), EqualityStategy.TypeIgnored),
+                canValueEquals(new int[0], new Boolean[0], EqualityStategy.TypeIgnored),
+                canValueEquals(new HashSet(), new ArrayList(), EqualityStategy.TypeIgnored),
+                canValueEquals(new Number[0], new Comparable[0], EqualityStategy.TypeIgnored),
+                canValueEquals(new int[0], Arrays.asList(), EqualityStategy.TypeIgnored)
+        );
+
+        assertFalse(
+                canValueEquals(null, new int[0], EqualityStategy.TypeIgnored),
+                canValueEquals(new Integer[0], null, EqualityStategy.TypeIgnored),
+                canValueEquals(new Integer[0], 1, EqualityStategy.TypeIgnored),
+                canValueEquals(Arrays.asList(1), new char[0], EqualityStategy.TypeIgnored),
+                canValueEquals(new char[0], new Character[]{'a'}, EqualityStategy.TypeIgnored),
+
+                canValueEquals(new Object[0], 1, EqualityStategy.TypeIgnored),
+                canValueEquals(new Object[0], new int[]{1, 2}, EqualityStategy.TypeIgnored),
+                canValueEquals(new Number[]{2.2f}, new char[0], EqualityStategy.TypeIgnored),
+                canValueEquals(new Number[]{2.2f}, new Comparable[0], EqualityStategy.TypeIgnored),
+                canValueEquals(new char[0], Arrays.asList('a'), EqualityStategy.TypeIgnored)
+        );
+
+        assertNull(
+                canValueEquals(new int[]{1, 2}, new Object[]{1}, EqualityStategy.TypeIgnored),
+                canValueEquals(new int[]{1}, new char[]{'a'}, EqualityStategy.TypeIgnored),
+                canValueEquals(new int[]{1}, Arrays.asList(2, true), EqualityStategy.TypeIgnored),
+                canValueEquals(new Number[]{2.2f}, new Comparable[]{'a'}, EqualityStategy.TypeIgnored),
+                canValueEquals(new Comparable[]{null}, new Object[]{null}, EqualityStategy.TypeIgnored)
+        );
     }
 
     interface ITest1 {
