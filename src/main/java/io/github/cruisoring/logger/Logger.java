@@ -21,7 +21,7 @@ public class Logger implements ILogger {
      * Default Logger to be used to log messages with static methods.
      */
     public static ILogger Default;
-    public static LogLevel DefaultMeasureLogLevel = LogLevel.info;
+    public static LogLevel DefaultMeasureLogLevel = LogLevel.debug;
     public static boolean NeglectExceptionWhenMeasure = true;
     public static DateTimeFormatter DefaultTimeStampFormatter = DateTimeFormatter.ISO_TIME;
     public static String[] DefaultSuccessKeywords = new String[]{"success", "passed", "pass"};
