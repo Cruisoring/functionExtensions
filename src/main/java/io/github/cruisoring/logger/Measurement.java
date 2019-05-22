@@ -14,7 +14,6 @@ import io.github.cruisoring.utility.StringHelper;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
@@ -34,7 +33,7 @@ public class Measurement {
     /**
      * Keep all measurements as {@code TupleTable}s by names.
      */
-    static final Map<String, TupleTable> namedMeasurements = new HashMap<>();
+    static final Map<String, TupleTable> namedMeasurements = new LinkedHashMap<>();
 
     /**
      * Helper class to compose an unique name and initial a single measurement
@@ -154,13 +153,12 @@ public class Measurement {
      * @return a {@code Map} containing summaries of all sets of measurements identified by names
      */
     public static Map<String, String> getAllSummary() {
-        Set<String> labels = getMeasuredNames();
-        Map<String, String> all = labels.stream()
-                .collect(Collectors.toMap(
-                        label -> label,
-                        label -> defaultSummaryOf(label).getFirst()
-                ));
-        return all;
+        Map<String, String> summary = new LinkedHashMap<>();
+
+        for (String measurementName : namedMeasurements.keySet()) {
+            summary.put(measurementName, defaultSummaryOf(measurementName).getFirst());
+        }
+        return summary;
     }
 
     /**
