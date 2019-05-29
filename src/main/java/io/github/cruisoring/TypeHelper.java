@@ -1646,17 +1646,6 @@ public class TypeHelper {
     }
 
     /**
-     * Convert a variable length of elements to an unmodifiable {@code Set}
-     * @param elements  an array of elements of the same type.
-     * @param <T>       type of the elements
-     * @return an unmodifiable {@code Set} composed by the given elements.
-     */
-    public static <T> Set<T> asSet(T... elements) {
-        Set<T> set = new HashSet<T>(Arrays.asList(elements));
-        return Collections.unmodifiableSet(set);
-    }
-
-    /**
      * Convert the given LocalDate instance to selected format.
      *
      * @param localDate LocalDate instance to be formatted.

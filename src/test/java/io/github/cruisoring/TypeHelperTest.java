@@ -5,6 +5,7 @@ import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple3;
 import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.SetHelper;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
@@ -18,6 +19,7 @@ import java.util.function.Predicate;
 
 import static io.github.cruisoring.Asserts.*;
 import static io.github.cruisoring.TypeHelper.*;
+import static io.github.cruisoring.utility.SetHelper.asSet;
 
 public class TypeHelperTest {
 
@@ -395,7 +397,7 @@ public class TypeHelperTest {
         assertEquals(16, deepIndexes.length);
 
         target = ArrayHelper.asList(1,
-                ArrayHelper.asHashSet(2, 3),
+                SetHelper.asHashSet(2, 3),
                 new Object[]{null, '5', '6', null},
                 new char[0],
                 11.0);

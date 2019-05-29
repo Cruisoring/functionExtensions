@@ -53,44 +53,6 @@ public class ArrayHelper {
     }
 
     /**
-     * Convert a given array to a HashSet that might not keep the same order.
-     *
-     * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
-     * @param <T>      the type of the elements.
-     * @return the Set containing same set of elements.
-     */
-    public static <T> Set<T> asHashSet(T... elements) {
-        Set<T> set = new HashSet<T>();
-        if (elements == null) {
-            set.add(null);
-        } else {
-            for (int i = 0; i < elements.length; i++) {
-                set.add(elements[i]);
-            }
-        }
-        return set;
-    }
-
-    /**
-     * Convert a given array to a HashSet that keep the same order.
-     *
-     * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
-     * @param <T>      the type of the elements.
-     * @return the Set containing same set of elements with orders.
-     */
-    public static <T> Set<T> asLinkedHashSet(T... elements) {
-        Set<T> set = new LinkedHashSet<T>();
-        if (elements == null) {
-            set.add(null);
-        } else {
-            for (int i = 0; i < elements.length; i++) {
-                set.add(elements[i]);
-            }
-        }
-        return set;
-    }
-
-    /**
      * Create an array of specific element type and length
      *
      * @param clazz  Type of the elements of the array

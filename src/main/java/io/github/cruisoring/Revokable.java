@@ -34,21 +34,25 @@ public class Revokable<T> implements AutoCloseable {
      * @param setter        accessor to change the setting.
      * @param newSetting    new setting to replace existing one.
      * @param <T>           type of the setting.
+     * @return      the {@code Revokable} instance which would revert the changes when closing.
      */
-    public static <T> void register(Supplier <T> getter, ConsumerThrowable<T> setter, T newSetting){
+    public static <T> Revokable register(Supplier <T> getter, ConsumerThrowable<T> setter, T newSetting){
         Revokable<T> revokable = new Revokable(getter, setter, newSetting);
         if(revokable.revoker != null){
             All.add(revokable);
         }
+        return revokable;
     }
 
     /**
      * Register the revoking operation for later calling.
      * @param runnableThrowable operation to be called later.
+     * @return      the {@code Revokable} instance which would revert the changes when closing.
      */
-    public static void register(RunnableThrowable runnableThrowable){
+    public static Revokable register(RunnableThrowable runnableThrowable){
         Revokable revokable = new Revokable(runnableThrowable);
         All.add(revokable);
+        return revokable;
     }
 
     /**

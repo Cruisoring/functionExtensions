@@ -316,13 +316,13 @@ public class ArrayHelperTest {
     @Test
     public void asHashSet() {
         Set expected = new HashSet();
-        assertEquals(expected, ArrayHelper.asHashSet());
+        assertEquals(expected, SetHelper.asHashSet());
         expected.add(null);
-        assertEquals(expected, ArrayHelper.asHashSet(null));
-        assertEquals(expected, ArrayHelper.asHashSet(null, null));
+        assertEquals(expected, SetHelper.asHashSet(null));
+        assertEquals(expected, SetHelper.asHashSet(null, null));
         expected.add(true);
-        assertEquals(expected, ArrayHelper.asHashSet(null, true, null));
-        assertEquals(expected, ArrayHelper.asHashSet(null, null, true));
+        assertEquals(expected, SetHelper.asHashSet(null, true, null));
+        assertEquals(expected, SetHelper.asHashSet(null, null, true));
 
         //validate the order might not be kept
         expected.clear();
@@ -330,19 +330,19 @@ public class ArrayHelperTest {
         expected.add(true);
         expected.add(0);
         expected.add(null);
-        assertEquals(expected, ArrayHelper.asHashSet(null, 0, true, 123));
+        assertEquals(expected, SetHelper.asHashSet(null, 0, true, 123));
     }
 
     @Test
     public void asLinkedHashSet() {
         Set expected = new LinkedHashSet();
-        assertEquals(expected, ArrayHelper.asLinkedHashSet());
+        assertEquals(expected, SetHelper.asLinkedHashSet());
         expected.add(null);
-        assertEquals(expected, ArrayHelper.asLinkedHashSet(null));
-        assertEquals(expected, ArrayHelper.asLinkedHashSet(null, null));
+        assertEquals(expected, SetHelper.asLinkedHashSet(null));
+        assertEquals(expected, SetHelper.asLinkedHashSet(null, null));
         expected.add(true);
-        assertEquals(expected, ArrayHelper.asLinkedHashSet(null, true, null));
-        assertEquals(expected, ArrayHelper.asLinkedHashSet(null, null, true));
+        assertEquals(expected, SetHelper.asLinkedHashSet(null, true, null));
+        assertEquals(expected, SetHelper.asLinkedHashSet(null, null, true));
 
         //validate the order might not be kept
         expected.clear();
@@ -351,7 +351,7 @@ public class ArrayHelperTest {
         expected.add(0);
         expected.add(null);
         expected.add(0);
-        assertEquals(expected, ArrayHelper.asLinkedHashSet(123, true, 0, null));
+        assertEquals(expected, SetHelper.asLinkedHashSet(123, true, 0, null));
     }
 
 
