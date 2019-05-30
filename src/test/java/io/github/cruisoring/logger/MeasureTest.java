@@ -8,7 +8,7 @@ import static io.github.cruisoring.Asserts.assertEquals;
 
 public class MeasureTest {
 
-    int times = 100;
+    int times = 10;
     int length = 1000000;
     Integer[] integers1 = new Integer[length];
     Integer[] integers2 = new Integer[length];
