@@ -129,6 +129,22 @@ public class Asserts {
     }
 
     /**
+     * Ensure the single <tt>expression</tt> is <tt>true</tt>, otherwise throw IllegalStateException to fail the test.
+     *
+     * @param expression the boolean expression that is expected to be <tt>true</tt>
+     * @param format    template to compose the error message when {@code expression} is not <tt>true</tt>
+     * @param args      arguments to compose the error message when {@code expression} is not <tt>true</tt>
+     * @return Not used, <tt>true</tt> to indicate all good.
+     * @throws IllegalStateException if any {@code expression} is false
+     */
+    public static boolean assertTrue(boolean expression, String format, Object... args) {
+        if (!expression) {
+            throw new NullPointerException(StringHelper.tryFormatString(format, args));
+        }
+        return true;
+    }
+
+    /**
      * Ensure the states represented by <tt>expressions</tt> are all <tt>true</tt>, otherwise throw IllegalStateException to fail the test.
      *
      * @param expressions any number of boolean expressions
@@ -201,6 +217,22 @@ public class Asserts {
             if (others[i] != null) {
                 throw new NullPointerException("The " + (1 + i) + "th reference is not null!");
             }
+        }
+        return true;
+    }
+
+    /**
+     * Ensure the single <tt>expression</tt> is <tt>false</tt>, otherwise throw IllegalStateException to fail the test.
+     *
+     * @param expression the boolean expression that is expected to be <tt>false</tt>
+     * @param format    template to compose the error message when {@code expression} is not <tt>false</tt>
+     * @param args      arguments to compose the error message when {@code expression} is not <tt>false</tt>
+     * @return Not used, <tt>true</tt> to indicate all good.
+     * @throws IllegalStateException if any {@code expression} is true
+     */
+    public static boolean assertFalse(boolean expression, String format, Object... args) {
+        if (!expression) {
+            throw new NullPointerException(StringHelper.tryFormatString(format, args));
         }
         return true;
     }

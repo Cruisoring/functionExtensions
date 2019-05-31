@@ -83,7 +83,7 @@ public class Revokable<T> implements AutoCloseable {
         checkWithoutNull(getter, setter);
 
         timeStamp = LocalDateTime.now();
-        label = StackTraceHelper.getCallerLabel(null);
+        label = StackTraceHelper.getCallerLabel(null, Revokable.class.getSimpleName());
 
         originalSetting = getter.get();
         this.newSetting = newSetting;
@@ -99,7 +99,7 @@ public class Revokable<T> implements AutoCloseable {
         checkWithoutNull(runnableThrowable);
 
         timeStamp = LocalDateTime.now();
-        label = StackTraceHelper.getCallerLabel(null);
+        label = StackTraceHelper.getCallerLabel(null, Revokable.class.getSimpleName());
 
         originalSetting = null;
         newSetting = null;

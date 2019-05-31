@@ -29,7 +29,7 @@ public class Logger implements ILogger {
     /**
      * Global LogLevel to be used as both default LogLevel when new a Logger instance, and also a global switch to turn off any logging when set to <code>LogLevel.none</code>
      */
-    static LogLevel GlobalLogLevel = LogLevel.debug;
+    static LogLevel GlobalLogLevel = LogLevel.verbose;
     //endregion
 
     //region Static constructor

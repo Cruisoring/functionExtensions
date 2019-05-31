@@ -36,6 +36,13 @@ public class Measurement {
     static final Map<String, TupleTable> namedMeasurements = new LinkedHashMap<>();
 
     /**
+     * Clear all the measurements.
+     */
+    public static void clear(){
+        namedMeasurements.clear();
+    }
+
+    /**
      * Helper class to compose an unique name and initial a single measurement
      *
      * @param format the format used to compose the name to identify a kind of measurement
