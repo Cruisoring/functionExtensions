@@ -21,7 +21,10 @@ public class Revokable<T> implements AutoCloseable {
 
     //region Static members and methods
     //Identifier to locate the caller stack trace quickly
-    static final String getCallerStackTraceKey = Revokable.class.getSimpleName() + ".java";
+    static final String[] calledKeywords = new String[]{
+        Revokable.class.getSimpleName() + ".java",
+        Logger.class.getSimpleName() + ".java"
+    };
 
     public static LogLevel DefaultLogLevel = LogLevel.verbose;
     public static boolean DefaultCloseNew = false;
@@ -83,7 +86,7 @@ public class Revokable<T> implements AutoCloseable {
         checkWithoutNull(getter, setter);
 
         timeStamp = LocalDateTime.now();
-        label = StackTraceHelper.getCallerLabel(null, Revokable.class.getSimpleName());
+        label = StackTraceHelper.getCallerLabel(null, calledKeywords);
 
         originalSetting = getter.get();
         this.newSetting = newSetting;
@@ -99,7 +102,7 @@ public class Revokable<T> implements AutoCloseable {
         checkWithoutNull(runnableThrowable);
 
         timeStamp = LocalDateTime.now();
-        label = StackTraceHelper.getCallerLabel(null, Revokable.class.getSimpleName());
+        label = StackTraceHelper.getCallerLabel(null, calledKeywords);
 
         originalSetting = null;
         newSetting = null;

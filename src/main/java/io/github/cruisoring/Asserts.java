@@ -18,17 +18,18 @@ public class Asserts {
 
     public static LogLevel logLevel = LogLevel.info;
 
-
     /**
      * Use the {@code Logger.Default} to compose and log message with level specified by <tt>logLevel</tt>.
      *
      * @param format Format to compose the message body.
      * @param args   Optional argument to compose the message.
+     * @return the composed message with given format and args.
      */
-    protected static void log(String format, Object... args) {
+    protected static String log(String format, Object... args) {
         if (Logger.Default != null) {
             Logger.Default.log(logLevel, format, args);
         }
+        return StringHelper.tryFormatString(format, args);
     }
 
 
@@ -44,7 +45,7 @@ public class Asserts {
      */
     public static <R> R checkNotNull(R reference, String format, Object... args) {
         if (reference == null) {
-            throw new NullPointerException(StringHelper.tryFormatString(format, args));
+            throw new NullPointerException(log(format, args));
         }
         return reference;
     }
@@ -59,7 +60,7 @@ public class Asserts {
      */
     public static void checkState(boolean expression, String format, Object... args) {
         if (!expression) {
-            throw new IllegalStateException(StringHelper.tryFormatString(format, args));
+            throw new IllegalStateException(log(format, args));
         }
     }
 
@@ -73,7 +74,7 @@ public class Asserts {
         int length = expressions.length;
         for (int i = 0; i < length; i++) {
             if (!expressions[i]) {
-                throw new IllegalStateException("Failed with " + i + "th expresion");
+                throw new IllegalStateException(log("Failed with the %dth expresion", i));
             }
         }
     }
@@ -89,26 +90,26 @@ public class Asserts {
      */
     public static <T> T checkWithoutNull(T reference, Object... others) {
         if (reference == null) {
-            throw new NullPointerException();
+            throw new NullPointerException(log("the first argument is null"));
         }
 
         int length = others.length;
         if (length == 0 && reference.getClass().isArray()) {
             length = Array.getLength(reference);
             if (length == 0) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException(log("the optional arguments shall not be included"));
             }
 
             for (int i = 0; i < length; i++) {
                 if (Array.get(reference, i) == null) {
-                    throw new NullPointerException("The " + (1 + i) + "th reference is null!");
+                    throw new NullPointerException(log("The %dth reference is null!", i+1));
                 }
             }
             return (T) Array.get(reference, 0);
         } else {
             for (int i = 0; i < length; i++) {
                 if (others[i] == null) {
-                    throw new NullPointerException("The " + (1 + i) + "th reference is null!");
+                    throw new NullPointerException(log("The %dth reference is null!", i+1));
                 }
             }
             return reference;
@@ -123,9 +124,7 @@ public class Asserts {
      * @return Not used, <tt>true</tt> to indicate all good.
      */
     public static boolean fail(String format, Object... args) {
-        String message = StringHelper.tryFormatString(format, args);
-        log(message);
-        throw new IllegalStateException(message);
+        throw new IllegalStateException(log(format, args));
     }
 
     /**
@@ -139,7 +138,7 @@ public class Asserts {
      */
     public static boolean assertTrue(boolean expression, String format, Object... args) {
         if (!expression) {
-            throw new NullPointerException(StringHelper.tryFormatString(format, args));
+            throw new NullPointerException(log(format, args));
         }
         return true;
     }
@@ -155,7 +154,7 @@ public class Asserts {
         int length = expressions.length;
         for (int i = 0; i < length; i++) {
             if (!expressions[i]) {
-                throw new IllegalStateException("Failed with " + i + "th expresion");
+                throw new IllegalStateException(log("Failed with the %dth expresion", i));
             }
         }
         return true;
@@ -171,27 +170,26 @@ public class Asserts {
      */
     public static <T> boolean assertNotNull(T reference, T... others) {
         if (reference == null) {
-            log("Actual value is %s, instead of <null>.", TypeHelper.deepToString(reference));
-            throw new IllegalStateException("Unexpected <null> of the first argument");
+            throw new IllegalStateException(log("The first argument is null"));
         }
 
         int length = others.length;
         if (length == 0 && reference.getClass().isArray()) {
             length = Array.getLength(reference);
             if (length == 0) {
-                throw new UnsupportedOperationException("Try to call assertNotNull() multiple times for each reference");
+                throw new UnsupportedOperationException(log("Try to call assertNotNull() multiple times for each reference"));
             }
 
             for (int i = 0; i < length; i++) {
                 if (Array.get(reference, i) == null) {
-                    throw new NullPointerException("The " + (1 + i) + "th reference is null!");
+                    throw new NullPointerException(log("The %dth reference is null!", i));
                 }
             }
             return true;
         } else {
             for (int i = 0; i < length; i++) {
                 if (others[i] == null) {
-                    throw new NullPointerException("The " + (1 + i) + "th reference is null!");
+                    throw new NullPointerException(log("The %dth reference is null!", i));
                 }
             }
             return true;
@@ -208,14 +206,13 @@ public class Asserts {
      */
     public static <T> boolean assertNull(T reference, T... others) {
         if (reference != null) {
-            log("Expected: <null> but was: %s", TypeHelper.deepToString(reference));
-            throw new IllegalStateException("Unexpected not <null>");
+            throw new IllegalStateException(log("Expected: <null> but was: %s", TypeHelper.deepToString(reference)));
         }
 
         int length = others.length;
         for (int i = 0; i < length; i++) {
             if (others[i] != null) {
-                throw new NullPointerException("The " + (1 + i) + "th reference is not null!");
+                throw new NullPointerException(log("The %dth argument is not null: %s", i+1, TypeHelper.deepToString(others[i])));
             }
         }
         return true;
@@ -232,7 +229,7 @@ public class Asserts {
      */
     public static boolean assertFalse(boolean expression, String format, Object... args) {
         if (!expression) {
-            throw new NullPointerException(StringHelper.tryFormatString(format, args));
+            throw new NullPointerException(log(format, args));
         }
         return true;
     }
@@ -248,7 +245,7 @@ public class Asserts {
         int length = expressions.length;
         for (int i = 0; i < length; i++) {
             if (expressions[i]) {
-                throw new IllegalStateException("Failed with " + i + "th expresion");
+                throw new IllegalStateException(log("The %dth expresion is true", i));
             }
         }
         return true;
@@ -269,22 +266,18 @@ public class Asserts {
         if (expected == null && actual == null) {
             return true;
         } else if (expected == null) {
-            log("%s is not expected null.", TypeHelper.deepToString(actual));
-            throw new IllegalStateException("Actual value is not expected null.");
+            throw new IllegalStateException(log("%s !== %s", "null",  TypeHelper.deepToString(actual)));
         } else if (actual == null) {
-            log("%s is expected, but actual is null.", TypeHelper.deepToString(expected));
-            throw new IllegalStateException("NULL is not expected.");
+            throw new IllegalStateException(log("%s !== %s",  TypeHelper.deepToString(expected), "null"));
         }
 
         if (matchTypeExactly && expected.getClass() != actual.getClass()) {
-            log("Expect value of type %s, but actual value is of type %s",
-                    expected.getClass().getSimpleName(), actual.getClass().getSimpleName());
-            throw new IllegalStateException("Types of expectation and actual are not matched.");
+            throw new IllegalStateException(log("Expect value of type %s, but actual value is of type %s",
+                expected.getClass().getSimpleName(), actual.getClass().getSimpleName()));
         }
 
         if (!valueEquals(expected, actual)) {
-            log("%s !== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual));
-            throw new IllegalStateException("Values not matched");
+            throw new IllegalStateException(log("%s !== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual)));
         }
         return true;
     }
@@ -302,21 +295,18 @@ public class Asserts {
      */
     public static boolean assertNotEquals(Object expected, Object actual, boolean matchTypeExactly) {
         if (expected == null && actual == null) {
-            log("Both values are nulls.");
-            throw new IllegalStateException("Both values are nulls.");
+            throw new IllegalStateException(log("Both values are nulls."));
         } else if (expected == null || actual == null) {
             return true;
         }
 
         if (matchTypeExactly && expected.getClass() != actual.getClass()) {
-            log("Expect value of type %s, but actual value is of type %s",
-                    expected.getClass().getSimpleName(), actual.getClass().getSimpleName());
             return true;
         }
 
         if (valueEquals(expected, actual)) {
-            log("%s !=== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual));
-            throw new IllegalStateException("Values matched");
+            throw new IllegalStateException(
+                log("%s !=== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual)));
         }
         return true;
     }
@@ -362,19 +352,18 @@ public class Asserts {
         try {
             supplier.get();
 
-            throw new IllegalStateException("No exception of " + exceptionClass.getSimpleName() + "thrown");
+            throw new IllegalStateException(log("No exception of %s thrown", exceptionClass.getSimpleName()));
         } catch (Exception e) {
             if (e.getClass() != exceptionClass) {
-                log("Unexpected type of Exception: expected is %s, actual is %s.", exceptionClass.getSimpleName(), e.getClass().getSimpleName());
-                throw new IllegalStateException("Expect exception of " + exceptionClass.getSimpleName() + ", but get " + e.getClass().getSimpleName());
+                throw new IllegalStateException(
+                    log("Unexpected type of Exception: expected is %s, actual is %s.", exceptionClass.getSimpleName(), e.getClass().getSimpleName()));
             } else if (keywords != null && keywords.length > 0) {
                 if (StringHelper.containsAll(e.getMessage(), keywords)) {
                     return null;
                 } else {
                     String[] keyStrings = Arrays.stream(keywords).map(o -> o == null ? "null" : o.toString()).toArray(String[]::new);
-                    log("Some keys (%s) are missing: %s", String.join(", ", keyStrings), e.getMessage());
-
-                    throw new IllegalStateException("Missing one or multiple keywords");
+                    throw new IllegalStateException(
+                        log("Some keys (%s) are missing: %s", String.join(", ", keyStrings), e.getMessage()));
                 }
             } else {
                 return null;
@@ -393,17 +382,15 @@ public class Asserts {
         try {
             runnableThrowable.run();
 
-            throw new IllegalStateException("No exception of " + exceptionClass.getSimpleName() + "thrown");
+            throw new IllegalStateException(log("No exception of %s thrown", exceptionClass.getSimpleName()));
         } catch (Exception e) {
             if (e.getClass() != exceptionClass) {
-                log("Unexpected type of Exception: expected is %s, actual is %s.", exceptionClass.getSimpleName(), e.getClass().getSimpleName());
-                throw new IllegalStateException("Expect exception of " + exceptionClass.getSimpleName() + ", but get " + e.getClass().getSimpleName());
+                throw new IllegalStateException(
+                    log("Unexpected type of Exception: expected is %s, actual is %s.", exceptionClass.getSimpleName(), e.getClass().getSimpleName()));
             } else if (keywords != null && keywords.length > 0) {
                 if (!StringHelper.containsAll(e.getMessage(), keywords)) {
                     String[] keyStrings = Arrays.stream(keywords).map(o -> o == null ? "null" : o.toString()).toArray(String[]::new);
-                    log("Some keys (%s) are missing: %s", String.join(", ", keyStrings), e.getMessage());
-
-                    throw new IllegalStateException("Missing one or multiple keywords");
+                    throw new IllegalStateException(log("Some keys (%s) are missing: %s", String.join(", ", keyStrings), e.getMessage()));
                 }
             }
         }

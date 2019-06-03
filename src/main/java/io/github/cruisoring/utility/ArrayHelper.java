@@ -16,7 +16,6 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.*;
-import static io.github.cruisoring.TypeHelper.valueEquals;
 
 /**
  * Class to hold helper methods related with array operations.
@@ -213,7 +212,7 @@ public class ArrayHelper {
                 : Array.get(array2, i - length1);
         Object resultArray;
         Class resultComponentClass;
-        if (valueEquals(componentClass1, componentClass2) || TypeHelper.areEquivalent(componentClass1, componentClass2)) {
+        if (componentClass1.equals(componentClass2) || TypeHelper.areEquivalent(componentClass1, componentClass2)) {
             resultComponentClass = (isPremitive1 && !isPremitive2) ? componentClass2 : componentClass1;
         } else if (!isPremitive1 && (componentClass1.isAssignableFrom(componentClass2))
                 || (isPremitive2 && componentClass1.isAssignableFrom(TypeHelper.getEquivalentClass(componentClass2)))) {

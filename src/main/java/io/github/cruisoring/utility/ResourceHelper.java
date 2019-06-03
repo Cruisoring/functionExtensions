@@ -8,10 +8,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+
+import static io.github.cruisoring.Asserts.*;
 
 /**
  * Helper class for resource locating and retrieval.
@@ -126,23 +129,31 @@ public class ResourceHelper {
     /**
      * Retrieve the content of the resource file a String.
      *
-     * @param resourceFilename The relative path of the reourcefile to be checked.
+     * @param resourceFilename The absolute path to the text file, or relative path of the reourcefile to be checked.
      * @return NULL if there is no such resource identified by the relative path, or content of the resource as a String.
      */
     public static String getTextFromResourceFile(String resourceFilename) {
-        URL url = ResourceHelper.class.getClassLoader().getResource(resourceFilename);
-        if (url == null)
-            return null;
+        checkNotNull(resourceFilename, "no resourceFilename defined.");
 
-        String sql = null;
+        String text = null;
         try {
+            Path path = Paths.get(resourceFilename);
+            if(path.isAbsolute()){
+                byte[] bytes = Files.readAllBytes(path);
+                return new String(bytes);
+            }
+
+            URL url = ResourceHelper.class.getClassLoader().getResource(resourceFilename);
+            if (url == null)
+                return null;
+
             URI uri = url.toURI();
             byte[] bytes = Files.readAllBytes(Paths.get(uri));
-            sql = new String(bytes);
+            text = new String(bytes);
         } catch (Exception e) {
             Logger.W(e.getMessage());
         }
-        return sql;
+        return text;
     }
 
     /**
@@ -222,7 +233,7 @@ public class ResourceHelper {
      * @return File instance if it exist, otherwise null.
      */
     public static File getResourceFile(String filename, String... folderNames) {
-        Objects.requireNonNull(filename);
+        assertNotNull(filename);
 
         String folderPath = folderNames == null ? "" : String.join("/", folderNames);
 
@@ -249,7 +260,7 @@ public class ResourceHelper {
      * @return the absolute file path if it is found, or null when there is no such resource.
      */
     public static Path getResourcePath(String filename, String... folderNames) {
-        Objects.requireNonNull(filename);
+        assertNotNull(filename);
 
         String folderPath = folderNames == null ? "" : String.join("/", folderNames);
 
@@ -277,7 +288,7 @@ public class ResourceHelper {
      * @return Path of the expected file.
      */
     public static Path getAbsoluteFilePath(String filename, String... folderNames) {
-        Objects.requireNonNull(filename);
+        assertNotNull(filename);
 
         String folderPath = folderNames == null ? "" : String.join("/", folderNames);
 
@@ -297,7 +308,6 @@ public class ResourceHelper {
      */
     public static String getTextFromResourceFile(String resourceFilename, String... folders) {
         Path path = getResourcePath(resourceFilename, folders);
-//        log.info(String.format("%s would be extracted from %s", resourceFilename, path));
 
         if (path == null) {
             return null;
@@ -309,6 +319,36 @@ public class ResourceHelper {
             return text;
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    /**
+     * Save the text to a file with Charset of UTF-8.
+     * @param text      the content to be saved.
+     * @param filepath  the absolute file path or relative file path to <tt>target</tt> folder.
+     * @return          the absolute path of the file if saved successfully, otherwise the error message.
+     */
+    public static String saveTextToTargetFile(String text, String filepath) {
+        checkWithoutNull(text, filepath);
+
+        try {
+            File savedFile;
+            if(Paths.get(filepath).isAbsolute()) {
+                savedFile = new File(filepath);
+            } else {
+                filepath = filepath.startsWith("target") ? filepath : "target\\" + filepath;
+                savedFile = new File(filepath).getAbsoluteFile();
+                File directory = savedFile.getParentFile();
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+            }
+
+            Files.write(savedFile.toPath(), text.getBytes(StandardCharsets.UTF_8));
+            return savedFile.getAbsolutePath();
+        } catch (IOException e) {
+            String error = e.toString();
+            return error;
         }
     }
 }

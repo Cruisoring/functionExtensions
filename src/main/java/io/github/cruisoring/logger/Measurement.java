@@ -36,6 +36,18 @@ public class Measurement {
     static final Map<String, TupleTable> namedMeasurements = new LinkedHashMap<>();
 
     /**
+     * Print out the existing performance summaries by name with given LogLevel.
+     * @param level the {@code LogLevel} to show the summaries.
+     */
+    public static void printMeasurementSummaries(LogLevel level){
+        Map<String, String> performanceSummary = Measurement.getAllSummary();
+
+        for (String name :performanceSummary.keySet()) {
+            Logger.Default.log(level, "%s: %s", name, performanceSummary.get(name));
+        }
+    }
+
+    /**
      * Clear all the measurements.
      */
     public static void clear(){
