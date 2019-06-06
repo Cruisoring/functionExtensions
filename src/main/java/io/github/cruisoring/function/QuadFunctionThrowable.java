@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.BiFunction;
 
 /**
@@ -85,6 +87,7 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends WithValueReturned<
             try {
                 return apply(t, u, v, w);
             } catch (Exception e) {
+                Logger.D(e);
                 return defaultValue;
             }
         };

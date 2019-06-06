@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.BiFunction;
 
 /**
@@ -93,6 +95,7 @@ public interface HexaFunctionThrowable<T, U, V, W, X, Y, R> extends WithValueRet
             try {
                 return apply(t, u, v, w, x, y);
             } catch (Exception e) {
+                Logger.D(e);
                 return defaultValue;
             }
         };

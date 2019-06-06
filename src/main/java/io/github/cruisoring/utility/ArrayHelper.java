@@ -6,6 +6,7 @@ import io.github.cruisoring.function.BiConsumerThrowable;
 import io.github.cruisoring.function.FunctionThrowable;
 import io.github.cruisoring.function.TriConsumerThrowable;
 import io.github.cruisoring.function.TriFunctionThrowable;
+import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.repository.TupleRepository3;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple3;
@@ -13,6 +14,7 @@ import io.github.cruisoring.tuple.Tuple3;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.*;
@@ -21,6 +23,7 @@ import static io.github.cruisoring.Asserts.*;
  * Class to hold helper methods related with array operations.
  */
 public class ArrayHelper {
+
     public static final Class ObjectClass = Object.class;
     //region Repository of setAll functions of any array whose element type is used as the key
     private static final TupleRepository3<
@@ -376,6 +379,7 @@ public class ArrayHelper {
         return (Object[]) TypeHelper.convert(array, Object.class);
     }
 
+    //region Methods to convert array of primitive values to corresponding Object array
     /**
      * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
      *
@@ -470,7 +474,9 @@ public class ArrayHelper {
 
         return (Long[]) TypeHelper.toEquivalent(values);
     }
+    //endregion
 
+    //region Methods to convert object arrays to corresponding arrays of primitive values
     /**
      * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
      * @param values the array of primtive boolean values
@@ -591,6 +597,24 @@ public class ArrayHelper {
     }
 
     /**
+     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
+     * @param values the array of primtive boolean values
+     * @return the array of {@code Boolean[]}
+     */
+    public static long[] toPrimitive(Long[] values) {
+        if (values == null) {
+            return null;
+        }
+
+        if (values.length > 0) {
+            checkWithoutNull(values[0], (Long[]) TypeHelper.copyOfRange(values, 1, values.length));
+        }
+
+        return (long[]) TypeHelper.toEquivalent(values);
+    }
+    //endregion
+
+    /**
      * Rearrange the elements of the given array randomely to get a new array with same elements but of different sequence.
      *
      * @param original the array to be shuffled.
@@ -610,21 +634,64 @@ public class ArrayHelper {
         return shuffled;
     }
 
-    /**
-     * Convert the {@code boolean[]} to corresponding {@code Boolean[]}
-     * @param values the array of primtive boolean values
-     * @return the array of {@code Boolean[]}
-     */
-    public static long[] toPrimitive(Long[] values) {
-        if (values == null) {
-            return null;
+    public static  boolean matchAll(Object arrayOrCollection, Predicate predicate){
+        checkWithoutNull(arrayOrCollection, predicate);
+
+        if(arrayOrCollection instanceof Collection){
+            Iterator iterator = ((Collection) arrayOrCollection).iterator();
+            int index = 0;
+            while (iterator.hasNext()){
+                Object next = iterator.next();
+                index++;
+                if(!predicate.test(next)) {
+                    Logger.V("Failed to test %s at position %d", next, index);
+                    return false;
+                }
+            }
+            return true;
+        } else if (arrayOrCollection.getClass().isArray()) {
+            int length = Array.getLength(arrayOrCollection);
+            for (int i = 0; i < length; i++) {
+                Object next = Array.get(arrayOrCollection, i);
+                if(!predicate.test(next)) {
+                    Logger.V("Failed to test %s at position %d", next, i);
+                    return false;
+                }
+            }
+            return true;
         }
 
-        if (values.length > 0) {
-            checkWithoutNull(values[0], (Long[]) TypeHelper.copyOfRange(values, 1, values.length));
+        throw new IllegalStateException(
+                StringHelper.tryFormatString("Type %s of %s is not supported.",
+                        arrayOrCollection.getClass().getSimpleName(), arrayOrCollection));
+    }
+
+    public static  boolean matchAny(Object arrayOrCollection, Predicate predicate){
+        checkWithoutNull(arrayOrCollection, predicate);
+
+        if(arrayOrCollection instanceof Collection){
+            Iterator iterator = ((Collection) arrayOrCollection).iterator();
+            while (iterator.hasNext()){
+                Object next = iterator.next();
+                if(predicate.test(next)) {
+                    return true;
+                }
+            }
+            return false;
+        } else if (arrayOrCollection.getClass().isArray()) {
+            int length = Array.getLength(arrayOrCollection);
+            for (int i = 0; i < length; i++) {
+                Object next = Array.get(arrayOrCollection, i);
+                if(predicate.test(next)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
-        return (long[]) TypeHelper.toEquivalent(values);
+        throw new IllegalStateException(
+                StringHelper.tryFormatString("Type %s of %s is not supported.",
+                        arrayOrCollection.getClass().getSimpleName(), arrayOrCollection));
     }
 
     @FunctionalInterface

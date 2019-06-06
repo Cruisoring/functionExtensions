@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.Consumer;
 
 /**
@@ -90,7 +92,10 @@ public interface PentaConsumerThrowable<T, U, V, W, X> {
             try {
                 accept(t, u, v, w, x);
             } catch (Exception e) {
-                alternatives[0].accept(t, u, v, w, x);
+                Logger.D(e);
+                if(alternatives.length > 0) {
+                    alternatives[0].accept(t, u, v, w, x);
+                }
             }
         };
         return consumer;

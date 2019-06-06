@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.BiPredicate;
 
 /**
@@ -28,12 +30,29 @@ public interface BiPredicateThrowable<T, U> extends BiFunctionThrowable<T, U, Bo
      *
      * @return {@code BiPredicate<T, U>} with same predicate logic except always return false with Exception.
      */
-    default BiPredicate<T, U> orElse() {
+    default BiPredicate<T, U> orFalse() {
         BiPredicate<T, U> predicate = (t, u) -> {
             try {
                 return apply(t, u);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
                 return false;
+            }
+        };
+        return predicate;
+    }
+
+    /**
+     * Convert this {@code BiPredicateThrowable<T, U>} to {@code BiPredicate<T, U>} by returning <code>false</code> with Exception.
+     *
+     * @return {@code BiPredicate<T, U>} with same predicate throws IllegalStateException when something wrong.
+     */
+    default BiPredicate<T, U> orException() {
+        BiPredicate<T, U> predicate = (t, u) -> {
+            try {
+                return apply(t, u);
+            } catch (Exception e) {
+                Logger.D(e);
+                throw new IllegalStateException(e.getMessage());
             }
         };
         return predicate;

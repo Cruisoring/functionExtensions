@@ -1,6 +1,8 @@
 package io.github.cruisoring.function;
 
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -32,6 +34,7 @@ public interface BiConsumerThrowable<T, U> {
         try {
             accept(t, u);
         } catch (Exception e) {
+            Logger.D(e);
         }
     }
 
@@ -57,6 +60,7 @@ public interface BiConsumerThrowable<T, U> {
             try {
                 accept(t, u);
             } catch (Exception e) {
+                Logger.D(e);
                 if (exceptionHandler != null)
                     exceptionHandler.accept(e);
             }
@@ -80,7 +84,10 @@ public interface BiConsumerThrowable<T, U> {
             try {
                 accept(t, u);
             } catch (Exception e) {
-                alternatives[0].accept(t, u);
+                Logger.D(e);
+                if(alternatives.length > 0) {
+                    alternatives[0].accept(t, u);
+                }
             }
         };
         return consumer;

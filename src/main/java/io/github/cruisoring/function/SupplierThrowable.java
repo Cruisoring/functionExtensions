@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -62,6 +64,7 @@ public interface SupplierThrowable<R> extends WithValueReturned<R> {
             try {
                 return get();
             } catch (Exception e) {
+                Logger.D(e);
                 return defaultValue;
             }
         };

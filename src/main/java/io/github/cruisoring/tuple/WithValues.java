@@ -84,7 +84,7 @@ public interface WithValues<T> extends Comparable {
      */
     default boolean meetConditions(Map<Integer, PredicateThrowable> expectedConditions){
         for (Integer index : expectedConditions.keySet()) {
-            if(!expectedConditions.get(index).orElse().test(getValue(index))){
+            if(!expectedConditions.get(index).orException().test(getValue(index))){
                 return false;
             }
         }

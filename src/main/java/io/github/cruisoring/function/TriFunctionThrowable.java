@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.BiFunction;
 
 /**
@@ -81,6 +83,7 @@ public interface TriFunctionThrowable<T, U, V, R> extends WithValueReturned<R> {
             try {
                 return apply(t, u, v);
             } catch (Exception e) {
+                Logger.D(e);
                 return defaultValue;
             }
         };

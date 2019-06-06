@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.Consumer;
 
 /**
@@ -86,7 +88,10 @@ public interface QuadConsumerThrowable<T, U, V, W> {
             try {
                 accept(t, u, v, w);
             } catch (Exception e) {
-                alternatives[0].accept(t, u, v, w);
+                Logger.D(e);
+                if(alternatives.length > 0) {
+                    alternatives[0].accept(t, u, v, w);
+                }
             }
         };
         return consumer;

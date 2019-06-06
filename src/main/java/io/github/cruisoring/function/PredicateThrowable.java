@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.Predicate;
 
 /**
@@ -22,16 +24,33 @@ public interface PredicateThrowable<T> extends FunctionThrowable<T, Boolean> {
     }
 
     /**
-     * Convert this {@code PredicateThrowable<T>} to {@code Predicate<T>} by returning <code>false</code> with Exception.
+     * Conver this {@code PredicateThrowable<T>} to {@code Predicate<T>} by returning <code>false</code> with Exception.
      *
      * @return {@code Predicate<T>} with same predicate logic except always return false with Exception.
      */
-    default Predicate<T> orElse() {
+    default Predicate<T> orFalse() {
         Predicate<T> predicate = (t) -> {
             try {
                 return apply(t);
             } catch (Exception ignored) {
                 return false;
+            }
+        };
+        return predicate;
+    }
+
+    /**
+     * Convert this {@code PredicateThrowable<T>} to {@code Predicate<T>} by returning <code>false</code> with Exception.
+     *
+     * @return {@code Predicate<T>} with same predicate logic throws IllegalStateException when something wrong.
+     */
+    default Predicate<T> orException() {
+        Predicate<T> predicate = (t) -> {
+            try {
+                return apply(t);
+            } catch (Exception e) {
+                Logger.D(e);
+                throw new IllegalStateException(e.getMessage());
             }
         };
         return predicate;

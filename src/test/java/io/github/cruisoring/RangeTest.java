@@ -22,7 +22,7 @@ public class RangeTest {
         assertEquals(Range.INFINITE_LENGTH, Range.ALL_INT.size());
 
 //        //java.lang.IllegalStateException: Cannot get stream for all integers
-//        Integer first = Range.ALL_INT.getStream().findFirst().orElse(null);
+//        Integer first = Range.ALL_INT.getStream().findFirst().orException(null);
     }
 
     @Test

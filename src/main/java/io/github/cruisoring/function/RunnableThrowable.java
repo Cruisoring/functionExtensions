@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.Consumer;
 
 /**
@@ -59,7 +61,10 @@ public interface RunnableThrowable {
             try {
                 run();
             } catch (Exception e) {
-                alternatives[0].run();
+                Logger.D(e);
+                if(alternatives.length > 0) {
+                    alternatives[0].run();
+                }
             }
         };
         return consumer;

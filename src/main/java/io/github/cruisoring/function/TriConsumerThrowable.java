@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.Consumer;
 
 /**
@@ -82,7 +84,10 @@ public interface TriConsumerThrowable<T, U, V> {
             try {
                 accept(t, u, v);
             } catch (Exception e) {
-                alternatives[0].accept(t, u, v);
+                Logger.D(e);
+                if(alternatives.length > 0) {
+                    alternatives[0].accept(t, u, v);
+                }
             }
         };
         return consumer;

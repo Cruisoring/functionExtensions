@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.BiFunction;
 
 /**
@@ -89,6 +91,7 @@ public interface PentaFunctionThrowable<T, U, V, W, X, R> extends WithValueRetur
             try {
                 return apply(t, u, v, w, x);
             } catch (Exception e) {
+                Logger.D(e);
                 return defaultValue;
             }
         };

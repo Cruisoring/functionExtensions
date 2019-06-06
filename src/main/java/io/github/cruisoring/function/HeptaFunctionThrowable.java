@@ -1,5 +1,7 @@
 package io.github.cruisoring.function;
 
+import io.github.cruisoring.logger.Logger;
+
 import java.util.function.BiFunction;
 
 /**
@@ -98,6 +100,7 @@ public interface HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R> extends WithValu
             try {
                 return apply(t, u, v, w, x, y, z);
             } catch (Exception e) {
+                Logger.D(e);
                 return defaultValue;
             }
         };
