@@ -223,19 +223,21 @@ public class TypeHelper {
     private static final BiPredicate<Object, Object> objectsEquals = Objects::equals;
     private static final BiPredicate<Object, Object> arraysDeepEquals = (a, b) ->
             Arrays.deepEquals((Object[]) a, (Object[]) b);
+
     //region Method and repository to get return type of Lambda Expression
-    private static final Method _getConstantPool = (Method) Functions.ReturnsDefaultValue.apply(() -> {
+    private static final Method _getConstantPool() throws Exception{
         Method method = Class.class.getDeclaredMethod("getConstantPool");
         method.setAccessible(true);
         return method;
-    });
+    }
+
     /**
      * Repository to evaluate a Lambda expression to get its Parameter Types, and return Type.
      * Notice: the parameter types are not always accurate when some extra values are used to compose the lambda
      * <p>
      * <tt>FunctionThrowable&lt;TKey, Tuple3&lt;T,U,V&gt;&gt; valueFunction</tt>
      */
-    static final TupleRepository3<WithValueReturned,
+    static final TupleRepository3<getThrowable,
             Boolean, Class[], Class> lambdaGenericInfoRepository = TupleRepository3.fromKey(
             TypeHelper::getLambdaGenericInfo
     );
@@ -982,13 +984,18 @@ public class TypeHelper {
     }
 
     protected static ConstantPool getConstantPoolOfClass(Class objectClass) {
-        return (ConstantPool) Functions.ReturnsDefaultValue.apply(() -> _getConstantPool.invoke(objectClass));
+        try {
+            Method method = _getConstantPool();
+            return (ConstantPool) method.invoke(objectClass);
+        } catch (Exception e) {
+            return null;
+        }
     }
     //endregion
 
     //region Repository with Class as the key, to keep 7 common used attributes or operators
 
-    private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(WithValueReturned lambda) {
+    private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(getThrowable lambda) {
         checkWithoutNull(lambda);
 
         Class lambdaClass = lambda.getClass();
@@ -1016,7 +1023,7 @@ public class TypeHelper {
      * @param aThrowable solid Lambda expression
      * @return The type of the return value defined by the Lambda Expression.
      */
-    public static Class getReturnType(WithValueReturned aThrowable) {
+    public static Class getReturnType(getThrowable aThrowable) {
         return lambdaGenericInfoRepository.getThirdValue(aThrowable);
     }
     //endregion

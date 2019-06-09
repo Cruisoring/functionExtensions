@@ -1,8 +1,7 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 /**
  * Functional Interface identifying methods, accepting 2 arguments and returning value type of boolean
@@ -12,7 +11,7 @@ import java.util.function.BiPredicate;
  * @param <U> Type of the second argument.
  */
 @FunctionalInterface
-public interface BiPredicateThrowable<T, U> extends BiFunctionThrowable<T, U, Boolean> {
+public interface BiPredicateThrowable<T, U> extends getThrowable<Boolean> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 2 arguments and returning result of boolean type
      *
@@ -21,38 +20,72 @@ public interface BiPredicateThrowable<T, U> extends BiFunctionThrowable<T, U, Bo
      * @return The result of applying the given arguments.
      * @throws Exception Any Exception could be thrown by the concerned service logic.
      */
-    default boolean test(T t, U u) throws Exception {
-        return apply(t, u);
+    boolean test(T t, U u);
+
+    /**
+     * Execute the given business logic to test the given 2 arguments, return the result or
+     * handle thrown Exception with the default handler of {@code getThrowable}.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @return The result by testing the given arguments,
+     *      or result returned by the default Exception handler of {@code getThrowable}.
+     */
+    default boolean tryTest(T t, U u) {
+        try {
+            return test(t, u);
+        } catch (Exception e) {
+            return handle(e);
+        }
     }
 
     /**
-     * Convert this {@code BiPredicateThrowable<T, U>} to {@code BiPredicate<T, U>} by returning <code>false</code> with Exception.
+     * Convert the {@code BiPredicateThrowable<T, U>} to {@code SupplierThrowable<Boolean>} with given arguments.
      *
-     * @return {@code BiPredicate<T, U>} with same predicate logic except always return false with Exception.
+     * @param t     the argument of type <tt>T</tt>
+     * @param u The second argument of type <code>U</code>.
+     * @return the {@code SupplierThrowable<R>} instance invoking the original {@code PredicateThrowable<T>} with required arguments
      */
-    default BiPredicate<T, U> orFalse() {
-        BiPredicate<T, U> predicate = (t, u) -> {
-            try {
-                return apply(t, u);
-            } catch (Exception e) {
-                return false;
-            }
-        };
-        return predicate;
+    default SupplierThrowable<Boolean> asSupplierThrowable(T t, U u) {
+        return () -> test(t, u);
     }
 
     /**
-     * Convert this {@code BiPredicateThrowable<T, U>} to {@code BiPredicate<T, U>} by returning <code>false</code> with Exception.
+     * Convert this {@code BiPredicateThrowable<T, U>} to {@code BiPredicate<T, U>} with optional Exception Handler
      *
-     * @return {@code BiPredicate<T, U>} with same predicate throws IllegalStateException when something wrong.
+     * @param exceptionHandlers Optional Exception handlers returning Boolean when Exception is caught
+     * @return Converted Function&lt;T,R&gt; that get Exceptions handled with the first of exceptionHandlers if given,
+     *          otherwise {@code this::tryTest} if no exceptionHandler specified
      */
-    default BiPredicate<T, U> orException() {
-        BiPredicate<T, U> predicate = (t, u) -> {
+
+    default BiPredicate<T,U> orElse(Function<Exception, Boolean>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
+            return this::tryTest;
+        } else {
+            BiPredicate<T,U> predicate = (t, u) -> {
+                try {
+                    return test(t, u);
+                } catch (Exception e) {
+                    return exceptionHandlers[0].apply(e);
+                }
+            };
+            return predicate;
+        }
+    }
+
+    /**
+     * Convert this {@code BiPredicateThrowable<T, U>} to {@code BiPredicate<T, U>} by ignoring the caught Exception
+     * and simply returns a pre-defined default value.
+     *
+     * @param defaultValue Predefined default value.
+     * @return Converted {@code BiPredicate<T, U>} that get Exceptions handled with the first of exceptionHandlers if given, otherwise {@code this::tryAccept} if no exceptionHandler specified
+     */
+    default BiPredicate<T,U> orElse(boolean defaultValue) {
+        BiPredicate<T,U> predicate = (t, u) -> {
             try {
-                return apply(t, u);
+                return test(t, u);
             } catch (Exception e) {
-                Logger.D(e);
-                throw new IllegalStateException(e.getMessage());
+                return defaultValue;
             }
         };
         return predicate;

@@ -1,7 +1,5 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
 import java.util.function.Consumer;
 
 /**
@@ -14,7 +12,7 @@ import java.util.function.Consumer;
  * @param <W> Type of the fourth argument.
  */
 @FunctionalInterface
-public interface QuadConsumerThrowable<T, U, V, W> {
+public interface QuadConsumerThrowable<T, U, V, W> extends voidThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 4 arguments and returning nothing.
      *
@@ -27,7 +25,7 @@ public interface QuadConsumerThrowable<T, U, V, W> {
     void accept(T t, U u, V v, W w) throws Exception;
 
     /**
-     * Execute <code>accept()</code> and ignore any Exceptions thrown.
+     * Execute <code>accept()</code> and handle thrown Exception with the default handler of {@code throwsException}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
@@ -38,6 +36,7 @@ public interface QuadConsumerThrowable<T, U, V, W> {
         try {
             accept(t, u, v, w);
         } catch (Exception e) {
+            handle(e);
         }
     }
 
@@ -55,46 +54,26 @@ public interface QuadConsumerThrowable<T, U, V, W> {
     }
 
     /**
-     * Convert the QuadConsumerThrowable&lt;T,U,V,W&gt; to QuadConsumer&lt;T,U,V,W&gt; with injected Exception Handler
+     * Convert the QuadConsumerThrowable&lt;T,U,V,W&gt; to QuadConsumer&lt;T,U,V,W&gt; with given Exception Handler
      *
-     * @param exceptionHandler Exception Handler of the caught Exceptions
-     * @return Converted QuadConsumer&lt;T,U,V,W&gt; that get Exceptions handled with the exceptionHandler
+     * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber if exists
+     * @return Converted QuadConsumer&lt;T,U,V,W&gt; that get Exceptions handled with the first of exceptionHandlers if given,
+     *          otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
-    default QuadConsumer<T, U, V, W> withHandler(Consumer<Exception> exceptionHandler) {
-        QuadConsumer<T, U, V, W> consumer = (t, u, v, w) -> {
-            try {
-                accept(t, u, v, w);
-            } catch (Exception e) {
-                if (exceptionHandler != null)
-                    exceptionHandler.accept(e);
-            }
-        };
-        return consumer;
-    }
-
-    /**
-     * Convert the QuadConsumerThrowable&lt;T,U,V,W&gt; to QuadConsumer&lt;T,U,V,W&gt; with optional alternative QuadConsumer&lt;T,U,V,W&gt;
-     *
-     * @param alternatives varargs of QuadConsumer&lt;T,U,V,W&gt; to consume the input.
-     * @return the tryAccept() if no alternatives provided, otherwise a converted QuadConsumer&lt;T,U,V,W&gt; that 
-     *  would use the first QuadConsumer&lt;T,U,V,W&gt; to finish the job
-     */
-    default QuadConsumer<T, U, V, W> orElse(QuadConsumer<T, U, V, W>... alternatives){
-        if(alternatives == null || alternatives.length == 0){
+    default QuadConsumer<T, U, V, W> withHandler(Consumer<Exception>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0){
             return this::tryAccept;
-        }
-
-        QuadConsumer<T, U, V, W> consumer = (t, u, v, w) -> {
-            try {
-                accept(t, u, v, w);
-            } catch (Exception e) {
-                Logger.D(e);
-                if(alternatives.length > 0) {
-                    alternatives[0].accept(t, u, v, w);
+        } else {
+            QuadConsumer<T, U, V, W> consumer = (t, u, v, w) -> {
+                try {
+                    accept(t, u, v, w);
+                } catch (Exception e) {
+                    if (exceptionHandlers != null)
+                        exceptionHandlers[0].accept(e);
                 }
-            }
-        };
-        return consumer;
+            };
+            return consumer;
+        }
     }
 
     /**

@@ -2,7 +2,7 @@ package io.github.cruisoring.function;
 
 import io.github.cruisoring.logger.Logger;
 
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface SupplierThrowable<R> extends WithValueReturned<R> {
+public interface SupplierThrowable<R> extends getThrowable<R> {
 
     /**
      * Get a result
@@ -23,41 +23,46 @@ public interface SupplierThrowable<R> extends WithValueReturned<R> {
     R get() throws Exception;
 
     /**
-     * Execute the given business logic to return the generated value or null if Exception is thrown.
+     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code getThrowable}.
      *
-     * @return the result of type <tt>T</tt> or <tt>null</tt> if Exception is thrown.
+     * @return the result of type <tt>T</tt> or let the default handler of {@code getThrowable} to process
      */
     default R tryGet() {
         try {
             return get();
-        } catch (Exception ignored) {
-            return null;
+        } catch (Exception e) {
+            return handle(e);
         }
     }
 
     /**
-     * Convert the SupplierThrowable&lt;R&gt; to Supplier&lt;R&gt;
+     * Convert the {@code SupplierThrowable<R>} to {@code Supplier<R>} with optional Exception handler
      *
-     * @param exceptionHandler Exception Handler of the caught Exceptions that retuns default value of type R.
-     * @return The Supplier&lt;R&gt; version of the original SupplierThrowable&lt;R&gt;
+     * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber
+     * @return The {@code Supplier<R>} version of the original that get Exceptions handled with the first of exceptionHandlers if given,
+     * otherwise {@code this::tryGet} if no exceptionHandler specified
      */
-    default Supplier<R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler) {
-        Supplier<R> supplier = () -> {
-            try {
-                return get();
-            } catch (Exception e) {
-                return exceptionHandler == null ? null : (R) exceptionHandler.apply(e, this);
-            }
-        };
-        return supplier;
+    default Supplier<R> withHandler(Function<Exception, R>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
+            return this::tryGet;
+        } else {
+            Supplier<R> supplier = () -> {
+                try {
+                    return get();
+                } catch (Exception e) {
+                    return exceptionHandlers[0].apply(e);
+                }
+            };
+            return supplier;
+        }
     }
 
     /**
-     * Simplified version of converting the SupplierThrowable&lt;R&gt; to Supplier&lt;R&gt; by ignoring the caught Exception
+     * Simplified version of converting the {@code SupplierThrowable<R>} to {@code Supplier<R>} by ignoring the caught Exception
      * and simply returns a pre-defined default value.
      *
      * @param defaultValue Predefined default value.
-     * @return the Converted Supplier&lt;R&gt; instance containing the same service logic
+     * @return the Converted {@code Supplier<R>} instance containing the same service logic
      */
     default Supplier<R> orElse(R defaultValue) {
         Supplier<R> supplier = () -> {

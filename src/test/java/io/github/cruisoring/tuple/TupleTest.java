@@ -1,6 +1,5 @@
 package io.github.cruisoring.tuple;
 
-import io.github.cruisoring.Functions;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.logger.Logger;
@@ -247,7 +246,7 @@ public class TupleTest {
         A<String> item6 = hepta.getSixth();
         PredicateThrowable<A> item7 = hepta.getSeventh();
         assertEquals(false, item2);
-        assertEquals(false, Functions.ReturnsDefaultValue.apply(() -> item7.test(item6)));
+        assertEquals(false, item7.tryTest(item6));
     }
 
     @Test

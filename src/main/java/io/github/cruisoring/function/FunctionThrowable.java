@@ -1,8 +1,5 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -13,7 +10,7 @@ import java.util.function.Function;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface FunctionThrowable<T, R> extends WithValueReturned<R> {
+public interface FunctionThrowable<T, R> extends getThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 1 argument and returning result of type <code>R</code>
      *
@@ -24,16 +21,18 @@ public interface FunctionThrowable<T, R> extends WithValueReturned<R> {
     R apply(T t) throws Exception;
 
     /**
-     * Execute the given business logic to return the generated value or null if Exception is thrown.
+     * Execute the given business logic to return the generated value or
+     * handle thrown Exception with the default handler of {@code getThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
-     * @return the result of type <tt>R</tt> if applying the given argments successfully, or <tt>null</tt> if Exception is thrown.
+     * @return the result of type <tt>R</tt> if evaluating the given argments successfully,
+     * or let the default handler of {@code getThrowable} to process
      */
     default R tryApply(T t) {
         try {
             return apply(t);
-        } catch (Exception ignored) {
-            return null;
+        } catch (Exception e) {
+            return handle(e);
         }
     }
 
@@ -47,21 +46,26 @@ public interface FunctionThrowable<T, R> extends WithValueReturned<R> {
     }
 
     /**
-     * Convert the FunctionThrowable&lt;T,R&gt; to Function&lt;T,R&gt; with injected Exception Handler
+     * Convert the FunctionThrowable&lt;T,R&gt; to Function&lt;T,R&gt; with given Exception Handler
      *
-     * @param exceptionHandler Handler of the caught Exceptions and returns default value
-     * @return Converted Function&lt;T,R&gt; that get Exceptions handled with the exceptionHandler
+     * @param exceptionHandlers Handler of the caught Exceptions and returns default value
+     * @return Converted Function&lt;T,R&gt; that get Exceptions handled with the first of exceptionHandlers if given,
+     *          otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
 
-    default Function<T, R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler) {
-        Function<T, R> function = (t) -> {
-            try {
-                return apply(t);
-            } catch (Exception e) {
-                return exceptionHandler == null ? null : (R) exceptionHandler.apply(e, this);
-            }
-        };
-        return function;
+    default Function<T, R> withHandler(Function<Exception, R>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
+            return this::tryApply;
+        } else {
+            Function<T, R> function = (t) -> {
+                try {
+                    return apply(t);
+                } catch (Exception e) {
+                    return exceptionHandlers[0].apply(e);
+                }
+            };
+            return function;
+        }
     }
 
     /**
@@ -69,18 +73,16 @@ public interface FunctionThrowable<T, R> extends WithValueReturned<R> {
      * and simply returns a pre-defined default value.
      *
      * @param defaultValue Predefined default value.
-     * @return Converted Function&lt;T,R&gt; that get Exceptions handled with the exceptionHandler
+     * @return Converted Function&lt;T,R&gt; that get Exceptions handled with the first of exceptionHandlers if given, otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
     default Function<T, R> orElse(R defaultValue) {
         Function<T, R> function = (t) -> {
             try {
                 return apply(t);
             } catch (Exception e) {
-                Logger.D(e);
                 return defaultValue;
             }
         };
         return function;
     }
-
 }

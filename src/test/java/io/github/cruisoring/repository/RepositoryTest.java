@@ -1,6 +1,5 @@
 package io.github.cruisoring.repository;
 
-import io.github.cruisoring.Functions;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -18,11 +17,11 @@ public class RepositoryTest {
     public void apply() throws Exception {
         Repository<String, Integer> repository = new Repository<>(s -> s.length());
         assertEquals(Integer.valueOf(0), repository.apply(""));
-        assertEquals(1, Functions.ReturnsDefaultValue.apply(() -> repository.apply("X")));
-        assertEquals(3, Functions.ReturnsDefaultValue.apply(() -> repository.apply("abc")));
+        assertEquals(1, repository.tryApply("X"));
+        assertEquals(3, repository.tryApply("abc"));
 
         //Because Type Erasure, the return type of the Lambda s -> s.length() is deemed as Object, thus null would be returned
-        assertEquals(null, Functions.ReturnsDefaultValue.apply(() -> repository.apply(null)));
+        assertEquals(null, repository.tryApply(null));
     }
 
     @Test

@@ -1,8 +1,6 @@
 package io.github.cruisoring.function;
 
 
-import io.github.cruisoring.logger.Logger;
-
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -14,7 +12,7 @@ import java.util.function.Consumer;
  * @param <U> Type of the second argument.
  */
 @FunctionalInterface
-public interface BiConsumerThrowable<T, U> {
+public interface BiConsumerThrowable<T, U> extends voidThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 2 arguments and returning nothing.
      *
@@ -23,20 +21,6 @@ public interface BiConsumerThrowable<T, U> {
      * @throws Exception Any Exception could be thrown by the concerned service logic.
      */
     void accept(T t, U u) throws Exception;
-
-    /**
-     * Execute <code>accept()</code> and ignore any Exceptions thrown.
-     *
-     * @param t The first argument of type <code>T</code>.
-     * @param u The second argument of type <code>U</code>.
-     */
-    default void tryAccept(T t, U u) {
-        try {
-            accept(t, u);
-        } catch (Exception e) {
-            Logger.D(e);
-        }
-    }
 
     /**
      * Convert the {@code BiConsumerThrowable<T, U>} to {@code RunnableThrowable} with given argument.
@@ -50,47 +34,38 @@ public interface BiConsumerThrowable<T, U> {
     }
 
     /**
-     * Convert the BiConsumerThrowable&lt;T,U&gt; to BiConsumer&lt;T,U&gt; with injected Exception Handler
+     * Execute <code>accept()</code> and handle thrown Exception with the default handler of {@code throwsException}.
      *
-     * @param exceptionHandler Exception Handler of the caught Exceptions
-     * @return Converted BiConsumer&lt;T,U&gt; that get Exceptions handled with the exceptionHandler
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
      */
-    default BiConsumer<T, U> withHandler(Consumer<Exception> exceptionHandler) {
-        BiConsumer<T, U> biConsumer = (t, u) -> {
-            try {
-                accept(t, u);
-            } catch (Exception e) {
-                Logger.D(e);
-                if (exceptionHandler != null)
-                    exceptionHandler.accept(e);
-            }
-        };
-        return biConsumer;
+    default void tryAccept(T t, U u) {
+        try {
+            accept(t, u);
+        } catch (Exception cause) {
+            handle(cause);
+        }
     }
 
     /**
-     * Convert the BiConsumerThrowable&lt;T,U&gt; to BiConsumer&lt;T,U&gt; with optional alternative BiConsumer&lt;T,U&gt;
+     * Convert the BiConsumerThrowable&lt;T,U&gt; to BiConsumer&lt;T,U&gt; with given Exception Handler
      *
-     * @param alternatives varargs of BiConsumer&lt;T,U&gt; to consume the input.
-     * @return the tryAccept() if no alternatives provided, otherwise a converted BiConsumer&lt;T,U&gt; that
-     *  would use the first BiConsumer&lt;T,U&gt; to finish the job
+     * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber if exists
+     * @return Converted BiConsumer&lt;T,U&gt; that get Exception handled with the first of exceptionHandlers if given,
+     *          otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
-    default BiConsumer<T, U> orElse(BiConsumer<T, U>... alternatives){
-        if(alternatives == null || alternatives.length == 0){
+    default BiConsumer<T, U> withHandler(Consumer<Exception>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryAccept;
-        }
-
-        BiConsumer<T, U> consumer = (t,u) -> {
-            try {
-                accept(t, u);
-            } catch (Exception e) {
-                Logger.D(e);
-                if(alternatives.length > 0) {
-                    alternatives[0].accept(t, u);
+        } else {
+            BiConsumer<T, U> function = (t, u) -> {
+                try {
+                    accept(t, u);
+                } catch (Exception e) {
+                    exceptionHandlers[0].accept(e);
                 }
-            }
-        };
-        return consumer;
+            };
+            return function;
+        }
     }
-
 }

@@ -1,7 +1,5 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
 import java.util.function.Consumer;
 
 /**
@@ -13,7 +11,7 @@ import java.util.function.Consumer;
  * @param <V> Type of the third argument.
  */
 @FunctionalInterface
-public interface TriConsumerThrowable<T, U, V> {
+public interface TriConsumerThrowable<T, U, V> extends voidThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 3 arguments and returning nothing.
      *
@@ -25,7 +23,7 @@ public interface TriConsumerThrowable<T, U, V> {
     void accept(T t, U u, V v) throws Exception;
 
     /**
-     * Execute <code>accept(t)</code> and ignore any Exceptions thrown.
+     * Execute <code>accept(t)</code> and handle thrown Exception with the default handler of {@code throwsException}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
@@ -35,6 +33,7 @@ public interface TriConsumerThrowable<T, U, V> {
         try {
             accept(t, u, v);
         } catch (Exception e) {
+            handle(e);
         }
     }
 
@@ -51,46 +50,25 @@ public interface TriConsumerThrowable<T, U, V> {
     }
 
     /**
-     * Convert the TriConsumerThrowable&lt;T,U,V&gt; to TriConsumer&lt;T,U,V&gt; with injected Exception Handler
+     * Convert the TriConsumerThrowable&lt;T,U,V&gt; to TriConsumer&lt;T,U,V&gt; with given Exception Handler
      *
-     * @param exceptionHandler Exception Handler of the caught Exceptions
-     * @return Converted TriConsumer&lt;T,U,V&gt; that get Exceptions handled with the exceptionHandler
+     * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber if exists
+     * @return Converted TriConsumer&lt;T,U,V&gt; that get Exceptions handled with the first of exceptionHandlers if given, otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
-    default TriConsumer<T, U, V> withHandler(Consumer<Exception> exceptionHandler) {
-        TriConsumer<T, U, V> consumer = (t, u, v) -> {
-            try {
-                accept(t, u, v);
-            } catch (Exception e) {
-                if (exceptionHandler != null)
-                    exceptionHandler.accept(e);
-            }
-        };
-        return consumer;
-    }
-
-    /**
-     * Convert the TriConsumerThrowable&lt;T,U,V&gt; to TriConsumer&lt;T,U,V&gt; with optional alternative TriConsumer&lt;T,U,V&gt;
-     *
-     * @param alternatives varargs of TriConsumer&lt;T,U,V&gt; to consume the input.
-     * @return the tryAccept() if no alternatives provided, otherwise a converted TriConsumer&lt;T,U,V&gt; that 
-     *  would use the first TriConsumer&lt;T,U,V&gt; to finish the job
-     */
-    default TriConsumer<T, U, V> orElse(TriConsumer<T, U, V>... alternatives){
-        if(alternatives == null || alternatives.length == 0){
+    default TriConsumer<T, U, V> withHandler(Consumer<Exception>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryAccept;
-        }
-
-        TriConsumer<T, U, V> consumer = (t, u, v) -> {
-            try {
-                accept(t, u, v);
-            } catch (Exception e) {
-                Logger.D(e);
-                if(alternatives.length > 0) {
-                    alternatives[0].accept(t, u, v);
+        } else {
+            TriConsumer<T, U, V> consumer = (t, u, v) -> {
+                try {
+                    accept(t, u, v);
+                } catch (Exception e) {
+                    if (exceptionHandlers != null)
+                        exceptionHandlers[0].accept(e);
                 }
-            }
-        };
-        return consumer;
+            };
+            return consumer;
+        }
     }
 
     /**

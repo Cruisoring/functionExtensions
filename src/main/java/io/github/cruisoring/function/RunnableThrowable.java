@@ -1,14 +1,12 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
 import java.util.function.Consumer;
 
 /**
  * Functional Interface defined to identify methods returning nothing while their service logic could throw Exceptions.
  */
 @FunctionalInterface
-public interface RunnableThrowable {
+public interface RunnableThrowable extends voidThrowable {
 
     /**
      * The abstract method to be mapped to Lambda Expresion accepting no argument and returning nothing.
@@ -18,56 +16,34 @@ public interface RunnableThrowable {
     void run() throws Exception;
 
     /**
-     * Execute <code>run()</code> and ignore any Exceptions thrown.
+     * Execute <code>run()</code> and handle thrown Exception with the default handler of {@code throwsException}.
      */
     default void tryRun() {
         try {
             run();
         } catch (Exception e) {
+            handle(e);
         }
     }
 
     /**
      * Convert the RunnableThrowable to Runnable
      *
-     * @param exceptionHandler Exception Handler of the caught Exceptions that retuns default value of type R.
-     * @return The Runnerable version of the original RunnableThrowable
+     * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber if exists.
+     * @return The Runnerable version that get Exceptions handled with the first of exceptionHandlers if given,
+     *              otherwise {@code this::tryRun} if no exceptionHandler specified
      */
-    default Runnable withHandler(Consumer<Exception> exceptionHandler) {
-        Runnable runnable = () -> {
-            try {
-                run();
-            } catch (Exception e) {
-                if (exceptionHandler != null)
-                    exceptionHandler.accept(e);
-            }
-        };
-        return runnable;
-    }
-
-    /**
-     * Convert the RunnableThrowable to Runnable with optional alternative Runnable
-     *
-     * @param alternatives varargs of Runnable to consume the input.
-     * @return the tryRun() if no alternatives provided, otherwise a converted Runnable that
-     *  would use the first alternative Runnable to finish the job
-     */
-    default Runnable orElse(Runnable... alternatives){
-        if(alternatives == null || alternatives.length == 0){
+    default Runnable withHandler(Consumer<Exception>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryRun;
-        }
-
-        Runnable consumer = () -> {
-            try {
-                run();
-            } catch (Exception e) {
-                Logger.D(e);
-                if(alternatives.length > 0) {
-                    alternatives[0].run();
+        } else {
+            return () -> {
+                try {
+                    run();
+                } catch (Exception e) {
+                    exceptionHandlers[0].accept(e);
                 }
-            }
-        };
-        return consumer;
+            };
+        }
     }
-
 }

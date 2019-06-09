@@ -1,6 +1,5 @@
 package io.github.cruisoring.tuple;
 
-import io.github.cruisoring.Functions;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.utility.ArrayHelper;
@@ -643,7 +642,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
             for (int i = values.length - 1; i >= 0; i--) {
                 Object value = values[i];
                 if (value != null && value instanceof AutoCloseable) {
-                    Functions.Default.run(() -> ((AutoCloseable) value).close());
+                    ((AutoCloseable) value).close();
                     Logger.V("%s closed()", value);
                 }
             }

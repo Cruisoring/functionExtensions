@@ -1,7 +1,5 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
 import java.util.function.Consumer;
 
 /**
@@ -15,7 +13,7 @@ import java.util.function.Consumer;
  * @param <X> Type of the fifth argument.
  */
 @FunctionalInterface
-public interface PentaConsumerThrowable<T, U, V, W, X> {
+public interface PentaConsumerThrowable<T, U, V, W, X> extends voidThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 5 arguments and returning nothing.
      *
@@ -29,7 +27,7 @@ public interface PentaConsumerThrowable<T, U, V, W, X> {
     void accept(T t, U u, V v, W w, X x) throws Exception;
 
     /**
-     * Execute <code>accept()</code> and ignore any Exceptions thrown.
+     * Execute <code>accept()</code> and handle thrown Exception with the default handler of {@code throwsException}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
@@ -41,6 +39,7 @@ public interface PentaConsumerThrowable<T, U, V, W, X> {
         try {
             accept(t, u, v, w, x);
         } catch (Exception e) {
+            handle(e);
         }
     }
 
@@ -59,46 +58,26 @@ public interface PentaConsumerThrowable<T, U, V, W, X> {
     }
 
     /**
-     * Convert the PentaConsumerThrowable&lt;T,U,V,W,X&gt; to PentaConsumer&lt;T,U,V,W,X&gt; with injected Exception Handler
+     * Convert the PentaConsumerThrowable&lt;T,U,V,W,X&gt; to PentaConsumer&lt;T,U,V,W,X&gt; with given Exception Handler
      *
-     * @param exceptionHandler Exception Handler of the caught Exceptions
-     * @return Converted PentaConsumer&lt;T,U,V,W,X&gt; that get Exceptions handled with the exceptionHandler
+     * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber if exists
+     * @return Converted PentaConsumer&lt;T,U,V,W,X&gt; that get Exceptions handled with the first of exceptionHandlers if given,
+     *          otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
-    default PentaConsumer<T, U, V, W, X> withHandler(Consumer<Exception> exceptionHandler) {
-        PentaConsumer<T, U, V, W, X> consumer = (t, u, v, w, x) -> {
-            try {
-                accept(t, u, v, w, x);
-            } catch (Exception e) {
-                if (exceptionHandler != null)
-                    exceptionHandler.accept(e);
-            }
-        };
-        return consumer;
-    }
-
-    /**
-     * Convert the PentaConsumerThrowable&lt;T,U,V,W,X&gt; to PentaConsumer&lt;T,U,V,W,X&gt; with optional alternative PentaConsumer&lt;T,U,V,W,X&gt;
-     *
-     * @param alternatives varargs of PentaConsumer&lt;T,U,V,W,X&gt; to consume the input.
-     * @return the tryAccept() if no alternatives provided, otherwise a converted PentaConsumer&lt;T,U,V,W,X&gt; that 
-     *  would use the first PentaConsumer&lt;T,U,V,W,X&gt; to finish the job
-     */
-    default PentaConsumer<T, U, V, W, X> orElse(PentaConsumer<T, U, V, W, X>... alternatives){
-        if(alternatives == null || alternatives.length == 0){
+    default PentaConsumer<T, U, V, W, X> withHandler(Consumer<Exception>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryAccept;
-        }
-
-        PentaConsumer<T, U, V, W, X> consumer = (t, u, v, w, x) -> {
-            try {
-                accept(t, u, v, w, x);
-            } catch (Exception e) {
-                Logger.D(e);
-                if(alternatives.length > 0) {
-                    alternatives[0].accept(t, u, v, w, x);
+        } else {
+            PentaConsumer<T, U, V, W, X> consumer = (t, u, v, w, x) -> {
+                try {
+                    accept(t, u, v, w, x);
+                } catch (Exception e) {
+                    if (exceptionHandlers != null)
+                        exceptionHandlers[0].accept(e);
                 }
-            }
-        };
-        return consumer;
+            };
+            return consumer;
+        }
     }
 
     /**

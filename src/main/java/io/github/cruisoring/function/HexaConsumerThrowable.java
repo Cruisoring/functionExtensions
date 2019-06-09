@@ -1,7 +1,5 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
 import java.util.function.Consumer;
 
 /**
@@ -16,7 +14,7 @@ import java.util.function.Consumer;
  * @param <Y> Type of the sixth argument.
  */
 @FunctionalInterface
-public interface HexaConsumerThrowable<T, U, V, W, X, Y> {
+public interface HexaConsumerThrowable<T, U, V, W, X, Y> extends voidThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 6 arguments and returning nothing.
      *
@@ -31,7 +29,7 @@ public interface HexaConsumerThrowable<T, U, V, W, X, Y> {
     void accept(T t, U u, V v, W w, X x, Y y) throws Exception;
 
     /**
-     * Execute <code>accept()</code> and ignore any Exceptions thrown.
+     * Execute <code>accept()</code> and handle thrown Exception with the default handler of {@code throwsException}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
@@ -44,6 +42,7 @@ public interface HexaConsumerThrowable<T, U, V, W, X, Y> {
         try {
             accept(t, u, v, w, x, y);
         } catch (Exception e) {
+            handle(e);
         }
     }
 
@@ -63,48 +62,28 @@ public interface HexaConsumerThrowable<T, U, V, W, X, Y> {
     }
 
     /**
-     * Convert the HexaConsumerThrowable&lt;T,U,V,W,X,Y&gt; to HexaConsumer&lt;T,U,V,W,X,Y&gt; with injected Exception Handler
+     * Convert the HexaConsumerThrowable&lt;T,U,V,W,X,Y&gt; to HexaConsumer&lt;T,U,V,W,X,Y&gt; with given Exception Handler
      *
-     * @param exceptionHandler Exception Handler of the caught Exceptions
-     * @return Converted HexaConsumer&lt;T,U,V,W,X,Y&gt; that get Exceptions handled with the exceptionHandler
+     * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber if exists
+     * @return Converted HexaConsumer&lt;T,U,V,W,X,Y&gt; that get Exceptions handled with the first of exceptionHandlers if given,
+     *      otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
-    default HexaConsumer<T, U, V, W, X, Y> withHandler(Consumer<Exception> exceptionHandler) {
-        HexaConsumer<T, U, V, W, X, Y> consumer = (t, u, v, w, x, y) -> {
-            try {
-                accept(t, u, v, w, x, y);
-            } catch (Exception e) {
-                if (exceptionHandler != null)
-                    exceptionHandler.accept(e);
-            }
-        };
-        return consumer;
-    }
-
-    /**
-     * Convert the HexaConsumerThrowable&lt;T,U,V,W,X,Y&gt; to HexaConsumer&lt;T,U,V,W,X,Y&gt; with optional alternative HexaConsumer&lt;T,U,V,W,X,Y&gt;
-     *
-     * @param alternatives varargs of HexaConsumer&lt;T,U,V,W,X,Y&gt; to consume the input.
-     * @return the tryAccept() if no alternatives provided, otherwise a converted HexaConsumer&lt;T,U,V,W,X,Y&gt; that 
-     *  would use the first HexaConsumer&lt;T,U,V,W,X,Y&gt; to finish the job
-     */
-    default HexaConsumer<T, U, V, W, X, Y> orElse(HexaConsumer<T, U, V, W, X, Y>... alternatives){
-        if(alternatives == null || alternatives.length == 0){
+    default HexaConsumer<T, U, V, W, X, Y> withHandler(Consumer<Exception>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryAccept;
-        }
-
-        HexaConsumer<T, U, V, W, X, Y> consumer = (t, u, v, w, x, y) -> {
-            try {
-                accept(t, u, v, w, x, y);
-            } catch (Exception e) {
-                Logger.D(e);
-                if(alternatives.length > 0) {
-                    alternatives[0].accept(t, u, v, w, x, y);
+        } else {
+            HexaConsumer<T, U, V, W, X, Y> consumer = (t, u, v, w, x, y) -> {
+                try {
+                    accept(t, u, v, w, x, y);
+                } catch (Exception e) {
+                    if (exceptionHandlers != null)
+                        exceptionHandlers[0].accept(e);
                 }
-            }
-        };
-        return consumer;
+            };
+            return consumer;
+        }
     }
-    
+
     /**
      * Represents an operation that accepts six input arguments and returns no result.
      *

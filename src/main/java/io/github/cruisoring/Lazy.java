@@ -103,11 +103,12 @@ public class Lazy<T> implements AutoCloseable {
     public T getValue() {
         if (!isInitialized) {
             T oldValue = value;
-            value = supplier.withHandler(null).get();
+            value = supplier.withHandler().get();
             isInitialized = true;
             isClosed = false;
-            if (actionOnChanges != null)
-                Functions.Default.run(actionOnChanges, oldValue, value);
+            if (actionOnChanges != null) {
+                actionOnChanges.tryAccept(oldValue, value);
+            }
         }
         return value;
     }
@@ -121,22 +122,21 @@ public class Lazy<T> implements AutoCloseable {
             if (dependencies != null && dependencies.size() > 0) {
                 for (int i = dependencies.size() - 1; i >= 0; i--) {
                     AutoCloseable child = dependencies.get(i);
-                    if (child instanceof Lazy && ((Lazy) child).isClosed)
-                        continue;
-
-                    Functions.Default.run(child::close);
+                    if(child != null) {
+                        Functions.tryRun(child::close);
+                    }
                 }
                 dependencies.clear();
             }
             if (isInitialized) {
                 isInitialized = false;
                 if (value != null && value instanceof AutoCloseable) {
-                    Functions.Default.run(((AutoCloseable) value)::close);
+                    Functions.tryRun(((AutoCloseable) value)::close);
                 }
                 T currentValue = value;
                 value = null;
                 if (actionOnChanges != null) {
-                    Functions.Default.run(actionOnChanges, currentValue, null);
+                    actionOnChanges.tryAccept(currentValue, null);
                 }
             }
         }

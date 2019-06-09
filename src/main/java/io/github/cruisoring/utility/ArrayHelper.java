@@ -634,6 +634,13 @@ public class ArrayHelper {
         return shuffled;
     }
 
+    /**
+     * Iterate through the given Array or Collection to check if testing of all its elements passed or not.
+     *
+     * @param arrayOrCollection the Array or Collection to be checked.
+     * @param predicate         the Predicate used to test the elements one by one.
+     * @return              <tt>true</tt> if all elements of the given Array or Collection passed the test, otherwise <tt>false</tt>
+     */
     public static  boolean matchAll(Object arrayOrCollection, Predicate predicate){
         checkWithoutNull(arrayOrCollection, predicate);
 
@@ -666,6 +673,13 @@ public class ArrayHelper {
                         arrayOrCollection.getClass().getSimpleName(), arrayOrCollection));
     }
 
+    /**
+     * Iterate through the given Array or Collection to check if there is any element meet the criteria set by the given Predicate.
+     *
+     * @param arrayOrCollection the Array or Collection to be checked.
+     * @param predicate         the Predicate used to test the elements one by one.
+     * @return              <tt>true</tt> if any one of the elements of the given Array or Collection passed the test, otherwise <tt>false</tt>
+     */
     public static  boolean matchAny(Object arrayOrCollection, Predicate predicate){
         checkWithoutNull(arrayOrCollection, predicate);
 
@@ -692,10 +706,5 @@ public class ArrayHelper {
         throw new IllegalStateException(
                 StringHelper.tryFormatString("Type %s of %s is not supported.",
                         arrayOrCollection.getClass().getSimpleName(), arrayOrCollection));
-    }
-
-    @FunctionalInterface
-    public interface ArraySetAll {
-        Object setAll(Object array, FunctionThrowable<Integer, Object> generator) throws Exception;
     }
 }

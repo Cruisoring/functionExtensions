@@ -1,7 +1,6 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -11,7 +10,7 @@ import java.util.function.Predicate;
  * @param <T> Type of the first argument.
  */
 @FunctionalInterface
-public interface PredicateThrowable<T> extends FunctionThrowable<T, Boolean> {
+public interface PredicateThrowable<T> extends getThrowable<Boolean> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 7 arguments and returning result of boolean type
      *
@@ -19,38 +18,69 @@ public interface PredicateThrowable<T> extends FunctionThrowable<T, Boolean> {
      * @return The result of applying the given arguments.
      * @throws Exception Any Exception could be thrown by the concerned service logic.
      */
-    default Boolean test(T t) throws Exception {
-        return apply(t);
+    boolean test(T t) throws Exception;
+
+    /**
+     * Execute the given business logic to evaluate the given statement, return the result or
+     * handle thrown Exception with the default handler of {@code getThrowable}..
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @return The result of applying the given arguments.
+     */
+    default boolean tryTest(T t) {
+        try {
+            return test(t);
+        } catch (Exception e) {
+            return handle(e);
+        }
     }
 
     /**
-     * Conver this {@code PredicateThrowable<T>} to {@code Predicate<T>} by returning <code>false</code> with Exception.
+     * Convert the {@code PredicateThrowable<T>} to {@code SupplierThrowable<Boolean>} with given argument.
      *
-     * @return {@code Predicate<T>} with same predicate logic except always return false with Exception.
+     * @param t     the argument of type <tt>T</tt>
+     * @return the {@code SupplierThrowable<R>} instance invoking the original {@code PredicateThrowable<T>} with required arguments
      */
-    default Predicate<T> orFalse() {
-        Predicate<T> predicate = (t) -> {
-            try {
-                return apply(t);
-            } catch (Exception ignored) {
-                return false;
-            }
-        };
-        return predicate;
+    default SupplierThrowable<Boolean> asSupplierThrowable(T t) {
+        return () -> test(t);
     }
 
     /**
-     * Convert this {@code PredicateThrowable<T>} to {@code Predicate<T>} by returning <code>false</code> with Exception.
+     * Convert this PredicateThrowable&lt;T,R&gt; to Predicate&lt;T,R&gt; with optional Exception Handler
      *
-     * @return {@code Predicate<T>} with same predicate logic throws IllegalStateException when something wrong.
+     * @param exceptionHandlers Optional Exception handlers returning Boolean when Exception is caught
+     * @return Converted Function&lt;T,R&gt; that get Exceptions handled with the first of exceptionHandlers if given,
+     *          otherwise {@code this::tryTest} if no exceptionHandler specified
      */
-    default Predicate<T> orException() {
+
+    default Predicate<T> orElse(Function<Exception, Boolean>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
+            return this::tryTest;
+        } else {
+            Predicate<T> predicate = (t) -> {
+                try {
+                    return test(t);
+                } catch (Exception e) {
+                    return exceptionHandlers[0].apply(e);
+                }
+            };
+            return predicate;
+        }
+    }
+
+    /**
+     * Simplified version of converting the FunctionThrowable&lt;T,R&gt; to Function&lt;T,R&gt; by ignoring the caught Exception
+     * and simply returns a pre-defined default value.
+     *
+     * @param defaultValue Predefined default value.
+     * @return Converted {@code Predicate<T>} that would return evaluated result
+     */
+    default Predicate<T> orElse(boolean defaultValue) {
         Predicate<T> predicate = (t) -> {
             try {
-                return apply(t);
+                return test(t);
             } catch (Exception e) {
-                Logger.D(e);
-                throw new IllegalStateException(e.getMessage());
+                return defaultValue;
             }
         };
         return predicate;

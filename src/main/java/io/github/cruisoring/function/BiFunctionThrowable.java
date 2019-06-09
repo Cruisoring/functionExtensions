@@ -1,8 +1,7 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Functional Interface identifying methods, accepting 2 arguments and returning result of type <code>R</code>,
@@ -13,7 +12,7 @@ import java.util.function.BiFunction;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface BiFunctionThrowable<T, U, R> extends WithValueReturned<R> {
+public interface BiFunctionThrowable<T, U, R> extends getThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 2 arguments and returning result of type <code>R</code>
      *
@@ -25,17 +24,18 @@ public interface BiFunctionThrowable<T, U, R> extends WithValueReturned<R> {
     R apply(T t, U u) throws Exception;
 
     /**
-     * Execute the given business logic to return the generated value or null if Exception is thrown.
+     * Execute the given business logic to return the generated value or
+     * handle thrown Exception with the default handler of {@code getThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
-     * @return the result of type <tt>R</tt> if applying the given argments successfully, or <tt>null</tt> if Exception is thrown.
+     * @return the result of type <tt>R</tt> if evaluating the given argments successfully, or let the default handler of {@code getThrowable} to process
      */
     default R tryApply(T t, U u) {
         try {
             return apply(t, u);
-        } catch (Exception ignored) {
-            return null;
+        } catch (Exception cause) {
+            return handle(cause);
         }
     }
 
@@ -51,35 +51,39 @@ public interface BiFunctionThrowable<T, U, R> extends WithValueReturned<R> {
     }
 
     /**
-     * Convert the BiFunctionThrowable&lt;T,U,R&gt; to BiFunction&lt;T,U,R&gt; with injected Exception Handler
+     * Convert the BiFunctionThrowable&lt;T,U,R&gt; to BiFunction&lt;T,U,R&gt; with optional Exception Handler
      *
-     * @param exceptionHandler Handler of the caught Exceptions and returns default value
-     * @return Converted BiFunction&lt;T,U,R&gt; that get Exceptions handled with the exceptionHandler
+     * @param exceptionHandlers optional Handler of the caught Exception with same returning type
+     * @return Converted BiFunction&lt;T,U,R&gt; that get Exceptions handled with the first of exceptionHandlers if given,
+     *      otherwise {@code this::tryApply} if no exceptionHandler specified
      */
-    default BiFunction<T, U, R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler) {
-        BiFunction<T, U, R> function = (t, u) -> {
-            try {
-                return apply(t, u);
-            } catch (Exception e) {
-                return exceptionHandler == null ? null : (R) exceptionHandler.apply(e, this);
-            }
-        };
-        return function;
+    default BiFunction<T, U, R> withHandler(Function<Exception, R>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
+            return this::tryApply;
+        } else {
+            BiFunction<T, U, R> function = (t, u) -> {
+                try {
+                    return apply(t, u);
+                } catch (Exception e) {
+                    return exceptionHandlers[0].apply(e);
+                }
+            };
+            return function;
+        }
     }
 
     /**
      * Simplified version of converting the BiFunctionThrowable&lt;T,U,R&gt; to BiFunction&lt;T,U,R&gt; by ignoring the caught Exception
-     * and simply returns a pre-defined default value.
+     * and simply returns a given default value.
      *
      * @param defaultValue Predefined default value.
-     * @return Converted BiFunction&lt;T,U,R&gt; that get Exceptions handled with the exceptionHandler
+     * @return Converted BiFunction&lt;T,U,R&gt; that simply return the given defaultValue
      */
     default BiFunction<T, U, R> orElse(R defaultValue) {
         BiFunction<T, U, R> function = (t, u) -> {
             try {
                 return apply(t, u);
             } catch (Exception e) {
-                Logger.D(e);
                 return defaultValue;
             }
         };

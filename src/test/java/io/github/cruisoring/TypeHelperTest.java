@@ -677,7 +677,7 @@ public class TypeHelperTest {
 
             assertEquals(new Function[0], getDefaultValue(Function[].class));
             assertFalse(valueEquals(new Function[0], getDefaultValue(FunctionThrowable[].class)));
-            assertEquals(new WithValueReturned[0], getDefaultValue(WithValueReturned[].class));
+            assertEquals(new getThrowable[0], getDefaultValue(getThrowable[].class));
             assertEquals(new Predicate[0][], getDefaultValue(Predicate[][].class));
         } else {
             assertNull(getDefaultValue(int[].class), getDefaultValue(short[][].class), getDefaultValue(Byte[].class));
@@ -1123,7 +1123,7 @@ public class TypeHelperTest {
         assertEquals(B.class, Array.get(aArray, 1).getClass());
 
         //Invalid setting operation would not update the element
-        setter.withHandler(null).accept(aArray, 1, new D());
+        setter.withHandler().accept(aArray, 1, new D());
         assertEquals(B.class, Array.get(aArray, 1).getClass());
 
         //set element@1 to new C()

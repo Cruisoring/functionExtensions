@@ -1,8 +1,6 @@
 package io.github.cruisoring.function;
 
-import io.github.cruisoring.logger.Logger;
-
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Functional Interface identifying methods, accepting 4 arguments and returning result of type <code>R</code>,
@@ -15,7 +13,7 @@ import java.util.function.BiFunction;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface QuadFunctionThrowable<T, U, V, W, R> extends WithValueReturned<R> {
+public interface QuadFunctionThrowable<T, U, V, W, R> extends getThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 4 arguments and returning result of type <code>R</code>
      *
@@ -29,24 +27,25 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends WithValueReturned<
     R apply(T t, U u, V v, W w) throws Exception;
 
     /**
-     * Execute the given business logic to return the generated value or null if Exception is thrown.
+     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code getThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
      * @param w The fourth argument of type <code>W</code>.
-     * @return the result of type <tt>R</tt> if applying the given argments successfully, or <tt>null</tt> if Exception is thrown.
+     * @return the result of type <tt>R</tt> if evaluating the given argments successfully, or let the default handler of {@code getThrowable} to process
      */
     default R tryApply(T t, U u, V v, W w) {
         try {
             return apply(t, u, v, w);
-        } catch (Exception ignored) {
-            return null;
+        } catch (Exception e) {
+            return handle(e);
         }
     }
 
     /**
      * Convert the {@code QuadFunctionThrowable<T, U, V, W, R>} to {@code SupplierThrowable<R>} with given argument.
+     *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
@@ -59,35 +58,39 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends WithValueReturned<
     }
 
     /**
-     * Convert the QuadFunctionThrowable&lt;T,U,V,W, R&gt; to QuadFunction&lt;T,U,V,W, R&gt; with injected Exception Handler
+     * Convert the {@code QuadFunctionThrowable<T, U, V, W, R>} to {@code QuadFunction<T, U, V, W, R>} with given Exception Handler
      *
-     * @param exceptionHandler Exception Handler of the caught Exceptions
-     * @return Converted QuadFunction&lt;T,U,V,W, R&gt; that get Exceptions handled with the exceptionHandler
+     * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber if exists
+     * @return Converted {@code QuadFunction<T, U, V, W, R>} that get Exceptions handled with the first of exceptionHandlers if given,
+     * otherwise {@code this::tryApply} if no exceptionHandler specified
      */
-    default QuadFunction<T, U, V, W, R> withHandler(BiFunction<Exception, WithValueReturned, Object> exceptionHandler) {
-        QuadFunction<T, U, V, W, R> function = (t, u, v, w) -> {
-            try {
-                return apply(t, u, v, w);
-            } catch (Exception e) {
-                return exceptionHandler == null ? null : (R) exceptionHandler.apply(e, this);
-            }
-        };
-        return function;
+    default QuadFunction<T, U, V, W, R> withHandler(Function<Exception, R>... exceptionHandlers) {
+        if(exceptionHandlers == null || exceptionHandlers.length == 0) {
+            return this::tryApply;
+        } else {
+            QuadFunction<T, U, V, W, R> function = (t, u, v, w) -> {
+                try {
+                    return apply(t, u, v, w);
+                } catch (Exception e) {
+                    return exceptionHandlers[0].apply(e);
+                }
+            };
+            return function;
+        }
     }
 
     /**
-     * Simplified version of converting the QuadFunctionThrowable&lt;T,U,V,W, R&gt; to QuadFunction&lt;T,U,V,W, R&gt;
+     * Simplified version of converting the {@code QuadFunctionThrowable<T, U, V, W, R>} to {@code QuadFunction<T, U, V, W, R>}
      * by ignoring the caught Exception and simply returns a pre-defined default value.
      *
      * @param defaultValue Predefined default value.
-     * @return Converted QuadFunction&lt;T,U,V,W, R&gt; that returns the given defaultValue when exception caught
+     * @return Converted {@code QuadFunction<T, U, V, W, R>} that returns the given defaultValue when exception caught
      */
     default QuadFunction<T, U, V, W, R> orElse(R defaultValue) {
         QuadFunction<T, U, V, W, R> function = (t, u, v, w) -> {
             try {
                 return apply(t, u, v, w);
             } catch (Exception e) {
-                Logger.D(e);
                 return defaultValue;
             }
         };
