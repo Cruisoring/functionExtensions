@@ -28,7 +28,7 @@ public class StackTraceHelper {
      * @param filters   keywords that shall be neglected.
      * @return List of stack trace elements
      */
-    public static List<StackTraceElement> getFilteredStacks(int maxCount, Exception ex, String... filters) {
+    public static List<StackTraceElement> getFilteredStacks(int maxCount, Throwable ex, String... filters) {
         if (maxCount == 0)
             return null;
 

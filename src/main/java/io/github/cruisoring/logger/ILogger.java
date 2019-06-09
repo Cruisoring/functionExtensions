@@ -153,7 +153,7 @@ public interface ILogger {
      * @param ex    Exception if thrown that contains stackTrace.
      * @return Stack trace of the call stack with specific number of stack frames.
      */
-    default String getCallStack(LogLevel level, Exception ex) {
+    default String getCallStack(LogLevel level, Throwable ex) {
         int maxCount = getStackTraceCount(level);
         if (maxCount == 0) {
             return "";
@@ -196,9 +196,20 @@ public interface ILogger {
      */
     default ILogger log(LogLevel level, Exception ex) {
         if (canLog(level) && ex != null) {
-            String stackTrace = getCallStack(level, ex);
-            log(level, "%s: %s%s", ex.getClass().getSimpleName(), ex.getMessage(),
-                    StringUtils.isBlank(stackTrace) ? "" : "\n" + stackTrace);
+            Throwable cause = ex.getCause();
+            if(cause != null) {
+                String stackTrace = getCallStack(level, cause);
+                String message = ex.getMessage();
+                if(message != null) {
+                    log(level, "%s: %s%s", message, cause.getMessage(), stackTrace);
+                } else {
+                    log(level, "%s: %s", cause.getMessage(), stackTrace);
+                }
+            } else {
+                String stackTrace = getCallStack(level, ex);
+                log(level, "%s: %s%s", ex.getClass().getSimpleName(), ex.getMessage(),
+                        StringUtils.isBlank(stackTrace) ? "" : "\n" + stackTrace);
+            }
         }
         return this;
     }
