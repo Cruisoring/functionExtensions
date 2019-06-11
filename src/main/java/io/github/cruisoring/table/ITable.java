@@ -1,7 +1,7 @@
 package io.github.cruisoring.table;
 
-import io.github.cruisoring.function.FunctionThrowable;
-import io.github.cruisoring.function.PredicateThrowable;
+import io.github.cruisoring.throwables.FunctionThrowable;
+import io.github.cruisoring.throwables.PredicateThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;

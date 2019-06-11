@@ -1,8 +1,9 @@
 package io.github.cruisoring;
 
-import io.github.cruisoring.function.BiConsumerThrowable;
-import io.github.cruisoring.function.FunctionThrowable;
-import io.github.cruisoring.function.SupplierThrowable;
+import io.github.cruisoring.throwables.BiConsumerThrowable;
+import io.github.cruisoring.throwables.FunctionThrowable;
+import io.github.cruisoring.throwables.RunnableThrowable;
+import io.github.cruisoring.throwables.SupplierThrowable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +108,7 @@ public class Lazy<T> implements AutoCloseable {
             isInitialized = true;
             isClosed = false;
             if (actionOnChanges != null) {
-                actionOnChanges.tryAccept(oldValue, value);
+                actionOnChanges.withHandler(Functions::logAndReturnsNull).accept(oldValue, value);
             }
         }
         return value;
@@ -123,7 +124,8 @@ public class Lazy<T> implements AutoCloseable {
                 for (int i = dependencies.size() - 1; i >= 0; i--) {
                     AutoCloseable child = dependencies.get(i);
                     if(child != null) {
-                        Functions.tryRun(child::close);
+                        RunnableThrowable runnableThrowable = child::close;
+                        runnableThrowable.withHandler(Functions::logAndReturnsNull).run();
                     }
                 }
                 dependencies.clear();
@@ -136,7 +138,7 @@ public class Lazy<T> implements AutoCloseable {
                 T currentValue = value;
                 value = null;
                 if (actionOnChanges != null) {
-                    actionOnChanges.tryAccept(currentValue, null);
+                    actionOnChanges.withHandler(Functions::logAndReturnsNull).accept(currentValue, null);
                 }
             }
         }

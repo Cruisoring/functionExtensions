@@ -1,9 +1,9 @@
 package io.github.cruisoring;
 
-import io.github.cruisoring.function.ConsumerThrowable;
-import io.github.cruisoring.function.RunnableThrowable;
 import io.github.cruisoring.logger.LogLevel;
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.throwables.ConsumerThrowable;
+import io.github.cruisoring.throwables.RunnableThrowable;
 import io.github.cruisoring.utility.StackTraceHelper;
 
 import java.time.LocalDateTime;
@@ -27,7 +27,9 @@ public class Revokable<T> implements AutoCloseable {
     };
 
     public static LogLevel DefaultLogLevel = LogLevel.verbose;
-    public static boolean DefaultCloseNew = false;
+
+    //Indicates if the newSettings shall be closed if it is AutoCloseable when closing() is called so as to release its rescources
+    public static boolean DefaultCloseNewSetting = true;
 
     static final List<Revokable> All = new ArrayList<>();
 
@@ -76,7 +78,7 @@ public class Revokable<T> implements AutoCloseable {
     final LocalDateTime timeStamp;
     final String label;
     final T originalSetting;
-    final T newSetting;
+    private T newSetting;
     RunnableThrowable revoker;
     private boolean isClosed = false;
     //endregion
@@ -154,26 +156,28 @@ public class Revokable<T> implements AutoCloseable {
     public void closing(boolean closeNew) {
         if (!isClosed) {
             isClosed = true;
-            try {
-                revoker.run();
-                if (originalSetting == null && newSetting == null) {
-                    Logger.getDefault().log(DefaultLogLevel, "%s is reverted.", label);
-                } else {
-                    Logger.getDefault().log(DefaultLogLevel, "%s is reverted from %s back to %s.",
-                            label, newSetting, originalSetting);
+
+            revoker.withHandler(Functions::logAndReturnsNull).run();
+            if (originalSetting == null && newSetting == null) {
+                Logger.getDefault().log(DefaultLogLevel, "%s is reverted.", label);
+            } else {
+                Logger.getDefault().log(DefaultLogLevel, "%s is reverted from %s back to %s.",
+                    label, newSetting, originalSetting);
+            }
+            if (newSetting != null && newSetting instanceof AutoCloseable) {
+                if(closeNew) {
+                    //Close the newSetting to release any resources associated
+                    RunnableThrowable runnableThrowable = ((AutoCloseable) newSetting)::close;
+                    runnableThrowable.withHandler(Functions::logAndReturnsNull).run();
                 }
-                if (closeNew && newSetting != null && newSetting instanceof AutoCloseable) {
-                    ((AutoCloseable) newSetting).close();
-                }
-            } catch (Exception e) {
-                Logger.getDefault().log(DefaultLogLevel, e);
+                newSetting = null;
             }
         }
     }
 
     @Override
     public void close() {
-        closing(DefaultCloseNew);
+        closing(DefaultCloseNewSetting);
     }
     //endregion
 }

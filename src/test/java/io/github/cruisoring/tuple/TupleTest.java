@@ -1,8 +1,8 @@
 package io.github.cruisoring.tuple;
 
 import io.github.cruisoring.TypeHelper;
-import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.throwables.PredicateThrowable;
 import org.junit.Test;
 
 import java.time.DayOfWeek;

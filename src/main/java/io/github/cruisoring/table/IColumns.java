@@ -10,7 +10,7 @@ import static io.github.cruisoring.Asserts.checkStates;
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 /**
- * Interface to specify how Columns of a table shall function which can map Column names to indexes.
+ * Interface to specify how Columns of a table shall throwables which can map Column names to indexes.
  */
 public interface IColumns extends Map<String, Integer> {
 

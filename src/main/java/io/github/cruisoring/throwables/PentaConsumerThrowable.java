@@ -1,6 +1,8 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
 
-import java.util.function.Consumer;
+import io.github.cruisoring.ofThrowable;
+
+import java.util.function.Function;
 
 /**
  * Functional Interface identifying methods, accepting 5 arguments and returning nothing,
@@ -13,7 +15,7 @@ import java.util.function.Consumer;
  * @param <X> Type of the fifth argument.
  */
 @FunctionalInterface
-public interface PentaConsumerThrowable<T, U, V, W, X> extends voidThrowable {
+public interface PentaConsumerThrowable<T, U, V, W, X> extends ofThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 5 arguments and returning nothing.
      *
@@ -64,7 +66,7 @@ public interface PentaConsumerThrowable<T, U, V, W, X> extends voidThrowable {
      * @return Converted PentaConsumer&lt;T,U,V,W,X&gt; that get Exceptions handled with the first of exceptionHandlers if given,
      *          otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
-    default PentaConsumer<T, U, V, W, X> withHandler(Consumer<Exception>... exceptionHandlers) {
+    default PentaConsumer<T, U, V, W, X> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryAccept;
         } else {
@@ -73,7 +75,7 @@ public interface PentaConsumerThrowable<T, U, V, W, X> extends voidThrowable {
                     accept(t, u, v, w, x);
                 } catch (Exception e) {
                     if (exceptionHandlers != null)
-                        exceptionHandlers[0].accept(e);
+                        exceptionHandlers[0].apply(e);
                 }
             };
             return consumer;

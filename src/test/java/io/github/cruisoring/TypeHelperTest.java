@@ -1,16 +1,16 @@
 package io.github.cruisoring;
 
-import io.github.cruisoring.function.*;
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.throwables.*;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple3;
 import io.github.cruisoring.utility.ArrayHelper;
 import io.github.cruisoring.utility.SetHelper;
+import io.github.cruisoring.utility.StringHelper;
 import org.junit.Test;
 
 import java.lang.reflect.Array;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
 import java.util.function.Consumer;
@@ -659,7 +659,7 @@ public class TypeHelperTest {
 
     @Test
     public void getDefaultValue_withArrayClass_getExpectedResults() {
-        if (tryParse("EMPTY_ARRAY_AS_DEFAULT", false)) {
+        if (StringHelper.tryParseSystemProperties(false, "EMPTY_ARRAY_AS_DEFAULT")) {
             assertEquals(new int[0], getDefaultValue(int[].class));
             assertEquals(new short[0][], getDefaultValue(short[][].class));
             assertEquals(new long[0], getDefaultValue(long[].class));
@@ -677,7 +677,7 @@ public class TypeHelperTest {
 
             assertEquals(new Function[0], getDefaultValue(Function[].class));
             assertFalse(valueEquals(new Function[0], getDefaultValue(FunctionThrowable[].class)));
-            assertEquals(new getThrowable[0], getDefaultValue(getThrowable[].class));
+            assertEquals(new ofThrowable[0], getDefaultValue(ofThrowable[].class));
             assertEquals(new Predicate[0][], getDefaultValue(Predicate[][].class));
         } else {
             assertNull(getDefaultValue(int[].class), getDefaultValue(short[][].class), getDefaultValue(Byte[].class));
@@ -1602,13 +1602,6 @@ public class TypeHelperTest {
         Character[] convertedCharacters = convert(objects, Character[].class);
         assertEquals(convertedCharacters, characters);
 
-    }
-
-    @Test
-    public void testAsString() {
-        LocalDate date = LocalDate.of(2019, 1, 31);
-        assertEquals("2019-01-31", asString(date));
-        assertEquals("1-31, 19", asString(date, "M-D, yy"));
     }
 
     @Test

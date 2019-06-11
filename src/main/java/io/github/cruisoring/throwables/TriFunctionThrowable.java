@@ -1,4 +1,6 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
+
+import io.github.cruisoring.ofThrowable;
 
 import java.util.function.Function;
 
@@ -12,7 +14,7 @@ import java.util.function.Function;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface TriFunctionThrowable<T, U, V, R> extends getThrowable<R> {
+public interface TriFunctionThrowable<T, U, V, R> extends ofThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 3 arguments and returning result of type <code>R</code>
      *
@@ -25,13 +27,13 @@ public interface TriFunctionThrowable<T, U, V, R> extends getThrowable<R> {
     R apply(T t, U u, V v) throws Exception;
 
     /**
-     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code getThrowable}.
+     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code ofThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
      * @return the result of type <tt>R</tt> if evaluating the given argments successfully, 
-     * or let the default handler of {@code getThrowable} to process
+     * or let the default handler of {@code ofThrowable} to process
      */
     default R tryApply(T t, U u, V v) {
         try {
@@ -60,7 +62,7 @@ public interface TriFunctionThrowable<T, U, V, R> extends getThrowable<R> {
      * @return Converted {@code TriFunction<T, U, V, R>} that get Exceptions handled with the first of exceptionHandlers if given,
      * otherwise {@code this::tryApply} if no exceptionHandler specified
      */
-    default TriFunction<T, U, V, R> withHandler(Function<Exception, R>... exceptionHandlers) {
+    default TriFunction<T, U, V, R> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryApply;
         } else {
@@ -68,7 +70,7 @@ public interface TriFunctionThrowable<T, U, V, R> extends getThrowable<R> {
                 try {
                     return apply(t, u, v);
                 } catch (Exception e) {
-                    return exceptionHandlers[0].apply(e);
+                    return (R)exceptionHandlers[0].apply(e);
                 }
             };
             return function;
@@ -94,12 +96,12 @@ public interface TriFunctionThrowable<T, U, V, R> extends getThrowable<R> {
     }
 
     /**
-     * Represents a function that accepts three arguments and produces a result.
+     * Represents a throwables that accepts three arguments and produces a result.
      *
      * @param <T> Type of the first argument.
      * @param <U> Type of the second argument.
      * @param <V> Type of the third argument.
-     * @param <R> Type of the result of the function
+     * @param <R> Type of the result of the throwables
      */
     @FunctionalInterface
     interface TriFunction<T, U, V, R> {

@@ -1,6 +1,8 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
 
-import java.util.function.Consumer;
+import io.github.cruisoring.ofThrowable;
+
+import java.util.function.Function;
 
 /**
  * Functional Interface identifying methods, accepting 3 arguments and returning nothing,
@@ -11,7 +13,7 @@ import java.util.function.Consumer;
  * @param <V> Type of the third argument.
  */
 @FunctionalInterface
-public interface TriConsumerThrowable<T, U, V> extends voidThrowable {
+public interface TriConsumerThrowable<T, U, V> extends ofThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 3 arguments and returning nothing.
      *
@@ -55,7 +57,7 @@ public interface TriConsumerThrowable<T, U, V> extends voidThrowable {
      * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber if exists
      * @return Converted TriConsumer&lt;T,U,V&gt; that get Exceptions handled with the first of exceptionHandlers if given, otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
-    default TriConsumer<T, U, V> withHandler(Consumer<Exception>... exceptionHandlers) {
+    default TriConsumer<T, U, V> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryAccept;
         } else {
@@ -64,7 +66,7 @@ public interface TriConsumerThrowable<T, U, V> extends voidThrowable {
                     accept(t, u, v);
                 } catch (Exception e) {
                     if (exceptionHandlers != null)
-                        exceptionHandlers[0].accept(e);
+                        exceptionHandlers[0].apply(e);
                 }
             };
             return consumer;

@@ -1,4 +1,6 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
+
+import io.github.cruisoring.ofThrowable;
 
 import java.util.function.Function;
 
@@ -10,7 +12,7 @@ import java.util.function.Function;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface FunctionThrowable<T, R> extends getThrowable<R> {
+public interface FunctionThrowable<T, R> extends ofThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 1 argument and returning result of type <code>R</code>
      *
@@ -22,11 +24,11 @@ public interface FunctionThrowable<T, R> extends getThrowable<R> {
 
     /**
      * Execute the given business logic to return the generated value or
-     * handle thrown Exception with the default handler of {@code getThrowable}.
+     * handle thrown Exception with the default handler of {@code ofThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @return the result of type <tt>R</tt> if evaluating the given argments successfully,
-     * or let the default handler of {@code getThrowable} to process
+     * or let the default handler of {@code ofThrowable} to process
      */
     default R tryApply(T t) {
         try {
@@ -53,7 +55,7 @@ public interface FunctionThrowable<T, R> extends getThrowable<R> {
      *          otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
 
-    default Function<T, R> withHandler(Function<Exception, R>... exceptionHandlers) {
+    default Function<T, R> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryApply;
         } else {
@@ -61,7 +63,7 @@ public interface FunctionThrowable<T, R> extends getThrowable<R> {
                 try {
                     return apply(t);
                 } catch (Exception e) {
-                    return exceptionHandlers[0].apply(e);
+                    return (R)exceptionHandlers[0].apply(e);
                 }
             };
             return function;

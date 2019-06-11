@@ -1,12 +1,14 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
 
-import java.util.function.Consumer;
+import io.github.cruisoring.ofThrowable;
+
+import java.util.function.Function;
 
 /**
  * Functional Interface defined to identify methods returning nothing while their service logic could throw Exceptions.
  */
 @FunctionalInterface
-public interface RunnableThrowable extends voidThrowable {
+public interface RunnableThrowable extends ofThrowable {
 
     /**
      * The abstract method to be mapped to Lambda Expresion accepting no argument and returning nothing.
@@ -33,7 +35,7 @@ public interface RunnableThrowable extends voidThrowable {
      * @return The Runnerable version that get Exceptions handled with the first of exceptionHandlers if given,
      *              otherwise {@code this::tryRun} if no exceptionHandler specified
      */
-    default Runnable withHandler(Consumer<Exception>... exceptionHandlers) {
+    default Runnable withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryRun;
         } else {
@@ -41,7 +43,7 @@ public interface RunnableThrowable extends voidThrowable {
                 try {
                     run();
                 } catch (Exception e) {
-                    exceptionHandlers[0].accept(e);
+                    exceptionHandlers[0].apply(e);
                 }
             };
         }

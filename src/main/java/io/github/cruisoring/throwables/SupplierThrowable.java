@@ -1,6 +1,7 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
 
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.ofThrowable;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -12,7 +13,7 @@ import java.util.function.Supplier;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface SupplierThrowable<R> extends getThrowable<R> {
+public interface SupplierThrowable<R> extends ofThrowable<R> {
 
     /**
      * Get a result
@@ -23,9 +24,9 @@ public interface SupplierThrowable<R> extends getThrowable<R> {
     R get() throws Exception;
 
     /**
-     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code getThrowable}.
+     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code ofThrowable}.
      *
-     * @return the result of type <tt>T</tt> or let the default handler of {@code getThrowable} to process
+     * @return the result of type <tt>T</tt> or let the default handler of {@code ofThrowable} to process
      */
     default R tryGet() {
         try {
@@ -42,7 +43,7 @@ public interface SupplierThrowable<R> extends getThrowable<R> {
      * @return The {@code Supplier<R>} version of the original that get Exceptions handled with the first of exceptionHandlers if given,
      * otherwise {@code this::tryGet} if no exceptionHandler specified
      */
-    default Supplier<R> withHandler(Function<Exception, R>... exceptionHandlers) {
+    default Supplier<R> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryGet;
         } else {
@@ -50,7 +51,7 @@ public interface SupplierThrowable<R> extends getThrowable<R> {
                 try {
                     return get();
                 } catch (Exception e) {
-                    return exceptionHandlers[0].apply(e);
+                    return (R)exceptionHandlers[0].apply(e);
                 }
             };
             return supplier;

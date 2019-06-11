@@ -1,8 +1,8 @@
 package io.github.cruisoring.logger;
 
 import io.github.cruisoring.Revokable;
-import io.github.cruisoring.function.RunnableThrowable;
-import io.github.cruisoring.function.SupplierThrowable;
+import io.github.cruisoring.throwables.RunnableThrowable;
+import io.github.cruisoring.throwables.SupplierThrowable;
 import io.github.cruisoring.utility.StringHelper;
 
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ public class Logger implements ILogger {
     public static ILogger Default;
     public static LogLevel DefaultMeasureLogLevel = LogLevel.debug;
     public static boolean NeglectExceptionWhenMeasure = true;
-    public static DateTimeFormatter DefaultTimeStampFormatter = DateTimeFormatter.ISO_TIME;
+    public static DateTimeFormatter DefaultTimeStampFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     public static String[] DefaultSuccessKeywords = new String[]{"success", "passed", "pass"};
     public static String[] DefaultFailedKeywords = new String[]{"fail", "error", "exception", "wrong", "mistake", "problem"};
     /**

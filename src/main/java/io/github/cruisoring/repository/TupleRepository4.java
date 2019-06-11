@@ -1,6 +1,6 @@
 package io.github.cruisoring.repository;
 
-import io.github.cruisoring.function.*;
+import io.github.cruisoring.throwables.*;
 import io.github.cruisoring.tuple.*;
 
 import java.util.HashMap;

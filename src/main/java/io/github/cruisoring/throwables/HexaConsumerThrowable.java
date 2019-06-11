@@ -1,6 +1,8 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
 
-import java.util.function.Consumer;
+import io.github.cruisoring.ofThrowable;
+
+import java.util.function.Function;
 
 /**
  * Functional Interface identifying methods, accepting 6 arguments and returning nothing,
@@ -14,7 +16,7 @@ import java.util.function.Consumer;
  * @param <Y> Type of the sixth argument.
  */
 @FunctionalInterface
-public interface HexaConsumerThrowable<T, U, V, W, X, Y> extends voidThrowable {
+public interface HexaConsumerThrowable<T, U, V, W, X, Y> extends ofThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 6 arguments and returning nothing.
      *
@@ -68,7 +70,7 @@ public interface HexaConsumerThrowable<T, U, V, W, X, Y> extends voidThrowable {
      * @return Converted HexaConsumer&lt;T,U,V,W,X,Y&gt; that get Exceptions handled with the first of exceptionHandlers if given,
      *      otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
-    default HexaConsumer<T, U, V, W, X, Y> withHandler(Consumer<Exception>... exceptionHandlers) {
+    default HexaConsumer<T, U, V, W, X, Y> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryAccept;
         } else {
@@ -77,7 +79,7 @@ public interface HexaConsumerThrowable<T, U, V, W, X, Y> extends voidThrowable {
                     accept(t, u, v, w, x, y);
                 } catch (Exception e) {
                     if (exceptionHandlers != null)
-                        exceptionHandlers[0].accept(e);
+                        exceptionHandlers[0].apply(e);
                 }
             };
             return consumer;

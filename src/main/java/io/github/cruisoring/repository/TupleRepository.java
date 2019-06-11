@@ -1,7 +1,7 @@
 package io.github.cruisoring.repository;
 
-import io.github.cruisoring.function.FunctionThrowable;
-import io.github.cruisoring.function.TriConsumerThrowable;
+import io.github.cruisoring.throwables.FunctionThrowable;
+import io.github.cruisoring.throwables.TriConsumerThrowable;
 import io.github.cruisoring.tuple.*;
 
 import java.util.HashMap;

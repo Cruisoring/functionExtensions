@@ -1,11 +1,11 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.function.RunnableThrowable;
-import io.github.cruisoring.function.SupplierThrowable;
 import io.github.cruisoring.table.Columns;
 import io.github.cruisoring.table.IColumns;
 import io.github.cruisoring.table.TupleRow;
 import io.github.cruisoring.table.TupleTable;
+import io.github.cruisoring.throwables.RunnableThrowable;
+import io.github.cruisoring.throwables.SupplierThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple7;
 import io.github.cruisoring.utility.ArrayHelper;

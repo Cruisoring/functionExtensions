@@ -1,9 +1,11 @@
 package io.github.cruisoring;
 
-import io.github.cruisoring.function.*;
-import io.github.cruisoring.repository.Repository;
 import io.github.cruisoring.repository.TupleRepository3;
 import io.github.cruisoring.repository.TupleRepository6;
+import io.github.cruisoring.throwables.BiFunctionThrowable;
+import io.github.cruisoring.throwables.FunctionThrowable;
+import io.github.cruisoring.throwables.TriConsumerThrowable;
+import io.github.cruisoring.throwables.TriFunctionThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.tuple.Tuple3;
@@ -14,10 +16,6 @@ import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -44,18 +42,9 @@ public class TypeHelper {
     static int _defaultParallelEvaluationThread = 100000;
 
     static {
-        EMPTY_ARRAY_AS_DEFAULT = tryParse("EMPTY_ARRAY_AS_DEFAULT", false);
-        PARALLEL_EVALUATION_THRESHOLD = tryParse("PARALLEL_EVALUATION_THRESHOLD", _defaultParallelEvaluationThread);
-        DEFAULT_EMPTY_EQUALITY = tryParse(EqualityStategy.TypeIgnored);
-    }
-
-    private static <T> T tryParse(T defaultValue) {
-        Class<T> valueClass = (Class<T>) defaultValue.getClass();
-        String valueKey = valueClass.getSimpleName();
-        String valueString = System.getProperty(valueKey);
-        if (valueString == null)
-            return defaultValue;
-        return StringHelper.parse(valueString, valueClass, defaultValue);
+        EMPTY_ARRAY_AS_DEFAULT = StringHelper.tryParseSystemProperties(false, "EMPTY_ARRAY_AS_DEFAULT");
+        PARALLEL_EVALUATION_THRESHOLD = StringHelper.tryParseSystemProperties(_defaultParallelEvaluationThread, "PARALLEL_EVALUATION_THRESHOLD");
+        DEFAULT_EMPTY_EQUALITY = StringHelper.tryParseSystemProperties(EqualityStategy.TypeIgnored);
     }
 
     //region Common functions saved as static variables
@@ -237,7 +226,7 @@ public class TypeHelper {
      * <p>
      * <tt>FunctionThrowable&lt;TKey, Tuple3&lt;T,U,V&gt;&gt; valueFunction</tt>
      */
-    static final TupleRepository3<getThrowable,
+    static final TupleRepository3<ofThrowable,
             Boolean, Class[], Class> lambdaGenericInfoRepository = TupleRepository3.fromKey(
             TypeHelper::getLambdaGenericInfo
     );
@@ -412,22 +401,10 @@ public class TypeHelper {
             , Function<Object, Object>          //Convert the first object to another serially
             , Function<Object, Object>          //Convert the first object by default, in parallel or serial based on the length of the array
             > deepConverters = TupleRepository3.fromKeys2(TypeHelper::getDeepEvaluators);
-    public static String DefaultDateFormat = "yyyy-MM-dd";
-    public static String DefaultDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
     //endregion
-    static Repository<String, DateTimeFormatter> dateFormatRepository = new Repository<>(
-            DateTimeFormatter::ofPattern);
     //endregion
 
     //region deepIndexes based objects comparing utilities
-
-    static <T> T tryParse(String valueKey, T defaultValue) {
-        String valueString = System.getProperty(valueKey);
-        if (valueString == null)
-            return defaultValue;
-        Class<T> valueClass = (Class<T>) defaultValue.getClass();
-        return StringHelper.parse(valueString, valueClass, defaultValue);
-    }
 
     //region Higher-order functions to create lambda Functions
     private static <T> TriFunctionThrowable<Object, Integer, Integer, Object> asGenericCopyOfRange(Class<T> componentType) {
@@ -995,7 +972,7 @@ public class TypeHelper {
 
     //region Repository with Class as the key, to keep 7 common used attributes or operators
 
-    private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(getThrowable lambda) {
+    private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(ofThrowable lambda) {
         checkWithoutNull(lambda);
 
         Class lambdaClass = lambda.getClass();
@@ -1023,7 +1000,7 @@ public class TypeHelper {
      * @param aThrowable solid Lambda expression
      * @return The type of the return value defined by the Lambda Expression.
      */
-    public static Class getReturnType(getThrowable aThrowable) {
+    public static Class getReturnType(ofThrowable aThrowable) {
         return lambdaGenericInfoRepository.getThirdValue(aThrowable);
     }
     //endregion
@@ -1341,7 +1318,7 @@ public class TypeHelper {
      * </ul>
      *
      * @param clazz Class of the concerned object
-     * @return The converter function to convert the concerned object to its equivalent one.
+     * @return The converter throwables to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentParallelConverter(Class clazz) {
         checkWithoutNull(clazz);
@@ -1357,7 +1334,7 @@ public class TypeHelper {
      * </ul>
      *
      * @param clazz Class of the concerned object
-     * @return The converter function to convert the concerned object to its equivalent one.
+     * @return The converter throwables to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentSerialConverter(Class clazz) {
         checkWithoutNull(clazz);
@@ -1373,7 +1350,7 @@ public class TypeHelper {
      * </ul>
      *
      * @param clazz Class of the concerned object
-     * @return The converter function to convert the concerned object to its equivalent one.
+     * @return The converter throwables to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentConverter(Class clazz) {
         checkWithoutNull(clazz);
@@ -1650,44 +1627,6 @@ public class TypeHelper {
         } else {
             return obj.toString();
         }
-    }
-
-    /**
-     * Convert the given LocalDate instance to selected format.
-     *
-     * @param localDate LocalDate instance to be formatted.
-     * @param formats   Optional Format String as array, use DefaultDateFormat if not provided.
-     * @return Formatted String of the given LocalDate.
-     */
-    public static String asString(LocalDate localDate, String... formats) {
-        String format = (formats == null || formats.length == 0) ? DefaultDateFormat : formats[0];
-        DateTimeFormatter formatter = dateFormatRepository.get(format, null);
-        return formatter == null ? null : formatter.format(localDate);
-    }
-
-    /**
-     * Convert the given Date instance to selected format.
-     *
-     * @param date    Date instance to be formatted.
-     * @param formats Optional Format String as array, use DefaultDateFormat if not provided.
-     * @return Formatted String of the given Date.
-     */
-    public static String asString(Date date, String... formats) {
-        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        return asString(localDate, formats);
-    }
-
-    /**
-     * Convert the given LocalDateTime instance to selected format.
-     *
-     * @param localDateTime LocalDateTime instance to be formatted.
-     * @param formats       Optional Format String as array, use DefaultDateFormat if not provided.
-     * @return Formatted String of the given LocalDateTime.
-     */
-    public static String asString(LocalDateTime localDateTime, String... formats) {
-        String format = (formats == null || formats.length == 0) ? DefaultDateFormat : formats[0];
-        DateTimeFormatter formatter = dateFormatRepository.get(format, null);
-        return formatter == null ? null : formatter.format(localDateTime);
     }
 
     /**

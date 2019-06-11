@@ -535,10 +535,14 @@ public class RangeTest {
         assertEquals("b", new Range(1, 2).subString("abc"));
         assertEquals("ab", new Range(0, 2).subString("abc"));
         assertEquals("abc", Range.ofLength(3).subString("abc"));
+        assertEquals("", new Range(3, 3).subString("abc"));
+        assertEquals("c", new Range(2, 3).subString("abc"));
+        assertEquals("bc", new Range(1, 3).subString("abc"));
+        assertEquals("", new Range(1, 1).subString("abc"));
 
-        assertException(() -> new Range(3, 3).subString("abc"), IllegalStateException.class);
-        assertException(() -> new Range(1, 3).subString("abc"), IllegalStateException.class);
-        assertException(() -> new Range(0, 3).subString("abc"), IllegalStateException.class);
+        assertException(() -> new Range(3, 4).subString("abc"), IllegalStateException.class);
+        assertException(() -> new Range(1, 4).subString("abc"), IllegalStateException.class);
+        assertException(() -> new Range(2, 1).subString("abc"), IllegalStateException.class);
         assertException(() -> new Range(-1, -1).subString("abc"), IllegalStateException.class);
     }
 }

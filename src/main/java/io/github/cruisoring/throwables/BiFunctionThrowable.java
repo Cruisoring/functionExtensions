@@ -1,4 +1,6 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
+
+import io.github.cruisoring.ofThrowable;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -12,7 +14,7 @@ import java.util.function.Function;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface BiFunctionThrowable<T, U, R> extends getThrowable<R> {
+public interface BiFunctionThrowable<T, U, R> extends ofThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 2 arguments and returning result of type <code>R</code>
      *
@@ -25,11 +27,11 @@ public interface BiFunctionThrowable<T, U, R> extends getThrowable<R> {
 
     /**
      * Execute the given business logic to return the generated value or
-     * handle thrown Exception with the default handler of {@code getThrowable}.
+     * handle thrown Exception with the default handler of {@code ofThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
-     * @return the result of type <tt>R</tt> if evaluating the given argments successfully, or let the default handler of {@code getThrowable} to process
+     * @return the result of type <tt>R</tt> if evaluating the given argments successfully, or let the default handler of {@code ofThrowable} to process
      */
     default R tryApply(T t, U u) {
         try {
@@ -57,7 +59,7 @@ public interface BiFunctionThrowable<T, U, R> extends getThrowable<R> {
      * @return Converted BiFunction&lt;T,U,R&gt; that get Exceptions handled with the first of exceptionHandlers if given,
      *      otherwise {@code this::tryApply} if no exceptionHandler specified
      */
-    default BiFunction<T, U, R> withHandler(Function<Exception, R>... exceptionHandlers) {
+    default BiFunction<T, U, R> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryApply;
         } else {
@@ -65,7 +67,7 @@ public interface BiFunctionThrowable<T, U, R> extends getThrowable<R> {
                 try {
                     return apply(t, u);
                 } catch (Exception e) {
-                    return exceptionHandlers[0].apply(e);
+                    return (R)exceptionHandlers[0].apply(e);
                 }
             };
             return function;

@@ -1,7 +1,7 @@
 package io.github.cruisoring.table;
 
-import io.github.cruisoring.function.PredicateThrowable;
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.throwables.PredicateThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import org.junit.Test;
 

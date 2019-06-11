@@ -1,4 +1,6 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
+
+import io.github.cruisoring.ofThrowable;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -10,7 +12,7 @@ import java.util.function.Predicate;
  * @param <T> Type of the first argument.
  */
 @FunctionalInterface
-public interface PredicateThrowable<T> extends getThrowable<Boolean> {
+public interface PredicateThrowable<T> extends ofThrowable<Boolean> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 7 arguments and returning result of boolean type
      *
@@ -22,7 +24,7 @@ public interface PredicateThrowable<T> extends getThrowable<Boolean> {
 
     /**
      * Execute the given business logic to evaluate the given statement, return the result or
-     * handle thrown Exception with the default handler of {@code getThrowable}..
+     * handle thrown Exception with the default handler of {@code ofThrowable}..
      *
      * @param t The first argument of type <code>T</code>.
      * @return The result of applying the given arguments.
@@ -53,7 +55,7 @@ public interface PredicateThrowable<T> extends getThrowable<Boolean> {
      *          otherwise {@code this::tryTest} if no exceptionHandler specified
      */
 
-    default Predicate<T> orElse(Function<Exception, Boolean>... exceptionHandlers) {
+    default Predicate<T> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryTest;
         } else {
@@ -61,7 +63,7 @@ public interface PredicateThrowable<T> extends getThrowable<Boolean> {
                 try {
                     return test(t);
                 } catch (Exception e) {
-                    return exceptionHandlers[0].apply(e);
+                    return (Boolean)exceptionHandlers[0].apply(e);
                 }
             };
             return predicate;

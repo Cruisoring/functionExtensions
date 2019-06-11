@@ -1,6 +1,8 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
 
-import java.util.function.Consumer;
+import io.github.cruisoring.ofThrowable;
+
+import java.util.function.Function;
 
 /**
  * Functional Interface identifying methods, accepting 7 arguments and returning nothing,
@@ -15,7 +17,7 @@ import java.util.function.Consumer;
  * @param <Z> Type of the seventh argument.
  */
 @FunctionalInterface
-public interface HeptaConsumerThrowable<T, U, V, W, X, Y, Z> extends voidThrowable {
+public interface HeptaConsumerThrowable<T, U, V, W, X, Y, Z> extends ofThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 7 arguments and returning nothing.
      *
@@ -29,22 +31,6 @@ public interface HeptaConsumerThrowable<T, U, V, W, X, Y, Z> extends voidThrowab
      * @throws Exception Any Exception could be thrown by the concerned service logic.
      */
     void accept(T t, U u, V v, W w, X x, Y y, Z z) throws Exception;
-
-    /**
-     * Convert the {@code HeptaConsumerThrowable<T, U, V, W, X, Y, Z>} to {@code RunnableThrowable} with given argument.
-     *
-     * @param t The first argument of type <code>T</code>.
-     * @param u The second argument of type <code>U</code>.
-     * @param v The third argument of type <code>V</code>.
-     * @param w The fourth argument of type <code>W</code>.
-     * @param x The fifth argument of type <code>X</code>.
-     * @param y The sixth argument of type <code>Y</code>.
-     * @param z The seventh argument of type <code>Z</code>.
-     * @return the {@code RunnableThrowable} instance invoking the original {@code HeptaConsumerThrowable<T, U, V, W, X, Y, Z>} with required arguments
-     */
-    default RunnableThrowable asRunnableThrowable(T t, U u, V v, W w, X x, Y y, Z z) {
-        return () -> accept(t, u, v, w, x, y, z);
-    }
 
     /**
      * Execute <code>accept()</code> and handle thrown Exception with the default handler of {@code throwsException}.
@@ -66,13 +52,29 @@ public interface HeptaConsumerThrowable<T, U, V, W, X, Y, Z> extends voidThrowab
     }
 
     /**
+     * Convert the {@code HeptaConsumerThrowable<T, U, V, W, X, Y, Z>} to {@code RunnableThrowable} with given argument.
+     *
+     * @param t The first argument of type <code>T</code>.
+     * @param u The second argument of type <code>U</code>.
+     * @param v The third argument of type <code>V</code>.
+     * @param w The fourth argument of type <code>W</code>.
+     * @param x The fifth argument of type <code>X</code>.
+     * @param y The sixth argument of type <code>Y</code>.
+     * @param z The seventh argument of type <code>Z</code>.
+     * @return the {@code RunnableThrowable} instance invoking the original {@code HeptaConsumerThrowable<T, U, V, W, X, Y, Z>} with required arguments
+     */
+    default RunnableThrowable asRunnableThrowable(T t, U u, V v, W w, X x, Y y, Z z) {
+        return () -> accept(t, u, v, w, x, y, z);
+    }
+
+    /**
      * Convert the ConsumerThrowable&lt;T&gt; to Consumer&lt;T&gt; with given Exception Handler
      *
      * @param exceptionHandlers Optional Exception Handlers to process the caught Exception with its first memeber if exists
      * @return Converted Consumer&lt;T&gt; that get Exceptions handled with the first of exceptionHandlers if given,
      *      otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
-    default HeptaConsumer<T, U, V, W, X, Y, Z> withHandler(Consumer<Exception>... exceptionHandlers) {
+    default HeptaConsumer<T, U, V, W, X, Y, Z> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryAccept;
         } else {
@@ -80,7 +82,7 @@ public interface HeptaConsumerThrowable<T, U, V, W, X, Y, Z> extends voidThrowab
                 try {
                     accept(t, u, v, w, x, y, z);
                 } catch (Exception e) {
-                    exceptionHandlers[0].accept(e);
+                    exceptionHandlers[0].apply(e);
                 }
             };
             return consumer;

@@ -1,16 +1,13 @@
 package io.github.cruisoring.utility;
 
 import io.github.cruisoring.TypeHelper;
-import io.github.cruisoring.function.FunctionThrowable;
-import io.github.cruisoring.function.TriConsumerThrowable;
 import io.github.cruisoring.repository.Repository;
+import io.github.cruisoring.throwables.FunctionThrowable;
+import io.github.cruisoring.throwables.TriConsumerThrowable;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.MalformedParametersException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -314,5 +311,73 @@ public class StringHelper {
             String[] argStrings = Arrays.stream(args).map(arg -> arg == null ? "null" : arg.toString()).toArray(size -> new String[size]);
             return String.format("MalFormated format: '%s' where args[%d]: '%s'", format, args.length, String.join(", ", argStrings));
         }
+    }
+
+    /**
+     * Try to retrieve the defined value from the given properties with the specified keys,
+     * or returns the given defaultValue if no definition found or failed to convert the String to concerned type.
+     *
+     * @param properties    the Properties instance which might contains the property specified by any of the keys
+     * @param defaultValue  the default value if failed to extract or convert the system property specified by the keys.
+     * @param valueKeys     the keys used to locate the System Property to get the value String.
+     * @param <T>           the type of the value to be extracted and converted to.
+     * @return              the converted value if extracting System Property of given valueKeys successfully,
+     *                      otherwise the given defaultValue woudl be returned.
+     */
+    public static <T> T tryGetProperty(Properties properties, T defaultValue, String... valueKeys) {
+        if(properties == null || defaultValue == null || valueKeys == null) {
+            return defaultValue;
+        }
+
+        for (String key : valueKeys) {
+            String valueString = properties.getProperty(key);
+            if(valueString != null) {
+                parse(valueString, (Class<T>) defaultValue.getClass(), defaultValue);
+            }
+        }
+        return defaultValue;
+    }
+
+
+    /**
+     * Try to retrieve the defined value of a System property specified by the given keys,
+     * or returns the given defaultValue if no definition found or failed to convert the String to concerned type.
+     *
+     * @param defaultValue  the default value if failed to extract or convert the system property specified by the keys.
+     * @param valueKeys     the keys used to locate the System Property to get the value String.
+     * @param <T>           the type of the value to be extracted and converted to.
+     * @return              the converted value if extracting System Property of given valueKeys successfully,
+     *                      otherwise the given defaultValue woudl be returned.
+     */
+    public static <T> T tryParseSystemProperties(T defaultValue, String... valueKeys) {
+        if(defaultValue == null || valueKeys == null) {
+            return defaultValue;
+        }
+
+        for (String key : valueKeys) {
+            String valueString = System.getProperty(key);
+            if(valueString != null) {
+                parse(valueString, (Class<T>) defaultValue.getClass(), defaultValue);
+            }
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Try to retrieve the defined value of a System property specified by the class name or class simpleName of the concerned type,
+     * or returns the given defaultValue if no definition found or failed to convert the String to concerned type.
+     *
+     * @param defaultValue  the default value if failed to extract or convert the system property specified by the keys.
+     * @param <T>           the type of the value to be extracted and converted to.
+     * @return              the converted value if extracting System Property of given valueKeys successfully,
+     *                      otherwise the given defaultValue woudl be returned.
+     */
+    public static <T> T tryParseSystemProperties(T defaultValue) {
+        if(defaultValue == null) {
+            return null;
+        }
+
+        Class<T> valueClass = (Class<T>) defaultValue.getClass();
+        return tryParseSystemProperties(defaultValue, valueClass.getName(), valueClass.getSimpleName());
     }
 }

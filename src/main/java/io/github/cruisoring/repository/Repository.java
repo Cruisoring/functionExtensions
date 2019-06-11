@@ -1,8 +1,8 @@
 package io.github.cruisoring.repository;
 
-import io.github.cruisoring.function.FunctionThrowable;
-import io.github.cruisoring.function.TriConsumerThrowable;
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.throwables.FunctionThrowable;
+import io.github.cruisoring.throwables.TriConsumerThrowable;
 
 import java.util.*;
 import java.util.function.BiPredicate;
@@ -45,7 +45,7 @@ public class Repository<TKey, TValue>
     }
 
     /**
-     * Construct a repository as a HashMap without extra closing action, with function to map key to value
+     * Construct a repository as a HashMap without extra closing action, with throwables to map key to value
      *
      * @param valueFunction Function to map key of TKey type to value of TValue type
      */

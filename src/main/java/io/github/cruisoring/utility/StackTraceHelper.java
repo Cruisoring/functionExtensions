@@ -133,6 +133,4 @@ public class StackTraceHelper {
                 stack.getMethodName(), stack.getFileName(), stack.getLineNumber());
         return label;
     }
-
-
 }

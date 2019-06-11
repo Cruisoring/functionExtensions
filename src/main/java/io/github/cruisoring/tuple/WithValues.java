@@ -1,7 +1,7 @@
 package io.github.cruisoring.tuple;
 
 import io.github.cruisoring.TypeHelper;
-import io.github.cruisoring.function.PredicateThrowable;
+import io.github.cruisoring.throwables.PredicateThrowable;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -84,7 +84,7 @@ public interface WithValues<T> extends Comparable {
      */
     default boolean meetConditions(Map<Integer, PredicateThrowable> expectedConditions){
         for (Integer index : expectedConditions.keySet()) {
-            if(!expectedConditions.get(index).orElse().test(getValue(index))){
+            if(!expectedConditions.get(index).withHandler().test(getValue(index))){
                 return false;
             }
         }

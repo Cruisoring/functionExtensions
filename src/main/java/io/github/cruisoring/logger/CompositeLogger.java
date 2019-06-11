@@ -1,7 +1,7 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.function.RunnableThrowable;
-import io.github.cruisoring.function.SupplierThrowable;
+import io.github.cruisoring.throwables.RunnableThrowable;
+import io.github.cruisoring.throwables.SupplierThrowable;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Arrays;

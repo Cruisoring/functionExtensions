@@ -1,7 +1,7 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.function.RunnableThrowable;
-import io.github.cruisoring.function.SupplierThrowable;
+import io.github.cruisoring.throwables.RunnableThrowable;
+import io.github.cruisoring.throwables.SupplierThrowable;
 import io.github.cruisoring.utility.StackTraceHelper;
 import io.github.cruisoring.utility.StringHelper;
 import org.apache.commons.lang3.StringUtils;

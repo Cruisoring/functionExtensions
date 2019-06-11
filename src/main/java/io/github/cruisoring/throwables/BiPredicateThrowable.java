@@ -1,4 +1,6 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
+
+import io.github.cruisoring.ofThrowable;
 
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -11,7 +13,7 @@ import java.util.function.Function;
  * @param <U> Type of the second argument.
  */
 @FunctionalInterface
-public interface BiPredicateThrowable<T, U> extends getThrowable<Boolean> {
+public interface BiPredicateThrowable<T, U> extends ofThrowable<Boolean> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 2 arguments and returning result of boolean type
      *
@@ -20,16 +22,16 @@ public interface BiPredicateThrowable<T, U> extends getThrowable<Boolean> {
      * @return The result of applying the given arguments.
      * @throws Exception Any Exception could be thrown by the concerned service logic.
      */
-    boolean test(T t, U u);
+    boolean test(T t, U u) throws Exception;
 
     /**
      * Execute the given business logic to test the given 2 arguments, return the result or
-     * handle thrown Exception with the default handler of {@code getThrowable}.
+     * handle thrown Exception with the default handler of {@code ofThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @return The result by testing the given arguments,
-     *      or result returned by the default Exception handler of {@code getThrowable}.
+     *      or result returned by the default Exception handler of {@code ofThrowable}.
      */
     default boolean tryTest(T t, U u) {
         try {
@@ -58,7 +60,7 @@ public interface BiPredicateThrowable<T, U> extends getThrowable<Boolean> {
      *          otherwise {@code this::tryTest} if no exceptionHandler specified
      */
 
-    default BiPredicate<T,U> orElse(Function<Exception, Boolean>... exceptionHandlers) {
+    default BiPredicate<T,U> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryTest;
         } else {
@@ -66,7 +68,7 @@ public interface BiPredicateThrowable<T, U> extends getThrowable<Boolean> {
                 try {
                     return test(t, u);
                 } catch (Exception e) {
-                    return exceptionHandlers[0].apply(e);
+                    return (Boolean) exceptionHandlers[0].apply(e);
                 }
             };
             return predicate;

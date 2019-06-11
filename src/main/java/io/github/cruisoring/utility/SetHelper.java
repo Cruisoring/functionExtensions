@@ -1,6 +1,6 @@
 package io.github.cruisoring.utility;
 
-import io.github.cruisoring.function.SupplierThrowable;
+import io.github.cruisoring.throwables.SupplierThrowable;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;

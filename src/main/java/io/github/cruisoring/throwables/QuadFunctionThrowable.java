@@ -1,4 +1,6 @@
-package io.github.cruisoring.function;
+package io.github.cruisoring.throwables;
+
+import io.github.cruisoring.ofThrowable;
 
 import java.util.function.Function;
 
@@ -13,7 +15,7 @@ import java.util.function.Function;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface QuadFunctionThrowable<T, U, V, W, R> extends getThrowable<R> {
+public interface QuadFunctionThrowable<T, U, V, W, R> extends ofThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 4 arguments and returning result of type <code>R</code>
      *
@@ -27,13 +29,13 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends getThrowable<R> {
     R apply(T t, U u, V v, W w) throws Exception;
 
     /**
-     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code getThrowable}.
+     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code ofThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
      * @param w The fourth argument of type <code>W</code>.
-     * @return the result of type <tt>R</tt> if evaluating the given argments successfully, or let the default handler of {@code getThrowable} to process
+     * @return the result of type <tt>R</tt> if evaluating the given argments successfully, or let the default handler of {@code ofThrowable} to process
      */
     default R tryApply(T t, U u, V v, W w) {
         try {
@@ -64,7 +66,7 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends getThrowable<R> {
      * @return Converted {@code QuadFunction<T, U, V, W, R>} that get Exceptions handled with the first of exceptionHandlers if given,
      * otherwise {@code this::tryApply} if no exceptionHandler specified
      */
-    default QuadFunction<T, U, V, W, R> withHandler(Function<Exception, R>... exceptionHandlers) {
+    default QuadFunction<T, U, V, W, R> withHandler(Function<Exception, Object>... exceptionHandlers) {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryApply;
         } else {
@@ -72,7 +74,7 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends getThrowable<R> {
                 try {
                     return apply(t, u, v, w);
                 } catch (Exception e) {
-                    return exceptionHandlers[0].apply(e);
+                    return (R)exceptionHandlers[0].apply(e);
                 }
             };
             return function;
@@ -98,13 +100,13 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends getThrowable<R> {
     }
 
     /**
-     * Represents a function that accepts four arguments and produces a result.
+     * Represents a throwables that accepts four arguments and produces a result.
      *
      * @param <T> Type of the first argument.
      * @param <U> Type of the second argument.
      * @param <V> Type of the third argument.
      * @param <W> Type of the fourth argument.
-     * @param <R> Type of the result of the function
+     * @param <R> Type of the result of the throwables
      */
     @FunctionalInterface
     interface QuadFunction<T, U, V, W, R> {

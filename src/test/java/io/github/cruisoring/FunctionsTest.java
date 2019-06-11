@@ -35,7 +35,7 @@ public class FunctionsTest {
 //            throw new RuntimeException(ex);
 //        }
 //    };
-//    static BiFunction<Exception, getThrowable, Object> defaultReturner = (ex, lambda) -> {
+//    static BiFunction<Exception, ofThrowable, Object> defaultReturner = (ex, lambda) -> {
 //        final Class<? extends Exception> exceptionType = ex.getClass();
 //        if (IntStream.range(0, noticeables.length).anyMatch(i -> noticeables[i].isAssignableFrom(exceptionType))) {
 //            String msg = ex.getMessage();
@@ -250,7 +250,7 @@ public class FunctionsTest {
 //        assertTrue(TypeHelper.valueEquals(new String[]{"true", "a", "33", ""}, result));
 //
 //        result = (String[]) logToList.apply(f11, true, "a", 33, new String[]{});
-//        if (TypeHelper.tryParse("EMPTY_ARRAY_AS_DEFAULT", false))
+//        if (TypeHelper.tryParseSystemProperties("EMPTY_ARRAY_AS_DEFAULT", false))
 //            assertEquals(0, result.length);
 //        else
 //            assertNull(result);

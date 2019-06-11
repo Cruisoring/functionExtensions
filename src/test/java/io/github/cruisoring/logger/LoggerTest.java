@@ -1,7 +1,7 @@
 package io.github.cruisoring.logger;
 
 import io.github.cruisoring.Revokable;
-import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.utility.DateTimeHelper;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -167,7 +167,7 @@ public class LoggerTest {
             testE();
         }, LogLevel.debug);
 
-        Logger.M(Measurement.start("testNothing on %s for %d", TypeHelper.asString(LocalDate.now(), "dd-MM"), 3),
+        Logger.M(Measurement.start("testNothing on %s for %d", DateTimeHelper.asString(LocalDate.now(), "dd-MM"), 3),
                 () -> Thread.sleep(1), LogLevel.info);
     }
 

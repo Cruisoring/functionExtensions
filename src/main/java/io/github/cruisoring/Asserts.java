@@ -1,9 +1,9 @@
 package io.github.cruisoring;
 
-import io.github.cruisoring.function.RunnableThrowable;
-import io.github.cruisoring.function.SupplierThrowable;
 import io.github.cruisoring.logger.LogLevel;
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.throwables.RunnableThrowable;
+import io.github.cruisoring.throwables.SupplierThrowable;
 import io.github.cruisoring.utility.StringHelper;
 
 import java.lang.reflect.Array;
@@ -189,7 +189,7 @@ public class Asserts {
         } else {
             for (int i = 0; i < length; i++) {
                 if (others[i] == null) {
-                    throw new NullPointerException(log("The %dth reference is null!", i));
+                    throw new NullPointerException(log("The %dth reference is null!", i+1));
                 }
             }
             return true;
@@ -338,21 +338,19 @@ public class Asserts {
     }
 
     /**
-     * Asserts executing the given function would throw an Exception of specific type, otherwise it would throw an IllegalStateException to fail the test.
+     * Asserts executing the given throwables would throw an Exception of specific type, otherwise it would throw an IllegalStateException to fail the test.
      *
-     * @param supplier       function returning a result of type <tt>R</tt>.
-     * @param exceptionClass type of the Exception to be thrown by the concerned function.
+     * @param supplier       throwables returning a result of type <tt>R</tt>.
+     * @param exceptionClass type of the Exception to be thrown by the concerned throwables.
      * @param keywords       optional keywords contained in the message of the Exception.
-     * @param <R>            type of the result to be returned by the function.
-     * @return type of the returning value of the concerned function.
+     * @param <R>            type of the result to be returned by the throwables.
+     * @return type of the returning value of the concerned throwables.
      */
     public static <R> R assertException(SupplierThrowable<R> supplier, Class<? extends Exception> exceptionClass, Object... keywords) {
         checkWithoutNull(supplier, exceptionClass);
 
         try {
             supplier.get();
-
-            throw new IllegalStateException(log("No exception of %s thrown", exceptionClass.getSimpleName()));
         } catch (Exception e) {
             if (e.getClass() != exceptionClass) {
                 throw new IllegalStateException(
@@ -369,20 +367,20 @@ public class Asserts {
                 return null;
             }
         }
+
+        throw new IllegalStateException(log("No exception of %s thrown", exceptionClass.getSimpleName()));
     }
 
     /**
-     * Assserts executing the given function would throw an Exception of specific type, otherwise it would throw an IllegalStateException to fail the test.
+     * Assserts executing the given throwables would throw an Exception of specific type, otherwise it would throw an IllegalStateException to fail the test.
      *
-     * @param runnableThrowable function returning nothing.
-     * @param exceptionClass    type of the Exception to be thrown by the concerned function.
+     * @param runnableThrowable throwables returning nothing.
+     * @param exceptionClass    type of the Exception to be thrown by the concerned throwables.
      * @param keywords          optional keywords contained in the message of the Exception.
      */
     public static void assertException(RunnableThrowable runnableThrowable, Class<? extends Exception> exceptionClass, Object... keywords) {
         try {
             runnableThrowable.run();
-
-            throw new IllegalStateException(log("No exception of %s thrown", exceptionClass.getSimpleName()));
         } catch (Exception e) {
             if (e.getClass() != exceptionClass) {
                 throw new IllegalStateException(
@@ -393,6 +391,9 @@ public class Asserts {
                     throw new IllegalStateException(log("Some keys (%s) are missing: %s", String.join(", ", keyStrings), e.getMessage()));
                 }
             }
+            return;
         }
+
+        throw new IllegalStateException(log("No exception of %s thrown", exceptionClass.getSimpleName()));
     }
 }
