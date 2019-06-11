@@ -109,15 +109,22 @@ public class Functions {
     }
 
     /**
-     *
-     * @param runnableThrowable
+     * Execute the given business logic by using the {@code Functions::defaultExceptionHandler} to handle Exception.
+     * @param runnableThrowable the business logic without returning value to be executed.
      */
     public static void tryRun(RunnableThrowable runnableThrowable){
         runnableThrowable.withHandler(defaultExceptionHandler).run();
     }
 
+    /**
+     * Execute the given business logic to get returned value by using the {@code Functions::defaultExceptionHandler} to handle Exception.
+     * @param supplierThrowable the business logic with returning value to be executed.
+     * @param <R>   type of the returned value
+     * @return      the value returned by the concerned business logic, or something handled by the
+     * {@code Functions::defaultExceptionHandler} when Exception is caught.
+     */
     public static <R> R tryGet(SupplierThrowable<R> supplierThrowable){
-        return supplierThrowable.tryGet();
+        return supplierThrowable.withHandler(defaultExceptionHandler).get();
     }
 
 

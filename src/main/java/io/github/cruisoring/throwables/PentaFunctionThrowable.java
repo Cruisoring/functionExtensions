@@ -86,11 +86,11 @@ public interface PentaFunctionThrowable<T, U, V, W, X, R> extends ofThrowable<R>
     }
 
     /**
-     * Simplified version of converting the {@code PentaFunctionThrowable<T, U, V, W, X, R>} to PentaFunction<T, U, V, W, X, R>
+     * Simplified version of converting the {@code PentaFunctionThrowable<T, U, V, W, X, R>} to {@code PentaFunction<T, U, V, W, X, R>}
      * by ignoring the caught Exception and simply returns a pre-defined default value.
      *
      * @param defaultValue Predefined default value.
-     * @return Converted PentaFunction<T, U, V, W, X, R> that returns the given defaultValue when exception caught
+     * @return Converted {@code PentaFunction<T, U, V, W, X, R>} that returns the given defaultValue when exception caught
      */
     default PentaFunction<T, U, V, W, X, R> orElse(R defaultValue) {
         PentaFunction<T, U, V, W, X, R> function = (t, u, v, w, x) -> {
