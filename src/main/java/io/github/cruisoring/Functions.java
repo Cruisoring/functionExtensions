@@ -365,7 +365,7 @@ public class Functions {
 
     /**
      * Generic method to get the value with given business logic with default interval,
-     * return the value when it is not <>null</> or timeout happened.
+     * return the value when it is not <tt>null</tt> or timeout happened.
      *
      * @param valueGetter   Business logic to specify how to get the value.
      * @param timeoutMillis Timeout in mills, notice it might block the process too long with a big value.
