@@ -100,13 +100,13 @@ public interface QuadFunctionThrowable<T, U, V, W, R> extends ofThrowable<R> {
     }
 
     /**
-     * Represents a throwables that accepts four arguments and produces a result.
+     * Represents a function that accepts four arguments and produces a result.
      *
      * @param <T> Type of the first argument.
      * @param <U> Type of the second argument.
      * @param <V> Type of the third argument.
      * @param <W> Type of the fourth argument.
-     * @param <R> Type of the result of the throwables
+     * @param <R> Type of the result of the function
      */
     @FunctionalInterface
     interface QuadFunction<T, U, V, W, R> {

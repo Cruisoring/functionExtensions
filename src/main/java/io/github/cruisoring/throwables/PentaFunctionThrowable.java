@@ -104,14 +104,14 @@ public interface PentaFunctionThrowable<T, U, V, W, X, R> extends ofThrowable<R>
     }
 
     /**
-     * Represents a throwables that accepts five arguments and produces a result.
+     * Represents a function that accepts five arguments and produces a result.
      *
      * @param <T> Type of the first argument.
      * @param <U> Type of the second argument.
      * @param <V> Type of the third argument.
      * @param <W> Type of the fourth argument.
      * @param <X> Type of the fifth argument.
-     * @param <R> Type of the result of the throwables
+     * @param <R> Type of the result of the function
      */
     @FunctionalInterface
     interface PentaFunction<T, U, V, W, X, R> {

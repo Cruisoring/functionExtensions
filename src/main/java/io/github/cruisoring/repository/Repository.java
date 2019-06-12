@@ -45,7 +45,7 @@ public class Repository<TKey, TValue>
     }
 
     /**
-     * Construct a repository as a HashMap without extra closing action, with throwables to map key to value
+     * Construct a repository as a HashMap without extra closing action, with function to map key to value
      *
      * @param valueFunction Function to map key of TKey type to value of TValue type
      */

@@ -78,8 +78,8 @@ public class Revokable<T> implements AutoCloseable {
     final LocalDateTime timeStamp;
     final String label;
     final T originalSetting;
-    private T newSetting;
-    RunnableThrowable revoker;
+    T newSetting;
+    final RunnableThrowable revoker;
     private boolean isClosed = false;
     //endregion
 
@@ -92,11 +92,14 @@ public class Revokable<T> implements AutoCloseable {
 
         originalSetting = getter.get();
         this.newSetting = newSetting;
+        boolean setSuccessfully = false;
         try{
             setter.accept(newSetting);
-            revoker = () -> setter.accept(originalSetting);
+            setSuccessfully = true;
         }catch (Exception e){
             Logger.getDefault().log(DefaultLogLevel, "Failed to update setting: %s", e.getMessage());
+        } finally {
+            revoker = setSuccessfully ? () -> setter.accept(originalSetting) : null;
         }
     }
 
@@ -157,7 +160,9 @@ public class Revokable<T> implements AutoCloseable {
         if (!isClosed) {
             isClosed = true;
 
-            revoker.withHandler(Functions::logAndReturnsNull).run();
+            if (revoker != null) {
+                revoker.withHandler(Functions::logAndReturnsNull).run();
+            }
             if (originalSetting == null && newSetting == null) {
                 Logger.getDefault().log(DefaultLogLevel, "%s is reverted.", label);
             } else {

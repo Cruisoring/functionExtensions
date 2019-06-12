@@ -11,7 +11,6 @@ import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.tuple.Tuple3;
 import io.github.cruisoring.tuple.Tuple6;
 import io.github.cruisoring.utility.ArrayHelper;
-import io.github.cruisoring.utility.StringHelper;
 import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Array;
@@ -35,17 +34,17 @@ public class TypeHelper {
     final static int NULL_NODE = -1;
     public static int EMPTY_ARRAY_NODE = -2;
     public static int EMPTY_COLLECTION_NODE = -3;
-    private final static boolean EMPTY_ARRAY_AS_DEFAULT;
-    public final static int PARALLEL_EVALUATION_THRESHOLD;
-
-    static EqualityStategy DEFAULT_EMPTY_EQUALITY;
     static int _defaultParallelEvaluationThread = 100000;
 
-    static {
-        EMPTY_ARRAY_AS_DEFAULT = StringHelper.tryParseSystemProperties(false, "EMPTY_ARRAY_AS_DEFAULT");
-        PARALLEL_EVALUATION_THRESHOLD = StringHelper.tryParseSystemProperties(_defaultParallelEvaluationThread, "PARALLEL_EVALUATION_THRESHOLD");
-        DEFAULT_EMPTY_EQUALITY = StringHelper.tryParseSystemProperties(EqualityStategy.TypeIgnored);
-    }
+    public static boolean EMPTY_ARRAY_AS_DEFAULT = false;
+    public static int PARALLEL_EVALUATION_THRESHOLD = _defaultParallelEvaluationThread;
+
+    public static EqualityStategy DEFAULT_EMPTY_EQUALITY = EqualityStategy.TypeIgnored;
+//    static {
+//        EMPTY_ARRAY_AS_DEFAULT = StringHelper.tryParseSystemProperties(false, "EMPTY_ARRAY_AS_DEFAULT");
+//        PARALLEL_EVALUATION_THRESHOLD = StringHelper.tryParseSystemProperties(_defaultParallelEvaluationThread, "PARALLEL_EVALUATION_THRESHOLD");
+//        DEFAULT_EMPTY_EQUALITY = StringHelper.tryParseSystemProperties(EqualityStategy.TypeIgnored);
+//    }
 
     //region Common functions saved as static variables
     private static final BiFunctionThrowable<Object, Integer, Object> arrayGet = Array::get;
@@ -1318,7 +1317,7 @@ public class TypeHelper {
      * </ul>
      *
      * @param clazz Class of the concerned object
-     * @return The converter throwables to convert the concerned object to its equivalent one.
+     * @return The converter function to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentParallelConverter(Class clazz) {
         checkWithoutNull(clazz);
@@ -1334,7 +1333,7 @@ public class TypeHelper {
      * </ul>
      *
      * @param clazz Class of the concerned object
-     * @return The converter throwables to convert the concerned object to its equivalent one.
+     * @return The converter function to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentSerialConverter(Class clazz) {
         checkWithoutNull(clazz);
@@ -1350,7 +1349,7 @@ public class TypeHelper {
      * </ul>
      *
      * @param clazz Class of the concerned object
-     * @return The converter throwables to convert the concerned object to its equivalent one.
+     * @return The converter function to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentConverter(Class clazz) {
         checkWithoutNull(clazz);

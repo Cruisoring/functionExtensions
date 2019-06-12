@@ -112,7 +112,7 @@ public interface HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R> extends ofThrowa
     }
 
     /**
-     * Represents a throwables that accepts seven arguments and produces a result.
+     * Represents a function that accepts seven arguments and produces a result.
      *
      * @param <T> Type of the first argument.
      * @param <U> Type of the second argument.
@@ -121,7 +121,7 @@ public interface HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R> extends ofThrowa
      * @param <X> Type of the fifth argument.
      * @param <Y> Type of the sixth argument.
      * @param <Z> Type of the seventh argument.
-     * @param <R> Type of the result of the throwables
+     * @param <R> Type of the result of the function
      */
     @FunctionalInterface
     interface HeptaFunction<T, U, V, W, X, Y, Z, R> {

@@ -96,12 +96,12 @@ public interface TriFunctionThrowable<T, U, V, R> extends ofThrowable<R> {
     }
 
     /**
-     * Represents a throwables that accepts three arguments and produces a result.
+     * Represents a function that accepts three arguments and produces a result.
      *
      * @param <T> Type of the first argument.
      * @param <U> Type of the second argument.
      * @param <V> Type of the third argument.
-     * @param <R> Type of the result of the throwables
+     * @param <R> Type of the result of the function
      */
     @FunctionalInterface
     interface TriFunction<T, U, V, R> {

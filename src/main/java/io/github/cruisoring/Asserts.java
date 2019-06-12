@@ -16,10 +16,10 @@ import static io.github.cruisoring.TypeHelper.valueEquals;
  */
 public class Asserts {
 
-    public static LogLevel logLevel = LogLevel.info;
+    public static LogLevel defaultLogLevel = LogLevel.info;
 
     /**
-     * Use the {@code Logger.Default} to compose and log message with level specified by <tt>logLevel</tt>.
+     * Use the {@code Logger.Default} to compose and log message with level specified by <tt>defaultLogLevel</tt>.
      *
      * @param format Format to compose the message body.
      * @param args   Optional argument to compose the message.
@@ -27,7 +27,7 @@ public class Asserts {
      */
     protected static String log(String format, Object... args) {
         if (Logger.Default != null) {
-            Logger.Default.log(logLevel, format, args);
+            Logger.Default.log(defaultLogLevel, format, args);
         }
         return StringHelper.tryFormatString(format, args);
     }
@@ -338,13 +338,13 @@ public class Asserts {
     }
 
     /**
-     * Asserts executing the given throwables would throw an Exception of specific type, otherwise it would throw an IllegalStateException to fail the test.
+     * Asserts executing the given function would throw an Exception of specific type, otherwise it would throw an IllegalStateException to fail the test.
      *
-     * @param supplier       throwables returning a result of type <tt>R</tt>.
-     * @param exceptionClass type of the Exception to be thrown by the concerned throwables.
+     * @param supplier       function returning a result of type <tt>R</tt>.
+     * @param exceptionClass type of the Exception to be thrown by the concerned function.
      * @param keywords       optional keywords contained in the message of the Exception.
-     * @param <R>            type of the result to be returned by the throwables.
-     * @return type of the returning value of the concerned throwables.
+     * @param <R>            type of the result to be returned by the concerned function.
+     * @return type of the returning value of the concerned function.
      */
     public static <R> R assertException(SupplierThrowable<R> supplier, Class<? extends Exception> exceptionClass, Object... keywords) {
         checkWithoutNull(supplier, exceptionClass);
@@ -372,10 +372,10 @@ public class Asserts {
     }
 
     /**
-     * Assserts executing the given throwables would throw an Exception of specific type, otherwise it would throw an IllegalStateException to fail the test.
+     * Assserts executing the given function would throw an Exception of specific type, otherwise it would throw an IllegalStateException to fail the test.
      *
-     * @param runnableThrowable throwables returning nothing.
-     * @param exceptionClass    type of the Exception to be thrown by the concerned throwables.
+     * @param runnableThrowable function returning nothing.
+     * @param exceptionClass    type of the Exception to be thrown by the concerned function.
      * @param keywords          optional keywords contained in the message of the Exception.
      */
     public static void assertException(RunnableThrowable runnableThrowable, Class<? extends Exception> exceptionClass, Object... keywords) {

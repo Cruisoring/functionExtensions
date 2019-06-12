@@ -2,10 +2,7 @@ package io.github.cruisoring;
 
 import io.github.cruisoring.logger.LogLevel;
 import io.github.cruisoring.logger.Logger;
-import io.github.cruisoring.throwables.ConsumerThrowable;
-import io.github.cruisoring.throwables.FunctionThrowable;
-import io.github.cruisoring.throwables.RunnableThrowable;
-import io.github.cruisoring.throwables.SupplierThrowable;
+import io.github.cruisoring.throwables.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +22,12 @@ public class Functions {
     //Default LogLevel to log the exception when needed
     public static LogLevel defaultExceptionLogLevel = LogLevel.debug;
 
-    //Default Exception Handler that determines how voidThrowables or getThrowables handle Exception when calling withHandler(...)
+    private final static Integer processorNumber = Runtime.getRuntime().availableProcessors();
+
+    //The default interval used to perform repetitive operations
+    public static long defaultDelayMills = 100;
+
+    //Default Exception Handler that determines how the function handle Exception when calling withHandler(...)
     static Function<Exception, Object> defaultExceptionHandler = Functions::returnsNull;
 
     /**
@@ -127,18 +129,15 @@ public class Functions {
         return supplierThrowable.withHandler(defaultExceptionHandler).get();
     }
 
-
-    private final static Integer processorNumber = Runtime.getRuntime().availableProcessors();
-
     /**
-     * For each of the inputs, apply throwables parallelly to try to get output within timeout specified by timeoutMillis
+     * For each of the inputs, apply function in parallel to try to get output within timeout specified by timeoutMillis
      *
      * @param function     Function to get result of type <code>R</code> with input of type <code>T</code>
-     * @param inputs       Multiple input value of type <code>T</code> to be applied to <code>throwables</code>
+     * @param inputs       Multiple input value of type <code>T</code> to be applied to concerned <code>function</code>
      * @param timeoutMills Timeout value in Milliseconds
      * @param <T>          Type of the input values <code>inputs</code>
-     * @param <R>          Type of the result returned by applying input to <code>throwables</code>
-     * @return A list of converted results from <code>inputs</code> by <code>throwables</code> or null when Exception caught.
+     * @param <R>          Type of the result returned by applying input to <code>function</code>
+     * @return A list of converted results from <code>inputs</code> by <code>function</code> or null when Exception caught.
      */
     public static <T, R> List<R> applyParallel(FunctionThrowable<T, R> function, List<T> inputs, long timeoutMills) {
         List<Callable<R>> callables = new ArrayList<>();
@@ -167,6 +166,13 @@ public class Functions {
         }
     }
 
+    /**
+     * Generic method to consume a stream of values with the same business logic in parallel within the given time window.
+     * @param consumerThrowable business logic to be executed upon a given value of type <tt>T</tt>
+     * @param paramStream       a stream of values to feed the concerned business logic
+     * @param timeoutMills      Timeout value in Milliseconds
+     * @param <T>               Type of the value consumed by the concerned business logic
+     */
     public static <T> void runParallel(ConsumerThrowable<T> consumerThrowable, Stream<T> paramStream, long timeoutMills) {
         List<Callable<Void>> callables = new ArrayList<>();
         paramStream.forEach(param -> {
@@ -185,7 +191,12 @@ public class Functions {
         }
     }
 
-    public static void runParallel(ConsumerThrowable<Integer> consumerThrowable, int length) {
+    /**
+     * Generic method that can be used upon a {@code List} or {@code Array} with action specified on each of its elements.
+     * @param consumerThrowable the business logic to be run against every elements of a {@code List} or {@code Array}
+     * @param length    the length of the concerned {@code List} or {@code Array}
+     */
+    public static void withElementsParallel(ConsumerThrowable<Integer> consumerThrowable, int length) {
         if (length < 1)
             throw new IllegalArgumentException("length must be greater than 0");
 
@@ -235,6 +246,134 @@ public class Functions {
         } finally {
             EXEC.shutdown();
         }
+    }
+
+    /**
+     * Halt the thread by sleeping given millSeconds if it is valid.
+     * @param timeMills     time to sleep in MilliSeconds, take effect only when it is greater than 0.
+     */
+    public static void sleep(long timeMills) {
+        try {
+            if (timeMills > 0) {
+                TimeUnit.MILLISECONDS.sleep(timeMills);
+            }
+        } catch (InterruptedException e) {
+            Logger.getDefault().log(defaultExceptionLogLevel, e);
+        }
+    }
+
+    /**
+     * Generic method to test if expected condition is met before timeout, the optional action specified would be called each time if expected condition is not met.
+     * @param predicate         Predicate to check if expected condition is met.
+     * @param timeoutMillis     Timeout in mills, notice it might block the process too long with a big value.
+     * @param action            Optional action, if not null, to take if expected condition is not met
+     * @param delayMills        Delay in millSeconds between tests that must be greater than 0.
+     * @param initialDelayMills Initial dealy in mills.
+     * @return  <tt>true</tt> if the expected condition is met before timeout, otherwise <tt>false</tt>
+     */
+    public static boolean testUntil(SupplierThrowable<Boolean> predicate, long timeoutMillis, RunnableThrowable action, long delayMills, long initialDelayMills) {
+        Asserts.checkStates(predicate != null, timeoutMillis >= 0, delayMills > 0, initialDelayMills >= 0);
+
+        long now = System.currentTimeMillis();
+        final long start = now;
+        final long until = now + timeoutMillis;
+        if(initialDelayMills > 0) {
+            sleep(initialDelayMills);
+        }
+
+        Exception lastException = null;
+        while (now < until){
+            try {
+                if (predicate.get()) {
+                    return true;
+                } else if (action != null) {
+                    action.run();
+                }
+            }catch (Exception e){
+                if(lastException == null || lastException.getMessage() != e.getMessage()){
+                    lastException = e;
+                    Logger.getDefault().log(defaultExceptionLogLevel, e);
+                }
+            }
+
+            now = System.currentTimeMillis();
+            long sleepToNext = delayMills - ((now - start)%delayMills);
+            sleep(sleepToNext);
+        }
+        return false;
+    }
+
+    /**
+     * Test if expected condition is met before timeout with default intervals immediately, the optional action specified would be called each time if expected condition is not met.
+     * @param predicate         Predicate to check if expected condition is met.
+     * @param timeoutMillis     Timeout in mills, notice it might block the process too long with a big value.
+     * @param action            Optional action, if not null, to take if expected condition is not met
+     * @return  <tt>true</tt> if the expected condition is met before timeout, otherwise <tt>false</tt>
+     */
+    public static boolean testUntil(SupplierThrowable<Boolean> predicate, long timeoutMillis, RunnableThrowable action) {
+        return testUntil(predicate, timeoutMillis, action, defaultDelayMills, 0);
+    }
+
+    /**
+     * Test if expected condition is met before timeout with default interval immediately.
+     * @param predicate         Predicate to check if expected condition is met.
+     * @param timeoutMillis     Timeout in mills, notice it might block the process too long with a big value.
+     * @return  <tt>true</tt> if the expected condition is met before timeout, otherwise <tt>false</tt>
+     */
+    public static boolean testUntil(SupplierThrowable<Boolean> predicate, long timeoutMillis) {
+        return testUntil(predicate, timeoutMillis, null);
+    }
+
+    /**
+     * Generic method to get the value with given business logic with specific interval,
+     * return the value when it meet criteria defined by the predicate or timeout happened.
+     *
+     * @param valueGetter   Business logic to specify how to get the value.
+     * @param timeoutMillis Timeout in mills, notice it might block the process too long with a big value.
+     * @param predicate     Predicate to see if the retrieved value is qualified.
+     * @param delayMills    Delay in millSeconds between tests that must be greater than 0.
+     * @param <T>           Type of the value to be returned.
+     * @return              Value returned by the supplier, otherwise <tt>null</tt>.
+     */
+    public static <T> T tryGet(SupplierThrowable<T> valueGetter, long timeoutMillis, PredicateThrowable<T> predicate, long delayMills) {
+        Asserts.checkStates(valueGetter != null, timeoutMillis >= 0, predicate != null, delayMills > 0);
+
+        long now = System.currentTimeMillis();
+        final long start = now;
+        final long until = now + timeoutMillis;
+
+        Exception lastException = null;
+        while (now < until){
+            try {
+                T result = valueGetter.tryGet();
+                if (predicate.test(result)) {
+                    return result;
+                }
+            }catch (Exception e){
+                if(lastException == null || lastException.getMessage() != e.getMessage()){
+                    lastException = e;
+                    Logger.getDefault().log(defaultExceptionLogLevel, e);
+                }
+            }
+
+            now = System.currentTimeMillis();
+            long sleepToNext = delayMills - ((now - start)%delayMills);
+            sleep(sleepToNext);
+        }
+        return null;
+    }
+
+    /**
+     * Generic method to get the value with given business logic with default interval,
+     * return the value when it is not <>null</> or timeout happened.
+     *
+     * @param valueGetter   Business logic to specify how to get the value.
+     * @param timeoutMillis Timeout in mills, notice it might block the process too long with a big value.
+     * @param <T>           Type of the value to be returned.
+     * @return              Value returned by the supplier, otherwise <tt>null</tt>.
+     */
+    public static <T> T tryGet(SupplierThrowable<T> valueGetter, long timeoutMillis) {
+        return tryGet(valueGetter, timeoutMillis, t -> t != null, defaultDelayMills);
     }
 
 }

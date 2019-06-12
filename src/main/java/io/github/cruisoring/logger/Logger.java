@@ -20,9 +20,8 @@ public class Logger implements ILogger {
     /**
      * Default Logger to be used to log messages with static methods.
      */
-    public static ILogger Default;
+    public static ILogger Default = new ConsoleLogger(System.out::println, LogLevel.verbose);
     public static LogLevel DefaultMeasureLogLevel = LogLevel.debug;
-    public static boolean NeglectExceptionWhenMeasure = true;
     public static DateTimeFormatter DefaultTimeStampFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     public static String[] DefaultSuccessKeywords = new String[]{"success", "passed", "pass"};
     public static String[] DefaultFailedKeywords = new String[]{"fail", "error", "exception", "wrong", "mistake", "problem"};
@@ -30,14 +29,6 @@ public class Logger implements ILogger {
      * Global LogLevel to be used as both default LogLevel when new a Logger instance, and also a global switch to turn off any logging when set to <code>LogLevel.none</code>
      */
     static LogLevel GlobalLogLevel = LogLevel.debug;
-    //endregion
-
-    //region Static constructor
-    // Use static constructor to ensure Default is created after GlobalLogLevel is initialised.
-    static {
-        //TODO: load GlobalLogLevel and Default from config
-        Default = new ConsoleLogger(System.out::println, LogLevel.verbose);
-    }
     //endregion
 
     //region Static methods

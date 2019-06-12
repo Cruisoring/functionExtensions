@@ -110,7 +110,7 @@ public interface HexaFunctionThrowable<T, U, V, W, X, Y, R> extends ofThrowable<
     }
 
     /**
-     * Represents a throwables that accepts six arguments and produces a result.
+     * Represents a function that accepts six arguments and produces a result.
      *
      * @param <T> Type of the first argument.
      * @param <U> Type of the second argument.
@@ -118,7 +118,7 @@ public interface HexaFunctionThrowable<T, U, V, W, X, Y, R> extends ofThrowable<
      * @param <W> Type of the fourth argument.
      * @param <X> Type of the fifth argument.
      * @param <Y> Type of the sixth argument.
-     * @param <R> Type of the result of the throwables
+     * @param <R> Type of the result of the function
      */
     @FunctionalInterface
     interface HexaFunction<T, U, V, W, X, Y, R> {

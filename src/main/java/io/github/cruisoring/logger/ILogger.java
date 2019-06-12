@@ -50,8 +50,6 @@ public interface ILogger {
      */
     String getMessage(LogLevel level, String format, Object... args);
 
-//    <R> R measure(Measurement.Moment startMoment, R value, LogLevel logLevel);
-
     /**
      * Measure the performance of getting the value with a time-consuming process, save into Measurement and log the
      * elapse with proper <code>LogLevel</code>
