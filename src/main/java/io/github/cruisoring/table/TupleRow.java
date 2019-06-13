@@ -51,6 +51,11 @@ public class TupleRow<R extends WithValues> implements WithValuesByName {
     }
 
     @Override
+    public Set<Integer> getSignatures() {
+        return values.getSignatures();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof TupleRow)) {
             return false;
@@ -93,10 +98,5 @@ public class TupleRow<R extends WithValues> implements WithValuesByName {
                 .collect(Collectors.joining(", "));
 
         return "{" + _string + "}";
-    }
-
-    @Override
-    public Set<Integer> getSignatures() {
-        return values.getSignatures();
     }
 }

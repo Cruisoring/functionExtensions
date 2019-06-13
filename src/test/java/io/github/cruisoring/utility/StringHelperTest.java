@@ -26,30 +26,59 @@ public class StringHelperTest {
 
     @Test
     public void containsAll() {
-        assertTrue(StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false, null",
-                "clock", '^', 33.26, false, "containsAll", 246, null));
-        assertFalse(StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false",
-                "containsAll", 246, "Clock", '^', 33.26, false));
+        assertTrue(
+            StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false, null",
+                null),
+            StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false, null",
+                null, null),
+            StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, null, false",
+                "clock", '^', 33.26, false, "containsAll", 246, null)
+        );
+        assertFalse(
+            StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false",
+                null),
+            StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, Null",
+                null),
+            StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false",
+                "containsAll", 246, "Clock", '^', 33.26, false),
+            StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false",
+                "containsAll", null, "Clock", '^', 33.26, false)
+        );
     }
 
     @Test
     public void containsAllIgnoreCase() {
-        assertTrue(StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, false, null",
-                '^', 33.26, false, "ContainsALL", 246, "Clock", null));
+        assertTrue(
+            StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, false, NULL"),
+            StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, false, NULL",
+                null),
+            StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, false, null",
+                '^', 33.26, false, "ContainsALL", 246, "Clock", null)
+        );
+        assertFalse(
+            StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, false",
+                null),
+            StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, Null",
+                null, 247)
+        );
     }
 
     @Test
     public void containsAny() {
         assertException(() -> StringHelper.containsAny(null, 123), NullPointerException.class);
         assertException(() -> StringHelper.containsAny(null, null), NullPointerException.class);
-        assertException(() -> StringHelper.containsAny("context"), IllegalStateException.class, "Need to specify at least one key for evaluation");
 
-        assertTrue(StringHelper.containsAny("123, 432, true, null", 463, false, null, "abc"));
-        assertTrue(StringHelper.containsAny("123, 432, true, null", 463, true, "abc"));
-        assertTrue(StringHelper.containsAny("123, 432, true, null", 463, "true", "abc"));
+        assertTrue(
+            StringHelper.containsAny("123, 432, true, null", 463, false, null, "abc"),
+            StringHelper.containsAny("123, 432, true, null", 463, true, "abc"),
+            StringHelper.containsAny("123, 432, true, null", 463, "true", "abc")
+        );
 
-        assertFalse(StringHelper.containsAny("123, 432, true, null, 2019-04-01", 463, false, "abc"));
-        assertFalse(StringHelper.containsAny("123, 432, true, null, 2019-04-01", 463, "True", "abc"));
+        assertFalse(
+            StringHelper.containsAny("context"),
+            StringHelper.containsAny("123, 432, true, null, 2019-04-01", 463, false, "abc"),
+            StringHelper.containsAny("123, 432, true, null, 2019-04-01", 463, "True", "abc")
+        );
     }
 
     @Test

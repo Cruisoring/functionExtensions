@@ -108,11 +108,11 @@ public class StackTraceHelper {
             StackTraceElement stack = stacks[i];
             String stackString = stack.toString();
             if (notMatched) {
-                if (StringHelper.containsAll(stackString, calledKeywords)) {
+                if (StringHelper.containsAny(stackString, calledKeywords)) {
                     notMatched = false;
                 }
             } else {
-                if (!StringHelper.containsAll(stackString, calledKeywords)) {
+                if (!StringHelper.containsAny(stackString, calledKeywords)) {
                     return stack;
                 }
             }

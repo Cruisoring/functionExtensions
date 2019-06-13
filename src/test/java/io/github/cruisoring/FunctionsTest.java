@@ -19,11 +19,6 @@ public class FunctionsTest {
         int[] array = new int[5];
         Range range = Range.ofLength(array.length);
 
-        Functions.runParallel(i -> {
-            Functions.sleep(2);
-            array[-i] = i*2;
-        }, Range.ofLength(20).getStream(), 1);
-
         Functions.runParallel(i -> array[i] = i*2, range.getStream(), 10);
         assertEquals(new int[]{0, 2, 4, 6, 8}, array);
     }

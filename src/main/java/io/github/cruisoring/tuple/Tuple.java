@@ -18,8 +18,6 @@ import static io.github.cruisoring.Asserts.checkWithoutNull;
  */
 public class Tuple<T extends Object> implements ITuple<T> {
 
-    public static boolean cacheToString = false;
-
     //region Tuples that are used commonly
     public static final Tuple0 UNIT = new Tuple0();
     public static final Tuple1 TRUE = new Tuple1(true);
@@ -406,7 +404,6 @@ public class Tuple<T extends Object> implements ITuple<T> {
     protected final Class<? extends T> _elementType;
     protected final T[] values;
     protected int[][] deepIndexes;
-    protected String _toString;
     protected Integer _hashCode;
     protected Set<Integer> _signatures;
     private boolean closed = false;
@@ -620,14 +617,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
 
     @Override
     public String toString() {
-        if (cacheToString) {
-            if (_toString == null) {
-                _toString = TypeHelper.deepToString(values);
-            }
-            return _toString;
-        } else {
-            return TypeHelper.deepToString(values);
-        }
+        return TypeHelper.deepToString(values);
     }
 
     /**

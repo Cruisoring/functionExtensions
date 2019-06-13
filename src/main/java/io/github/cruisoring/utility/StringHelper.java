@@ -1,6 +1,7 @@
 package io.github.cruisoring.utility;
 
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.repository.Repository;
 import io.github.cruisoring.throwables.FunctionThrowable;
 import io.github.cruisoring.throwables.TriConsumerThrowable;
@@ -11,9 +12,7 @@ import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static io.github.cruisoring.Asserts.checkState;
 import static io.github.cruisoring.Asserts.checkWithoutNull;
 
 /**
@@ -152,8 +151,7 @@ public class StringHelper {
      * @return  <tt>true</tt> if all keywords are contained by the String collection, otherwise <tt>false</tt>
      */
     public static boolean containsAll(Collection<String> collection, Collection<String> targets) {
-        checkWithoutNull(collection);
-        checkWithoutNull(targets);
+        checkWithoutNull(collection, targets);
 
         for (String target : targets) {
             if (!collection.contains(target)) {
@@ -186,18 +184,34 @@ public class StringHelper {
 
     /**
      * Test if the given String context contains all string representations of the given objects.
-     * @param context   the Text context under test.     *
      * @param toStringForms converter of any {@code Object} to an array of Strings.
+     * @param context   the Text context under test.     *
      * @param keys      the Objects whose String representations shall all be contained by the given text context.
      * @return  <tt>true</tt> if all keys are contained by the text context in any form as specified
      * by the {@code toStringForms}, otherwise <tt>false</tt>
      */
-    public static boolean containsAll(String context, Function<Object, String[]> toStringForms, Object... keys) {
-        if (context == null) return false;
+    public static boolean containsAll(Function<Object, String[]> toStringForms, String context, Object... keys) {
+        checkWithoutNull(context, toStringForms);
+        if(keys == null) {
+            return context.contains("null");
+        }
 
-        return Arrays.stream(keys)
-                .filter(o -> o != null)
-                .allMatch(o -> matchAny(contains, context, toStringForms.apply(o)));
+        for (int i = 0; i < keys.length; i++) {
+            Object key = keys[i];
+            String[] options = toStringForms.apply(key);
+            int optionlength = options.length;
+            for (int j = 0; j < optionlength; j++) {
+                if(context.contains(options[j])){
+                    break;
+                } else if (j == optionlength-1){
+                    Logger.V("%s doesn't contain %s",
+                        context.length() < 100 ? context : context.substring(0, 100)+"...",
+                        key);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -207,25 +221,39 @@ public class StringHelper {
      * @return  <tt>true</tt> if all keys are contained by the text context with their default toString(), otherwise <tt>false</tt>
      */
     public static boolean containsAll(String context, Object... keys) {
-        return containsAll(context, defaultToStringForms, keys);
+        return containsAll(defaultToStringForms, context, keys);
     }
 
     /**
      * Test if the given String context contains all string representations of the given objects with case ignored.
-     * @param context   the Text context under test.     *
      * @param toStringForms converter of any {@code Object} to an array of Strings.
+     * @param context   the Text context under test.     *
      * @param keys      the Objects whose String representations shall all be contained by the given text context.
      * @return  <tt>true</tt> if all keys are contained by the text context in any form as specified
      * by the {@code toStringForms} and with case ignored, otherwise <tt>false</tt>
      */
-    public static Boolean containsAllIgnoreCase(String context, Function<Object, String[]> toStringForms, Object... keys) {
-        if (context == null) return false;
+    public static Boolean containsAllIgnoreCase(Function<Object, String[]> toStringForms, String context, Object... keys) {
+        checkWithoutNull(context, toStringForms);
+        if(keys == null) {
+            return StringUtils.containsIgnoreCase(context, "null");
+        }
 
-        return Stream.of(keys)
-                .filter(o -> o != null)
-                .allMatch(o ->
-                        matchAny(containsIgnoreCase, context,
-                                toStringForms.apply(o)));
+        for (int i = 0; i < keys.length; i++) {
+            Object key = keys[i];
+            String[] options = toStringForms.apply(key);
+            int optionlength = options.length;
+            for (int j = 0; j < optionlength; j++) {
+                if(StringUtils.containsIgnoreCase(context, options[j])){
+                    break;
+                } else if (j == optionlength-1){
+                    Logger.V("%s doesn't contain %s",
+                        context.length() < 100 ? context : context.substring(0, 100)+"...",
+                        key);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -236,23 +264,34 @@ public class StringHelper {
      * with case ignored, otherwise <tt>false</tt>
      */
     public static boolean containsAllIgnoreCase(String context, Object... keys) {
-        return containsAllIgnoreCase(context, defaultToStringForms, keys);
+        return containsAllIgnoreCase(defaultToStringForms, context, keys);
     }
 
     /**
      * Test if the given String context contains ANY string representations of the given objects.
-     * @param context   the Text context under test.     *
      * @param toStringForms converter of any {@code Object} to an array of Strings.
+     * @param context   the Text context under test.     *
      * @param keys      the Objects under test.
      * @return  <tt>true</tt> if ANY keys are contained by the text context in any form as specified
      * by the {@code toStringForms}, otherwise <tt>false</tt>
      */
-    public static boolean containsAny(String context, Function<Object, String[]> toStringForms, Object... keys) {
-        checkWithoutNull(context, toStringForms, keys);
-        checkState(keys.length > 0, "Need to specify at least one key for evaluation");
+    public static boolean containsAny(Function<Object, String[]> toStringForms, String context, Object... keys) {
+        checkWithoutNull(context, toStringForms);
+        if(keys == null) {
+            return StringUtils.contains(context, "null");
+        }
 
-        return Arrays.stream(keys)
-                .anyMatch(o -> matchAny(contains, context, toStringForms.apply(o)));
+        for (int i = 0; i < keys.length; i++) {
+            Object key = keys[i];
+            String[] options = toStringForms.apply(key);
+            int optionlength = options.length;
+            for (int j = 0; j < optionlength; j++) {
+                if(StringUtils.contains(context, options[j])){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -262,23 +301,34 @@ public class StringHelper {
      * @return  <tt>true</tt> if ANY keys are contained by the text context with their default toString(), otherwise <tt>false</tt>
      */
     public static boolean containsAny(String context, Object... keys) {
-        return containsAny(context, defaultToStringForms, (Object[]) keys);
+        return containsAny(defaultToStringForms, context, (Object[]) keys);
     }
 
     /**
      * Test if the given String context contains ANY string representations of ANY of the given objects with case ignored.
-     * @param context   the Text context under test.     *
      * @param toStringForms converter of any {@code Object} to an array of Strings.
+     * @param context   the Text context under test.     *
      * @param keys      the Objects under test.
      * @return  <tt>true</tt> if any keys are contained by the text context in any form as specified
      * by the {@code toStringForms} and with case ignored, otherwise <tt>false</tt>
      */
-    public static boolean containsAnyIgnoreCase(String context, Function<Object, String[]> toStringForms, Object... keys) {
-        if (context == null) {
-            return false;
+    public static boolean containsAnyIgnoreCase(Function<Object, String[]> toStringForms, String context, Object... keys) {
+        checkWithoutNull(context, toStringForms);
+        if(keys == null) {
+            return StringUtils.containsIgnoreCase(context, "null");
         }
-        return Arrays.stream(keys).filter(o -> o != null).parallel()
-                .anyMatch(o -> matchAny(containsIgnoreCase, context, toStringForms.apply(o)));
+
+        for (int i = 0; i < keys.length; i++) {
+            Object key = keys[i];
+            String[] options = toStringForms.apply(key);
+            int optionlength = options.length;
+            for (int j = 0; j < optionlength; j++) {
+                if(StringUtils.containsIgnoreCase(context, options[j])){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -289,7 +339,7 @@ public class StringHelper {
      * with case ignored, otherwise <tt>false</tt>
      */
     public static boolean containsAnyIgnoreCase(String context, Object... keys) {
-        return containsAnyIgnoreCase(context, defaultToStringForms, keys);
+        return containsAnyIgnoreCase(defaultToStringForms, context, keys);
     }
 
     /**
