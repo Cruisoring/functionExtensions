@@ -1,8 +1,8 @@
 package io.github.cruisoring.utility;
 
+import io.github.cruisoring.Asserts;
 import io.github.cruisoring.Range;
 import io.github.cruisoring.TypeHelper;
-import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.repository.TupleRepository3;
 import io.github.cruisoring.throwables.BiConsumerThrowable;
 import io.github.cruisoring.throwables.FunctionThrowable;
@@ -14,7 +14,6 @@ import io.github.cruisoring.tuple.Tuple3;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.*;
@@ -101,7 +100,7 @@ public class ArrayHelper {
      */
 
     public static <T> Object create(Class<? extends T> clazz, int length, Function<Integer, T> elementSupplier) {
-        checkWithoutNull(elementSupplier);
+        assertAllNotNull(elementSupplier);
 
         Object array = clazz == Object.class ? new Object[length] : TypeHelper.getArrayFactory(clazz).orElse(null).apply(length);
 
@@ -133,26 +132,48 @@ public class ArrayHelper {
      * @param array  First array to be merged
      * @param others Second array in form of varargs
      * @param <T>    Type of the elements within the above two arrays
-     * @return Merged array containing all elements of above two arrays
+     * @return       Merged array containing all elements of above two arrays with the orginal order
      */
-    public static <T> T[] mergeTypedArray(T[] array, T... others) {
-        checkStates(array != null, others != null);
+    public static <T> T[] merge(T[] array, T... others) {
+        assertFalse(array==null && others==null, "No way to get the element type with two nulls");
 
-        int length1 = array.length;
-        int length2 = others.length;
-        T[] newArray = (T[]) TypeHelper.copyOfRange(array, 0, length1 + length2);
-        for (int i = length1; i < length1 + length2; i++) {
-            newArray[i] = (T) Array.get(others, i - length1);
+        if(array == null){
+            return (T[]) ArrayHelper.create(others.getClass().getComponentType(), others.length+1,
+                    i -> i==0 ? null : others[i-1]);
+        } else if (others == null) {
+            return (T[]) ArrayHelper.create(array.getClass().getComponentType(), array.length+1,
+                    i -> i < array.length ? array[i] : null );
+        } else {
+            int arrayLength = array.length;
+            return (T[]) ArrayHelper.create(array.getClass().getComponentType(), arrayLength + others.length,
+                    i -> i < arrayLength ? array[i] : others[i-arrayLength]);
         }
-        return newArray;
-    }
-
-    public static <T> Object[] append(T[] extras, T... array){
-        return mergeTypedArray(array, extras);
     }
 
     /**
-     * More generic way to merge two arrays that could contain primitive elements, and the result array would be the most
+     * Merge two arrays of the same element types to a new Array as aggregation,
+     * with the elements from second array added first then adding the first array.
+     * @param extras    the first Array whose elements would be appended to the aggregation after the second one.
+     * @param array     the second Array of variable length whose elements would be added to the aggregation first.
+     * @param <T>       Type of the elements within the above two arrays
+     * @return          Merged array containing all elements of above two arrays with varg first
+     */
+    public static <T> Object[] mergeVarargsFirst(T[] extras, T... array){
+        if(extras == null && array == null) {
+            return (Object[]) ArrayHelper.create(Object.class, 2, i -> null);
+        } else if (extras == null) {
+            Class<T> elementType = (Class<T>) array.getClass().getComponentType();
+            extras = (T[]) ArrayHelper.create(elementType, 1, i -> null);
+        } else if (array == null) {
+            Class<T> elementType = (Class<T>) extras.getClass().getComponentType();
+            array = (T[]) ArrayHelper.create(elementType, 1, i -> null);
+        }
+
+        return merge(array, extras);
+    }
+
+    /**
+     * More generic way to mergeVarargsFirst two arrays that could contain primitive elements, and the result array would be the most
      * fitted type (object type preferred) to containing all elements of the two arrays.
      *
      * @param first  first array or element to be merged
@@ -169,7 +190,7 @@ public class ArrayHelper {
      * </ul>
      */
     public static Object arrayOf(Object first, Object... others) {
-        checkStates(others != null);
+        Asserts.assertAllTrue(others != null);
 
         Class class1 = first.getClass();
         boolean isArray1 = class1.isArray();
@@ -277,7 +298,7 @@ public class ArrayHelper {
             BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
             , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>
             , BiConsumerThrowable<Object, FunctionThrowable<Integer, Object>>> getAssetSetter(Class componentClass) {
-        checkWithoutNull(componentClass);
+        assertAllNotNull(componentClass);
         TriConsumerThrowable<Object, Integer, Object> elementSetter;
         elementSetter = TypeHelper.getArrayElementSetter(componentClass);
 
@@ -488,7 +509,7 @@ public class ArrayHelper {
         }
 
         if (values.length > 0) {
-            checkWithoutNull(values[0], (Boolean[]) TypeHelper.copyOfRange(values, 1, values.length));
+            assertAllNotNull(values[0], (Boolean[]) TypeHelper.copyOfRange(values, 1, values.length));
         }
 
         return (boolean[]) TypeHelper.toEquivalent(values);
@@ -505,7 +526,7 @@ public class ArrayHelper {
         }
 
         if (values.length > 0) {
-            checkWithoutNull(values[0], (Byte[]) TypeHelper.copyOfRange(values, 1, values.length));
+            assertAllNotNull(values[0], (Byte[]) TypeHelper.copyOfRange(values, 1, values.length));
         }
 
         return (byte[]) TypeHelper.toEquivalent(values);
@@ -522,7 +543,7 @@ public class ArrayHelper {
         }
 
         if (values.length > 0) {
-            checkWithoutNull(values[0], (Character[]) TypeHelper.copyOfRange(values, 1, values.length));
+            assertAllNotNull(values[0], (Character[]) TypeHelper.copyOfRange(values, 1, values.length));
         }
 
         return (char[]) TypeHelper.toEquivalent(values);
@@ -539,7 +560,7 @@ public class ArrayHelper {
         }
 
         if (values.length > 0) {
-            checkWithoutNull(values[0], (Float[]) TypeHelper.copyOfRange(values, 1, values.length));
+            assertAllNotNull(values[0], (Float[]) TypeHelper.copyOfRange(values, 1, values.length));
         }
 
         return (float[]) TypeHelper.toEquivalent(values);
@@ -556,7 +577,7 @@ public class ArrayHelper {
         }
 
         if (values.length > 0) {
-            checkWithoutNull(values[0], (Double[]) TypeHelper.copyOfRange(values, 1, values.length));
+            assertAllNotNull(values[0], (Double[]) TypeHelper.copyOfRange(values, 1, values.length));
         }
 
         return (double[]) TypeHelper.toEquivalent(values);
@@ -573,7 +594,7 @@ public class ArrayHelper {
         }
 
         if (values.length > 0) {
-            checkWithoutNull(values[0], (Integer[]) TypeHelper.copyOfRange(values, 1, values.length));
+            assertAllNotNull(values[0], (Integer[]) TypeHelper.copyOfRange(values, 1, values.length));
         }
 
         return (int[]) TypeHelper.toEquivalent(values);
@@ -590,7 +611,7 @@ public class ArrayHelper {
         }
 
         if (values.length > 0) {
-            checkWithoutNull(values[0], (Short[]) TypeHelper.copyOfRange(values, 1, values.length));
+            assertAllNotNull(values[0], (Short[]) TypeHelper.copyOfRange(values, 1, values.length));
         }
 
         return (short[]) TypeHelper.toEquivalent(values);
@@ -607,7 +628,7 @@ public class ArrayHelper {
         }
 
         if (values.length > 0) {
-            checkWithoutNull(values[0], (Long[]) TypeHelper.copyOfRange(values, 1, values.length));
+            assertAllNotNull(values[0], (Long[]) TypeHelper.copyOfRange(values, 1, values.length));
         }
 
         return (long[]) TypeHelper.toEquivalent(values);
@@ -622,7 +643,7 @@ public class ArrayHelper {
      */
     public static Object shuffle(Object original) {
         Class arrayClass = checkNotNull(original, "The given array is null").getClass();
-        checkState(arrayClass.isArray(), "The given value must be an array!");
+        Asserts.assertTrue(arrayClass.isArray(), "The given value must be an array!");
 
         int len = Array.getLength(original);
         if (len < 2) {
@@ -632,79 +653,5 @@ public class ArrayHelper {
         Integer[] indexes = Range.closedOpen(0, len).getRandomIndexes();
         Object shuffled = create(original.getClass().getComponentType(), len, i -> Array.get(original, indexes[i]));
         return shuffled;
-    }
-
-    /**
-     * Iterate through the given Array or Collection to check if testing of all its elements passed or not.
-     *
-     * @param arrayOrCollection the Array or Collection to be checked.
-     * @param predicate         the Predicate used to test the elements one by one.
-     * @return              <tt>true</tt> if all elements of the given Array or Collection passed the test, otherwise <tt>false</tt>
-     */
-    public static  boolean matchAll(Object arrayOrCollection, Predicate predicate){
-        checkWithoutNull(arrayOrCollection, predicate);
-
-        if(arrayOrCollection instanceof Collection){
-            Iterator iterator = ((Collection) arrayOrCollection).iterator();
-            int index = 0;
-            while (iterator.hasNext()){
-                Object next = iterator.next();
-                index++;
-                if(!predicate.test(next)) {
-                    Logger.V("Failed to test %s at position %d", next, index);
-                    return false;
-                }
-            }
-            return true;
-        } else if (arrayOrCollection.getClass().isArray()) {
-            int length = Array.getLength(arrayOrCollection);
-            for (int i = 0; i < length; i++) {
-                Object next = Array.get(arrayOrCollection, i);
-                if(!predicate.test(next)) {
-                    Logger.V("Failed to test %s at position %d", next, i);
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        throw new IllegalStateException(
-                StringHelper.tryFormatString("Type %s of %s is not supported.",
-                        arrayOrCollection.getClass().getSimpleName(), arrayOrCollection));
-    }
-
-    /**
-     * Iterate through the given Array or Collection to check if there is any element meet the criteria set by the given Predicate.
-     *
-     * @param arrayOrCollection the Array or Collection to be checked.
-     * @param predicate         the Predicate used to test the elements one by one.
-     * @return              <tt>true</tt> if any one of the elements of the given Array or Collection passed the test, otherwise <tt>false</tt>
-     */
-    public static  boolean matchAny(Object arrayOrCollection, Predicate predicate){
-        checkWithoutNull(arrayOrCollection, predicate);
-
-        if(arrayOrCollection instanceof Collection){
-            Iterator iterator = ((Collection) arrayOrCollection).iterator();
-            while (iterator.hasNext()){
-                Object next = iterator.next();
-                if(predicate.test(next)) {
-                    return true;
-                }
-            }
-            return false;
-        } else if (arrayOrCollection.getClass().isArray()) {
-            int length = Array.getLength(arrayOrCollection);
-            for (int i = 0; i < length; i++) {
-                Object next = Array.get(arrayOrCollection, i);
-                if(predicate.test(next)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        throw new IllegalStateException(
-                StringHelper.tryFormatString("Type %s of %s is not supported.",
-                        arrayOrCollection.getClass().getSimpleName(), arrayOrCollection));
     }
 }

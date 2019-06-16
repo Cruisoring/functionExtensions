@@ -6,7 +6,7 @@ import io.github.cruisoring.tuple.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
  * Generic repository use Tuple.Tuple2 as values to keep 1 element mapped from a specific key
@@ -360,7 +360,7 @@ public class TupleRepository1<TKey, T>
      */
     @Override
     public Tuple1<T> update(TKey tKey, Tuple1<T> existingValue, Tuple1<T> newValue) throws Exception {
-        checkWithoutNull(newValue);
+        checkNoneNulls(newValue);
         return super.update(tKey, existingValue, newValue);
     }
 

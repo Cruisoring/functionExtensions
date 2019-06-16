@@ -1,13 +1,18 @@
 package io.github.cruisoring.utility;
 
+import io.github.cruisoring.logger.Logger;
 import org.junit.Test;
 
 import static io.github.cruisoring.Asserts.assertEquals;
+import static io.github.cruisoring.Asserts.assertLogging;
 
 public class StackTraceHelperTest {
 
     @Test
     public void getStackTrace() {
+        assertLogging(() -> Logger.D("%s", StackTraceHelper.getFilteredStacks(100, null)),
+                "StackTraceHelperTest.getStackTrace(StackTraceHelperTest.java",
+                "Asserts.assertLogging(Asserts.java:", "StackTraceHelperTest.java:14");
         assertEquals(1, StackTraceHelper.getFilteredStacks(100, null).size());
         assertEquals(2, StackTraceHelper.getFilteredStacks(100, null,
                 "sun.reflect.NativeMethodAccessorImpl", "java.lang.Thread").size());
@@ -29,8 +34,8 @@ public class StackTraceHelperTest {
     }
 
     @Test
-    public void getCallerLabel() {
-        assertEquals("getCallerLabel(StackTraceHelperTest.java:33)", StackTraceHelper.getCallerLabel(null));
-        assertEquals("getCallerLabel(StackTraceHelperTest.java:34)", StackTraceHelper.getCallerLabel(null, "StackTraceHelper.java"));
+    public void testGetCallerLabel() {
+        assertLogging(() -> Logger.D(StackTraceHelper.getCallerLabel(null)), "testGetCallerLabel");
+        assertLogging(() -> Logger.D(StackTraceHelper.getCallerLabel(null, "StackTraceHelper.java")), "testGetCallerLabel");
     }
 }

@@ -1,9 +1,7 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.Asserts;
 import org.junit.Test;
-
-import static io.github.cruisoring.Asserts.assertFalse;
-import static io.github.cruisoring.Asserts.assertTrue;
 
 public class MemoryLoggerTest {
 
@@ -19,9 +17,9 @@ public class MemoryLoggerTest {
 
         String history = memoryLogger.getHistory();
         Logger.D("History of memoryLogger:\n%s", history);
-        assertFalse(history.contains("verbose log shall not be recorded"),
+        Asserts.assertAllFalse(history.contains("verbose log shall not be recorded"),
                 history.contains("debug log shall not be recorded either"));
-        assertTrue(history.contains("info log shall be recorded either")
+        Asserts.assertAllTrue(history.contains("info log shall be recorded either")
                 && history.contains("You shall also see warning logs")
                 && history.contains("You shall also see error logs")
         );

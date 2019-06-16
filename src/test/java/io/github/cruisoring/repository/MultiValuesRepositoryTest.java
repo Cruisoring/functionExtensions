@@ -21,10 +21,10 @@ public class MultiValuesRepositoryTest {
         assertEquals(Integer.valueOf(1), repository.getFirstValue(" "));
         assertEquals(Integer.valueOf(10), repository.getFirstValue("0123456789"));
         assertEquals(null, repository.getFirstValue(null));
-        assertTrue(repository.containsKey(""),
+        assertAllTrue(repository.containsKey(""),
                 repository.containsKey(" "),
                 repository.containsKey("0123456789"));
-        assertFalse(repository.containsKey(null));
+        assertAllFalse(repository.containsKey(null));
         assertEquals(new String[]{"", " ", "0123456789"}, repository.storage.keySet().toArray(new String[3]));
         assertEquals(new Tuple[]{Tuple.create(0), Tuple.create(1), Tuple.create(10)}, repository.storage.values().toArray(new Tuple[3]));
     }
@@ -41,10 +41,10 @@ public class MultiValuesRepositoryTest {
         assertEquals(true, repository.getSecondValue("0123456789?"));
         assertEquals(null, repository.getFirstValue(null));
         assertEquals(null, repository.getSecondValue(null));
-        assertTrue(repository.containsKey(""),
+        assertAllTrue(repository.containsKey(""),
                 repository.containsKey(" "),
                 repository.containsKey("0123456789?"));
-        assertFalse(repository.containsKey(null),
+        assertAllFalse(repository.containsKey(null),
                 repository.containsKey(1233455));
         assertEquals(new String[]{"", " ", "0123456789?"},
                 repository.storage.keySet().toArray(new String[3]));
@@ -67,10 +67,10 @@ public class MultiValuesRepositoryTest {
         assertEquals(true, repository.getSecondValue("0123456789?"));
         assertEquals(Character.valueOf('0'), repository.getThirdValue("0123456789?"));
 
-        assertFalse(repository.containsKey(null),
+        assertAllFalse(repository.containsKey(null),
                 repository.containsKey(""),
                 repository.containsKey(1233455));
-        assertTrue(repository.containsKey(" "),
+        assertAllTrue(repository.containsKey(" "),
                 repository.containsKey("0123456789?"));
         assertEquals(new String[]{" ", "0123456789?"}, repository.storage.keySet().toArray(new String[2]));
         assertEquals(new Tuple[]{Tuple.create(1, false, ' '), Tuple.create(11, true, '0')},
@@ -92,11 +92,11 @@ public class MultiValuesRepositoryTest {
         assertEquals('0', chars[0]);
         assertEquals('?', chars[10]);
 
-        assertFalse(repository.containsKey(null),
+        assertAllFalse(repository.containsKey(null),
                 repository.containsKey(""));
-        assertTrue(repository.containsKey(" "),
+        assertAllTrue(repository.containsKey(" "),
                 repository.containsKey("0123456789?"));
-        assertFalse(repository.containsKey(' '));
+        assertAllFalse(repository.containsKey(' '));
         assertEquals(new String[]{" ", "0123456789?"}, repository.storage.keySet().toArray(new String[2]));
         assertEquals(new Tuple[]{Tuple.create(1, false, ' ', new char[]{' '}), Tuple.create(11, true, '0', "0123456789?".toCharArray())},
                 repository.storage.values().toArray(new Tuple[2]));
@@ -117,11 +117,11 @@ public class MultiValuesRepositoryTest {
 
         assertEquals("56789?", repository.getFifthValue("0123456789?"));
 
-        assertFalse(repository.containsKey(null),
+        assertAllFalse(repository.containsKey(null),
                 repository.containsKey("    "));
-        assertTrue(repository.containsKey("abcd?"),
+        assertAllTrue(repository.containsKey("abcd?"),
                 repository.containsKey("0123456789?"));
-        assertFalse(repository.containsKey(' '));
+        assertAllFalse(repository.containsKey(' '));
         assertEquals(new String[]{"abcd?", "0123456789?"}, repository.storage.keySet().toArray(new String[2]));
         assertEquals(new Tuple[]{Tuple.create(5, true, 'a', "abcd?".toCharArray(), ""),
                         Tuple.create(11, true, '0', "0123456789?".toCharArray(), "56789?")},
@@ -149,11 +149,11 @@ public class MultiValuesRepositoryTest {
 
         assertEquals("456789", repository.getFifthValue("?0123456789"));
 
-        assertFalse(repository.containsKey(null),
+        assertAllFalse(repository.containsKey(null),
                 repository.containsKey("    "));
-        assertTrue(repository.containsKey("?abcd"),
+        assertAllTrue(repository.containsKey("?abcd"),
                 repository.containsKey("?0123456789"));
-        assertFalse(repository.containsKey(' '));
+        assertAllFalse(repository.containsKey(' '));
         assertEquals(new String[]{"?abcd", "?0123456789"}, repository.storage.keySet().toArray(new String[2]));
         assertEquals(new Tuple[]{Tuple.create(5, true, '?', "?abcd".toCharArray(), "", 13),
                         Tuple.create(11, true, '?', "?0123456789".toCharArray(), "456789", 9)},
@@ -180,9 +180,9 @@ public class MultiValuesRepositoryTest {
 
         assertEquals("456789", repository.getFifthValue("?0123456789"));
 
-        assertFalse(repository.containsKey(null), repository.containsKey("    "));
-        assertTrue(repository.containsKey("?abcd"), repository.containsKey("?0123456789"));
-        assertFalse(repository.containsKey(' '));
+        assertAllFalse(repository.containsKey(null), repository.containsKey("    "));
+        assertAllTrue(repository.containsKey("?abcd"), repository.containsKey("?0123456789"));
+        assertAllFalse(repository.containsKey(' '));
         assertEquals(new String[]{"?abcd", "?0123456789"}, repository.storage.keySet().toArray(new String[2]));
         assertEquals(new Tuple[]{Tuple.create(5, true, '?', "?abcd".toCharArray(), "", 13, false),
                         Tuple.create(11, true, '?', "?0123456789".toCharArray(), "456789", 9, true)},

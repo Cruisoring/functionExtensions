@@ -25,7 +25,7 @@ public class FunctionThrowableTest {
 
         try(Revokable<Function<Exception, Object>> revokable = Revokable.register(
             Functions::getDefaultExceptionHandler, f -> Functions.setDefaultExceptionHandler(f), Functions::returnsNull)) {
-            assertNull(function.tryApply(null));
+            assertAllNull(function.tryApply(null));
 
             Functions.setDefaultExceptionHandler(e -> e);
             assertException(() -> function.tryApply(null), ClassCastException.class);
@@ -44,7 +44,7 @@ public class FunctionThrowableTest {
         assertException(() -> function.asSupplierThrowable(null).get(), NullPointerException.class);
 
         assertException(function.asSupplierThrowable(null), NullPointerException.class);
-        assertNull(function.asSupplierThrowable(null).tryGet());
+        assertAllNull(function.asSupplierThrowable(null).tryGet());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class FunctionThrowableTest {
         assertEquals("abc", function.withHandler(Functions::logThenThrows).apply("abc"));
         assertEquals("abc", function.withHandler(Functions::logThenThrows).apply("ABC"));
 
-        assertNull(function.withHandler(Functions::logAndReturnsNull).apply(null));
+        assertAllNull(function.withHandler(Functions::logAndReturnsNull).apply(null));
         assertException(() -> function.withHandler(Functions::returnsTrue).apply(null), ClassCastException.class);
         assertException(() -> function.withHandler(Functions::logThenThrows).apply(null), IllegalStateException.class);
     }
@@ -60,6 +60,6 @@ public class FunctionThrowableTest {
     @Test
     public void orElse() {
         assertEquals("something wrong", function.orElse("something wrong").apply(null));
-        assertNull(function.orElse(null).apply(null));
+        assertAllNull(function.orElse(null).apply(null));
     }
 }

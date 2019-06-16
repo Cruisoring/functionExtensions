@@ -62,7 +62,7 @@ public class TupleRowTest {
     @Test
     public void getColumnIndexes() {
         TupleRow row = columns.createRow(1, "Alice", "Wilson", 'F', true, null, 77, "abc", null);
-        assertTrue(columns==row.getColumnIndexes());
+        assertAllTrue(columns==row.getColumnIndexes());
     }
 
     @Test

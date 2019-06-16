@@ -47,7 +47,7 @@ public class TupleTest {
         Logger.D("%d", Arrays.deepHashCode(new Object[]{new Integer[]{1, 2, 3}, new int[0], null, new int[]{4, 5}}));
         Logger.D("%d", Arrays.deepHashCode(new Integer[][]{new Integer[]{1, 2, 3}, new Integer[0], null, new Integer[]{4, 5}}));
 
-        assertTrue(Integer.valueOf(1).equals(1));
+        assertAllTrue(Integer.valueOf(1).equals(1));
         assertEquals(1, Integer.valueOf(1));
         //assertEquals(new int[]{1,2,3}, new Integer[]{1,2,3});
 
@@ -135,10 +135,10 @@ public class TupleTest {
         assertEquals(Number.class, numSet._elementType);
 
         Tuple<Integer> integerSet = Tuple.setOf(1, 2, 3);
-        assertTrue(Arrays.deepEquals(new Integer[]{1, 2, 3}, integerSet.asArray()));
+        assertAllTrue(Arrays.deepEquals(new Integer[]{1, 2, 3}, integerSet.asArray()));
 
         Tuple<Comparable> comparableSet = Tuple.setOfType(Comparable.class, 1.0, 'a', "abc");
-        assertTrue(Arrays.deepEquals(new Comparable[]{1.0, 'a', "abc"}, comparableSet.asArray()));
+        assertAllTrue(Arrays.deepEquals(new Comparable[]{1.0, 'a', "abc"}, comparableSet.asArray()));
 
         Tuple intTuple = Tuple.setOf(1, 23);
         assertEquals(Integer.class, intTuple._elementType);
@@ -146,8 +146,8 @@ public class TupleTest {
 
     @Test
     public void create0() {
-        assertTrue(tuple0 instanceof Tuple0, tuple0 instanceof Tuple);
-        assertFalse(tuple0 instanceof Tuple1);
+        assertAllTrue(tuple0 instanceof Tuple0, tuple0 instanceof Tuple);
+        assertAllFalse(tuple0 instanceof Tuple1);
         assertEquals(tuple0, Tuple.UNIT);
         assertEquals(0, tuple0.getLength());
     }
@@ -155,7 +155,7 @@ public class TupleTest {
     @Test
     public void create1() {
         assertEquals(1, tuple1.getLength());
-        assertTrue(tuple1 instanceof Tuple1);
+        assertAllTrue(tuple1 instanceof Tuple1);
 
         Tuple _1 = Tuple.create("First");
         assertEquals(_1, tuple1);
@@ -173,16 +173,16 @@ public class TupleTest {
         assertEquals(2, tuple2.getLength());
         assertEquals(2, boolSet2.getLength());
         assertEquals(2, boolSet2.getLength());
-        assertTrue(tuple2 instanceof Tuple2,
+        assertAllTrue(tuple2 instanceof Tuple2,
                 tuple2 instanceof Tuple);
 
-        assertTrue(boolSet2 instanceof Tuple);
+        assertAllTrue(boolSet2 instanceof Tuple);
         assertEquals(boolSet2, Tuple.setOf(Boolean.valueOf(true), Boolean.valueOf("false")));
         Tuple _2 = Tuple.create(null, null);
         assertEquals(2, _2.getLength());
-        assertTrue(_2 instanceof Tuple2);
+        assertAllTrue(_2 instanceof Tuple2);
         Tuple2 _dual = (Tuple2) _2;
-        assertNull(_dual.getFirst(),
+        assertAllNull(_dual.getFirst(),
                 _dual.getSecond(),
                 nullDual.getFirst());
         assertEquals(nullDual, _dual);
@@ -254,12 +254,12 @@ public class TupleTest {
         Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
                 (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
-        assertTrue(tuple.isMatched(new HashMap<Integer, Object>(){{
+        assertAllTrue(tuple.isMatched(new HashMap<Integer, Object>(){{
             put(0, 1);
             put(3, "abc");
         }}));
 
-        assertFalse(tuple.isMatched(new HashMap<Integer, Object>(){{
+        assertAllFalse(tuple.isMatched(new HashMap<Integer, Object>(){{
             put(0, 2);
             put(3, "abc");
         }}));
@@ -270,12 +270,12 @@ public class TupleTest {
         Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
                 (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
-        assertTrue(tuple.meetConditions(new HashMap<Integer, PredicateThrowable>(){{
+        assertAllTrue(tuple.meetConditions(new HashMap<Integer, PredicateThrowable>(){{
             put(0, o -> (Integer)o > 0);
             put(3, o -> o.toString().startsWith("a"));
         }}));
 
-        assertFalse(tuple.meetConditions(new HashMap<Integer, PredicateThrowable>(){{
+        assertAllFalse(tuple.meetConditions(new HashMap<Integer, PredicateThrowable>(){{
             put(1, o -> o instanceof Integer);
         }}));
     }
@@ -285,9 +285,9 @@ public class TupleTest {
         Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
                 (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
-        assertTrue(tuple.anyMatch(o -> o == DayOfWeek.MONDAY));
+        assertAllTrue(tuple.anyMatch(o -> o == DayOfWeek.MONDAY));
 
-        assertFalse(tuple.anyMatch(o -> o.toString().length() > 10));
+        assertAllFalse(tuple.anyMatch(o -> o.toString().length() > 10));
     }
 
     @Test
@@ -295,9 +295,9 @@ public class TupleTest {
         Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
                 (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
-        assertTrue(tuple.allMatch(o -> o != null));
+        assertAllTrue(tuple.allMatch(o -> o != null));
 
-        assertFalse(tuple.allMatch(o -> o instanceof Number));
+        assertAllFalse(tuple.allMatch(o -> o instanceof Number));
     }
 
     @Test
@@ -305,9 +305,9 @@ public class TupleTest {
         Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
                 (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
-        assertTrue(tuple.noneMatch(o -> o instanceof LocalDate));
+        assertAllTrue(tuple.noneMatch(o -> o instanceof LocalDate));
 
-        assertFalse(tuple.noneMatch(o -> o instanceof DayOfWeek));
+        assertAllFalse(tuple.noneMatch(o -> o instanceof DayOfWeek));
     }
 
     @Test
@@ -477,19 +477,19 @@ public class TupleTest {
     @Test
     public void equals() {
         Tuple2<Boolean, Boolean> nullDual2 = Tuple.create(null, null);
-        assertTrue(nullDual.equals(nullDual2));
-        assertTrue(nullDual2.equals(nullDual));
+        assertAllTrue(nullDual.equals(nullDual2));
+        assertAllTrue(nullDual2.equals(nullDual));
         assertEquals(nullDual2, nullDual);
         assertEquals(nullDual, nullDual2);
 
         Tuple<Boolean> nullDual3 = Tuple.setOfType(Boolean.class, null, null);
-        assertTrue(nullDual2.equals(nullDual3));
-        assertTrue(nullDual3.equals(nullDual2));
+        assertAllTrue(nullDual2.equals(nullDual3));
+        assertAllTrue(nullDual3.equals(nullDual2));
         assertEquals(nullDual3, Tuple.setOf(null, null));
 
         Tuple<String> null4 = Tuple.setOf(null, null);
         assertEquals(String.class, null4._elementType);
-        assertFalse(nullDual3.equals(null4), null4.equals(nullDual3));
+        assertAllFalse(nullDual3.equals(null4), null4.equals(nullDual3));
 
         Tuple<String> null5 = Tuple.setOf(null, null);
         assertEquals(null5, null4);
@@ -539,7 +539,7 @@ public class TupleTest {
         assertEquals(AutoA.class, tuple10.getFourth().getClass());
         assertEquals(AutoB.class, tuple10.getFifth().getClass());
         assertEquals(new double[]{2.2}, tuple10.getSixth()[1]);
-        assertNull(tuple10.getSeventh()[1]);
+        assertAllNull(tuple10.getSeventh()[1]);
         assertEquals(Short.valueOf("3"), tuple10.getEighth()[2]);
         assertEquals(new Object[]{1, 'a'}, tuple10.getNineth());
         assertEquals(0, tuple10.getTenth()[0].length);
@@ -636,7 +636,7 @@ public class TupleTest {
         );
 
         Set<Integer> actualSignatures = tuplePlus.getSignatures();
-        assertTrue(expectedSignatures.size() == actualSignatures.size() && expectedSignatures.containsAll(actualSignatures));
+        assertAllTrue(expectedSignatures.size() == actualSignatures.size() && expectedSignatures.containsAll(actualSignatures));
     }
 
     enum Progress {

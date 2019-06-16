@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
 
 public class ConsoleLogger extends Logger implements IWithColor {
     //region Console color controls
@@ -108,7 +108,8 @@ public class ConsoleLogger extends Logger implements IWithColor {
 
     @Override
     public String getMessage(LogLevel level, String format, Object... args) {
-        checkWithoutNull(format);
+        assertAllNotNull(format);
+
         final String label = String.format("[%s%s]:", level.label, DefaultTimeStampFormatter == null ? "" : "@" +
             LocalDateTime.now().format(DefaultTimeStampFormatter));
         String message = levelColors.get(level) + label + RESET;

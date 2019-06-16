@@ -15,7 +15,8 @@ import io.github.cruisoring.utility.StringHelper;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
  * Utility class for performance measurement.
@@ -85,7 +86,7 @@ public class Measurement {
      * @param details a single measurement of the performance of concerned business logic.
      */
     public static void save(String name, TupleRow details) {
-        checkWithoutNull(name, details);
+        assertAllNotNull(name, details);
 
         if (!namedMeasurements.containsKey(name)) {
             if (DefaultColumns == details.getColumnIndexes()) {
@@ -132,7 +133,7 @@ public class Measurement {
      * @return a Tuple of 7 values to summarize the performance of concerned business logic
      */
     public static Tuple7<String, Long, Long, Long, Long, Long, Double> defaultSummaryOf(String name) {
-        TupleTable table = getMeasurements(checkWithoutNull(name));
+        TupleTable table = getMeasurements(checkNoneNulls(name));
         if (table == null || !Long.class.equals(table.getColumnElementType(DURATION))) {
             return null;
         }
@@ -192,7 +193,7 @@ public class Measurement {
      * @return the last returned value by executing the concerned {@code SupplierThrowable}
      */
     public static <R> R measure(String name, int times, SupplierThrowable<R> supplierThrowable, LogLevel... levels) {
-        checkWithoutNull(name, supplierThrowable);
+        assertAllNotNull(name, supplierThrowable);
 
         if (namedMeasurements.containsKey(name)) {
             namedMeasurements.get(name).clear();
@@ -222,8 +223,7 @@ public class Measurement {
      * @param levels            optional {@code LogLevel} to be used to log the measurement outcome.
      */
     public static void measure(String name, int times, RunnableThrowable runnableThrowable, LogLevel... levels) {
-        checkWithoutNull(name);
-        checkWithoutNull(runnableThrowable);
+        assertAllNotNull(name, runnableThrowable);
 
         if (namedMeasurements.containsKey(name)) {
             namedMeasurements.get(name).clear();
@@ -267,8 +267,7 @@ public class Measurement {
          * @param args      the arguments to compose the name.
          */
         Moment(String format, Object... args) {
-            checkWithoutNull(format);
-            label = StringHelper.tryFormatString(format, args);
+            label = StringHelper.tryFormatString(checkNoneNulls(format), args);
 
             //Ensure this is the last step to initialize the Moment instance
             createdAt = System.currentTimeMillis();

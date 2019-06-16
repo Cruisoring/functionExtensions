@@ -272,7 +272,7 @@ public class Functions {
      * @return  <tt>true</tt> if the expected condition is met before timeout, otherwise <tt>false</tt>
      */
     public static boolean testUntil(SupplierThrowable<Boolean> predicate, long timeoutMillis, RunnableThrowable action, long delayMills, long initialDelayMills) {
-        Asserts.checkStates(predicate != null, timeoutMillis >= 0, delayMills > 0, initialDelayMills >= 0);
+        Asserts.assertAllTrue(predicate != null, timeoutMillis >= 0, delayMills > 0, initialDelayMills >= 0);
 
         long now = System.currentTimeMillis();
         final long start = now;
@@ -336,7 +336,7 @@ public class Functions {
      * @return              Value returned by the supplier, otherwise <tt>null</tt>.
      */
     public static <T> T tryGet(SupplierThrowable<T> valueGetter, long timeoutMillis, PredicateThrowable<T> predicate, long delayMills) {
-        Asserts.checkStates(valueGetter != null, timeoutMillis >= 0, predicate != null, delayMills > 0);
+        Asserts.assertAllTrue(valueGetter != null, timeoutMillis >= 0, predicate != null, delayMills > 0);
 
         long now = System.currentTimeMillis();
         final long start = now;

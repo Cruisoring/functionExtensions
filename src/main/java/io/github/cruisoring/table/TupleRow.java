@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
  * A wrapper of a table row holding all cells as a strong-typed {@code WithValues}
@@ -19,7 +19,7 @@ public class TupleRow<R extends WithValues> implements WithValuesByName {
     final WithValues values;
 
     public TupleRow(IColumns indexes, WithValues values) {
-        this.columns = checkWithoutNull(indexes, values);
+        this.columns = checkNoneNulls(indexes, values);
         this.values = values;
     }
 

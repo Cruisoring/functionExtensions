@@ -1,5 +1,6 @@
 package io.github.cruisoring.utility;
 
+import io.github.cruisoring.Range;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.repository.Repository;
@@ -13,7 +14,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
 
 /**
  * Helper class to keep String related utilities.
@@ -83,7 +84,7 @@ public class StringHelper {
     }
 
     private static FunctionThrowable<String, Object> getParser(Class clazz) throws Exception {
-        checkWithoutNull(clazz);
+        assertAllNotNull(clazz);
 
         if (stringParsers.containsKey(clazz))
             return stringParsers.get(clazz, null);
@@ -151,7 +152,7 @@ public class StringHelper {
      * @return  <tt>true</tt> if all keywords are contained by the String collection, otherwise <tt>false</tt>
      */
     public static boolean containsAll(Collection<String> collection, Collection<String> targets) {
-        checkWithoutNull(collection, targets);
+        assertAllNotNull(collection, targets);
 
         for (String target : targets) {
             if (!collection.contains(target)) {
@@ -169,8 +170,7 @@ public class StringHelper {
      * @return  <tt>true</tt> if all keywords are contained by the String collection with case ignored, otherwise <tt>false</tt>
      */
     public static boolean containsAllIgnoreCase(Collection<String> collection, Collection<String> targets) {
-        checkWithoutNull(collection);
-        checkWithoutNull(targets);
+        assertAllNotNull(collection, targets);
 
         List<String> lowerCases = collection.stream().map(s -> s == null ? null : s.toLowerCase()).collect(Collectors.toList());
         for (String target : targets) {
@@ -191,7 +191,7 @@ public class StringHelper {
      * by the {@code toStringForms}, otherwise <tt>false</tt>
      */
     public static boolean containsAll(Function<Object, String[]> toStringForms, String context, Object... keys) {
-        checkWithoutNull(context, toStringForms);
+        assertAllNotNull(context, toStringForms);
         if(keys == null) {
             return context.contains("null");
         }
@@ -199,16 +199,17 @@ public class StringHelper {
         for (int i = 0; i < keys.length; i++) {
             Object key = keys[i];
             String[] options = toStringForms.apply(key);
-            int optionlength = options.length;
-            for (int j = 0; j < optionlength; j++) {
-                if(context.contains(options[j])){
+            boolean containsKey = false;
+            for (String option : options) {
+                if(context.contains(option)){
+                    containsKey = true;
                     break;
-                } else if (j == optionlength-1){
-                    Logger.V("%s doesn't contain %s",
-                        context.length() < 100 ? context : context.substring(0, 100)+"...",
-                        key);
-                    return false;
                 }
+            }
+
+            if(!containsKey) {
+                Logger.V("%s doesn't contains %s.", Range.ofLength(100).intersectionWith(Range.ofLength(context.length())).subString(context), key);
+                return false;
             }
         }
         return true;
@@ -233,7 +234,7 @@ public class StringHelper {
      * by the {@code toStringForms} and with case ignored, otherwise <tt>false</tt>
      */
     public static Boolean containsAllIgnoreCase(Function<Object, String[]> toStringForms, String context, Object... keys) {
-        checkWithoutNull(context, toStringForms);
+        assertAllNotNull(context, toStringForms);
         if(keys == null) {
             return StringUtils.containsIgnoreCase(context, "null");
         }
@@ -276,7 +277,7 @@ public class StringHelper {
      * by the {@code toStringForms}, otherwise <tt>false</tt>
      */
     public static boolean containsAny(Function<Object, String[]> toStringForms, String context, Object... keys) {
-        checkWithoutNull(context, toStringForms);
+        assertAllNotNull(context, toStringForms);
         if(keys == null) {
             return StringUtils.contains(context, "null");
         }
@@ -313,7 +314,7 @@ public class StringHelper {
      * by the {@code toStringForms} and with case ignored, otherwise <tt>false</tt>
      */
     public static boolean containsAnyIgnoreCase(Function<Object, String[]> toStringForms, String context, Object... keys) {
-        checkWithoutNull(context, toStringForms);
+        assertAllNotNull(context, toStringForms);
         if(keys == null) {
             return StringUtils.containsIgnoreCase(context, "null");
         }

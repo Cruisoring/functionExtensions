@@ -14,26 +14,26 @@ public class BiFunctionThrowableTest {
 
     @Test
     public void apply() throws Exception {
-        assertFalse(function.apply(1, 2));
-        assertTrue(function.apply(2, 2));
+        assertAllFalse(function.apply(1, 2));
+        assertAllTrue(function.apply(2, 2));
 
         assertException(function.asSupplierThrowable(1, 0), ArithmeticException.class);
     }
 
     @Test
     public void tryApply() {
-        assertFalse(function.tryApply(1, 2));
-        assertTrue(function.tryApply(2, 2));
+        assertAllFalse(function.tryApply(1, 2));
+        assertAllTrue(function.tryApply(2, 2));
 
         try(Revokable<Function<Exception, Object>> revokable = Revokable.register(
             Functions::getDefaultExceptionHandler, f -> Functions.setDefaultExceptionHandler(f), Functions::returnsNull)) {
-            assertNull(function.tryApply(1, 0));
+            assertAllNull(function.tryApply(1, 0));
 
             Functions.setDefaultExceptionHandler(e -> e);
             assertException(() -> function.tryApply(1, 0), ClassCastException.class);
 
             Functions.setDefaultExceptionHandler(e -> true);
-            assertTrue(function.tryApply(1, 0));
+            assertAllTrue(function.tryApply(1, 0));
 
             Functions.setDefaultExceptionHandler(Functions::logThenThrows);
             assertException(() -> function.tryApply(1, 0), IllegalStateException.class);
@@ -42,31 +42,31 @@ public class BiFunctionThrowableTest {
 
     @Test
     public void asSupplierThrowable() throws Exception {
-        assertTrue(function.asSupplierThrowable(4, 2).get());
-        assertFalse(function.asSupplierThrowable(4, -2).get());
+        assertAllTrue(function.asSupplierThrowable(4, 2).get());
+        assertAllFalse(function.asSupplierThrowable(4, -2).get());
 
         assertException(function.asSupplierThrowable(1, 0), ArithmeticException.class);
-        assertNull(function.asSupplierThrowable(1, 0).tryGet());
+        assertAllNull(function.asSupplierThrowable(1, 0).tryGet());
     }
 
     @Test
     public void withHandler() {
-        assertTrue(function.withHandler(Functions::logThenThrows).apply(4, 2));
-        assertFalse(function.withHandler(Functions::logThenThrows).apply(-4, 2));
+        assertAllTrue(function.withHandler(Functions::logThenThrows).apply(4, 2));
+        assertAllFalse(function.withHandler(Functions::logThenThrows).apply(-4, 2));
 
-        assertNull(function.withHandler(Functions::logAndReturnsNull).apply(1, 0));
-        assertTrue(function.withHandler(Functions::returnsTrue).apply(1, 0));
-        assertFalse(function.withHandler(Functions::returnsFalse).apply(1, 0));
+        assertAllNull(function.withHandler(Functions::logAndReturnsNull).apply(1, 0));
+        assertAllTrue(function.withHandler(Functions::returnsTrue).apply(1, 0));
+        assertAllFalse(function.withHandler(Functions::returnsFalse).apply(1, 0));
         assertException(() -> function.withHandler(Functions::logThenThrows).apply(1, 0), IllegalStateException.class);
     }
 
     @Test
     public void orElse() {
-        assertTrue(function.orElse(false).apply(4, 2));
-        assertFalse(function.orElse(false).apply(-4, 2));
-        assertFalse(function.orElse(true).apply(-4, 2));
+        assertAllTrue(function.orElse(false).apply(4, 2));
+        assertAllFalse(function.orElse(false).apply(-4, 2));
+        assertAllFalse(function.orElse(true).apply(-4, 2));
 
-        assertNull(function.orElse(null).apply(1, 0));
-        assertFalse(function.orElse(false).apply(1, 0));
+        assertAllNull(function.orElse(null).apply(1, 0));
+        assertAllFalse(function.orElse(false).apply(1, 0));
     }
 }

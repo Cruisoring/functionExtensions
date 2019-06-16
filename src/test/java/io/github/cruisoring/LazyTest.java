@@ -25,7 +25,7 @@ public class LazyTest {
         Lazy<Boolean> refBoolean = refInt.create(n -> n % 2 == 0);
 
         assertEquals(false, refBoolean.getValue());
-        assertTrue(refString.isValueInitialized(),
+        assertAllTrue(refString.isValueInitialized(),
                 refInt.isValueInitialized());
     }
 
@@ -38,14 +38,14 @@ public class LazyTest {
              Lazy<Integer> integerLazy = stringLazy.create(str -> 37 + str.length(),
                      (i0, i1) -> logs.add(String.format("integerLazy changed: %s -> %s", i0, i1)))) {
             assertEquals(Integer.valueOf(44), integerLazy.getValue());
-            assertTrue(stringLazy.isValueInitialized());
+            assertAllTrue(stringLazy.isValueInitialized());
             booleanLazy = integerLazy.create(n -> n % 2 == 0,
                     (b0, b1) -> logs.add(String.format("booleanLazy changed: %s -> %s", b0, b1)));
             boolean booleanValue = booleanLazy.getValue();
         }
 
-        assertFalse(booleanLazy.isValueInitialized());
-        assertTrue(TypeHelper.valueEquals(new String[]{"stringLazy changed: null -> 1234567", "integerLazy changed: null -> 44",
+        assertAllFalse(booleanLazy.isValueInitialized());
+        assertAllTrue(TypeHelper.valueEquals(new String[]{"stringLazy changed: null -> 1234567", "integerLazy changed: null -> 44",
                 "booleanLazy changed: null -> true", "booleanLazy changed: true -> null",
                 "integerLazy changed: 44 -> null", "stringLazy changed: 1234567 -> null"}, logs.toArray()));
     }
@@ -57,23 +57,23 @@ public class LazyTest {
                 (i0, i1) -> Logger.D("%d would be closing to %d", i0, i1));
         Lazy<Boolean> booleanLazy = integerLazy.create(i -> i % 2 == 0);
 
-        assertTrue(booleanLazy.getValue(),
+        assertAllTrue(booleanLazy.getValue(),
                 integerLazy.isValueInitialized(),
                 string1.isValueInitialized());
 
         booleanLazy.close();
-        assertFalse(booleanLazy.isValueInitialized());
-        assertTrue(integerLazy.isValueInitialized());
+        assertAllFalse(booleanLazy.isValueInitialized());
+        assertAllTrue(integerLazy.isValueInitialized());
 
         string1.close();
-        assertFalse(integerLazy.isValueInitialized(),
+        assertAllFalse(integerLazy.isValueInitialized(),
                 booleanLazy.isValueInitialized(),
                 string1.isValueInitialized());
 
-        assertTrue(booleanLazy.getValue(),
+        assertAllTrue(booleanLazy.getValue(),
                 integerLazy.isValueInitialized(),
                 booleanLazy.isValueInitialized());
-        assertTrue(string1.isValueInitialized());
+        assertAllTrue(string1.isValueInitialized());
 
     }
 
@@ -83,7 +83,7 @@ public class LazyTest {
         Lazy<Integer> integerLazy = string1.create(s -> s.length());
         Lazy<Boolean> booleanLazy = integerLazy.create(n -> n == 7);
 
-        assertTrue(booleanLazy.getValue(),
+        assertAllTrue(booleanLazy.getValue(),
                 integerLazy.isValueInitialized(),
                 integerLazy.getValue() == 7,
                 string1.isValueInitialized(),
@@ -106,8 +106,8 @@ public class LazyTest {
 //        assertTrue(!string1.isValueInitialized() && string1.getOriginalSetting().equals("vvv"));
 //        assertTrue(!string1.isValueInitialized());
         //The following results are not intended and shall be fixed in future
-        assertNull(booleanLazy.getValue());
-        assertTrue(booleanLazy.isValueInitialized(),
+        assertAllNull(booleanLazy.getValue());
+        assertAllTrue(booleanLazy.isValueInitialized(),
                 integerLazy.isValueInitialized(),
                 string1.isValueInitialized());
     }
@@ -116,13 +116,13 @@ public class LazyTest {
     public void reset() throws Exception {
         Lazy<String> string1 = new Lazy<String>(() -> "string1");
         //The value is not created initially, isValueInitialized() returns true after calling getOriginalSetting()
-        assertTrue(!string1.isValueInitialized()
+        assertAllTrue(!string1.isValueInitialized()
                 && string1.getValue().equals("string1")
                 && string1.isValueInitialized()
         );
         string1.closing();
-        assertFalse(string1.isValueInitialized());
-        assertTrue(string1.getValue().equals("string1"));
+        assertAllFalse(string1.isValueInitialized());
+        assertAllTrue(string1.getValue().equals("string1"));
     }
 
 
@@ -156,7 +156,7 @@ public class LazyTest {
         emailLazy.closing();  //Instead of emailLazy.close() to avoid Exception try-catch
         //*/
 
-        assertTrue(TypeHelper.valueEquals(logs.toArray(), new String[]{
+        assertAllTrue(TypeHelper.valueEquals(logs.toArray(), new String[]{
                 "Account created: email@test.com", "Outbox opened", "Send mail", "Inbox opened", "Check inbox",
                 "Outbox closed", "Inbox closed", "Account closed: email@test.com"
         }));

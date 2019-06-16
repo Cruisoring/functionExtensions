@@ -31,12 +31,12 @@ public class FunctionsTest {
 
         //Timeout before predicate returns true
         AtomicInteger count = new AtomicInteger();
-        assertFalse( Functions.testUntil(
+        assertAllFalse( Functions.testUntil(
                 () -> LocalDateTime.now().isAfter(end),
                 55,
                 () -> Logger.D("count=%d", count.incrementAndGet()),
                 10, 0));
-        assertTrue(LocalDateTime.now().isBefore(end));
+        assertAllTrue(LocalDateTime.now().isBefore(end));
 
         LocalDateTime start2 = LocalDateTime.now();
         LocalDateTime end2 = start2.plus(Duration.ofMillis(50));
@@ -44,12 +44,12 @@ public class FunctionsTest {
 
         //predicate returns true before timeout
         AtomicInteger count2 = new AtomicInteger();
-        assertTrue( Functions.testUntil(
+        assertAllTrue( Functions.testUntil(
                 () -> LocalDateTime.now().isAfter(end2),
                 100,
                 () -> Logger.D("count2=%d", count2.incrementAndGet()),
                 5, 0));
-        assertTrue(LocalDateTime.now().isAfter(end2));
+        assertAllTrue(LocalDateTime.now().isAfter(end2));
     }
 
     @Test

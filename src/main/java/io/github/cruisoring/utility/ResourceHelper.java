@@ -2,9 +2,7 @@ package io.github.cruisoring.utility;
 
 import io.github.cruisoring.logger.Logger;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -14,13 +12,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static io.github.cruisoring.Asserts.*;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
+import static io.github.cruisoring.Asserts.checkNotNull;
 
 /**
  * Helper class for resource locating and retrieval.
  */
 public class ResourceHelper {
     public final static String[] resourcePaths;
+    public static String MAVEN_TARGET = "target";
     public static String MAVEN_TARGET_CLASSES = "target/classes/";
     public static String MAVEN_TARGET_TEST_CLASSES = "target/test-classes/";
     public static String MAVEN_MAIN_RESOURCES = "src/main/resources/";
@@ -33,12 +33,12 @@ public class ResourceHelper {
     /**
      * Retrive the ORIGINAL resources folders of all modules involved with the call
      *
-     * @param negligibles keywords that shall be neglected.
+     * @param ignoreables keywords that shall be neglected.
      * @return String array identifying the absolute paths of related resource folders
      */
-    private static String[] getResourcePaths(String... negligibles) {
+    private static String[] getResourcePaths(String... ignoreables) {
         List<String> classPaths = new ArrayList<>();
-        List<String> classNames = StackTraceHelper.getFilteredCallers(negligibles);
+        List<String> classNames = StackTraceHelper.getFilteredCallers(ignoreables);
         for (int i = 0; i < classNames.size(); i++) {
             try {
                 String className = classNames.get(i);
@@ -233,7 +233,7 @@ public class ResourceHelper {
      * @return File instance if it exist, otherwise null.
      */
     public static File getResourceFile(String filename, String... folderNames) {
-        assertNotNull(filename);
+        assertAllNotNull(filename);
 
         String folderPath = folderNames == null ? "" : String.join("/", folderNames);
 
@@ -260,7 +260,7 @@ public class ResourceHelper {
      * @return the absolute file path if it is found, or null when there is no such resource.
      */
     public static Path getResourcePath(String filename, String... folderNames) {
-        assertNotNull(filename);
+        assertAllNotNull(filename);
 
         String folderPath = folderNames == null ? "" : String.join("/", folderNames);
 
@@ -288,7 +288,7 @@ public class ResourceHelper {
      * @return Path of the expected file.
      */
     public static Path getAbsoluteFilePath(String filename, String... folderNames) {
-        assertNotNull(filename);
+        assertAllNotNull(filename);
 
         String folderPath = folderNames == null ? "" : String.join("/", folderNames);
 
@@ -329,7 +329,7 @@ public class ResourceHelper {
      * @return          the absolute path of the file if saved successfully, otherwise the error message.
      */
     public static String saveTextToTargetFile(String text, String filepath) {
-        checkWithoutNull(text, filepath);
+        assertAllNotNull(text, filepath);
 
         try {
             File savedFile;
@@ -351,4 +351,71 @@ public class ResourceHelper {
             return error;
         }
     }
+
+    /**
+     * Save the key-value-pairs of the given {@code Map<?, ?>} instances to a given Properties
+     * or otherwise new instance.
+     * @param properties    an existing {@code Properties} instance, or a new one enumerating in alphabetical key order would be created
+     * @param maps   Maps to be saved into the Properties.
+     * @return      Properties containing all the key value pairs of the given map.
+     */
+    public static Properties asProperties(Properties properties, Map<?, ?>... maps) {
+        if(properties == null) {
+            //Would creeate a Properties sorted by the keys
+            properties = new Properties() {
+                @Override
+                public synchronized Enumeration<Object> keys() {
+                    return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+                }
+            };
+        }
+
+        if(maps == null) {
+            return properties;
+        }
+
+        for (Map map : maps) {
+            properties.putAll(map);
+        }
+        return properties;
+    }
+    /**
+     * Save the given Properties to a specific .properties file.
+     * @param properties    the Properties instance to be saved
+     * @param filePath      the absolute file path denoting the target .properties file.
+     * @return              <tt>null</tt> if saving failed, otherwise the absolute path of the saved file.
+     */
+    public static String saveProperties(Properties properties, String filePath) {
+        assertAllNotNull(properties, filePath);
+
+        return saveProperties(properties, new File(filePath));
+    }
+
+    /**
+     * Save the given Properties to a specific .properties file.
+     * @param properties    the Properties instance to be saved
+     * @param file          the {@code File} instance denoting the target .properties file.
+     * @return              <tt>null</tt> if saving failed, otherwise the absolute path of the saved file.
+     */
+    public static String saveProperties(Properties properties, File file){
+        assertAllNotNull(properties, file);
+
+        FileOutputStream fr = null;
+        try {
+            fr = new FileOutputStream(file);
+            try {
+                properties.store(fr, null);
+                fr.close();
+                Logger.D("Properties with %d values is saved as %s", properties.size(), file);
+                return file.getAbsolutePath();
+            } catch (IOException e) {
+                Logger.W("failed to save to %s: %s", file, e.getMessage());
+                return null;
+            }
+        } catch (FileNotFoundException e) {
+            Logger.W("failed to locate the file: %s", file);
+            return null;
+        }
+    }
+
 }

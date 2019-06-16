@@ -8,8 +8,8 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static io.github.cruisoring.Asserts.checkStates;
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
+import static io.github.cruisoring.Asserts.assertAllTrue;
 
 /**
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
@@ -80,7 +80,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
      */
     public static <V> Tuple<V> setOf(final V... elements) {
-        checkStates(elements != null);
+        assertAllTrue(elements != null);
         Class<? extends V> elemntType = (Class<? extends V>) ArrayHelper.getComponentType(elements);
         return setOfType(elemntType, elements);
     }
@@ -94,8 +94,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
      */
     public static <T> Tuple<T> setFromCollection(Class<? extends T> elementType, Collection<T> collection) {
-        checkWithoutNull(collection);
-        checkWithoutNull(elementType);
+        assertAllNotNull(collection, elementType);
         T[] array = collection.toArray((T[]) Array.newInstance(elementType, 0));
         return setOfType(elementType, array);
     }
@@ -109,8 +108,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @return A strong-typed <code>Tuple?.Set1&lt;V&gt;</code>Tuple instance
      */
     public static <V> Tuple<V> setOfType(final Class<? extends V> elementType, final V... elements) {
-        checkWithoutNull(elementType);
-        checkStates(elements != null);
+        assertAllNotNull(elements, elementType);
         int length = elements.length;
 
         switch (length) {
@@ -475,7 +473,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
 
     @Override
     public <U> Tuple<U> getSetOf(Class<U> clazz) {
-        checkWithoutNull(clazz);
+        assertAllNotNull(clazz);
 
         try {
             Predicate<Class> predicate = TypeHelper.getClassEqualitor(clazz);
@@ -508,8 +506,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
 
     @Override
     public <S> Tuple<S> getSetOf(Class<S> clazz, Predicate<S> valuePredicate) {
-        checkWithoutNull(clazz);
-        checkWithoutNull(valuePredicate);
+        assertAllNotNull(clazz, valuePredicate);
         List<S> matched = new ArrayList<>();
 
         Predicate<Class> classPredicate = TypeHelper.getClassEqualitor(clazz);

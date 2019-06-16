@@ -8,7 +8,6 @@ import java.lang.reflect.Array;
 import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.*;
-import java.util.function.Predicate;
 
 import static io.github.cruisoring.Asserts.*;
 import static io.github.cruisoring.TypeHelper.valueEquals;
@@ -73,15 +72,15 @@ public class ArrayHelperTest {
 
     @Test
     public void testMergeTypedArray() {
-        assertEquals(new int[]{1, 2, 3, 4}, mergeTypedArray(new Integer[]{1, 2}, 3, 4));
-        assertEquals(new int[]{1, 2}, mergeTypedArray(new Integer[]{1, 2}));
-        assertEquals(new int[]{1, 2, 3, 4}, mergeTypedArray(new Integer[]{1, 2}, 3, 4));
-        assertEquals(new int[]{1, 2}, mergeTypedArray(new Integer[]{1, 2}));
-        assertEquals(new Number[]{1, 2, 3, 4.4}, mergeTypedArray(new Number[]{1, 2}, 3, 4.4));
+        assertEquals(new int[]{1, 2, 3, 4}, merge(new Integer[]{1, 2}, 3, 4));
+        assertEquals(new int[]{1, 2}, merge(new Integer[]{1, 2}));
+        assertEquals(new int[]{1, 2, 3, 4}, merge(new Integer[]{1, 2}, 3, 4));
+        assertEquals(new int[]{1, 2}, merge(new Integer[]{1, 2}));
+        assertEquals(new Number[]{1, 2, 3, 4.4}, merge(new Number[]{1, 2}, 3, 4.4));
 
-        assertEquals(new Object[]{1, null}, mergeTypedArray(new Object[]{1}, new Object[]{null}));
-        assertEquals(new Object[]{1, null, null}, mergeTypedArray(new Object[]{1}, null, null));
-        assertEquals(new Object[]{null, null}, mergeTypedArray(new Object[]{}, null, null));
+        assertEquals(new Object[]{1, null}, merge(new Object[]{1}, new Object[]{null}));
+        assertEquals(new Object[]{1, null, null}, merge(new Object[]{1}, null, null));
+        assertEquals(new Object[]{null, null}, merge(new Object[]{}, null, null));
     }
 
     @Test
@@ -91,7 +90,7 @@ public class ArrayHelperTest {
         assertEquals(new Integer[]{1}, arrayOf(1));
         assertEquals(new Integer[]{1}, arrayOf(new Integer[]{1}));
         int[] ints = new int[]{1, 2};
-        assertFalse(ints.equals(arrayOf(ints)));       //verify arrayOf() returns a new array
+        assertAllFalse(ints.equals(arrayOf(ints)));       //verify arrayOf() returns a new array
         assertEquals(new int[]{1, 2, 3}, arrayOf(new int[]{1, 2, 3}));
 
         //when component type of first and others are identical, retuns a array of the same type containing all their elements
@@ -180,7 +179,7 @@ public class ArrayHelperTest {
         B[] bArray = TypeHelper.convert(array, B[].class);
         assertEquals(2, bArray.length);
 
-        assertNull(TypeHelper.convert(array, C[].class));
+        assertAllNull(TypeHelper.convert(array, C[].class));
 
         Object[] objects = new Object[]{new A(), new B(), new C(), new D()};
         A[] aArray = TypeHelper.convert(objects, A[].class);
@@ -191,7 +190,7 @@ public class ArrayHelperTest {
     public void testToIntegerArray() {
         int[] ints = new int[]{1, 2, 3};
         Integer[] integers = toObject(ints);
-        assertNotNull(integers);
+        assertAllNotNull(integers);
         assertEquals(3, integers.length);
         int[] intsBack = toPrimitive(integers);
 
@@ -199,7 +198,7 @@ public class ArrayHelperTest {
         assertEquals(0, integers.length);
         ints = null;
         integers = toObject(ints);
-        assertNull(integers);
+        assertAllNull(integers);
     }
 
     @Test
@@ -221,7 +220,7 @@ public class ArrayHelperTest {
         assertEquals(2, Bytes.length);
 
         assertEquals(0, toObject(new byte[0]).length);
-        assertNull(toObject(bytes = null));
+        assertAllNull(toObject(bytes = null));
     }
 
     @Test
@@ -234,7 +233,7 @@ public class ArrayHelperTest {
         assertEquals(0, booleans.length);
         bools = null;
         booleans = toObject(bools);
-        assertNull(booleans);
+        assertAllNull(booleans);
     }
 
     @Test
@@ -242,7 +241,7 @@ public class ArrayHelperTest {
         assertEquals(0, toObject(new short[0]).length);
         assertEquals(1, toObject(new short[]{3}).length);
         short[] shorts = null;
-        assertNull(toObject(shorts));
+        assertAllNull(toObject(shorts));
     }
 
     @Test
@@ -250,7 +249,7 @@ public class ArrayHelperTest {
         assertEquals(0, toObject(new long[0]).length);
         assertEquals(1, toObject(new long[]{3}).length);
         long[] values = null;
-        assertNull(toObject(values));
+        assertAllNull(toObject(values));
     }
 
     @Test
@@ -258,7 +257,7 @@ public class ArrayHelperTest {
         assertEquals(0, toObject(new float[0]).length);
         assertEquals(2, toObject(new float[]{3f, 0.2f}).length);
         float[] values = null;
-        assertNull(toObject(values));
+        assertAllNull(toObject(values));
     }
 
     @Test
@@ -266,12 +265,12 @@ public class ArrayHelperTest {
         assertEquals(0, toObject(new double[0]).length);
         assertEquals(2, toObject(new double[]{3f, 0.2f}).length);
         double[] values = null;
-        assertNull(toObject(values));
+        assertAllNull(toObject(values));
     }
 
     @Test
     public void testCreate() {
-        assertTrue(
+        assertAllTrue(
                 Objects.deepEquals(new int[0], create(int.class, 0, i -> 100)),
                 Objects.deepEquals(new int[]{0}, create(int.class, 1, i -> i)),
                 Objects.deepEquals(new int[]{100, 99}, create(int.class, 2, i -> 100 - i)),
@@ -283,7 +282,7 @@ public class ArrayHelperTest {
     @Test
     public void testShuffle() {
         Object int0 = shuffle(new int[0]);
-        assertTrue(int0 instanceof int[]);
+        assertAllTrue(int0 instanceof int[]);
         assertEquals(new int[]{1}, shuffle(new int[]{1}));
         Object character2 = getChangedArray(new Character[]{'a', 'b'});
         Object double3 = getChangedArray(new double[]{0.1, 2.2, 3.333});
@@ -356,55 +355,6 @@ public class ArrayHelperTest {
         assertEquals(expected, SetHelper.asLinkedHashSet(123, true, 0, null));
     }
 
-    @Test
-    public void testMatchAll() {
-        Predicate<Integer> predicate = i -> i > 0;
-        assertTrue(
-                matchAll(new int[]{}, predicate),
-                matchAll(new int[]{1}, predicate),
-                matchAll(new int[]{1, 2, 3}, predicate),
-                matchAll(Arrays.asList(), predicate),
-                matchAll(SetHelper.asHashSet(1, 3, 5), predicate),
-                matchAll(Arrays.asList(1, 5, 7), predicate)
-        );
-
-        assertFalse(
-                matchAll(new int[]{0}, predicate),
-                matchAll(new int[]{1, 0}, predicate),
-                matchAll(new int[]{0, 1, 2, 3}, predicate),
-                matchAll(Arrays.asList(0), predicate),
-                matchAll(SetHelper.asHashSet(1, 3, 0), predicate),
-                matchAll(Arrays.asList(1, 5, 7, -1), predicate)
-        );
-
-        assertException(() -> matchAll(Arrays.asList(1.1, 2, 3), predicate), ClassCastException.class);
-    }
-
-    @Test
-    public void testMatchAny() {
-        Predicate<Integer> predicate = i -> i > 0;
-        assertTrue(
-                matchAny(new int[]{1}, predicate),
-                matchAny(new int[]{1, 2}, predicate),
-                matchAny(new int[]{1, 2, 3}, predicate),
-                matchAny(Arrays.asList(777, 99.9), predicate),
-                matchAny(SetHelper.asHashSet(1, 3, 5), predicate),
-                matchAny(Arrays.asList(1, 5, 7), predicate)
-        );
-
-        assertFalse(
-                matchAny(new int[]{0}, predicate),
-                matchAny(new int[]{-1, 0}, predicate),
-                matchAny(new int[]{0, -1}, predicate),
-                matchAny(Arrays.asList(0), predicate),
-                matchAny(SetHelper.asHashSet(-11, -3, 0), predicate),
-                matchAny(Arrays.asList(-1), predicate)
-        );
-
-        assertException(() -> matchAny(Arrays.asList(1.0, 3.3), predicate), ClassCastException.class);
-        assertException(() -> matchAny(SetHelper.asHashSet(null, 3), predicate), NullPointerException.class);
-    }
-
 
     class A {
     }
@@ -458,7 +408,7 @@ public class ArrayHelperTest {
     public void floatsToObjects() {
         assertEquals(new Object[0], ArrayHelper.toObject(new float[0]));
         assertEquals(new Object[]{1.2f, 2f, -3f}, ArrayHelper.toObject(new float[]{1.2f, 2f, -3f}));
-        assertFalse(valueEquals(new Object[]{1.2f, 2, -3f}, ArrayHelper.toObject(new float[]{1.2f, 2f, -3f})));
+        assertAllFalse(valueEquals(new Object[]{1.2f, 2, -3f}, ArrayHelper.toObject(new float[]{1.2f, 2f, -3f})));
         float[] values = null;
         assertEquals(null, ArrayHelper.toObject(values));
     }

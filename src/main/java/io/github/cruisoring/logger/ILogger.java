@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
 
 /**
  * Interface to abstract Logger instances along with default methods could be used or overriden.
@@ -62,7 +62,7 @@ public interface ILogger {
      * @return the value returned by the concerned time-consuming calculation
      */
     default <R> R measure(Measurement.Moment startMoment, R value, LogLevel... levels) {
-        checkWithoutNull(startMoment);
+        assertAllNotNull(startMoment);
 
         LogLevel level = (levels == null || levels.length==0)? Logger.DefaultMeasureLogLevel : levels[0];
         final long elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
@@ -84,13 +84,13 @@ public interface ILogger {
      * @return Value returned by the SupplierThrowable or default value of type <tt>R</tt> when it failed.
      */
     default <R> R measure(Measurement.Moment startMoment, SupplierThrowable<R> supplier, LogLevel... levels) {
-        checkWithoutNull(startMoment, supplier);
+        assertAllNotNull(startMoment, supplier);
 
         LogLevel level = (levels == null || levels.length==0)? Logger.DefaultMeasureLogLevel : levels[0];
         Exception e = null;
         long elapsedMills = 0;
         try {
-            R result = checkWithoutNull(supplier).get();
+            R result = supplier.get();
             elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             Measurement.save(startMoment.label, Measurement.DefaultColumns.createRow(startMoment.createdAt, elapsedMills));
             return result;
@@ -115,13 +115,13 @@ public interface ILogger {
      * @return this ILogger instance to be used fluently.
      */
     default ILogger measure(Measurement.Moment startMoment, RunnableThrowable runnable, LogLevel... levels) {
-        checkWithoutNull(startMoment, runnable);
+        assertAllNotNull(startMoment, runnable);
 
         LogLevel level = (levels == null || levels.length==0)? Logger.DefaultMeasureLogLevel : levels[0];
         Exception e = null;
         long elapsedMills = 0;
         try {
-            checkWithoutNull(runnable).run();
+            runnable.run();
             elapsedMills = System.currentTimeMillis() - startMoment.createdAt;
             Measurement.save(startMoment.label, Measurement.DefaultColumns.createRow(startMoment.createdAt, elapsedMills));
         } catch (Exception ex) {

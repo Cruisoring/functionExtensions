@@ -5,7 +5,7 @@ import io.github.cruisoring.tuple.WithValues;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
  * Generic interface definining a structure of multiple strong-typed data values that can be accessed by names.
@@ -23,7 +23,7 @@ public interface WithValuesByName<T> extends WithValues<T> {
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     default T getValueByName(String name) {
-        Integer index = getColumnIndexes().get(checkWithoutNull(name));
+        Integer index = getColumnIndexes().get(checkNoneNulls(name));
         return index < 0 ? null : getValue(index);
     }
 

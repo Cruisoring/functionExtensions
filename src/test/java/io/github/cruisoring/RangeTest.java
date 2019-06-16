@@ -14,15 +14,12 @@ import static io.github.cruisoring.Asserts.*;
 public class RangeTest {
 
     @Test
-    public void testWHOLE() {
+    public void testInfiniteRanges() {
         assertEquals(Range.NEGATIVE_INFINITY.intValue(), Range.ALL_INT.getStartInclusive());
         assertEquals(Range.POSITIVE_INFINITY.intValue(), Range.ALL_INT.getEndInclusive());
         assertEquals("(−∞, +∞)", Range.ALL_INT.toString());
 
         assertEquals(Range.INFINITE_LENGTH, Range.ALL_INT.size());
-
-//        //java.lang.IllegalStateException: Cannot get stream for all integers
-//        Integer first = Range.ALL_INT.getStream().findFirst().orException(null);
     }
 
     @Test
@@ -237,22 +234,22 @@ public class RangeTest {
         range = Range.ofLength(0);
         assertEquals(Range.NONE, range);
         assertEquals("[0, 0)", range.toString());
-        assertFalse(range.contains(0),
+        assertAllFalse(range.contains(0),
                 range.contains(1),
                 range.contains(-1));
 
         range = Range.ofLength(1);
         assertEquals("[0, 1)", range.toString());
-        assertTrue(range.contains(0));
-        assertFalse(range.contains(1),
+        assertAllTrue(range.contains(0));
+        assertAllFalse(range.contains(1),
                 range.contains(-1));
 
         range = Range.ofLength(3);
         assertEquals("[0, 3)", range.toString());
-        assertTrue(range.contains(0),
+        assertAllTrue(range.contains(0),
                 range.contains(1),
                 range.contains(2));
-        assertFalse(range.contains(3),
+        assertAllFalse(range.contains(3),
                 range.contains(-1));
     }
 
@@ -263,24 +260,24 @@ public class RangeTest {
         Range range1_1 = new Range(1, 1);
         Range range1_2 = new Range(1, 2);
 
-        assertTrue(range0_0.contains(range0_0));
-        assertFalse(range0_0.contains(range0_1),
+        assertAllTrue(range0_0.contains(range0_0));
+        assertAllFalse(range0_0.contains(range0_1),
                 range0_0.contains(range1_1),
                 range0_0.contains(range1_2));
 
-        assertTrue(range1_2.contains(range1_1));
-        assertFalse(range1_2.contains(range0_0),
+        assertAllTrue(range1_2.contains(range1_1));
+        assertAllFalse(range1_2.contains(range0_0),
                 range1_2.contains(range0_1));
 
         Range range2_4 = new Range(2, 4);
         Range range3_4 = new Range(3, 4);
-        assertFalse(range2_4.contains(range0_0),
+        assertAllFalse(range2_4.contains(range0_0),
                 range2_4.contains(range1_1),
                 range2_4.contains(range1_2));
-        assertTrue(range2_4.contains(range3_4));
+        assertAllTrue(range2_4.contains(range3_4));
 
         Range range0_9 = Range.ofLength(9);
-        assertTrue(range0_9.contains(range0_1),
+        assertAllTrue(range0_9.contains(range0_1),
                 range0_9.contains(range1_1),
                 range0_9.contains(range1_2),
                 range0_9.contains(range2_4),
@@ -288,7 +285,7 @@ public class RangeTest {
 
         Range range0_9_2 = Range.ofLength(9);
         Range range0_15 = Range.ofLength(15);
-        assertTrue(range0_9.contains(range0_9_2),
+        assertAllTrue(range0_9.contains(range0_9_2),
                 range0_15.contains(range0_9));
     }
 
@@ -303,57 +300,85 @@ public class RangeTest {
         Range range2_4 = new Range(2, 4);
         Range range3_4 = new Range(3, 4);
 
-        assertTrue(range0_0.isConnected(range0_1));
-        assertTrue(range0_1.isConnected(range1_1));
-        assertTrue(range0_1.isConnected(range1_2));
-        assertTrue(range1_2.isConnected(range0_1));
-        assertFalse(range0_1.isConnected(range2_4));
+        assertAllTrue(range0_0.isConnected(range0_1));
+        assertAllTrue(range0_1.isConnected(range1_1));
+        assertAllTrue(range0_1.isConnected(range1_2));
+        assertAllTrue(range1_2.isConnected(range0_1));
+        assertAllFalse(range0_1.isConnected(range2_4));
 
-        assertFalse(range0_0.isConnected(range1_1));
-        assertTrue(range0_0.isConnected(range0_3));
-        assertFalse(range0_0.isConnected(range1_3));
-        assertFalse(range1_2.isConnected(range3_4));
-        assertTrue(range1_3.isConnected(range3_4));
-        assertTrue(range3_4.isConnected(range1_3));
+        assertAllFalse(range0_0.isConnected(range1_1));
+        assertAllTrue(range0_0.isConnected(range0_3));
+        assertAllFalse(range0_0.isConnected(range1_3));
+        assertAllFalse(range1_2.isConnected(range3_4));
+        assertAllTrue(range1_3.isConnected(range3_4));
+        assertAllTrue(range3_4.isConnected(range1_3));
     }
 
     @Test
-    public void intersection() {
+    public void testUnionWith() {
         Range range0_0 = Range.NONE;
         Range range0_1 = new Range(0, 1);
         Range range2_4 = new Range(2, 4);
         Range range3_4 = new Range(3, 4);
 
-        assertEquals(Range.closedOpen(0, 4), range0_0.intersection(range2_4));
-        assertEquals(Range.closedOpen(0, 4), range0_1.intersection(range3_4));
+        assertEquals(Range.closedOpen(0, 4), range0_0.unionWith(range2_4));
+        assertEquals(Range.closedOpen(0, 4), range0_1.unionWith(range3_4));
 
         Range range7_9 = new Range(7, 9);
-        assertEquals(Range.closedOpen(0, 9), range0_1.intersection(range3_4).intersection(range7_9));
+        assertEquals(Range.closedOpen(0, 9), range0_1.unionWith(range3_4).unionWith(range7_9));
 
-        assertEquals(Range.aboveClosed(2), range2_4.intersection(Range.aboveOpen(10)));
+        assertEquals(Range.aboveClosed(2), range2_4.unionWith(Range.aboveOpen(10)));
 
-        assertEquals(Range.ALL_INT, Range.aboveClosed(5).intersection(Range.belowClosed(-100)));
+        assertEquals(Range.ALL_INT, Range.aboveClosed(5).unionWith(Range.belowClosed(-100)));
+    }
+
+    @Test
+    public void testIntersectionWith(){
+        Range positives = Range.aboveOpen(0);
+        Range nonNegatives = Range.aboveClosed(0);
+        Range zero = Range.closed(0, 0);
+        Range ten = Range.ofLength(10);
+        Range range2_3 = Range.closed(2, 3);
+        Range range1_9 = Range.closed(1, 9);
+        Range range5 = Range.closed(5, 5);
+
+        assertEquals(Range.NONE, Range.closed(-1, -1).intersectionWith(Range.ofLength(1)));
+        assertEquals(Range.NONE, positives.intersectionWith(zero));
+        assertEquals(Range.NONE, zero.intersectionWith(positives));
+        assertEquals(Range.NONE, zero.intersectionWith(range1_9));
+        assertEquals(Range.NONE, zero.intersectionWith(range2_3));
+        assertEquals(Range.NONE, zero.intersectionWith(range5));
+        assertEquals(Range.NONE, zero.intersectionWith(positives));
+        assertEquals(zero, zero.intersectionWith(nonNegatives));
+        assertEquals(zero, zero.intersectionWith(ten));
+        assertEquals(range2_3, positives.intersectionWith(range2_3));
+        assertEquals(range2_3, ten.intersectionWith(range2_3));
+        assertEquals(range2_3, range2_3.intersectionWith(ten));
+        assertEquals(range2_3, range2_3.intersectionWith(range2_3));
     }
 
     @Test
     public void overlaps() {
         Range range1_4 = new Range(1, 4);
 
-        assertFalse(range1_4.overlaps(new Range(-1, 0)),
+        assertAllFalse(
+                range1_4.overlaps(new Range(-1, 0)),
                 range1_4.overlaps(new Range(0, 1)),
+                range1_4.overlaps(new Range(2, 2)),
                 range1_4.overlaps(new Range(4, 7)),
+                range1_4.overlaps(Range.belowOpen(1)),
+                range1_4.overlaps(Range.belowOpen(-1)),
+                range1_4.overlaps(Range.aboveOpen(3)));
+
+        assertAllTrue(
+                range1_4.overlaps(new Range(-1, 2)),
+                range1_4.overlaps(Range.aboveClosed(0)),
+                range1_4.overlaps(Range.belowOpen(4)),
+                range1_4.overlaps(Range.aboveOpen(0)),
+                range1_4.overlaps(Range.aboveOpen(-3)),
                 range1_4.overlaps(new Range(1, 2)),
                 range1_4.overlaps(new Range(1, 4)),
                 range1_4.overlaps(new Range(2, 4)),
-                range1_4.overlaps(Range.aboveOpen(0)),
-                range1_4.overlaps(Range.aboveClosed(0)),
-                range1_4.overlaps(Range.aboveOpen(3)),
-                range1_4.overlaps(Range.aboveOpen(-3)),
-                range1_4.overlaps(Range.belowOpen(1)),
-                range1_4.overlaps(Range.belowOpen(-1)),
-                range1_4.overlaps(Range.belowOpen(4)));
-
-        assertTrue(range1_4.overlaps(new Range(-1, 2)),
                 range1_4.overlaps(new Range(0, 3)),
                 range1_4.overlaps(new Range(3, 7)),
                 range1_4.overlaps(new Range(2, 9)),
@@ -366,7 +391,7 @@ public class RangeTest {
                 range1_4.overlaps(Range.belowClosed(1)));
 
         Range range2_2 = new Range(2, 2);
-        assertFalse(range2_2.overlaps(new Range(-1, 0)),
+        assertAllFalse(range2_2.overlaps(new Range(-1, 0)),
                 range2_2.overlaps(new Range(0, 1)),
                 range2_2.overlaps(new Range(4, 7)),
                 range2_2.overlaps(new Range(1, 2)),
@@ -431,7 +456,7 @@ public class RangeTest {
         List<Range> ranges;
 
         ranges = Range.indexesToRanges(new ArrayList<Integer>(), new ArrayList<Integer>());
-        assertTrue(ranges.size() == 0);
+        assertAllTrue(ranges.size() == 0);
 
         ranges = Range.indexesToRanges(Arrays.asList(1), Arrays.asList(5));
         assertEquals(Range.closed(1, 5), ranges.get(0));
@@ -451,29 +476,29 @@ public class RangeTest {
 
         //No overlapped:
         subList = Range.getIndexesInRange(list, Range.open(3, 4));
-        assertTrue(subList.size() == 0);
+        assertAllTrue(subList.size() == 0);
 
         subList = Range.getIndexesInRange(list, Range.closed(17, 19));
-        assertTrue(subList.size() == 0);
+        assertAllTrue(subList.size() == 0);
 
         subList = Range.getIndexesInRange(list, Range.openClosed(-1, 0));
-        assertTrue(subList.size() == 0);
+        assertAllTrue(subList.size() == 0);
 
         subList = Range.getIndexesInRange(list, Range.open(25, 27));
-        assertTrue(subList.size() == 0);
+        assertAllTrue(subList.size() == 0);
 
         //With 1 element in range:
         subList = Range.getIndexesInRange(list, Range.closed(4, 4));
-        assertTrue(subList.size() == 1 && subList.get(0).equals(4));
+        assertAllTrue(subList.size() == 1 && subList.get(0).equals(4));
 
         subList = Range.getIndexesInRange(list, Range.closed(5, 8));
-        assertTrue(subList.size() == 1 && subList.get(0).equals(5));
+        assertAllTrue(subList.size() == 1 && subList.get(0).equals(5));
 
         subList = Range.getIndexesInRange(list, Range.closed(0, 1));
-        assertTrue(subList.size() == 1 && subList.get(0).equals(1));
+        assertAllTrue(subList.size() == 1 && subList.get(0).equals(1));
 
         subList = Range.getIndexesInRange(list, Range.closed(24, 29));
-        assertTrue(subList.size() == 1 && subList.get(0).equals(25));
+        assertAllTrue(subList.size() == 1 && subList.get(0).equals(25));
 
         //With multiple element in range:
         subList = Range.getIndexesInRange(list, Range.closed(4, 5));
@@ -492,11 +517,34 @@ public class RangeTest {
     }
 
     @Test
-    public void equals() {
+    public void testEquals() {
+        assertAllTrue(
+                Range.NONE.equals(Range.NONE),
+                Range.NONE.equals(Range.open(-1, 0)),
+                Range.ofLength(1).equals(Range.closed(0, 0)),
+                Range.openClosed(2, 3).equals(Range.closed(3, 3)),
+                Range.aboveClosed(0).equals(Range.aboveOpen(-1))
+        );
+        assertAllFalse(
+                Range.NONE.equals(Range.openClosed(-1, 0)),
+                Range.NONE.equals(Range.openClosed(3, 3)),
+                Range.ofLength(1).equals(Range.closed(0, 1)),
+                Range.openClosed(2, 3).equals(Range.closed(4, 4)),
+                Range.aboveClosed(0).equals(Range.aboveOpen(0))
+        );
     }
 
     @Test
-    public void canEqual() {
+    public void testGetStream(){
+        assertEquals(1L, Range.openClosed(1, 2).getStream().count());
+
+        String[] days = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        assertLogging(() -> Range.ofLength(7).getStream().forEach(i -> Logger.D(days[i])), days);
+        assertLogging(() -> Range.closed(5, 6).getStream().forEach(i -> Logger.V(days[i])), "Saturday", "Sunday");
+        assertException(() -> Range.ofLength(8).getStream().forEach(i -> Logger.D(days[i])), ArrayIndexOutOfBoundsException.class);
+        assertLogging(() -> Range.open(0, 2).getStream().forEach(i -> Logger.V(days[i])), "Tuesday");
+
+        assertException(() -> Range.ALL_INT.getStream().findFirst(), IllegalStateException.class);
     }
 
     private void assertRandomIndexes(Range range) {
@@ -522,9 +570,9 @@ public class RangeTest {
 
         assertRandomIndexes(Range.closed(0, 1));
         assertRandomIndexes(Range.closed(0, 2));
+        assertRandomIndexes(Range.closed(0, 100));
         assertRandomIndexes(Range.closed(0, 5));
         assertRandomIndexes(Range.closed(0, 10));
-        assertRandomIndexes(Range.closed(0, 100));
     }
 
     @Test

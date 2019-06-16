@@ -7,7 +7,7 @@ import io.github.cruisoring.tuple.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
  * Repository where values are of <tt>Tuple</tt> type, but the key is single value of type <tt>TKey</tt>.
@@ -166,7 +166,7 @@ public class TupleRepository<TKey> extends Repository<TKey, Tuple> {
      */
     @Override
     public Tuple update(TKey tKey, Tuple existingValue, Tuple newValue) throws Exception {
-        checkWithoutNull(newValue);
+        checkNoneNulls(newValue);
         return super.update(tKey, existingValue, newValue);
     }
     //endregion

@@ -16,7 +16,7 @@ public class TupleTablePlus<T, U, V, W, X, Y, Z, A, B, C> extends TupleTable<Wit
                              Class<? extends W> typeW, Class<? extends X> typeX, Class<? extends Y> typeY,
                              Class<? extends Z> typeZ, Class<? extends A> typeA, Class<? extends B> typeB,
                              Class<? extends C> typeC, Type... moreTypes) {
-        super(rowsSupplier, columns, (Class[])ArrayHelper.append(moreTypes,
+        super(rowsSupplier, columns, (Class[])ArrayHelper.mergeVarargsFirst(moreTypes,
                 typeT, typeU, typeV, typeW, typeX, typeY, typeZ, typeA, typeB, typeC));
     }
 

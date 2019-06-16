@@ -35,7 +35,7 @@ public class TupleTableTest {
         TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         Collection<String> names = table2.getDisplayedNames();
-        assertTrue(names.containsAll(Arrays.asList("Id", "age")));
+        assertAllTrue(names.containsAll(Arrays.asList("Id", "age")));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class TupleTableTest {
     public void getRow() {
         TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
-        assertNull(table2.getRow(0));
+        assertAllNull(table2.getRow(0));
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
         table2.addValues(Tuple.create("Test", 123));
@@ -68,8 +68,8 @@ public class TupleTableTest {
         assertEquals("Test", r2.getValueByName("Id"));
         assertEquals(123, r2.getValue(1));
 
-        assertNull(table2.getRow(-1));
-        assertNull(table2.getRow(8));
+        assertAllNull(table2.getRow(-1));
+        assertAllNull(table2.getRow(8));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class TupleTableTest {
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
         table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
-        assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
+        assertAllTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
 
         Columns viewColumns = new Columns(new String[][]{
                 new String[]{"id", "Identifier", "ID"},
@@ -91,7 +91,7 @@ public class TupleTableTest {
 
         WithValuesByName row2 = table5.getRow(2, viewColumns);
         Map<String, Object> map = row2.asMap();
-        assertTrue(Arrays.deepEquals(new Object[]{2, "Clare", true}, map.values().toArray()));
+        assertAllTrue(Arrays.deepEquals(new Object[]{2, "Clare", true}, map.values().toArray()));
     }
 
     @Test
@@ -103,7 +103,7 @@ public class TupleTableTest {
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
         table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
-        assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
+        assertAllTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
 
         Columns viewColumns = new Columns(new String[][]{
                 new String[]{"id", "Identifier", "ID"},
@@ -119,7 +119,7 @@ public class TupleTableTest {
     public void getAllRow() {
         TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
-        assertNull(table2.getRow(0));
+        assertAllNull(table2.getRow(0));
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create(null, null));
         table2.addValues(Tuple.create("Third", 456));
@@ -148,7 +148,7 @@ public class TupleTableTest {
         table2.addValues(Tuple.create("Test", 123));
         table2.addValues(Tuple.create("", null));
 
-        assertTrue(table2.contains(Tuple.create("Test", 123)),
+        assertAllTrue(table2.contains(Tuple.create("Test", 123)),
                 table2.contains(Tuple.create(null, null)),
                 table2.contains(Tuple.create("", null)));
     }
@@ -179,7 +179,7 @@ public class TupleTableTest {
 
         Object[] array = table2.toArray();
         Logger.I(TypeHelper.deepToString(array));
-        assertTrue(array.length == 4
+        assertAllTrue(array.length == 4
                 && array[0].equals(new TupleRow(table2.columns, Tuple.create("Test", 123)))
                 && array[3].equals(new TupleRow(table2.columns, Tuple.create("", null))));
     }
@@ -242,7 +242,7 @@ public class TupleTableTest {
 
         assertEquals(new Integer[]{0, 1, 3, 9, 2}, table6.getColumnValues("UID"));
         assertEquals(new String[]{"Tom", "Bob", "Charlie", "Denis", "Eddy"}, table6.getColumnValues("user_name"));
-        assertTrue(valueEquals(new LocalDate[]{LocalDate.of(2000, 1, 1),
+        assertAllTrue(valueEquals(new LocalDate[]{LocalDate.of(2000, 1, 1),
             LocalDate.of(1977, 1, 1), null, null, LocalDate.of(1977, 1, 1)}, table6.getColumnValues("birthday")));
 
     }
@@ -257,8 +257,8 @@ public class TupleTableTest {
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
         table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
-        assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
-        assertFalse(table5.add(columns.createRow(5, "Grey", "Thompson", 6.33, false)));   //Would fail since it calls the add(WithValuesByName) when the TupleRow is of wrong signature
+        assertAllTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
+        assertAllFalse(table5.add(columns.createRow(5, "Grey", "Thompson", 6.33, false)));   //Would fail since it calls the add(WithValuesByName) when the TupleRow is of wrong signature
 
 //        table5.addValues(5, "Elisa", "Carter", 'F');           //Not allowed without filling the first 5 arguments
 //        table5.addValues(5, "Elissa", "Carter", "Female", true)  //Not allow any argument with wrong type
@@ -275,7 +275,7 @@ public class TupleTableTest {
         assertEquals(LocalDate.of(2019, 4, 11), table5.getCellValue(4, 7)); //The cell can still be accessible with colIndex
 
         WithValuesByName row1 = table5.getRow(1);
-        assertTrue(table5.add(row1));
+        assertAllTrue(table5.add(row1));
         assertEquals(1, table5.indexOf(row1));
 
         table5.forEach(row -> Logger.D(row.toString()));
@@ -309,7 +309,7 @@ public class TupleTableTest {
             put("Favorite", "Music");
         }});
         assertEquals(2, table5.size());
-        assertNull(table5.getRow(1).getValueByName("IsActive"));
+        assertAllNull(table5.getRow(1).getValueByName("IsActive"));
     }
 
     @Test
@@ -322,20 +322,20 @@ public class TupleTableTest {
         table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
         WithValuesByName row1 = table5.getRow(1);
-        assertTrue(table5.replace(row1, new HashMap<String, Object>(){{
+        assertAllTrue(table5.replace(row1, new HashMap<String, Object>(){{
             put("Favorite", "Gardening");
         }}));
 
-        assertFalse(table5.contains(row1));
+        assertAllFalse(table5.contains(row1));
         assertEquals("Gardening", table5.getCellValue(1, "Favorite"));
 
         row1 = table5.getRow(1);
-        assertTrue(table5.update(row1, new HashMap<String, FunctionThrowable<WithValuesByName, Object>>(){{
+        assertAllTrue(table5.update(row1, new HashMap<String, FunctionThrowable<WithValuesByName, Object>>(){{
             put("Last Name", row -> row.getValueByName("Last Name").toString().replaceAll("i", "y"));
             put("IsActive", row -> !((Boolean)row.getValueByName("IsActive")));
         }}));
 
-        assertFalse(table5.contains(row1));
+        assertAllFalse(table5.contains(row1));
         assertEquals("Nylson", table5.getCellValue(1, "Last Name"));
         assertEquals(Boolean.TRUE, table5.getCellValue(1, "IsActive"));
     }
@@ -362,11 +362,11 @@ public class TupleTableTest {
 
         table5.forEach(row -> Logger.D(row.toString()));
 
-        assertTrue(table5.contains(0, "Alice", "Wylson", 'F', false));
-        assertTrue(table5.contains(1, "Bob", "Nylson", 'M', true, 99));
-        assertTrue(table5.contains(2, "Clare", "Neons", 'F', true, "Movie", 25));
-        assertTrue(table5.contains(3, "David", "Wylson", 'M', null, "", 20));
-        assertTrue(table5.contains(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
+        assertAllTrue(table5.contains(0, "Alice", "Wylson", 'F', false));
+        assertAllTrue(table5.contains(1, "Bob", "Nylson", 'M', true, 99));
+        assertAllTrue(table5.contains(2, "Clare", "Neons", 'F', true, "Movie", 25));
+        assertAllTrue(table5.contains(3, "David", "Wylson", 'M', null, "", 20));
+        assertAllTrue(table5.contains(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
     }
 
     @Test
@@ -378,32 +378,32 @@ public class TupleTableTest {
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
         table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
-        assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
-        assertFalse(table5.add(columns.createRow(5, "Grey", "Thompson", 6.33, false)));   //Would fail since it calls the add(WithValuesByName) when the TupleRow is of wrong signature
+        assertAllTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
+        assertAllFalse(table5.add(columns.createRow(5, "Grey", "Thompson", 6.33, false)));   //Would fail since it calls the add(WithValuesByName) when the TupleRow is of wrong signature
 
         assertEquals(6, table5.size());
         //Test of Collection.remove(Object o):
-        assertFalse(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', false, 1)));      //Not matched with an extra value
-        assertFalse(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', false)));         //Not matched with the "IsActive" value
-        assertFalse(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F')));                //Not matched by shorting last value
-        assertTrue(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', true)));           //The tuple created is held by the table, thus can be removed
+        assertAllFalse(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', false, 1)));      //Not matched with an extra value
+        assertAllFalse(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', false)));         //Not matched with the "IsActive" value
+        assertAllFalse(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F')));                //Not matched by shorting last value
+        assertAllTrue(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', true)));           //The tuple created is held by the table, thus can be removed
 
         //Test of ITable.remove(Object... values)
-        assertFalse(table5.removeValues(1, "Bob", "Nilson", null, false, 22));        //Not matched with the "Gender" value
-        assertFalse(table5.removeValues(1, "Bob", "Nilson", 'M', false, 22, new int[0]));        //Not matched with two extra values
-        assertFalse(table5.removeValues(1, "Bob", "Nilson", 'M'));                    //Not matched by shorting last 2 values
-        assertTrue(table5.removeValues(1, "Bob", "Nilson", 'M', false, 99));          //shall be removed
+        assertAllFalse(table5.removeValues(1, "Bob", "Nilson", null, false, 22));        //Not matched with the "Gender" value
+        assertAllFalse(table5.removeValues(1, "Bob", "Nilson", 'M', false, 22, new int[0]));        //Not matched with two extra values
+        assertAllFalse(table5.removeValues(1, "Bob", "Nilson", 'M'));                    //Not matched by shorting last 2 values
+        assertAllTrue(table5.removeValues(1, "Bob", "Nilson", 'M', false, 99));          //shall be removed
 
         //Remove second to last row by its values
-        assertTrue(table5.removeValues(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
+        assertAllTrue(table5.removeValues(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
 
         //Remove last row
-        assertTrue(table5.removeValues(5, "Fred", "Nil", 'M', false));
+        assertAllTrue(table5.removeValues(5, "Fred", "Nil", 'M', false));
 
         //Test of removing TupleRows
         WithValuesByName row0 = table5.getRow(0);
         assertEquals(Integer.valueOf(2), row0.getValueByName("ID"));
-        assertTrue(table5.remove(row0));
+        assertAllTrue(table5.remove(row0));
 
         table5.forEach(row -> Logger.D(row.toString()));
         assertEquals(1, table5.size());
@@ -420,29 +420,29 @@ public class TupleTableTest {
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
         table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
-        assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
+        assertAllTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
 
         //Test of Collection.contains(Object o):
-        assertFalse(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F', false, 1)));      //Not matched with an extra value
-        assertFalse(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F', false)));         //Not matched with the "IsActive" value
-        assertFalse(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F')));                //Not matched by shorting last value
-        assertTrue(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F', true)));           //The tuple created is held by the table, thus can be removed
+        assertAllFalse(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F', false, 1)));      //Not matched with an extra value
+        assertAllFalse(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F', false)));         //Not matched with the "IsActive" value
+        assertAllFalse(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F')));                //Not matched by shorting last value
+        assertAllTrue(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F', true)));           //The tuple created is held by the table, thus can be removed
 
         //Test of ITable.contains(Object... values)
-        assertFalse(table5.contains(1, "Bob", "Nilson", null, false, 22));        //Not matched with the "Gender" value
-        assertFalse(table5.contains(1, "Bob", "Nilson", 'M', false, 22, new int[0]));        //Not matched with two extra values
-        assertFalse(table5.contains(1, "Bob", "Nilson", 'M'));                    //Not matched by shorting last 2 values
-        assertTrue(table5.contains(1, "Bob", "Nilson", 'M', false, 99));          //shall be removed
+        assertAllFalse(table5.contains(1, "Bob", "Nilson", null, false, 22));        //Not matched with the "Gender" value
+        assertAllFalse(table5.contains(1, "Bob", "Nilson", 'M', false, 22, new int[0]));        //Not matched with two extra values
+        assertAllFalse(table5.contains(1, "Bob", "Nilson", 'M'));                    //Not matched by shorting last 2 values
+        assertAllTrue(table5.contains(1, "Bob", "Nilson", 'M', false, 99));          //shall be removed
 
         //Contains second to last row by its values
-        assertTrue(table5.contains(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
+        assertAllTrue(table5.contains(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
 
         //Contains last row
-        assertTrue(table5.contains(5, "Fred", "Nil", 'M', false));
+        assertAllTrue(table5.contains(5, "Fred", "Nil", 'M', false));
 
         //Test of removing TupleRows
         WithValuesByName row0 = table5.getRow(0);
-        assertTrue(table5.contains(row0));
+        assertAllTrue(table5.contains(row0));
 
         table5.forEach(row -> Logger.D(row.toString()));
     }
@@ -484,12 +484,12 @@ public class TupleTableTest {
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
         table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
-        assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
+        assertAllTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
 
         WithValues row0 = table5.getRow(0);
         WithValues row3 = table5.getRow(3).getValues();
         Tuple tuple = Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11));
-        assertTrue(table5.removeAll(Arrays.asList(row0, row3, tuple)));
+        assertAllTrue(table5.removeAll(Arrays.asList(row0, row3, tuple)));
 
         assertEquals(new Object[]{1, 2, 5}, table5.getColumnValues("ID"));
     }
@@ -504,12 +504,12 @@ public class TupleTableTest {
         table5.addValues(2, "Clare", "Neons", 'F', true, "Movie", 25);
         table5.addValues(3, "David", "Wilson", 'M', null, "", 20);
         table5.addValues(Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11)));
-        assertTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
+        assertAllTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
 
         WithValues row0 = table5.getRow(0);
         WithValues row3 = table5.getRow(3).getValues();
         Tuple tuple = Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11));
-        assertTrue(table5.retainAll(Arrays.asList(row0, row3, tuple)));
+        assertAllTrue(table5.retainAll(Arrays.asList(row0, row3, tuple)));
 
         table5.forEach(r -> Logger.D(r.toString()));
         assertEquals(new Object[]{0, 3, 4}, table5.getColumnValues("ID"));
@@ -551,7 +551,7 @@ public class TupleTableTest {
 
         map.put("ID", 2);
         row = table5.getRow(map);
-        assertNull(row);
+        assertAllNull(row);
     }
 
     @Test

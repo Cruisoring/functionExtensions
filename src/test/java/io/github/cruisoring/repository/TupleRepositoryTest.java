@@ -31,7 +31,7 @@ public class TupleRepositoryTest {
     @Test
     public void retrieve() {
         Tuple2 value = dualValuesRepository.retrieve("abc");
-        assertNotNull(value);
+        assertAllNotNull(value);
         assertEquals(Integer.valueOf(3), dualValuesRepository.getFirstValue("abc"));
         assertEquals(true, dualValuesRepository.getSecondValue("abc"));
 
@@ -41,7 +41,7 @@ public class TupleRepositoryTest {
         assertEquals(Integer.valueOf(10), dualValuesRepository.getFirstValue("0123456789"));
         assertEquals(3, dualValuesRepository.storage.size());
 
-        assertNull(dualValuesRepository.retrieve(null));
+        assertAllNull(dualValuesRepository.retrieve(null));
         assertEquals(3, dualValuesRepository.storage.size());
         assertEquals(null, dualValuesRepository.getFirstValue(null));
         assertEquals(null, dualValuesRepository.getSecondValue(null));
@@ -56,15 +56,15 @@ public class TupleRepositoryTest {
         Assert.assertEquals(Integer.valueOf(1), repository.getFirst(" "));
         Assert.assertEquals(Integer.valueOf(10), repository.getFirst("0123456789"));
         Assert.assertEquals(null, repository.getFirst(null));
-        assertTrue(repository.containsKeyOf(""),
+        assertAllTrue(repository.containsKeyOf(""),
                 repository.containsKeyOf(" "),
                 repository.containsKeyOf("0123456789"));
-        assertFalse(repository.containsKeyOf(null));
+        assertAllFalse(repository.containsKeyOf(null));
 
-        assertTrue(repository.containsKey(Tuple.create("")),
+        assertAllTrue(repository.containsKey(Tuple.create("")),
                 repository.containsKey(Tuple.create(" ")),
                 repository.containsKey(Tuple.create("0123456789")));
-        assertFalse(repository.containsKey(Tuple.create(null)));
+        assertAllFalse(repository.containsKey(Tuple.create(null)));
         repository.containsKey("");
 
         assertMatch(repository.storage.keySet().toArray(new Tuple[3]), new Tuple[]{Tuple.create("0123456789"), Tuple.create(""), Tuple.create(" ")});
@@ -80,16 +80,16 @@ public class TupleRepositoryTest {
         Assert.assertEquals(Integer.valueOf(1), repository.getFirst(" ", ""));
         Assert.assertEquals(Integer.valueOf(12), repository.getFirst("0123456789", "aa"));
         Assert.assertEquals(null, repository.getFirst(null, "abc"));
-        assertTrue(repository.containsKeyOf("", ""));
-        assertTrue(repository.containsKeyOf(" ", ""));
-        assertFalse(repository.containsKeyOf("", " "));
-        assertTrue(repository.containsKeyOf("0123456789", "aa"));
-        assertFalse(repository.containsKeyOf("aa", "0123456789"));
-        assertFalse(repository.containsKeyOf(null, "abc"));
-        assertTrue(repository.containsKey(Tuple.create("0123456789", "aa")));
-        assertTrue(repository.containsKey(Tuple.create(" ", "")));
-        assertFalse(repository.containsKey(Tuple.create(" ", "0123456789")));
-        assertFalse(repository.containsKey(null));
+        assertAllTrue(repository.containsKeyOf("", ""));
+        assertAllTrue(repository.containsKeyOf(" ", ""));
+        assertAllFalse(repository.containsKeyOf("", " "));
+        assertAllTrue(repository.containsKeyOf("0123456789", "aa"));
+        assertAllFalse(repository.containsKeyOf("aa", "0123456789"));
+        assertAllFalse(repository.containsKeyOf(null, "abc"));
+        assertAllTrue(repository.containsKey(Tuple.create("0123456789", "aa")));
+        assertAllTrue(repository.containsKey(Tuple.create(" ", "")));
+        assertAllFalse(repository.containsKey(Tuple.create(" ", "0123456789")));
+        assertAllFalse(repository.containsKey(null));
 
         assertMatch(new Tuple[]{Tuple.create("", ""), Tuple.create(" ", ""), Tuple.create("0123456789", "aa")}
                 , repository.storage.keySet().toArray(new Tuple[3]));
@@ -107,13 +107,13 @@ public class TupleRepositoryTest {
         Assert.assertEquals(Integer.valueOf(1), repository.getFirst(" ", null, false));
         Assert.assertEquals(Integer.valueOf(12), repository.getFirst("0123456789", "ab", true));
         Assert.assertEquals(null, repository.getFirst(null, "abc", false));
-        assertTrue(repository.containsKeyOf("", "", true));
-        assertTrue(repository.containsKeyOf("", "  ", false));
-        assertFalse(repository.containsKeyOf("0123456789", "ab", false));
-        assertTrue(repository.containsKeyOf("0123456789", "ab", true));
-        assertFalse(repository.containsKeyOf(null, "abc", false));
-        assertTrue(repository.containsKey(Tuple.create("0123456789", "ab", true)));
-        assertFalse(repository.containsKey(null));
+        assertAllTrue(repository.containsKeyOf("", "", true));
+        assertAllTrue(repository.containsKeyOf("", "  ", false));
+        assertAllFalse(repository.containsKeyOf("0123456789", "ab", false));
+        assertAllTrue(repository.containsKeyOf("0123456789", "ab", true));
+        assertAllFalse(repository.containsKeyOf(null, "abc", false));
+        assertAllTrue(repository.containsKey(Tuple.create("0123456789", "ab", true)));
+        assertAllFalse(repository.containsKey(null));
 
         assertMatch(new Tuple[]{
                         Tuple.create("", "", true), Tuple.create("", "  ", false), Tuple.create(" ", null, false)
@@ -133,13 +133,13 @@ public class TupleRepositoryTest {
         Assert.assertEquals(Integer.valueOf(4), repository.getFirst(" ", null, false, 3));
         Assert.assertEquals(Integer.valueOf(8), repository.getFirst("0123456789", "ab", false, -2));
         Assert.assertEquals(null, repository.getFirst(null, "abc", false, 33));
-        assertTrue(repository.containsKeyOf("", "", true, 10));
-        assertTrue(repository.containsKeyOf("", "  ", false, 11));
-        assertFalse(repository.containsKeyOf("0123456789", "ab", true, -2));
-        assertTrue(repository.containsKeyOf("0123456789", "ab", false, -2));
-        assertFalse(repository.containsKeyOf(null, "abc", false, 33));
-        assertTrue(repository.containsKey(Tuple.create("0123456789", "ab", false, -2)));
-        assertFalse(repository.containsKey(null));
+        assertAllTrue(repository.containsKeyOf("", "", true, 10));
+        assertAllTrue(repository.containsKeyOf("", "  ", false, 11));
+        assertAllFalse(repository.containsKeyOf("0123456789", "ab", true, -2));
+        assertAllTrue(repository.containsKeyOf("0123456789", "ab", false, -2));
+        assertAllFalse(repository.containsKeyOf(null, "abc", false, 33));
+        assertAllTrue(repository.containsKey(Tuple.create("0123456789", "ab", false, -2)));
+        assertAllFalse(repository.containsKey(null));
 
         assertMatch(new Tuple[]{
                         Tuple.create("", "", true, 10), Tuple.create("", "  ", false, 11), Tuple.create(" ", null, false, 3)
@@ -158,9 +158,9 @@ public class TupleRepositoryTest {
         Assert.assertEquals(Integer.valueOf(13), repository.getFirst("", "  ", false, null, 11));
         Assert.assertEquals(null, repository.getFirst(" ", null, false, null, 3));
         Assert.assertEquals(null, repository.getFirst(null, "abc", false, "", 33));
-        assertTrue(repository.containsKeyOf("", "", true, "abc", 10));
-        assertTrue(repository.containsKey(Tuple.create("", "  ", false, null, 11)));
-        assertFalse(repository.containsKey(null));
+        assertAllTrue(repository.containsKeyOf("", "", true, "abc", 10));
+        assertAllTrue(repository.containsKey(Tuple.create("", "  ", false, null, 11)));
+        assertAllFalse(repository.containsKey(null));
 
         assertMatch(new Tuple[]{
                         Tuple.create("", "", true, "abc", 10), Tuple.create("", "  ", false, null, 11)}

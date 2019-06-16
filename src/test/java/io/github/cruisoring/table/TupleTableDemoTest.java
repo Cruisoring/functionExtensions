@@ -46,7 +46,7 @@ public class TupleTableDemoTest {
         scoresTable.addValues(1008L, "Clark Cooker", 'M', "6B", 58.0, "failed");
         scoresTable.add(columns.createRow(1011L, "David Simpson", 'M', "6A", 77.5d));
 
-        assertNull(scoresTable.getRow(8));
+        assertAllNull(scoresTable.getRow(8));
         WithValuesByName row2 = scoresTable.getRow(2);
         assertEquals(58.0, row2.getValueByName("Score"));
         assertEquals("failed", row2.getValue(5));
@@ -67,7 +67,7 @@ public class TupleTableDemoTest {
         scoresTable.addValues(1008L, "Clark Cooker", 'M', "6B", 58.0, "failed");
         scoresTable.add(columns.createRow(1011L, "David Simpson", 'M', "6A", 77.5d));
 
-        assertNull(scoresTable.getRow(8));
+        assertAllNull(scoresTable.getRow(8));
         WithValuesByName5<Long, String, Character, String, Double> row3 = (WithValuesByName5<Long, String, Character, String, Double>) scoresTable.getRow(3);
         assertEquals(Long.valueOf(1011), row3.getFirst());
         assertEquals("David Simpson", row3.getSecond());
@@ -85,13 +85,13 @@ public class TupleTableDemoTest {
 //        scoresTable.addValues(1008, "Bob Peterson", 'M', "6L", 99.0, "highest one");
 //        scoresTable.addValues(1008L, "Clark Cooker", 'M', 58.0, "6B", "failed");
 
-        assertFalse(scoresTable.add(columns.createRow(1011L, "David Simpson", 'M')));
+        assertAllFalse(scoresTable.add(columns.createRow(1011L, "David Simpson", 'M')));
 
-        assertFalse(scoresTable.addValues(Tuple.create(1013L, "Emar K", 'F', "6C", 95f, "outstanding")));
+        assertAllFalse(scoresTable.addValues(Tuple.create(1013L, "Emar K", 'F', "6C", 95f, "outstanding")));
 
-        assertFalse(scoresTable.addValues(Tuple.create(1013L, 'F', "6C", "Emar K", 92d)));
+        assertAllFalse(scoresTable.addValues(Tuple.create(1013L, 'F', "6C", "Emar K", 92d)));
 
-        assertFalse(scoresTable.addValues(new HashMap<String, Object>(){{
+        assertAllFalse(scoresTable.addValues(new HashMap<String, Object>(){{
             put("StudentId", 1033);
             put("Name", "Fred Thomson");
             put("Gender", "Male");
@@ -112,10 +112,10 @@ public class TupleTableDemoTest {
         scoresTable.add(columns.createRow(1011L, "David Simpson", 'M', "6A", 77.5d));
 
         //Contains(Object...) treat the elements as a whole to compare its hashCode first before valueEquals()
-        assertTrue(scoresTable.contains(1003L, "Apple Juicy", 'F', "6A", 89.5));
+        assertAllTrue(scoresTable.contains(1003L, "Apple Juicy", 'F', "6A", 89.5));
 
         //Even a minor changes of the element value would result in a different hashCode, thus make contains fail fast
-        assertFalse(scoresTable.contains(1003L, "Apple Juicy", 'F', "6B", 89.5));
+        assertAllFalse(scoresTable.contains(1003L, "Apple Juicy", 'F', "6B", 89.5));
 
         WithValuesByName row1 = scoresTable.getRow(1);
         //indexOf(WithValuesByName) run much faster if the Columns of row is identical with the TupleTable
@@ -179,12 +179,12 @@ public class TupleTableDemoTest {
         assertEquals(new Long[]{1003L, 1008L, 1008L, 1011L}, scoresTable.getColumnValues(0));
         assertEquals(new String[]{"Apple Juicy", "Bob Peterson", "Clark Cooker", "David Simpson"}, names);
         //When the index is out of the TupleTable.width(), it would return null
-        assertNull(scoresTable.getColumnValues(5));
+        assertAllNull(scoresTable.getColumnValues(5));
 
         //It is also possible to retrieve column values by name
         assertEquals(new Character[]{'F', 'M', 'M', 'M'}, scoresTable.getColumnValues("Gender"));
         assertEquals(new Double[]{89.5, 99.0, 58.0, 77.5}, scoresTable.getColumnValues("Score"));
         //return null if the index is out of the scope of the TupleTable
-        assertNull(scoresTable.getColumnValues("Note"));
+        assertAllNull(scoresTable.getColumnValues("Note"));
     }
 }

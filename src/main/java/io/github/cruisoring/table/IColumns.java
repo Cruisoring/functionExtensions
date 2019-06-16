@@ -6,8 +6,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static io.github.cruisoring.Asserts.checkStates;
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.*;
 
 /**
  * Interface to specify how Columns of a table shall act so as to map Column names to indexes.
@@ -79,7 +78,7 @@ public interface IColumns extends Map<String, Integer> {
      * otherwise a pair of indexes of both parites.
      */
     default WithValues2<Integer, Integer> mapIndexes(String columnName, IColumns other){
-        Integer thisIndex = get(checkWithoutNull(columnName));
+        Integer thisIndex = get(checkNoneNulls(columnName));
         if(thisIndex == -1){
             return null;
         } else if (other == this) {
@@ -107,7 +106,7 @@ public interface IColumns extends Map<String, Integer> {
      * @return      <code>TupleRow</code> created with given values and this <code>Columns</code>
      */
     default TupleRow createRow(Object... elements) {
-        checkStates(elements != null);
+        assertAllTrue(elements != null);
 
         int length = elements.length;
         switch (length) {
@@ -153,9 +152,7 @@ public interface IColumns extends Map<String, Integer> {
      * such as an immutable {@code Tuple} and with shared {@code IColumns} to access them by names.
      */
     default TupleRow asRow(WithValues tuple){
-        checkWithoutNull(tuple);
-
-        int length = tuple.getLength();
+        int length = checkNoneNulls(tuple).getLength();
         if(length == 0){
             throw new UnsupportedOperationException("No columns defined");
         }
@@ -236,7 +233,7 @@ public interface IColumns extends Map<String, Integer> {
      * @return a {@code TupleTable} instance with both values and value types fixed
      */
     default TupleTable createTable(Supplier<List<WithValues>> rowsSupplier, Class... types){
-        checkWithoutNull(types);
+        assertAllNotNull(types);
 
         int length = types.length;
         switch (length) {

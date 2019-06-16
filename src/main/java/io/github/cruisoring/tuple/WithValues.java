@@ -6,7 +6,7 @@ import io.github.cruisoring.throwables.PredicateThrowable;
 import java.util.Map;
 import java.util.Set;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
 
 /**
  * Generic interface to define the expected behaviours of {@code Tuple}
@@ -91,7 +91,7 @@ public interface WithValues<T> extends Comparable {
      *          predicate, otherwise {@code false}
      */
     default boolean anyMatch(PredicateThrowable<T> predicateThrowable){
-        checkWithoutNull(predicateThrowable);
+        assertAllNotNull(predicateThrowable);
 
         int len = getLength();
         try {
@@ -114,7 +114,7 @@ public interface WithValues<T> extends Comparable {
      *  provided predicate or there is no element, otherwise {@code false}
      */
     default boolean allMatch(PredicateThrowable<T> predicateThrowable){
-        checkWithoutNull(predicateThrowable);
+        assertAllNotNull(predicateThrowable);
 
         int len = getLength();
         try {
@@ -137,7 +137,7 @@ public interface WithValues<T> extends Comparable {
      *  provided predicate or there is no element, otherwise {@code false}
      */
     default boolean noneMatch(PredicateThrowable<T> predicateThrowable){
-        checkWithoutNull(predicateThrowable);
+        assertAllNotNull(predicateThrowable);
 
         int len = getLength();
         try {

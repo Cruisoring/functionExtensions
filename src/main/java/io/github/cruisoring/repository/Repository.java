@@ -7,7 +7,8 @@ import io.github.cruisoring.throwables.TriConsumerThrowable;
 import java.util.*;
 import java.util.function.BiPredicate;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 import static io.github.cruisoring.TypeHelper.valueEquals;
 
 /**
@@ -39,7 +40,7 @@ public class Repository<TKey, TValue>
     public Repository(Map<TKey, TValue> map,
                       TriConsumerThrowable<TKey, TValue, TValue> changesConsumer,
                       FunctionThrowable<TKey, TValue> valueFunction) {
-        storage = checkWithoutNull(map, valueFunction);
+        storage = checkNoneNulls(map, valueFunction);
         this.valueFunctionThrowable = valueFunction;
         this.changesConsumer = changesConsumer != null ? changesConsumer : (USE_DEFAULT_CHNAGES_LOG ? this::defaultChangesLog : null);
     }
@@ -71,7 +72,7 @@ public class Repository<TKey, TValue>
      */
     @Override
     public TValue apply(TKey tKey) throws Exception {
-        checkWithoutNull(tKey);
+        assertAllNotNull(tKey);
         TValue result;
         if (!storage.containsKey(tKey)) {
             result = valueFunctionThrowable.apply(tKey);
@@ -95,7 +96,7 @@ public class Repository<TKey, TValue>
      * @throws Exception Any Exceptions that might be thrown
      */
     public TValue update(TKey tKey, TValue existingValue, TValue newValue) throws Exception {
-        checkWithoutNull(tKey);
+        assertAllNotNull(tKey);
 
         //No need to update value of the map if there is no changes
         if (valueEquals(existingValue, newValue))
@@ -121,7 +122,7 @@ public class Repository<TKey, TValue>
      * @return Number of key value pairs matched with the given predicate and thus removed
      */
     public int clear(BiPredicate<TKey, TValue> keyValuePredicate) {
-        checkWithoutNull(keyValuePredicate);
+        assertAllNotNull(keyValuePredicate);
 
         int changes = 0;
 

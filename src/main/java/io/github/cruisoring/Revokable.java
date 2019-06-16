@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
 
 /**
  * Utility class to enable automatic revoking.
@@ -85,7 +85,7 @@ public class Revokable<T> implements AutoCloseable {
 
     //region Constructors
     public Revokable(Supplier <T> getter, ConsumerThrowable<T> setter, T newSetting){
-        checkWithoutNull(getter, setter);
+        assertAllNotNull(getter, setter);
 
         timeStamp = LocalDateTime.now();
         label = StackTraceHelper.getCallerLabel(null, calledKeywords);
@@ -104,7 +104,7 @@ public class Revokable<T> implements AutoCloseable {
     }
 
     public Revokable(RunnableThrowable runnableThrowable){
-        checkWithoutNull(runnableThrowable);
+        assertAllNotNull(runnableThrowable);
 
         timeStamp = LocalDateTime.now();
         label = StackTraceHelper.getCallerLabel(null, calledKeywords);

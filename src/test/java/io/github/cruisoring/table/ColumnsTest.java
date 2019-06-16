@@ -82,18 +82,18 @@ public class ColumnsTest {
 
     @Test
     public void containsKey() {
-        assertTrue(shared.containsKey("ID"),
+        assertAllTrue(shared.containsKey("ID"),
                 shared.containsKey("Given Name"),
                 shared.containsKey("Address"));
 
-        assertFalse(shared.containsKey(0),
+        assertAllFalse(shared.containsKey(0),
                 shared.containsKey("Id"),
                 shared.containsKey(null));
     }
 
     @Test
     public void containsValue() {
-        assertTrue(shared.containsValue(0),
+        assertAllTrue(shared.containsValue(0),
                 shared.containsValue(1),
                 shared.containsValue(2),
                 shared.containsValue(3),
@@ -130,10 +130,10 @@ public class ColumnsTest {
         assertEquals(Tuple.of(2, 4), shared.mapIndexes("Birthday", other));
         assertEquals(Tuple.of(4, 5), shared.mapIndexes("Email", other));
 
-        assertNull(shared.mapIndexes("identity", other)); //"identity" is not defined in shared
-        assertNull(shared.mapIndexes("first name", other)); //"first name" is unknown for other
-        assertNull(shared.mapIndexes("title", other)); //"title" is unknown for both
-        assertNull(shared.mapIndexes("userName", other)); //"userName" is not regarded as equal to "user name" by shared
+        assertAllNull(shared.mapIndexes("identity", other)); //"identity" is not defined in shared
+        assertAllNull(shared.mapIndexes("first name", other)); //"first name" is unknown for other
+        assertAllNull(shared.mapIndexes("title", other)); //"title" is unknown for both
+        assertAllNull(shared.mapIndexes("userName", other)); //"userName" is not regarded as equal to "user name" by shared
     }
 
     @Test
@@ -170,18 +170,18 @@ public class ColumnsTest {
 
     @Test
     public void put() {
-        assertNull(shared.put("New", 6));
+        assertAllNull(shared.put("New", 6));
     }
 
     @Test
     public void remove() {
-        assertNull(shared.remove("ID"));
+        assertAllNull(shared.remove("ID"));
     }
 
     @Test
     public void getColumnNames() {
         Logger.D(String.join(", ", shared.getColumnNames()));
-        assertTrue(TypeHelper.valueEquals(
+        assertAllTrue(TypeHelper.valueEquals(
             new String[]{"ID", "First Name", "Birthday", "Mobile", "Email", "Address"},
             shared.getColumnNames().toArray()));
     }

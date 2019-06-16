@@ -30,7 +30,7 @@ public class SupplierThrowableTest {
         try(Revokable<Function<Exception, Object>> revokable = Revokable.register(
             Functions::getDefaultExceptionHandler, f -> Functions.setDefaultExceptionHandler(f), Functions::returnsNull)) {
             valueString = 1123;            
-            assertNull(supplierThrowable.tryGet());
+            assertAllNull(supplierThrowable.tryGet());
 
             Functions.setDefaultExceptionHandler(e -> "");
             assertEquals("", supplierThrowable.tryGet());
@@ -46,7 +46,7 @@ public class SupplierThrowableTest {
         assertEquals("abc", supplierThrowable.withHandler(Functions::logThenThrows).get());
 
         valueString = null;
-        assertNull(supplierThrowable.withHandler(Functions::logAndReturnsNull).get());
+        assertAllNull(supplierThrowable.withHandler(Functions::logAndReturnsNull).get());
         assertException(() -> supplierThrowable.withHandler(Functions::returnsTrue).get(), ClassCastException.class);
         assertException(() -> supplierThrowable.withHandler(Functions::logThenThrows).get(), IllegalStateException.class);
     }
@@ -55,7 +55,7 @@ public class SupplierThrowableTest {
     public void orElse() {
         valueString = 123;
         assertEquals("something wrong", supplierThrowable.orElse("something wrong").get());
-        assertNull(supplierThrowable.orElse(null).get());
+        assertAllNull(supplierThrowable.orElse(null).get());
     }
 
 }

@@ -1,12 +1,19 @@
 package io.github.cruisoring;
 
-import io.github.cruisoring.logger.*;
+import io.github.cruisoring.logger.CompositeLogger;
+import io.github.cruisoring.logger.ConsoleLogger;
+import io.github.cruisoring.logger.LogLevel;
+import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.throwables.RunnableThrowable;
 import io.github.cruisoring.throwables.SupplierThrowable;
+import io.github.cruisoring.utility.ArrayHelper;
 import io.github.cruisoring.utility.StringHelper;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.function.Predicate;
 
 import static io.github.cruisoring.TypeHelper.valueEquals;
 
@@ -31,6 +38,352 @@ public class Asserts {
         return StringHelper.tryFormatString(format, args);
     }
 
+    /**
+     * Fail the current test with an exception containing composed message.
+     *
+     * @param format Format to compose the message body.
+     * @param args   Optional argument to compose the message.
+     * @return Not used, <tt>true</tt> to indicate all good.
+     */
+    public static boolean fail(String format, Object... args) {
+        throw new IllegalStateException(log(format, args));
+    }
+
+    //region Evaluate multiple conditions only by throw IllegalStateException with the index of problematic statement
+    /**
+     * Ensure the states represented by <tt>expressions</tt> are all <tt>TRUE</tt>, otherwise throw IllegalStateException to fail the test.
+     *
+     * @param first         the first statement to be evaluated.
+     * @param expressions any number of boolean expressions
+     * @throws IllegalStateException if any {@code expression} is false
+     */
+    public static void assertAllTrue(boolean first, boolean... expressions) {
+        if(!first) {
+            throw new IllegalStateException(log("The first expresion is false."));
+        }
+
+        int length = expressions.length;
+        for (int i = 0; i < length; i++) {
+            if (!expressions[i]) {
+                throw new IllegalStateException(log("The %dth expresion is false.", i));
+            }
+        }
+    }
+
+    /**
+     * Ensure the states represented by <tt>expressions</tt> are all <tt>false</tt>, otherwise throw IllegalStateException to fail the test.
+     *
+     * @param first     the first boolean expression to be evaluated
+     * @param expressions any other boolean expressions to be evaluated
+     * @throws IllegalStateException if any {@code expression} is true
+     */
+    public static void assertAllFalse(boolean first, boolean... expressions) {
+        if(first) {
+            throw new IllegalStateException(log("The first expression is true"));
+        }
+
+        int length = expressions.length;
+        for (int i = 0; i < length; i++) {
+            if (expressions[i]) {
+                throw new IllegalStateException(log("The %dth expression is true", 1+i));
+            }
+        }
+    }
+
+    /**
+     * Ensure all of the references are <tt>NULL</tt>s, otherwise throw Exception to fail the test.
+     *
+     * @param first     the first reference under evaluation that shall be null.
+     * @param others    other references that shall contains only null references.
+     * @param <T>       type of the reference under evaluation.
+     */
+    public static <T> void assertAllNull(T first, T... others) {
+        if (first != null) {
+            throw new IllegalStateException(log("The first object is not null: %s", TypeHelper.deepToString(first)));
+        }
+
+        int length = others.length;
+        for (int i = 0; i < length; i++) {
+            if (others[i] != null) {
+                throw new NullPointerException(log("The %dth object is not null: %s", i+1, TypeHelper.deepToString(others[i])));
+            }
+        }
+    }
+
+    /**
+     * Ensure none of the references is null, otherwise throw Exception to fail the test.
+     *
+     * @param reference the first reference under evaluation that shall not be null.
+     * @param others    other references that shall contains no null reference.
+     * @param <T>       type of the reference under evaluation.
+     */
+    public static <T> void assertAllNotNull(T reference, T... others) {
+        if (reference == null) {
+            throw new NullPointerException(log("The first object is null"));
+        }
+
+        int length = others.length;
+        if (length == 0 && reference.getClass().isArray()) {
+            length = Array.getLength(reference);
+            for (int i = 0; i < length; i++) {
+                if (Array.get(reference, i) == null) {
+                    throw new NullPointerException(log("The %dth object is null!", i+1));
+                }
+            }
+        } else {
+            for (int i = 0; i < length; i++) {
+                if (others[i] == null) {
+                    throw new NullPointerException(log("The %dth object is null!", i+1));
+                }
+            }
+        }
+    }
+    //endregion
+
+    //region Perform single evaluation without returning with customised messages
+    /**
+     * Ensure the single <tt>expression</tt> is <tt>true</tt>, otherwise throw IllegalStateException to fail the test.
+     *
+     * @param expression the boolean expression that is expected to be <tt>true</tt>
+     * @param format    template to compose the error message when {@code expression} is not <tt>true</tt>
+     * @param args      arguments to compose the error message when {@code expression} is not <tt>true</tt>
+     * @throws IllegalStateException if any {@code expression} is false
+     */
+    public static void assertTrue(boolean expression, String format, Object... args) {
+        if (!expression) {
+            throw new IllegalStateException(log(format, args));
+        }
+    }
+
+    /**
+     * Ensure the single <tt>expression</tt> is <tt>false</tt>, otherwise throw IllegalStateException to fail the test.
+     *
+     * @param expression the boolean expression that is expected to be <tt>false</tt>
+     * @param format    template to compose the error message when {@code expression} is not <tt>false</tt>
+     * @param args      arguments to compose the error message when {@code expression} is not <tt>false</tt>
+     * @throws IllegalStateException if any {@code expression} is true
+     */
+    public static void assertFalse(boolean expression, String format, Object... args) {
+        if (expression) {
+            throw new IllegalStateException(log(format, args));
+        }
+    }
+
+    /**
+     * Asserts that two objects are equal by themselves or containing same set of values if both are arrays,
+     * with/without considering their types.
+     * If they are not, an {@link IllegalStateException} is thrown with brief info.
+     *
+     * @param expected         the expected value to be compared, could be of array or not.
+     * @param actual           the actual value to be compared, could be of array or not.
+     * @param matchTypeExactly indicates if the types of <code>expected</code> and <code>actual</code> shall be identical.
+     * @throws IllegalStateException if {@code expected} is not equal with {@code actual}
+     */
+    public static void assertEquals(Object expected, Object actual, boolean matchTypeExactly) {
+        if (expected == null && actual == null) {
+            return;
+        } else if (expected == null) {
+            throw new IllegalStateException(log("%s !== %s", "null",  TypeHelper.deepToString(actual)));
+        } else if (actual == null) {
+            throw new IllegalStateException(log("%s !== %s",  TypeHelper.deepToString(expected), "null"));
+        }
+
+        if (matchTypeExactly && expected.getClass() != actual.getClass()) {
+            throw new IllegalStateException(log("Expect value of type %s, but actual value is of type %s",
+                expected.getClass().getSimpleName(), actual.getClass().getSimpleName()));
+        }
+
+        if (!valueEquals(expected, actual)) {
+            throw new IllegalStateException(log("%s !== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual)));
+        }
+    }
+
+    /**
+     * Asserts that two objects are not equal by themselves nor containing same set of values if both are arrays,
+     * with/without considering their types.
+     * If they are equal, an {@link IllegalStateException} is thrown with brief info.
+     *
+     * @param expected         the expected value to be compared, could be of array or not.
+     * @param actual           the actual value to be compared, could be of array or not.
+     * @param matchTypeExactly indicates if the types of <code>expected</code> and <code>actual</code> shall be identical.
+     * @throws IllegalStateException if {@code expected} is equal with {@code actual}
+     */
+    public static void assertNotEquals(Object expected, Object actual, boolean matchTypeExactly) {
+        if (expected == null && actual == null) {
+            throw new IllegalStateException(log("Both values are nulls."));
+        } else if (expected == null || actual == null) {
+            return;
+        }
+
+        if (matchTypeExactly && expected.getClass() != actual.getClass()) {
+            return;
+        }
+
+        if (valueEquals(expected, actual)) {
+            throw new IllegalStateException(
+                log("%s !=== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual)));
+        }
+    }
+
+    /**
+     * Asserts that two objects are equal by themselves or containing same set of values if both are arrays WITHOUT considering their types.
+     * If they are not, an {@link IllegalStateException} is thrown with brief info.
+     *
+     * @param expected the expected value to be compared, could be of array or not.
+     * @param actual   the actual value to be compared, could be of array or not.
+     * @throws IllegalStateException if {@code expected} is not equal with {@code actual}
+     */
+    public static void assertEquals(Object expected, Object actual) {
+        assertEquals(expected, actual, false);
+    }
+
+    /**
+     * Asserts that two objects are not equal by themselves nor containing same set of values if both are arrays WITHOUT considering their types.
+     * If they are equal, an {@link IllegalStateException} is thrown with brief info.
+     *
+     * @param expected the expected value to be compared, could be of array or not.
+     * @param actual   the actual value to be compared, could be of array or not.
+     * @throws IllegalStateException if {@code expected} is equal with {@code actual}
+     */
+    public static void assertNotEquals(Object expected, Object actual) {
+        assertNotEquals(expected, actual, false);
+    }
+    //endregion
+
+
+    /**
+     * Iterate through the given Collection to check if testing of all its elements passed or not.
+     *
+     * @param predicate     the Predicate used to test the elements one by one.
+     * @param collection    the Collection containing elements of type <tt>T</tt> to be tested.
+     * @param <T>           type of the elements of the Collection.
+     * @return              <tt>true</tt> if all elements of the given Collection passed the test, otherwise <tt>false</tt>
+     */
+    public static <T> boolean isAllMatched(Predicate<T> predicate, Collection<T> collection){
+        assertAllNotNull(collection, predicate);
+
+        Iterator<T> iterator = collection.iterator();
+        int index = 0;
+        while (iterator.hasNext()){
+            T next = iterator.next();
+            index++;
+            if(!predicate.test(next)) {
+                Logger.V("Failed to test the %dth element '%s'", index, next);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Iterate through the given target to check if testing of all its elements passed or not.
+     *
+     * @param predicate     the Predicate used to test the elements one by one.
+     * @param target        could be a Collection, an instance or an Array containing elements of type <tt>T</tt> to be tested.
+     * @param <T>           type of the elements of the Collection.
+     * @return              <tt>true</tt> if all elements of the given Array passed the test, otherwise <tt>false</tt>
+     */
+    public static <T> boolean isAllMatched(Predicate<T> predicate, Object target){
+        assertAllNotNull(target, predicate);
+        if(target instanceof Collection){
+            return isAllMatched(predicate, (Collection)target);
+        } else if (!target.getClass().isArray()){
+            return predicate.test((T)target);
+        }
+
+        int length = Array.getLength(target);
+        for (int i = 0; i < length; i++) {
+            T next = (T)Array.get(target, i);
+            if(!predicate.test(next)) {
+                Logger.V("Failed to test the %dth element '%s'", i, next);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Iterate through the given Array to check if testing of all its elements passed or not.
+     *
+     * @param predicate     the Predicate used to test the elements one by one.
+     * @param first         the first element to be tested
+     * @param others        other elements of the same type to be tested
+     * @param <T>           type of the elements of the Collection.
+     * @return              <tt>true</tt> if all given elements passed the test, otherwise <tt>false</tt>
+     */
+    public static <T> boolean isAllMatched(Predicate<T> predicate, T first, T... others){
+        assertAllNotNull(predicate);
+
+        T[] aggregation = (T[]) ArrayHelper.mergeVarargsFirst(others, first);
+        return isAllMatched(predicate, aggregation);
+    }
+
+    /**
+     * Iterate through the given Collection to check if any of its elements passed.
+     *
+     * @param predicate     the Predicate used to test the elements one by one.
+     * @param collection    the Collection containing elements of type <tt>T</tt> to be tested.
+     * @param <T>           type of the elements of the Collection.
+     * @return              <tt>true</tt> if one element of the given Array or Collection passed the test, otherwise <tt>false</tt>
+     */
+    public static <T> boolean isAnyMatched(Predicate<T> predicate, Collection<T> collection){
+        assertAllNotNull(collection, predicate);
+
+        Iterator<T> iterator = collection.iterator();
+        int index = 0;
+        while (iterator.hasNext()){
+            T next = iterator.next();
+            index++;
+            if(predicate.test(next)) {
+                Logger.V("The %dth element '%s' passed the test", index, next);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Iterate through the given target to check if any of its elements passed.
+     *
+     * @param predicate     the Predicate used to test the elements one by one.
+     * @param target        could be a Collection, an instance or an Array containing elements of type <tt>T</tt> to be tested.
+     * @param <T>           type of the elements of the Collection.
+     * @return              <tt>true</tt> if one element of the given Array passed the test, otherwise <tt>false</tt>
+     */
+    public static <T> boolean isAnyMatched(Predicate<T> predicate, Object target){
+        assertAllNotNull(target, predicate);
+        if(target instanceof Collection){
+            return isAllMatched(predicate, (Collection)target);
+        } else if (!target.getClass().isArray()){
+            return predicate.test((T)target);
+        }
+
+        int length = Array.getLength(target);
+        for (int i = 0; i < length; i++) {
+            T next = (T)Array.get(target, i);
+            if(predicate.test(next)) {
+                Logger.V("The %dth element '%s' passed the test", i, next);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Iterate through the given Array to check if any of its elements passed.
+     *
+     * @param predicate     the Predicate used to test the elements one by one.
+     * @param first         the first element to be tested
+     * @param others        other elements of the same type to be tested
+     * @param <T>           type of the elements of the Collection.
+     * @return              <tt>true</tt> if one element of the given Array passed the test, otherwise <tt>false</tt>
+     */
+    public static <T> boolean isAnyMatched(Predicate<T> predicate, T first, T... others){
+        assertAllNotNull(predicate);
+
+        T[] aggregation = (T[]) ArrayHelper.mergeVarargsFirst(others, first);
+        return isAnyMatched(predicate, aggregation);
+    }
 
     /**
      * Ensures that an object reference passed as a parameter to the calling method is not null.
@@ -50,35 +403,6 @@ public class Asserts {
     }
 
     /**
-     * Ensure the state represented by <tt>expression</tt> is true.
-     *
-     * @param expression the boolean expression to be validated as <tt>true</tt>
-     * @param format    template to compose the error message when {@code reference is null}
-     * @param args      arguments to compose the error message when {@code reference is null}
-     * @throws IllegalStateException if {@code expression} is false
-     */
-    public static void checkState(boolean expression, String format, Object... args) {
-        if (!expression) {
-            throw new IllegalStateException(log(format, args));
-        }
-    }
-
-    /**
-     * Ensure all states represented by <tt>expressiosn</tt> are all <tt>true</tt>.
-     *
-     * @param expressions any number of boolean expressions
-     * @throws IllegalStateException if any one of {@code expressions} is false
-     */
-    public static void checkStates(boolean... expressions) {
-        int length = expressions.length;
-        for (int i = 0; i < length; i++) {
-            if (!expressions[i]) {
-                throw new IllegalStateException(log("Failed with the %dth expresion", i));
-            }
-        }
-    }
-
-    /**
      * Ensures that all object references passed as a parameter to the calling method is not null.
      *
      * @param reference a object reference
@@ -87,7 +411,7 @@ public class Asserts {
      * @return the first non-null reference that was validated
      * @throws NullPointerException if {@code reference} is null
      */
-    public static <T> T checkWithoutNull(T reference, Object... others) {
+    public static <T> T checkNoneNulls(T reference, Object... others) {
         if (reference == null) {
             throw new NullPointerException(log("the first argument is null"));
         }
@@ -116,227 +440,6 @@ public class Asserts {
     }
 
     /**
-     * Fail the current test with an exception containing composed message.
-     *
-     * @param format Format to compose the message body.
-     * @param args   Optional argument to compose the message.
-     * @return Not used, <tt>true</tt> to indicate all good.
-     */
-    public static boolean fail(String format, Object... args) {
-        throw new IllegalStateException(log(format, args));
-    }
-
-    /**
-     * Ensure the single <tt>expression</tt> is <tt>true</tt>, otherwise throw IllegalStateException to fail the test.
-     *
-     * @param expression the boolean expression that is expected to be <tt>true</tt>
-     * @param format    template to compose the error message when {@code expression} is not <tt>true</tt>
-     * @param args      arguments to compose the error message when {@code expression} is not <tt>true</tt>
-     * @return Not used, <tt>true</tt> to indicate all good.
-     * @throws IllegalStateException if any {@code expression} is false
-     */
-    public static boolean assertTrue(boolean expression, String format, Object... args) {
-        if (!expression) {
-            throw new NullPointerException(log(format, args));
-        }
-        return true;
-    }
-
-    /**
-     * Ensure the states represented by <tt>expressions</tt> are all <tt>true</tt>, otherwise throw IllegalStateException to fail the test.
-     *
-     * @param expressions any number of boolean expressions
-     * @return Not used, <tt>true</tt> to indicate all good.
-     * @throws IllegalStateException if any {@code expression} is false
-     */
-    public static boolean assertTrue(boolean... expressions) {
-        int length = expressions.length;
-        for (int i = 0; i < length; i++) {
-            if (!expressions[i]) {
-                throw new IllegalStateException(log("Failed with the %dth expresion", i));
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Ensure none of the references is null, otherwise throw Exception to fail the test.
-     *
-     * @param reference the first reference under evaluation that shall not be null.
-     * @param others    other references that shall contains no null reference.
-     * @param <T>       type of the reference under evaluation.
-     * @return Not used, <tt>true</tt> to indicate all good.
-     */
-    public static <T> boolean assertNotNull(T reference, T... others) {
-        if (reference == null) {
-            throw new IllegalStateException(log("The first argument is null"));
-        }
-
-        int length = others.length;
-        if (length == 0 && reference.getClass().isArray()) {
-            length = Array.getLength(reference);
-            if (length == 0) {
-                throw new UnsupportedOperationException(log("Try to call assertNotNull() multiple times for each reference"));
-            }
-
-            for (int i = 0; i < length; i++) {
-                if (Array.get(reference, i) == null) {
-                    throw new NullPointerException(log("The %dth reference is null!", i));
-                }
-            }
-            return true;
-        } else {
-            for (int i = 0; i < length; i++) {
-                if (others[i] == null) {
-                    throw new NullPointerException(log("The %dth reference is null!", i+1));
-                }
-            }
-            return true;
-        }
-    }
-
-    /**
-     * Ensure all of the references are null, otherwise throw Exception to fail the test.
-     *
-     * @param reference the first reference under evaluation that shall be null.
-     * @param others    other references that shall contains only null references.
-     * @param <T>       type of the reference under evaluation.
-     * @return Not used, <tt>true</tt> to indicate all good.
-     */
-    public static <T> boolean assertNull(T reference, T... others) {
-        if (reference != null) {
-            throw new IllegalStateException(log("Expected: <null> but was: %s", TypeHelper.deepToString(reference)));
-        }
-
-        int length = others.length;
-        for (int i = 0; i < length; i++) {
-            if (others[i] != null) {
-                throw new NullPointerException(log("The %dth argument is not null: %s", i+1, TypeHelper.deepToString(others[i])));
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Ensure the single <tt>expression</tt> is <tt>false</tt>, otherwise throw IllegalStateException to fail the test.
-     *
-     * @param expression the boolean expression that is expected to be <tt>false</tt>
-     * @param format    template to compose the error message when {@code expression} is not <tt>false</tt>
-     * @param args      arguments to compose the error message when {@code expression} is not <tt>false</tt>
-     * @return Not used, <tt>true</tt> to indicate all good.
-     * @throws IllegalStateException if any {@code expression} is true
-     */
-    public static boolean assertFalse(boolean expression, String format, Object... args) {
-        if (!expression) {
-            throw new NullPointerException(log(format, args));
-        }
-        return true;
-    }
-
-    /**
-     * Ensure the states represented by <tt>expressions</tt> are all <tt>false</tt>, otherwise throw IllegalStateException to fail the test.
-     *
-     * @param expressions any number of boolean expressions
-     * @return Not used, <tt>true</tt> to indicate all good.
-     * @throws IllegalStateException if any {@code expression} is true
-     */
-    public static boolean assertFalse(boolean... expressions) {
-        int length = expressions.length;
-        for (int i = 0; i < length; i++) {
-            if (expressions[i]) {
-                throw new IllegalStateException(log("The %dth expresion is true", i));
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Asserts that two objects are equal by themselves or containing same set of values if both are arrays,
-     * with/without considering their types.
-     * If they are not, an {@link IllegalStateException} is thrown with brief info.
-     *
-     * @param expected         the expected value to be compared, could be of array or not.
-     * @param actual           the actual value to be compared, could be of array or not.
-     * @param matchTypeExactly indicates if the types of <code>expected</code> and <code>actual</code> shall be identical.
-     * @return Not used, <tt>true</tt> to indicate all good.
-     * @throws IllegalStateException if {@code expected} is not equal with {@code actual}
-     */
-    public static boolean assertEquals(Object expected, Object actual, boolean matchTypeExactly) {
-        if (expected == null && actual == null) {
-            return true;
-        } else if (expected == null) {
-            throw new IllegalStateException(log("%s !== %s", "null",  TypeHelper.deepToString(actual)));
-        } else if (actual == null) {
-            throw new IllegalStateException(log("%s !== %s",  TypeHelper.deepToString(expected), "null"));
-        }
-
-        if (matchTypeExactly && expected.getClass() != actual.getClass()) {
-            throw new IllegalStateException(log("Expect value of type %s, but actual value is of type %s",
-                expected.getClass().getSimpleName(), actual.getClass().getSimpleName()));
-        }
-
-        if (!valueEquals(expected, actual)) {
-            throw new IllegalStateException(log("%s !== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual)));
-        }
-        return true;
-    }
-
-    /**
-     * Asserts that two objects are not equal by themselves nor containing same set of values if both are arrays,
-     * with/without considering their types.
-     * If they are equal, an {@link IllegalStateException} is thrown with brief info.
-     *
-     * @param expected         the expected value to be compared, could be of array or not.
-     * @param actual           the actual value to be compared, could be of array or not.
-     * @param matchTypeExactly indicates if the types of <code>expected</code> and <code>actual</code> shall be identical.
-     * @return Not used, <tt>true</tt> to indicate all good.
-     * @throws IllegalStateException if {@code expected} is equal with {@code actual}
-     */
-    public static boolean assertNotEquals(Object expected, Object actual, boolean matchTypeExactly) {
-        if (expected == null && actual == null) {
-            throw new IllegalStateException(log("Both values are nulls."));
-        } else if (expected == null || actual == null) {
-            return true;
-        }
-
-        if (matchTypeExactly && expected.getClass() != actual.getClass()) {
-            return true;
-        }
-
-        if (valueEquals(expected, actual)) {
-            throw new IllegalStateException(
-                log("%s !=== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual)));
-        }
-        return true;
-    }
-
-    /**
-     * Asserts that two objects are equal by themselves or containing same set of values if both are arrays WITHOUT considering their types.
-     * If they are not, an {@link IllegalStateException} is thrown with brief info.
-     *
-     * @param expected the expected value to be compared, could be of array or not.
-     * @param actual   the actual value to be compared, could be of array or not.
-     * @return Not used, <tt>true</tt> to indicate all good.
-     * @throws IllegalStateException if {@code expected} is not equal with {@code actual}
-     */
-    public static boolean assertEquals(Object expected, Object actual) {
-        return assertEquals(expected, actual, false);
-    }
-
-    /**
-     * Asserts that two objects are not equal by themselves nor containing same set of values if both are arrays WITHOUT considering their types.
-     * If they are equal, an {@link IllegalStateException} is thrown with brief info.
-     *
-     * @param expected the expected value to be compared, could be of array or not.
-     * @param actual   the actual value to be compared, could be of array or not.
-     * @return Not used, <tt>true</tt> to indicate all good.
-     * @throws IllegalStateException if {@code expected} is equal with {@code actual}
-     */
-    public static boolean assertNotEquals(Object expected, Object actual) {
-        return assertNotEquals(expected, actual, false);
-    }
-
-    /**
      * Asserts executing the given function would throw an Exception of specific type, otherwise it would throw an IllegalStateException to fail the test.
      *
      * @param supplier       function returning a result of type <tt>R</tt>.
@@ -346,7 +449,7 @@ public class Asserts {
      * @return type of the returning value of the concerned function.
      */
     public static <R> R assertException(SupplierThrowable<R> supplier, Class<? extends Exception> exceptionClass, Object... keywords) {
-        checkWithoutNull(supplier, exceptionClass);
+        assertAllNotNull(supplier, exceptionClass);
 
         try {
             supplier.get();
@@ -404,20 +507,19 @@ public class Asserts {
      * @return type of the returning value of the concerned function.
      */
     public static <R> R assertLogging(SupplierThrowable<R> supplier, Object... expectations) {
-        final InMemoryLogger buffer = new InMemoryLogger();
+        final StringBuilder stringBuilder = new StringBuilder();
         CompositeLogger logger = new CompositeLogger(LogLevel.verbose,
             new ConsoleLogger(System.out::println),
-            buffer);
+                new ConsoleLogger(stringBuilder::append));
         try (
             Revokable revokable = Logger.useInScope(logger);
             Revokable revokable2 = Logger.setLevelInScope(LogLevel.verbose)
         ) {
-            return supplier.get();
-        } catch (Exception ignored) {
-            return null;
+            R result = supplier.withHandler(Functions::logAndReturnsNull).get();
+            return result;
         } finally {
-            String history = buffer.getHistory();
-            assertTrue(StringHelper.containsAllIgnoreCase(history, expectations), "Not all expectations are logged.");
+            String history = stringBuilder.toString();
+            assertAllTrue(StringHelper.containsAll(history, expectations));
         }
     }
 
@@ -427,19 +529,21 @@ public class Asserts {
      * @param expectations   Objects to be logged by executing the concerned function
      */
     public static void assertLogging(RunnableThrowable runnableThrowable, Object... expectations) {
-        final InMemoryLogger buffer = new InMemoryLogger();
+        final StringBuilder stringBuilder = new StringBuilder();
         CompositeLogger logger = new CompositeLogger(LogLevel.verbose,
             new ConsoleLogger(System.out::println),
-            buffer);
+                new ConsoleLogger(stringBuilder::append));
         try (
             Revokable revokable = Logger.useInScope(logger);
             Revokable revokable2 = Logger.setLevelInScope(LogLevel.verbose)
         ) {
-            runnableThrowable.run();
-        } catch (Exception ignored) {
+            runnableThrowable.withHandler(Functions::logAndReturnsNull).run();
         } finally {
-            String history = buffer.getHistory();
-            assertTrue(StringHelper.containsAllIgnoreCase(history, expectations), "Not all expectations are logged.");
+            String history = stringBuilder.toString();
+            if(!StringHelper.containsAllIgnoreCase(history, expectations)) {
+                Logger.getDefault().log(defaultLogLevel, "'%s' doesn't contain all: %s", history, TypeHelper.deepToString(expectations));
+                fail("Failed with containsAllIgnoreCase");
+            }
         }
     }
 }

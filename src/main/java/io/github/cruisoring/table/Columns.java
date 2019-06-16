@@ -8,7 +8,7 @@ import io.github.cruisoring.utility.ArrayHelper;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
 
 /**
  * Keep column names and their indexes as a map, aliases could be defined in the given Map to create
@@ -41,7 +41,7 @@ public class Columns implements IColumns {
      * @param columnNames   Names of the columns that cannot be null or duplicated.
      */
     public Columns(String... columnNames) {
-        checkWithoutNull(columnNames);
+        assertAllNotNull(columnNames);
 
         //Use String::compareTo() by default
         nameComparator = String::compareTo;
@@ -66,7 +66,7 @@ public class Columns implements IColumns {
     }
 
     public static Comparator<String> getEscapedComparator(String escapePattern) {
-        checkWithoutNull(escapePattern);
+        assertAllNotNull(escapePattern);
         return (s1, s2) -> {
             String escaped1 = s1.replaceAll(escapePattern, "");
             String escaped2 = s2.replaceAll(escapePattern, "");
@@ -85,7 +85,7 @@ public class Columns implements IColumns {
     //region Constructors
 
     public static Comparator<String> getEscapedInsensitiveComparator(String escapePattern) {
-        checkWithoutNull(escapePattern);
+        assertAllNotNull(escapePattern);
         return (s1, s2) -> {
             String escaped1 = s1.replaceAll(escapePattern, "");
             String escaped2 = s2.replaceAll(escapePattern, "");
@@ -100,7 +100,7 @@ public class Columns implements IColumns {
      * @param nameComparator    Comparator&lt;String&gt; used to compare column names.
      */
     public Columns(String[][] columnDefintions, Comparator<String> nameComparator){
-        checkWithoutNull(columnDefintions);
+        assertAllNotNull(columnDefintions);
 
         this.nameComparator = nameComparator==null ? DefaultNameComparator : nameComparator;
         int width = columnDefintions.length;
@@ -167,7 +167,7 @@ public class Columns implements IColumns {
 
     @Override
     public WithValues<Integer> mapIndexes(IColumns other){
-        checkWithoutNull(other);
+        assertAllNotNull(other);
 
         if(this == other){
             Integer[] indexes = IntStream.range(0, width()).boxed().toArray(size -> new Integer[size]);

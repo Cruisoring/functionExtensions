@@ -20,6 +20,6 @@ public class TupleTable4<T, U, V, W> extends TupleTable<WithValues4<T, U, V, W>>
     }
 
     public boolean addValues(T t, U u, V v, W w, Object... more) {
-        return addValues(Tuple.of(ArrayHelper.append(more, t, u, v, w)));
+        return addValues(Tuple.of(ArrayHelper.mergeVarargsFirst(more, t, u, v, w)));
     }
 }

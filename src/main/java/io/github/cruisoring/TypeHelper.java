@@ -22,8 +22,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Asserts.assertTrue;
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
  * Container class of type related utilities.
@@ -40,11 +40,6 @@ public class TypeHelper {
     public static int PARALLEL_EVALUATION_THRESHOLD = _defaultParallelEvaluationThread;
 
     public static EqualityStategy DEFAULT_EMPTY_EQUALITY = EqualityStategy.TypeIgnored;
-//    static {
-//        EMPTY_ARRAY_AS_DEFAULT = StringHelper.tryParseSystemProperties(false, "EMPTY_ARRAY_AS_DEFAULT");
-//        PARALLEL_EVALUATION_THRESHOLD = StringHelper.tryParseSystemProperties(_defaultParallelEvaluationThread, "PARALLEL_EVALUATION_THRESHOLD");
-//        DEFAULT_EMPTY_EQUALITY = StringHelper.tryParseSystemProperties(EqualityStategy.TypeIgnored);
-//    }
 
     //region Common functions saved as static variables
     private static final BiFunctionThrowable<Object, Integer, Object> arrayGet = Array::get;
@@ -411,7 +406,8 @@ public class TypeHelper {
     }
 
     private static <T> Function<Object, String> getDeepToString(Class<T> componentClass) {
-        checkWithoutNull(componentClass);
+        assertAllNotNull(componentClass);
+
         Function<Object, String> toString = (obj) -> {
             T[] objects = (T[]) obj;
             int length = objects.length;
@@ -487,7 +483,7 @@ public class TypeHelper {
      *          IllegalStateException if the given object is not an {@code Array} or {@code Collection}
      */
     public static Object getElement(Object object, int index) {
-        assertTrue(object != null, index >= 0);
+        Asserts.assertAllTrue(object != null, index >= 0);
 
         if (object.getClass().isArray()) {
             int length = Array.getLength(object);
@@ -523,7 +519,7 @@ public class TypeHelper {
      * @return the root Object itself if the indexes is empty; or the element of the concerned Object referred by the given {@code deepIndex}
      */
     public static Object getDeepElement(Object object, int[] deepIndex) {
-        assertTrue(deepIndex != null);
+        Asserts.assertAllTrue(deepIndex != null);
 
         int deepIndexLength = deepIndex.length;
         if (deepIndexLength == 0 || deepIndex[0] < 0) {
@@ -726,7 +722,7 @@ public class TypeHelper {
      * @return      <tt>true</tt> if the actual value can be assigned to the declared variable.
      */
     public static boolean canBeAssigned(Class declaringType, Class actualValueType) {
-        checkWithoutNull(declaringType, actualValueType);
+        assertAllNotNull(declaringType, actualValueType);
 
         declaringType = isPrimitive(declaringType) ? getEquivalentClass(declaringType) : declaringType;
         actualValueType = isPrimitive(actualValueType) ? getEquivalentClass(actualValueType) : actualValueType;
@@ -841,8 +837,7 @@ public class TypeHelper {
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEquals(Object obj1, Object obj2, int[][] deepIndexes1, int[][] deepIndexes2) {
-        checkWithoutNull(deepIndexes1);
-        checkWithoutNull(deepIndexes2);
+        assertAllNotNull(deepIndexes1, deepIndexes2);
 
         if (!Arrays.deepEquals(deepIndexes1, deepIndexes2))
             return false;
@@ -896,8 +891,7 @@ public class TypeHelper {
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEqualsParallel(Object obj1, Object obj2, int[][] deepIndexes1, int[][] deepIndexes2) {
-        checkWithoutNull(deepIndexes1);
-        checkWithoutNull(deepIndexes2);
+        assertAllNotNull(deepIndexes1, deepIndexes2);
 
         if (!Arrays.deepEquals(deepIndexes1, deepIndexes2))
             return false;
@@ -950,8 +944,7 @@ public class TypeHelper {
      * @return <code>true</code> if both objects have same values, otherwise <code>false</code>
      */
     public static boolean valueEqualsSerially(Object obj1, Object obj2, int[][] deepIndexes1, int[][] deepIndexes2) {
-        checkWithoutNull(deepIndexes1);
-        checkWithoutNull(deepIndexes2);
+        assertAllNotNull(deepIndexes1, deepIndexes2);
 
         if (!Arrays.deepEquals(deepIndexes1, deepIndexes2))
             return false;
@@ -959,6 +952,7 @@ public class TypeHelper {
         return deepEqualsSerial(obj1, obj2, deepIndexes1, DEFAULT_EMPTY_EQUALITY);
     }
 
+    @SuppressWarnings("unchecked")
     protected static ConstantPool getConstantPoolOfClass(Class objectClass) {
         try {
             Method method = _getConstantPool();
@@ -972,9 +966,7 @@ public class TypeHelper {
     //region Repository with Class as the key, to keep 7 common used attributes or operators
 
     private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(ofThrowable lambda) {
-        checkWithoutNull(lambda);
-
-        Class lambdaClass = lambda.getClass();
+        Class lambdaClass = checkNoneNulls(lambda).getClass();
         ConstantPool constantPool = TypeHelper.getConstantPoolOfClass(lambdaClass);
         Method functionInterfaceMethod = null;
         int index = constantPool.getSize();
@@ -1052,8 +1044,7 @@ public class TypeHelper {
      * @return <code>true</code> if they are equivalent, otherwise <code>false</code>
      */
     public static boolean areEquivalent(Class class1, Class class2) {
-        checkWithoutNull(class1);
-        checkWithoutNull(class2);
+        assertAllNotNull(class1, class2);
 
         return classOperators.getFirstValue(class1).test(class2);
     }
@@ -1268,8 +1259,7 @@ public class TypeHelper {
      * @return true if and only if this class represents a primitive type or an array of primitive type elements
      */
     public static Boolean isPrimitive(Class clazz) {
-        checkWithoutNull(clazz);
-        Boolean result = baseTypeConverters.getFirstValue(clazz);
+        Boolean result = baseTypeConverters.getFirstValue(checkNoneNulls(clazz));
         return result == null ? false : result;
     }
 
@@ -1286,8 +1276,7 @@ public class TypeHelper {
      * a zero-length array of the type of the class, when <code>EMPTY_ARRAY_AS_DEFAULT</code> is true by default
      */
     public static Object getDefaultValue(Class clazz) {
-        checkWithoutNull(clazz);
-        return baseTypeConverters.getSecondValue(clazz);
+        return baseTypeConverters.getSecondValue(checkNoneNulls(clazz));
     }
 
     /**
@@ -1304,8 +1293,7 @@ public class TypeHelper {
      * @return equivalent class of the concerned class
      */
     public static Class getEquivalentClass(Class clazz) {
-        checkWithoutNull(clazz);
-        return baseTypeConverters.getThirdValue(clazz);
+        return baseTypeConverters.getThirdValue(checkNoneNulls(clazz));
     }
 
     /**
@@ -1320,8 +1308,7 @@ public class TypeHelper {
      * @return The converter function to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentParallelConverter(Class clazz) {
-        checkWithoutNull(clazz);
-        return baseTypeConverters.getFourthValue(clazz);
+        return baseTypeConverters.getFourthValue(checkNoneNulls(clazz));
     }
 
     /**
@@ -1336,8 +1323,7 @@ public class TypeHelper {
      * @return The converter function to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentSerialConverter(Class clazz) {
-        checkWithoutNull(clazz);
-        return baseTypeConverters.getFifthValue(clazz);
+        return baseTypeConverters.getFifthValue(checkNoneNulls(clazz));
     }
 
     /**
@@ -1352,8 +1338,7 @@ public class TypeHelper {
      * @return The converter function to convert the concerned object to its equivalent one.
      */
     public static Function<Object, Object> getToEquivalentConverter(Class clazz) {
-        checkWithoutNull(clazz);
-        return baseTypeConverters.getSixthValue(clazz);
+        return baseTypeConverters.getSixthValue(checkNoneNulls(clazz));
     }
 
     /**
@@ -1382,8 +1367,7 @@ public class TypeHelper {
 
     private static Tuple3<Function<Object, Object>, Function<Object, Object>, Function<Object, Object>>
     getDeepEvaluators(Class fromClass, Class toClass) {
-        checkWithoutNull(fromClass);
-        checkWithoutNull(toClass);
+        assertAllNotNull(fromClass, toClass);
 
         boolean isFromArray = fromClass.isArray();
         boolean isToArray = toClass.isArray();

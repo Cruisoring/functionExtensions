@@ -6,7 +6,7 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Arrays;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
  * The composite logger composed by 0 to many children ILogger instances so as to allow multiple loggers to log same message with different means.
@@ -35,9 +35,7 @@ public class CompositeLogger implements ILogger {
      *                 null or CompositeLogger would not be accepted.
      */
     public CompositeLogger(LogLevel minLevel, ILogger... loggers) {
-        checkWithoutNull(minLevel, loggers);
-
-        this.minLevel = minLevel;
+        this.minLevel = checkNoneNulls(minLevel, loggers);
         this.loggers = Arrays.stream(loggers)
                 .filter(l -> l != null && !(l instanceof CompositeLogger))
                 .toArray(size -> new ILogger[size]);

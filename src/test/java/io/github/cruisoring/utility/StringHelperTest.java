@@ -26,7 +26,7 @@ public class StringHelperTest {
 
     @Test
     public void containsAll() {
-        assertTrue(
+        assertAllTrue(
             StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false, null",
                 null),
             StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false, null",
@@ -34,7 +34,7 @@ public class StringHelperTest {
             StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, null, false",
                 "clock", '^', 33.26, false, "containsAll", 246, null)
         );
-        assertFalse(
+        assertAllFalse(
             StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, false",
                 null),
             StringHelper.containsAll("The containsAll test failed with 246, \"clock\", '^', 33.26, Null",
@@ -48,14 +48,14 @@ public class StringHelperTest {
 
     @Test
     public void containsAllIgnoreCase() {
-        assertTrue(
+        assertAllTrue(
             StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, false, NULL"),
             StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, false, NULL",
                 null),
             StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, false, null",
                 '^', 33.26, false, "ContainsALL", 246, "Clock", null)
         );
-        assertFalse(
+        assertAllFalse(
             StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, false",
                 null),
             StringHelper.containsAllIgnoreCase("The containsAll test failed with 246, \"clock\", '^', 33.26, Null",
@@ -68,13 +68,13 @@ public class StringHelperTest {
         assertException(() -> StringHelper.containsAny(null, 123), NullPointerException.class);
         assertException(() -> StringHelper.containsAny(null, null), NullPointerException.class);
 
-        assertTrue(
+        assertAllTrue(
             StringHelper.containsAny("123, 432, true, null", 463, false, null, "abc"),
             StringHelper.containsAny("123, 432, true, null", 463, true, "abc"),
             StringHelper.containsAny("123, 432, true, null", 463, "true", "abc")
         );
 
-        assertFalse(
+        assertAllFalse(
             StringHelper.containsAny("context"),
             StringHelper.containsAny("123, 432, true, null, 2019-04-01", 463, false, "abc"),
             StringHelper.containsAny("123, 432, true, null, 2019-04-01", 463, "True", "abc")

@@ -8,8 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
-import static io.github.cruisoring.Asserts.checkNotNull;
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.*;
 
 /**
  * Helper class with Set related methods implemented.
@@ -69,7 +68,7 @@ public class SetHelper {
      * @return the TreeSet containing same elements sorted.
      */
     public static <T> Set<T> asTreeSet(T... elements) {
-        checkWithoutNull(elements);
+        assertAllNotNull(elements);
         return fillSet(new TreeSet<>(), elements);
     }
 
@@ -95,9 +94,7 @@ public class SetHelper {
      */
     public static <T> Set<T> union(Set<T> setA, Set<T> setB, Set<T>... others) {
         Set<T> set = defaultSetSupplier.get();
-        checkWithoutNull(set, setA, setB, others);
-
-        set.addAll(setA);
+        checkNoneNulls(set, setA, setB, others).addAll(setA);
         set.addAll(setB);
         for (int i = 0; i < others.length; i++) {
             set.addAll(others[i]);
@@ -116,9 +113,7 @@ public class SetHelper {
      */
     public static <T> Set<T> intersection(Set<T> setA, Set<T> setB, Set<T>... others) {
         Set<T> intersection = defaultSetSupplier.get();
-        checkWithoutNull(intersection, setA, setB, others);
-
-        intersection.addAll(setA);
+        checkNoneNulls(intersection, setA, setB, others).addAll(setA);
         intersection.retainAll(setB);
         for (int i = 0; i < others.length; i++) {
             if(intersection.isEmpty())
@@ -138,9 +133,7 @@ public class SetHelper {
      */
     public static <T> Set<T> difference(Set<T> setA, Set<T> setB){
         Set<T> set = defaultSetSupplier.get();
-        checkWithoutNull(set, setA, setB);
-
-        set.addAll(setA);
+        checkNoneNulls(set, setA, setB).addAll(setA);
         set.removeAll(setB);
         return set;
     }
@@ -157,9 +150,7 @@ public class SetHelper {
      */
     public static <T> Set<T> symmetricDifference(Set<T> setA, Set<T> setB) {
         Set<T> set = defaultSetSupplier.get();
-        checkWithoutNull(set, setA, setB);
-
-        set.addAll(setA);
+        checkNoneNulls(set, setA, setB).addAll(setA);
         for (T element : setB) {
             // .add() returns false if element already exists
             if (!set.add(element)) {

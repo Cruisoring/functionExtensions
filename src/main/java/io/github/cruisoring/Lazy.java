@@ -8,7 +8,7 @@ import io.github.cruisoring.throwables.SupplierThrowable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.cruisoring.Asserts.checkWithoutNull;
+import static io.github.cruisoring.Asserts.checkNotNull;
 
 /**
  * This generic class encapsulate factory to enable lazy evaluation of the concerned value.
@@ -33,8 +33,7 @@ public class Lazy<T> implements AutoCloseable {
      * @param supplier The factory to create value instance when getOriginalSetting() is called.
      */
     public Lazy(SupplierThrowable<T> supplier) {
-        checkWithoutNull(supplier);
-        this.supplier = supplier;
+        this.supplier = checkNotNull(supplier, "The supplier is mandatory");
         this.actionOnChanges = null;
     }
 
@@ -45,8 +44,7 @@ public class Lazy<T> implements AutoCloseable {
      * @param actionOnChanges Extra steps to run before closing() being called.
      */
     public Lazy(SupplierThrowable<T> supplier, BiConsumerThrowable<T, T> actionOnChanges) {
-        checkWithoutNull(supplier);
-        this.supplier = supplier;
+        this.supplier = checkNotNull(supplier, "The supplier is mandatory");
         this.actionOnChanges = actionOnChanges;
 //        this.closing = actionOnChanges == null ? this::closing : () -> this.resetAfterAction(actionOnChanges);
     }

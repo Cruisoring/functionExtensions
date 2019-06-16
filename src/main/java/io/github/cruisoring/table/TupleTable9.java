@@ -21,6 +21,6 @@ public class TupleTable9<T, U, V, W, X, Y, Z, A, B> extends TupleTable<WithValue
     }
 
     public boolean addValues(T t, U u, V v, W w, X x, Y y, Z z, A a, B b, Object... more) {
-        return addValues(Tuple.of(ArrayHelper.append(more, t, u, v, w, x, y, z, a, b)));
+        return addValues(Tuple.of(ArrayHelper.mergeVarargsFirst(more, t, u, v, w, x, y, z, a, b)));
     }
 }

@@ -9,15 +9,15 @@ public class ResourceHelperTest {
     @Test
     public void testResourcePaths() {
         String[] resourcePaths = ResourceHelper.resourcePaths;
-        assertTrue(resourcePaths.length == 2,
+        assertAllTrue(resourcePaths.length == 2,
                 resourcePaths[0].endsWith("src/test/resources/"),
                 resourcePaths[1].endsWith("src/main/resources/"));
     }
 
     @Test
     public void isResourceAvailable() {
-        assertTrue(ResourceHelper.isResourceAvailable("test.sql"));
-        assertFalse(ResourceHelper.isResourceAvailable("test.txt"));
+        assertAllTrue(ResourceHelper.isResourceAvailable("test.sql"));
+        assertAllFalse(ResourceHelper.isResourceAvailable("test.txt"));
     }
 
     @Test

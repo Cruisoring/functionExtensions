@@ -12,6 +12,10 @@ import java.util.stream.Stream;
 import static io.github.cruisoring.Asserts.*;
 import static java.util.Comparator.comparing;
 
+/**
+ * This data structure specify a continuous set of Integers by its startExclusive and endExclusive sides integers.
+ * By stealing the 2 largest integers and 2 smallest integers to represent the Positive and Negative Infinity, this class can be used to represent real life ranges.
+ */
 public class Range extends Tuple2<Integer, Integer> {
     //region Constants
     public static final long INFINITE_LENGTH = Long.MAX_VALUE;
@@ -31,10 +35,8 @@ public class Range extends Tuple2<Integer, Integer> {
     //endregion
 
     //region Static methods
-    //region Instance variables
-    //Represent the size of the range in long, -1 when size is infinite
-    private final long _size;
 
+    //region Static factory methods with explicit or implicit ends of the Range
     /**
      * Returns a range contains all indexes for a enumerable object with specific bufferSize.
      *
@@ -42,7 +44,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return Range of the indexes.
      */
     public static Range ofLength(int length) {
-        checkState(length >= 0, "Length shall not be negative value: " + length);
+        Asserts.assertTrue(length >= 0, "Length shall not be negative value: " + length);
         return length == 0 ? NONE : new Range(0, length);
     }
 
@@ -54,8 +56,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return An Range object between {@code startExclusive} and {@code endExclusive} exclusively.
      */
     public static Range open(int startExclusive, int endExclusive) {
-        checkState(startExclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowOpen(endExclusive)");
-        checkState(endExclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveOpen(startExclusive)");
+        Asserts.assertTrue(startExclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowOpen(endExclusive)");
+        Asserts.assertTrue(endExclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveOpen(startExclusive)");
         return new Range(startExclusive + 1, endExclusive);
     }
 
@@ -67,8 +69,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return An Range object between {@code startExclusive} and {@code endExclusive} inclusively.
      */
     public static Range closed(int startInclusive, int endInclusive) {
-        checkState(startInclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowClosed(endInclusive)");
-        checkState(endInclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveClosed(startInclusive)");
+        Asserts.assertTrue(startInclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowClosed(endInclusive)");
+        Asserts.assertTrue(endInclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveClosed(startInclusive)");
         return new Range(startInclusive, endInclusive + 1);
     }
 
@@ -80,8 +82,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return An Range object between {@code startExclusive} exclusive and {@code endInclusive} inclusive.
      */
     public static Range openClosed(int startExclusive, int endInclusive) {
-        checkState(startExclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowOpen(endExclusive)");
-        checkState(endInclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveClosed(startInclusive)");
+        Asserts.assertTrue(startExclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowOpen(endExclusive)");
+        Asserts.assertTrue(endInclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveClosed(startInclusive)");
         return new Range(startExclusive + 1, endInclusive + 1);
     }
 
@@ -93,8 +95,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return An Range object between {@code startInclusive} exclusive and {@code endExclusive} inclusive.
      */
     public static Range closedOpen(int startInclusive, int endExclusive) {
-        checkState(startInclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowClosed(endInclusive)");
-        checkState(endExclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveOpen(startExclusive)");
+        Asserts.assertTrue(startInclusive > NEGATIVE_INFINITY + 1, "To represent infinitive range below endEnclusive, use belowClosed(endInclusive)");
+        Asserts.assertTrue(endExclusive < POSITIVE_INFINITY - 1, "To represent range above startExclusive, use aboveOpen(startExclusive)");
         return new Range(startInclusive, endExclusive);
     }
 
@@ -141,6 +143,7 @@ public class Range extends Tuple2<Integer, Integer> {
         return endExclusive < POSITIVE_INFINITY - 1 ?
                 new Range(NEGATIVE_INFINITY, endExclusive) : ALL_INT;
     }
+    //endregion
 
     /**
      * Check if the Range is contained by the indexes of bufferSize.
@@ -150,7 +153,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return True if the range is contained by [0, bufferSize), otherwise False.
      */
     public static boolean withinLength(Range range, Integer length) {
-        checkStates(range != null, length >= 0);
+        Asserts.assertAllTrue(range != null, length >= 0);
 
         return range != null && range._start >= 0 && range._end <= length;
     }
@@ -162,8 +165,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return List of the ranges with even indexes as startInclusive, and odd indexes as endInclusive.
      */
     public static List<Range> indexesToRanges(Collection<Integer> indexes) {
-        checkWithoutNull(indexes);
-        checkStates(indexes.size() % 2 == 0);
+        assertAllNotNull(indexes);
+        Asserts.assertAllTrue(indexes.size() % 2 == 0);
 
         return _indexesToRanges(indexes);
     }
@@ -191,8 +194,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return Sublist of the given sorted index list within a specific range.
      */
     public static List<Integer> getIndexesInRange(List<Integer> allIndexes, Range range) {
-        checkWithoutNull(allIndexes);
-        checkWithoutNull(range);
+        assertAllNotNull(allIndexes, range);
 
         if (allIndexes.isEmpty()) {
             return new ArrayList<Integer>();
@@ -248,9 +250,9 @@ public class Range extends Tuple2<Integer, Integer> {
             if (nameRange != null) {
                 Range gapRange = valueRange.gapWith(nameRange);
                 List<Integer> colonsWithin = indicatorIndexes.stream().filter(i -> gapRange.contains(i)).collect(Collectors.toList());
-                checkState(colonsWithin.size() == 1,
+                Asserts.assertTrue(colonsWithin.size() == 1,
                         String.format("Failed to get one single indictor between '%s' and '%s'", nameRange, valueRange));
-                Range nameValueRange = nameRange.intersection(valueRange);
+                Range nameValueRange = nameRange.intersectionWith(valueRange);
                 nameRangeSet.remove(nameRange);
                 indicatorIndexes.remove(colonsWithin.get(0));
                 nvpRanges.add(nameValueRange);
@@ -290,11 +292,10 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return Unmodifiable list of the ranges with one of the index of starting character, and one of the index of the ending character.
      */
     public static List<Range> indexesToRanges(Collection<Integer> startIndexes, Collection<Integer> endIndexes) {
-        checkWithoutNull(startIndexes);
-        checkWithoutNull(endIndexes);
+        assertAllNotNull(startIndexes, endIndexes);
 
         int size = startIndexes.size();
-        checkStates(size == endIndexes.size());
+        Asserts.assertAllTrue(size == endIndexes.size());
 
         return _indexesToRanges(startIndexes, endIndexes);
     }
@@ -333,9 +334,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return pairs of {@code Range} from two collections meeting specific condition as a list
      */
     public static List<Tuple2<Range, Range>> getRangePairs(Collection<Range> ranges1, Collection<Range> ranges2, Predicate<Tuple2<Range, Range>> predicate) {
-        checkWithoutNull(ranges1);
-        checkWithoutNull(ranges2);
-        checkWithoutNull(predicate);
+        assertAllNotNull(ranges1, ranges2, predicate);
 
         int size1 = ranges1.size();
         int size2 = ranges2.size();
@@ -375,11 +374,16 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return SubString specified by the given Range.
      */
     public static String subString(CharSequence charSequence, Range range) {
-        assertNotNull(charSequence);
-        checkStates(Range.withinLength(range, charSequence.length()));
+        assertAllNotNull(charSequence);
+        Asserts.assertAllTrue(Range.withinLength(range, charSequence.length()));
 
         return charSequence.subSequence(range.getStartInclusive(), range.getEndExclusive()).toString();
     }
+
+    //region Instance variables
+    //Represent the size of the range in long, -1 when size is infinite
+    private final long _size;
+
     private final int _start, _end;
     //endregion
 
@@ -387,15 +391,16 @@ public class Range extends Tuple2<Integer, Integer> {
     /**
      * Constructor of Range support limited scope specified by the start and end index.
      *
-     * @param startInclusive StartIndex of the concerned scope which might be included in the scope.
-     * @param endExclusive   EndIndex of the concerned scope that is above the last index of the scope.
+     * @param startInclusive StartIndex of the concerned scope which might be included in the scope, shall be greater than NEGATIVE_INFINITY + 1.
+     * @param endExclusive   EndIndex of the concerned scope that is above the last index of the scope, shall be lesser than POSITIVE_INFINITY.
      */
-    protected Range(Integer startInclusive, Integer endExclusive) {
-        super(checkWithoutNull(startInclusive), checkWithoutNull(endExclusive));
+    protected Range(int startInclusive, int endExclusive) {
+        super(startInclusive, endExclusive);
 
-        checkState(startInclusive <= endExclusive,
+        assertTrue(startInclusive <= endExclusive,
                 "Range startInclusive %d shall not be greater or equal to endExclusive %d.", startInclusive, endExclusive);
 
+        //Notice: the largest 2 and smallest 2 integers are reserved to represent infinity and shall not be used
         _start = startInclusive <= NEGATIVE_INFINITY + 1 ? NEGATIVE_INFINITY : startInclusive;
         _end = endExclusive > POSITIVE_INFINITY - 1 ? POSITIVE_INFINITY : endExclusive;
         if (_start == NEGATIVE_INFINITY || _end == POSITIVE_INFINITY)
@@ -460,7 +465,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return <tt>true</tt> if the {@code Range} does contain all the values, otherwise <tt>false</tt>.
      */
     public boolean containsAll(List<Integer> indexes) {
-        checkWithoutNull(indexes);
+        assertAllNotNull(indexes);
 
         if (_size == 0) {
             return false;
@@ -485,8 +490,7 @@ public class Range extends Tuple2<Integer, Integer> {
             return true;
         }
 
-        for (int value :
-                indexes) {
+        for (int value : indexes) {
             if (!contains(value))
                 return false;
         }
@@ -499,7 +503,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return  <tt>true</tt> if this {@code Range} does contain all the values of other {@code Range}, otherwise <tt>false</tt>.
      */
     public boolean contains(Range other) {
-        checkWithoutNull(other);
+        assertAllNotNull(other);
         return this._start <= other._start && this._end >= other._end;
     }
 
@@ -509,7 +513,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return      <tt>true</tt> if the two {@code Range} are connected, otherwise <tt>false</tt>
      */
     public boolean isConnected(Range other) {
-        checkWithoutNull(other);
+        assertAllNotNull(other);
         return this._start <= other._end && other._start <= this._end;
     }
 
@@ -519,10 +523,15 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return      <tt>true</tt> if the two {@code Range} share common value, otherwise <tt>false</tt>
      */
     public boolean overlaps(Range other) {
-        checkWithoutNull(other);
+        assertAllNotNull(other);
 
-        return (_start < other._start && _end > other._start && _end < other._end)
-                || (_start > other._start && _start < other._end && _end > other._end);
+        if(isEmpty() || other.isEmpty()){
+            return false;
+        } else if(_start <= other._start){
+            return _end > other._start;
+        } else {
+            return other._end > _start;
+        }
     }
 
     /**
@@ -530,8 +539,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @param other the other {@code Range} to be evaluated.
      * @return  {@code Range} containing all shared values
      */
-    public Range intersection(Range other) {
-        checkWithoutNull(other);
+    public Range unionWith(Range other) {
+        assertAllNotNull(other);
 
         int minStart = Math.min(_start, other._start);
         int maxEnd = Math.max(_end, other._end);
@@ -548,12 +557,28 @@ public class Range extends Tuple2<Integer, Integer> {
     }
 
     /**
+     * Get the shared values of two {@code Range}s as a {@code Range}
+     * @param other the other {@code Range} to be evaluated.
+     * @return  {@code Range} containing all shared values
+     */
+    public Range intersectionWith(Range other) {
+        assertAllNotNull(other);
+
+        if(!overlaps(other)) {
+            return NONE;
+        }
+        int start = Math.max(_start, other._start);
+        int end = Math.min(_end, other._end);
+        return new Range(start, end);
+    }
+
+    /**
      * Get the values between two {@code Range}s but not contained by either of them.
      * @param other the other {@code Range} to be evaluated.
      * @return  {@code Range} containing all values between two {@code Range}s but not contained by either of them.
      */
     public Range gapWith(Range other) {
-        checkWithoutNull(other);
+        assertAllNotNull(other);
 
         if (_start == other._start || _end == other._end || _start == other._end || _end == other._start) {
             return NONE;
@@ -652,7 +677,7 @@ public class Range extends Tuple2<Integer, Integer> {
      * @throws IllegalStateException if the Range is unlimited
      */
     public Integer[] getRandomIndexes() {
-        assertFalse(_start == NEGATIVE_INFINITY, _end == POSITIVE_INFINITY);
+        assertAllFalse(_start == NEGATIVE_INFINITY, _end == POSITIVE_INFINITY);
 
         //Let it throw ArithmeticException if overflow happens
         int size = Math.toIntExact(_size);
@@ -670,8 +695,8 @@ public class Range extends Tuple2<Integer, Integer> {
      * @return the specified subsequence
      */
     public CharSequence subSequence(CharSequence charSequence) {
-        assertNotNull(charSequence);
-        checkStates(Range.withinLength(this, charSequence.length()));
+        assertAllNotNull(charSequence);
+        Asserts.assertAllTrue(Range.withinLength(this, charSequence.length()));
 
         return charSequence.subSequence(_start, _end);
     }
