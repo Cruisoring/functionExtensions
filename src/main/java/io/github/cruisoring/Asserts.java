@@ -1,9 +1,6 @@
 package io.github.cruisoring;
 
-import io.github.cruisoring.logger.CompositeLogger;
-import io.github.cruisoring.logger.ConsoleLogger;
-import io.github.cruisoring.logger.LogLevel;
-import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.logger.*;
 import io.github.cruisoring.throwables.RunnableThrowable;
 import io.github.cruisoring.throwables.SupplierThrowable;
 import io.github.cruisoring.utility.ArrayHelper;
@@ -147,7 +144,7 @@ public class Asserts {
      * @param expression the boolean expression that is expected to be <tt>true</tt>
      * @param format    template to compose the error message when {@code expression} is not <tt>true</tt>
      * @param args      arguments to compose the error message when {@code expression} is not <tt>true</tt>
-     * @throws IllegalStateException if any {@code expression} is false
+     * @throws IllegalStateException if the {@code expression} is false
      */
     public static void assertTrue(boolean expression, String format, Object... args) {
         if (!expression) {
@@ -161,11 +158,39 @@ public class Asserts {
      * @param expression the boolean expression that is expected to be <tt>false</tt>
      * @param format    template to compose the error message when {@code expression} is not <tt>false</tt>
      * @param args      arguments to compose the error message when {@code expression} is not <tt>false</tt>
-     * @throws IllegalStateException if any {@code expression} is true
+     * @throws IllegalStateException if the {@code expression} is true
      */
     public static void assertFalse(boolean expression, String format, Object... args) {
         if (expression) {
             throw new IllegalStateException(log(format, args));
+        }
+    }
+
+    /**
+     * Ensure the single object is <tt>null</tt>, otherwise throw IllegalStateException to fail the test.
+     *
+     * @param object    the object that is expected to be <tt>null</tt>
+     * @param format    template to compose the error message when {@code expression} is not <tt>null</tt>
+     * @param args      arguments to compose the error message when {@code expression} is not <tt>null</tt>
+     * @throws IllegalStateException if the {@code expression} is not null
+     */
+    public static void assertNull(Object object, String format, Object... args) {
+        if (object != null) {
+            throw new IllegalStateException(log(format, args));
+        }
+    }
+
+    /**
+     * Ensure the single object is not <tt>null</tt>, otherwise throw IllegalStateException to fail the test.
+     *
+     * @param object    the object that is expected to be not <tt>null</tt>
+     * @param format    template to compose the error message when {@code expression} is <tt>null</tt>
+     * @param args      arguments to compose the error message when {@code expression} is <tt>null</tt>
+     * @throws NullPointerException if the {@code expression} is null
+     */
+    public static void assertNotNull(Object object, String format, Object... args) {
+        if (object == null) {
+            throw new NullPointerException(log(format, args));
         }
     }
 
@@ -507,10 +532,9 @@ public class Asserts {
      * @return type of the returning value of the concerned function.
      */
     public static <R> R assertLogging(SupplierThrowable<R> supplier, Object... expectations) {
-        final StringBuilder stringBuilder = new StringBuilder();
+        final InMemoryLogger memoryLogger = new InMemoryLogger();
         CompositeLogger logger = new CompositeLogger(LogLevel.verbose,
-            new ConsoleLogger(System.out::println),
-                new ConsoleLogger(stringBuilder::append));
+            new ConsoleLogger(System.out::println), memoryLogger);
         try (
             Revokable revokable = Logger.useInScope(logger);
             Revokable revokable2 = Logger.setLevelInScope(LogLevel.verbose)
@@ -518,7 +542,7 @@ public class Asserts {
             R result = supplier.withHandler(Functions::logAndReturnsNull).get();
             return result;
         } finally {
-            String history = stringBuilder.toString();
+            String history = memoryLogger.getHistory();
             assertAllTrue(StringHelper.containsAll(history, expectations));
         }
     }
@@ -529,17 +553,16 @@ public class Asserts {
      * @param expectations   Objects to be logged by executing the concerned function
      */
     public static void assertLogging(RunnableThrowable runnableThrowable, Object... expectations) {
-        final StringBuilder stringBuilder = new StringBuilder();
+        final InMemoryLogger memoryLogger = new InMemoryLogger();
         CompositeLogger logger = new CompositeLogger(LogLevel.verbose,
-            new ConsoleLogger(System.out::println),
-                new ConsoleLogger(stringBuilder::append));
+            new ConsoleLogger(System.out::println), memoryLogger);
         try (
             Revokable revokable = Logger.useInScope(logger);
             Revokable revokable2 = Logger.setLevelInScope(LogLevel.verbose)
         ) {
             runnableThrowable.withHandler(Functions::logAndReturnsNull).run();
         } finally {
-            String history = stringBuilder.toString();
+            String history = memoryLogger.getHistory();
             if(!StringHelper.containsAllIgnoreCase(history, expectations)) {
                 Logger.getDefault().log(defaultLogLevel, "'%s' doesn't contain all: %s", history, TypeHelper.deepToString(expectations));
                 fail("Failed with containsAllIgnoreCase");

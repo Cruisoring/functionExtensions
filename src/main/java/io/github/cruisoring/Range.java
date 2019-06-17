@@ -16,7 +16,7 @@ import static java.util.Comparator.comparing;
  * This data structure specify a continuous set of Integers by its startExclusive and endExclusive sides integers.
  * By stealing the 2 largest integers and 2 smallest integers to represent the Positive and Negative Infinity, this class can be used to represent real life ranges.
  */
-public class Range extends Tuple2<Integer, Integer> {
+public class Range implements Comparable<Range> {
     //region Constants
     public static final long INFINITE_LENGTH = Long.MAX_VALUE;
 
@@ -395,8 +395,6 @@ public class Range extends Tuple2<Integer, Integer> {
      * @param endExclusive   EndIndex of the concerned scope that is above the last index of the scope, shall be lesser than POSITIVE_INFINITY.
      */
     protected Range(int startInclusive, int endExclusive) {
-        super(startInclusive, endExclusive);
-
         assertTrue(startInclusive <= endExclusive,
                 "Range startInclusive %d shall not be greater or equal to endExclusive %d.", startInclusive, endExclusive);
 
@@ -711,22 +709,17 @@ public class Range extends Tuple2<Integer, Integer> {
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(Range o) {
         if (o == null) {
             //Range always greater than null
             return 1;
-        } else if (!(o instanceof Range)) {
-            //Use String representations to do comparison
-            return this.toString().compareTo(o.toString());
         }
-
-        Range other = (Range) o;
-        if (_start == other._start) {
+        if (_start == o._start) {
             //Keep the largest one first
-            return other._end - _end;
+            return o._end - _end;
         } else {
             //Or keep the leftest one first
-            return _start - other._start;
+            return _start - o._start;
         }
     }
 
@@ -738,11 +731,6 @@ public class Range extends Tuple2<Integer, Integer> {
             return true;
         Range other = (Range) obj;
         return _size == other._size && _start == other._start;
-    }
-
-    @Override
-    public boolean canEqual(Object obj) {
-        return obj instanceof Range;
     }
 
     @Override

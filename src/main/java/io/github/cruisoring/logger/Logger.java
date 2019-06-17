@@ -30,6 +30,8 @@ public class Logger implements ILogger {
      * Global LogLevel to be used as both default LogLevel when new a Logger instance, and also a global switch to turn off any logging when set to <code>LogLevel.none</code>
      */
     static LogLevel GlobalLogLevel = LogLevel.debug;
+
+    static Object lock = new Object();
     //endregion
 
     //region Static methods
@@ -39,7 +41,9 @@ public class Logger implements ILogger {
      * @return The LogLevel held by GlobalLogLevel.
      */
     public static LogLevel getGlobalLogLevel() {
-        return GlobalLogLevel;
+        synchronized (lock) {
+            return GlobalLogLevel;
+        }
     }
 
     //region Measure performance of any method
@@ -50,7 +54,9 @@ public class Logger implements ILogger {
      * @return The instance of Logger held by <code>Default</code>
      */
     public static ILogger getDefault() {
-        return Default;
+        synchronized (lock) {
+            return Default;
+        }
     }
 
     /**
@@ -60,12 +66,14 @@ public class Logger implements ILogger {
      * @return The existing <code>Logger</code> instance.
      */
     public static ILogger setDefault(Logger newLogger) {
-        final ILogger oldLogger = Default;
+        synchronized (lock) {
+            final ILogger oldLogger = Default;
 
-        if (oldLogger != newLogger) {
-            Default = newLogger;
+            if (oldLogger != newLogger) {
+                Default = newLogger;
+            }
+            return oldLogger;
         }
-        return oldLogger;
     }
 
     /**
@@ -79,9 +87,10 @@ public class Logger implements ILogger {
      * Once the {@code Revocable<ILogger>} is closed, the <code>Logger.Default</code> would be replaced back to the existing one.
      */
     public static Revokable<ILogger> useInScope(ILogger newLogger) {
-
-        Revokable<ILogger> revokable = new Revokable<ILogger>(() -> Default, level -> Default = level, newLogger);
-        return revokable;
+        synchronized (lock) {
+            Revokable<ILogger> revokable = new Revokable<ILogger>(() -> Default, level -> Default = level, newLogger);
+            return revokable;
+        }
     }
     //endregion
 
@@ -94,16 +103,18 @@ public class Logger implements ILogger {
      * @return The existing LogLevel held by <code>GlobalLogLevel</code>.
      */
     public static LogLevel setGlobalLevel(LogLevel newLogLevel) {
-        if (newLogLevel == null) {
-            //GlobalLevel cannot be set to null
-            return GlobalLogLevel;
-        }
+        synchronized (lock) {
+            if (newLogLevel == null) {
+                //GlobalLevel cannot be set to null
+                return GlobalLogLevel;
+            }
 
-        final LogLevel oldLevel = GlobalLogLevel;
-        if (oldLevel != newLogLevel) {
-            GlobalLogLevel = newLogLevel;
+            final LogLevel oldLevel = GlobalLogLevel;
+            if (oldLevel != newLogLevel) {
+                GlobalLogLevel = newLogLevel;
+            }
+            return oldLevel;
         }
-        return oldLevel;
     }
 
     /**
@@ -116,9 +127,10 @@ public class Logger implements ILogger {
      * Once the {@code Revocable<LogLevel>} is closed, the <code>GlobalLogLevel</code> would be restored to its old value.
      */
     public static Revokable<LogLevel> setLevelInScope(LogLevel newLogLevel) {
-
-        Revokable<LogLevel> revokable = new Revokable<LogLevel>(() -> GlobalLogLevel, level -> GlobalLogLevel = level, newLogLevel);
-        return revokable;
+        synchronized (lock) {
+            Revokable<LogLevel> revokable = new Revokable<LogLevel>(() -> GlobalLogLevel, level -> GlobalLogLevel = level, newLogLevel);
+            return revokable;
+        }
     }
 
     /**
@@ -133,11 +145,12 @@ public class Logger implements ILogger {
      * @return the value returned by the concerned time-consuming calculation
      */
     public static <R> R M(Measurement.Moment startMoment, R value, LogLevel... levels) {
-        if (Default == null)
-            return value;
-
-        LogLevel level = (levels==null || levels.length==0) ? DefaultMeasureLogLevel : levels[0];
-        return Default.measure(startMoment, value, level);
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            LogLevel level = (levels == null || levels.length == 0) ? DefaultMeasureLogLevel : levels[0];
+            return _logger.measure(startMoment, value, level);
+        }
+        return value;
     }
 
     /**
@@ -153,11 +166,13 @@ public class Logger implements ILogger {
      * @return Value returned by the SupplierThrowable or default value of type <tt>R</tt> when it failed.
      */
     public static <R> R M(Measurement.Moment startMoment, SupplierThrowable<R> supplier, LogLevel... levels) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            LogLevel level = (levels == null || levels.length == 0) ? DefaultMeasureLogLevel : levels[0];
+            return _logger.measure(startMoment, supplier, level);
+        } else {
             return supplier.orElse(null).get();
-
-        LogLevel level = (levels==null || levels.length==0) ? DefaultMeasureLogLevel : levels[0];
-        return Default.measure(startMoment, supplier, level);
+        }
     }
 
     /**
@@ -172,11 +187,13 @@ public class Logger implements ILogger {
      */
 
     public static ILogger M(Measurement.Moment startMoment, RunnableThrowable runnable, LogLevel... levels) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            LogLevel level = (levels == null || levels.length == 0) ? DefaultMeasureLogLevel : levels[0];
+            return _logger.measure(startMoment, runnable, level);
+        } else {
             return null;
-
-        LogLevel level = (levels==null || levels.length==0) ? DefaultMeasureLogLevel : levels[0];
-        return Default.measure(startMoment, runnable, level);
+        }
     }
     //endregion
 
@@ -189,10 +206,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger V(Exception ex) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.verbose, ex);
+        } else {
             return null;
-
-        return Default.log(LogLevel.verbose, ex);
+        }
     }
 
     /**
@@ -202,10 +221,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger D(Exception ex) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.debug, ex);
+        } else {
             return null;
-
-        return Default.log(LogLevel.debug, ex);
+        }
     }
 
     /**
@@ -215,10 +236,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger I(Exception ex) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.info, ex);
+        } else {
             return null;
-
-        return Default.log(LogLevel.info, ex);
+        }
     }
 
     /**
@@ -228,10 +251,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger W(Exception ex) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.warning, ex);
+        } else {
             return null;
-
-        return Default.log(LogLevel.warning, ex);
+        }
     }
 
     /**
@@ -241,10 +266,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger E(Exception ex) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.error, ex);
+        } else {
             return null;
-
-        return Default.log(LogLevel.error, ex);
+        }
     }
     //endregion
 
@@ -256,10 +283,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger V(String format, Object... args) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.verbose, format, args);
+        } else {
             return null;
-
-        return Default.log(LogLevel.verbose, format, args);
+        }
     }
 
     /**
@@ -270,10 +299,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger D(String format, Object... args) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.debug, format, args);
+        } else {
             return null;
-
-        return Default.log(LogLevel.debug, format, args);
+        }
     }
 
     /**
@@ -284,10 +315,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger I(String format, Object... args) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.info, format, args);
+        } else {
             return null;
-
-        return Default.log(LogLevel.info, format, args);
+        }
     }
 
     /**
@@ -298,10 +331,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger W(String format, Object... args) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.warning, format, args);
+        } else {
             return null;
-
-        return Default.log(LogLevel.warning, format, args);
+        }
     }
 
     /**
@@ -312,10 +347,12 @@ public class Logger implements ILogger {
      * @return The Logger used to enable fluent logging.
      */
     public static ILogger E(String format, Object... args) {
-        if (Default == null)
+        ILogger _logger = getDefault();
+        if(_logger != null) {
+            return _logger.log(LogLevel.error, format, args);
+        } else {
             return null;
-
-        return Default.log(LogLevel.error, format, args);
+        }
     }
     //endregion
 
