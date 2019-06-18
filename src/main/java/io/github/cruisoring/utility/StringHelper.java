@@ -140,11 +140,6 @@ public class StringHelper {
         }
     }
 
-    private static final boolean matchAny(BiPredicate<String, String> matcher, String context, String[] keys) {
-        if (context == null) return false;
-        return Arrays.stream(keys).anyMatch(k -> matcher.test(context, k));
-    }
-
     /**
      * Test if the given String collection contains all keywords.
      * @param collection    Collection of Strings under test.
