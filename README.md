@@ -1,16 +1,29 @@
-#functionExtentions
-===================
+# functionExtentions: JAVA Functional Programming Enabler
 
-##Updates
-### 29/03/2019: 2.0.0
- *  Flat Tuple interfaces with duplicated default methods.
+
+## Updates
+### 18/06/2019: 2.0.0
+ *  Loggers added to enable logging message/exception of different level with different color/format.
+ *  Meansurement added to enable simple performance measurements.
+ *  JsonTable added.
+ *  Throwabel funtional interfaces refactored.
+ *  Asserts to enable easier assertions and evaluation of Exceptions or Loggings.
+ *  Revokable to support convenient revoking of operations.
+ *  Range added to denote discrete and continuous integer values.
+ *  Other utilities added like OrdinalComparator, StackTraceHelper, StringHelper and ect.
+ 
 ### 27/03/2019: 1.1.0
  *  Tuple constructors and factory methods accept final arguments only
  *  Logger utilities enhanced with richer output formats and more handy methods.
 
  
-##Brief
-functionExtentions is a Java library with Throwable Functional Interfaces, Tuples and Repositories implemented to expedite Functional Programming with JAVA 8. It is released on [Maven](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.0/) under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
+## Brief
+
+functionExtentions is a Java library with a rich set of utilities and tools to enable JAVA functional programming or make it more productive.  It is released on [Maven](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/1.0/) under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
+
+In the 1.x versions, there are mainly 3 components: Functional Interfaces throwing exceptions declared to make Lambdas since JDK8 can be used to refer most methods without boiler plate codes, the generic Tuple classes are data structures to keep strong-typed immutable data that is also critical for FP to avoid a lot of issues caused by mutable data. The Repositories and Lazy implemented to expedite Functional Programming with JAVA 8 to provide a brand new kind of business logic with Map.
+
+The 2.0.0 version was evoluted along with [JsonTuples](https://github.com/Cruisoring/JsonTuples/) (it is not only a highly efficient JSON parser, but also a generic media to compare huge data sets by exploiting the potential of Tuple) by enhance the above utilities and include some more practical tools that have practical meaning to tackle real JAVA coding problems that I might document gradually.
 
 ### functionExtentions Goals
  *	Declares a rich set of funcitonal interfaces throwing Exceptions, that can be converted to conventional ones with Checked Exceptions handled with shared exceptionHandlers, thus allow developers to define the concerned business logic only within the lambda expressions.
@@ -23,7 +36,7 @@ functionExtentions is a Java library with Throwable Functional Interfaces, Tuple
 	- *T convert(Object obj, Class<T> toClass)*: convert the object to any equivalent or assignable types.
 	- *boolean valueEquals(Object obj1, Object obj2)*: comparing any two objects. If both are arrays, comparing them by treating primitive values equal to their wrappers, null and empty array elements with predefined default strategies.
  
-##Get Started
+## Get Started
 
 For maven users for example:
 ```xml
@@ -36,14 +49,14 @@ For maven users for example:
 
 Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/2.0.0/)
 
-##Implementation Techniques
+## Implementation Techniques
 
 Following threads on codeproject discussed some of the techniques used to design and develop this library:
 - [Throwable Functional Interfaces](https://www.codeproject.com/Articles/1231137/functionExtensions-Techniques-Throwable-Functional)
 - [Tuples](https://www.codeproject.com/Articles/1232570/Function-Extensions-Techniques-Tuples)
 - [Repository](https://www.codeproject.com/Articles/1233122/functionExtensions-Techniques-Repository)
 
-##Overview
+## Overview
 
 Lambda expressions are a new and important feature included in Java SE 8. They provide a clear and concise way to represent one method interface using an expression. Lambda expressions also improve the Collection libraries making it easier to iterate through, filter, and extract data from a Collection. In addition, new concurrency features improve performance in multicore environments.
 
@@ -54,7 +67,7 @@ To enable functional programming with JAVA with immutability, a set of Tuple cla
 With throwable functional interfaces to define the key service logics, Tuples to keep any combinations of data or functional interfaces, the Map based Repositories are used to generate and buffer not only data, but also complex service logics on the fly. For example, as part of this package, several super utilities related with Array are developed to new any kind of array, converting one type of array to another, deep equals by values and etc that would be extremely hard without the support of the Repositories.
 
 
-##Functional Interfaces without Exception Handling
+## Functional Interfaces without Exception Handling
 In Java exceptions under Error and RuntimeException classes are unchecked exceptions, everything else under throwable is checked. If a method has any checked Exception, then it must either handle the exception explicitly or specify the exception using throws keyword.
 
 There is no exemption with Functional Interface in Java 8: if the single abstract method defined doesn't throws some Exception, as those defined in [java.util.function package](https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html), then the Lambda Expressions must handle any potential exceptions properly before being assigned to any Functional Interface instance. In another words, the concerned business logic have to be wrapped with *try{}catch{}* before assigning to any such functional interfaces first. Because so many JAVA methods are decorated with "throws XxxException", they cannot be declared as such functional interfaces directly.
@@ -228,7 +241,7 @@ The Functions class defined two static instances:
 In this way, the funcitonal interfaces can define the business logic only, leave the handling of exceptional cases to a single method. 
 
 
-##Tuple
+## Tuple
 
 Inspired by the Tuple class of .NET framework, the Tuple classes in this JAVA package are designed to:
 1. Make data generally immutable for functional programming with JAVA.
