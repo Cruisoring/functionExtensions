@@ -383,10 +383,10 @@ public class TupleTableTest {
 
         assertEquals(6, table5.size());
         //Test of Collection.remove(Object o):
-        assertAllFalse(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', false, 1)));      //Not matched with an extra value
-        assertAllFalse(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', false)));         //Not matched with the "IsActive" value
-        assertAllFalse(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F')));                //Not matched by shorting last value
-        assertAllTrue(table5.remove(Tuple.of(0, "Alice", "Wilson", 'F', true)));           //The tuple created is held by the table, thus can be removed
+        assertAllFalse(table5.remove(Tuple.create(0, "Alice", "Wilson", 'F', false, 1)));      //Not matched with an extra value
+        assertAllFalse(table5.remove(Tuple.create(0, "Alice", "Wilson", 'F', false)));         //Not matched with the "IsActive" value
+        assertAllFalse(table5.remove(Tuple.create(0, "Alice", "Wilson", 'F')));                //Not matched by shorting last value
+        assertAllTrue(table5.remove(Tuple.create(0, "Alice", "Wilson", 'F', true)));           //The tuple created is held by the table, thus can be removed
 
         //Test of ITable.remove(Object... values)
         assertAllFalse(table5.removeValues(1, "Bob", "Nilson", null, false, 22));        //Not matched with the "Gender" value
@@ -423,10 +423,10 @@ public class TupleTableTest {
         assertAllTrue(table5.add(columns.createRow(5, "Fred", "Nil", 'M', false)));    //Would add success with TupleRow of right signature
 
         //Test of Collection.contains(Object o):
-        assertAllFalse(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F', false, 1)));      //Not matched with an extra value
-        assertAllFalse(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F', false)));         //Not matched with the "IsActive" value
-        assertAllFalse(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F')));                //Not matched by shorting last value
-        assertAllTrue(table5.contains(Tuple.of(0, "Alice", "Wilson", 'F', true)));           //The tuple created is held by the table, thus can be removed
+        assertAllFalse(table5.contains(Tuple.create(0, "Alice", "Wilson", 'F', false, 1)));      //Not matched with an extra value
+        assertAllFalse(table5.contains(Tuple.create(0, "Alice", "Wilson", 'F', false)));         //Not matched with the "IsActive" value
+        assertAllFalse(table5.contains(Tuple.create(0, "Alice", "Wilson", 'F')));                //Not matched by shorting last value
+        assertAllTrue(table5.contains(Tuple.create(0, "Alice", "Wilson", 'F', true)));           //The tuple created is held by the table, thus can be removed
 
         //Test of ITable.contains(Object... values)
         assertAllFalse(table5.contains(1, "Bob", "Nilson", null, false, 22));        //Not matched with the "Gender" value

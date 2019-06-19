@@ -171,7 +171,7 @@ public class Columns implements IColumns {
 
         if(this == other){
             Integer[] indexes = IntStream.range(0, width()).boxed().toArray(size -> new Integer[size]);
-            return Tuple.of(indexes);
+            return Tuple.setOfType(Integer.class, indexes);
         }
 
         WithValues2<IColumns, IColumns> key = Tuple.create(this, other);

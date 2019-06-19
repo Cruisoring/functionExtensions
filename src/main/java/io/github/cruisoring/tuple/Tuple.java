@@ -8,8 +8,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static io.github.cruisoring.Asserts.assertAllNotNull;
-import static io.github.cruisoring.Asserts.assertAllTrue;
+import static io.github.cruisoring.Asserts.*;
 
 /**
  * This is a special data structure contains multiple immutable elements in fixed sequence. The AutoCloseable implementation
@@ -25,6 +24,47 @@ public class Tuple<T extends Object> implements ITuple<T> {
     //endregion
 
     //region Static methods
+
+    //region Factory methods to create Tuple with same type of elements
+    /**
+     * Factory to create a <tt>Tuple</tt> instance of type <tt>T</tt> with elements of the same type, and their type to cope with Tpe Erasure
+     *
+     * @param elements Elements of the same type T
+     * @param <V>      Actually Type of the elements
+     * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
+     */
+    public static <V> Tuple<V> setOf(final V... elements) {
+        return new Tuple<V>(elements);
+    }
+
+    /**
+     * Factory to create a <tt>Tuple</tt> instance with fixed length of elements of the same type <tt>V</tt>
+     *
+     * @param elementType Class of the Type of the elements
+     * @param elements    Elements of same type <tt>V</tt> to be persisted
+     * @param <V>         Type of the given elements
+     * @return A strong-typed <code>Tuple?.Set1&lt;V&gt;</code>Tuple instance
+     */
+    public static <V> Tuple<V> setOfType(final Class<? extends V> elementType, final V... elements) {
+        assertAllNotNull(elements, elementType);
+        return new Tuple<V>(elementType, elements);
+    }
+
+    /**
+     * Factory to create a <code>Tuple</code> of type <code>T</code>
+     *
+     * @param collection  Collection of Elements of type <code>T</code> to be persisted
+     * @param elementType Class of the elements to cope with Java Type Erasure
+     * @param <T>         Declared Type of the elements
+     * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
+     */
+    public static <T> Tuple<T> setOfType(Class<? extends T> elementType, Collection<T> collection) {
+        assertAllNotNull(collection, elementType);
+        T[] array = collection.toArray((T[]) Array.newInstance(elementType, 0));
+        return setOfType(elementType, array);
+    }
+    //endregion
+
     /**
      * Create a Tuple instance to keep any number of elements without caring about their Type info. Notice this method
      * would always try to unfold the <code>elements</code> as an Array while create() might treat elements as a single argument.
@@ -69,82 +109,6 @@ public class Tuple<T extends Object> implements ITuple<T> {
                 return new TuplePlus(elements[0], elements[1], elements[2], elements[3], elements[4],
                         elements[5], elements[6], elements[7], elements[8], elements[9],
                         Arrays.copyOfRange(elements, 10, length));
-        }
-    }
-
-    /**
-     * Factory to create a <tt>Tuple</tt> instance of type <tt>T</tt> with elements of the same type, and their type to cope with Tpe Erasure
-     *
-     * @param elements Elements of the same type T
-     * @param <V>      Actually Type of the elements
-     * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
-     */
-    public static <V> Tuple<V> setOf(final V... elements) {
-        assertAllTrue(elements != null);
-        Class<? extends V> elemntType = (Class<? extends V>) ArrayHelper.getComponentType(elements);
-        return setOfType(elemntType, elements);
-    }
-
-    /**
-     * Factory to create a <code>Tuple</code> of type <code>T</code>
-     *
-     * @param collection  Collection of Elements of type <code>T</code> to be persisted
-     * @param elementType Class of the elements to cope with Java Type Erasure
-     * @param <T>         Declared Type of the elements
-     * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
-     */
-    public static <T> Tuple<T> setFromCollection(Class<? extends T> elementType, Collection<T> collection) {
-        assertAllNotNull(collection, elementType);
-        T[] array = collection.toArray((T[]) Array.newInstance(elementType, 0));
-        return setOfType(elementType, array);
-    }
-
-    /**
-     * Factory to create a <tt>Tuple</tt> instance with fixed length of elements of the same type <tt>V</tt>
-     *
-     * @param elementType Class of the Type of the elements
-     * @param elements    Elements of same type <tt>V</tt> to be persisted
-     * @param <V>         Type of the given elements
-     * @return A strong-typed <code>Tuple?.Set1&lt;V&gt;</code>Tuple instance
-     */
-    public static <V> Tuple<V> setOfType(final Class<? extends V> elementType, final V... elements) {
-        assertAllNotNull(elements, elementType);
-        int length = elements.length;
-
-        switch (length) {
-            case 0:
-                return UNIT;
-            case 1:
-                return new Tuple1.Set1<V>(elementType, elements[0]);
-            case 2:
-                return new Tuple2.Set2<V>(elementType, elements[0], elements[1]);
-            case 3:
-                return new Tuple3.Set3<V>(elementType, elements[0], elements[1], elements[2]);
-            case 4:
-                return new Tuple4.Set4<V>(elementType, elements[0], elements[1], elements[2], elements[3]);
-            case 5:
-                return new Tuple5.Set5<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4]);
-            case 6:
-                return new Tuple6.Set6<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5]);
-            case 7:
-                return new Tuple7.Set7<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5], elements[6]);
-            case 8:
-                return new Tuple8.Set8<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5], elements[6], elements[7]);
-            case 9:
-                return new Tuple9.Set9<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5], elements[6], elements[7], elements[8]);
-            case 10:
-                return new Tuple10.Set10<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5], elements[6], elements[7], elements[8], elements[9]);
-
-            default:
-                return new TuplePlus.SetPlus<V>(elementType, elements[0], elements[1], elements[2], elements[3], elements[4],
-                        elements[5], elements[6], elements[7], elements[8], elements[9],
-                        Arrays.copyOfRange(elements, 10, length));
-
         }
     }
 
@@ -399,7 +363,6 @@ public class Tuple<T extends Object> implements ITuple<T> {
     //endregion
 
     //region Instance variables
-    protected final Class<? extends T> _elementType;
     protected final T[] values;
     protected int[][] deepIndexes;
     protected Integer _hashCode;
@@ -415,17 +378,20 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @param elements values to be persisted by the Tuple.
      */
     protected Tuple(Class<? extends T> eType, final T... elements) {
-        this._elementType = eType;
-        int length = elements == null ? 1 : elements.length;
-        values = (T[]) ArrayHelper.getNewArray(eType, length);
+        values = elements == null ?
+            (T[]) ArrayHelper.create(checkNotNull(eType, "The element type must be specified."), 1, i -> null) : elements;
+    }
 
-        if (elements == null) {
-            values[0] = null;
-        } else {
-            for (int i = 0; i < length; i++) {
-                values[i] = elements[i];
-            }
-        }
+    /**
+     * Protected constructor to retrieve the elements of a Collectino and save them as a final array.
+     *
+     * @param eType    type of the elements being specified to cope with <tt>Type Erasure</tt>
+     * @param elements Collection of elements to be persisted.
+     */
+    protected Tuple(Class<? extends T> eType, Collection elements) {
+        assertAllNotNull(eType, elements);
+        final Iterator iterator = elements.iterator();
+        values = (T[]) ArrayHelper.create(eType, elements.size(), i -> iterator.next());
     }
 
     /**
@@ -434,19 +400,14 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @param elements values to be persisted by the Tuple.
      */
     protected Tuple(final T... elements) {
-        this._elementType = (Class<? extends T>) ArrayHelper.getComponentType(elements);
-        int length = elements == null ? 1 : elements.length;
-        values = (T[]) ArrayHelper.getNewArray(_elementType, length);
-
-        if (elements == null) {
-            values[0] = null;
-        } else {
-            for (int i = 0; i < length; i++) {
-                values[i] = elements[i];
-            }
-        }
+        values = elements == null ?
+            (T[]) ArrayHelper.create(Object.class, 1, i -> null) : elements;
     }
     //endregion
+
+    public Class getElementType(){
+        return values.getClass().getComponentType();
+    }
 
     //region Instance methods
     /**
@@ -465,7 +426,8 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @return Element at that index
      * @throws IndexOutOfBoundsException When invalid index is provided
      */
-    public T getValue(int index) throws IndexOutOfBoundsException {
+    public T getValue(int index)
+            throws IndexOutOfBoundsException {
         if (index < 0 || index >= getLength())
             throw new IndexOutOfBoundsException();
         return values[index];
@@ -473,7 +435,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
 
     @Override
     public <U> Tuple<U> getSetOf(Class<U> clazz) {
-        assertAllNotNull(clazz);
+        assertNotNull(clazz, "The clazz must be specified to get corresponding Set");
 
         try {
             Predicate<Class> predicate = TypeHelper.getClassEqualitor(clazz);
@@ -585,7 +547,9 @@ public class Tuple<T extends Object> implements ITuple<T> {
         if (!(obj instanceof Tuple))
             return false;
         Tuple other = (Tuple) obj;
-        return this._elementType.isAssignableFrom(other._elementType) || other._elementType.isAssignableFrom(this._elementType);
+        Class thisElementType = this.getElementType();
+        Class otherElementTpe = other.getElementType();
+        return thisElementType.isAssignableFrom(otherElementTpe) || otherElementTpe.isAssignableFrom(thisElementType);
     }
 
     @Override

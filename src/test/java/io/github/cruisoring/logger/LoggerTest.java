@@ -35,11 +35,16 @@ public class LoggerTest {
 
     @Test
     public void testCompareLogLevel() {
-        Asserts.assertAllTrue(LogLevel.none.compareTo(LogLevel.error) > 0, LogLevel.none.compareTo(LogLevel.verbose) > 0);
-        Asserts.assertAllTrue(LogLevel.verbose.compareTo(LogLevel.none) < 0, LogLevel.error.compareTo(LogLevel.none) < 0);
-
-        Asserts.assertAllTrue(LogLevel.verbose.compareTo(LogLevel.verbose) == 0, LogLevel.verbose.compareTo(LogLevel.debug) < 0);
-        Asserts.assertAllTrue(LogLevel.error.compareTo(LogLevel.error) >= 0, LogLevel.error.compareTo(LogLevel.verbose) >= 0);
+        Asserts.assertAllTrue(
+            LogLevel.none.compareTo(LogLevel.error) > 0,
+            LogLevel.none.compareTo(LogLevel.verbose) > 0,
+            LogLevel.verbose.compareTo(LogLevel.none) < 0,
+            LogLevel.error.compareTo(LogLevel.none) < 0,
+            LogLevel.verbose.compareTo(LogLevel.verbose) == 0,
+            LogLevel.verbose.compareTo(LogLevel.debug) < 0,
+            LogLevel.error.compareTo(LogLevel.error) >= 0,
+            LogLevel.error.compareTo(LogLevel.verbose) >= 0
+        );
     }
 
     @Test
@@ -49,7 +54,8 @@ public class LoggerTest {
             ILogger defaultLogger = Logger.Default;
 
             Logger.setGlobalLevel(LogLevel.none);
-            Asserts.assertAllFalse(Logger.Default.canLog(defaultLogger.getMinLevel()), Logger.Default.canLog(LogLevel.error));
+            Asserts.assertAllFalse(
+                Logger.Default.canLog(defaultLogger.getMinLevel()), Logger.Default.canLog(LogLevel.error));
 
             Logger.setGlobalLevel(LogLevel.verbose);
             Logger.V("The minLevel of Logger.Default is %s", defaultLogger.getMinLevel());

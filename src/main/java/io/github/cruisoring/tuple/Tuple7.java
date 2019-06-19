@@ -22,18 +22,4 @@ public class Tuple7<T, U, V, W, X, Y, Z> extends Tuple
                      final Z z) {
         super(elementType, t, u, v, w, x, y, z);
     }
-
-    /**
-     * Tuple with 7 elements of identical type.
-     *
-     * @param <T> type of the elements.
-     */
-    public static class Set7<T> extends Tuple7<T, T, T, T, T, T, T> {
-
-        protected Set7(final Class<? extends T> elementType, final T t1, final T t2, final T t3, final T t4, final T t5, final T t6,
-                       final T t7) {
-            super(elementType, t1, t2, t3, t4, t5, t6, t7);
-        }
-    }
-
 }

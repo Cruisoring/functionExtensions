@@ -80,7 +80,7 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * , otherwise <code>false</code>
      */
     default boolean contains(Object... values){
-        return contains(Tuple.of(values));
+        return contains(Tuple.setOf(values));
     }
 
     /**
@@ -297,6 +297,6 @@ public interface ITable<R extends WithValues> extends Collection<WithValuesByNam
      * @return  <code>true</code> if removal happened, otherwise <code>false</code>
      */
     default boolean removeValues(Object... values){
-        return remove(Tuple.of(values));
+        return remove(Tuple.setOf(values));
     }
 }

@@ -13,15 +13,6 @@ import static io.github.cruisoring.Asserts.*;
 
 public class FunctionsTest {
 
-    int[] array = new int[5];
-    Range range = Range.ofLength(array.length);
-
-    @Test
-    public void runParallel() throws Exception {
-        Functions.runParallel(i -> array[i] = i*2, range.getStream(), 10);
-        assertEquals(new int[]{0, 2, 4, 6, 8}, array);
-    }
-
     @Test
     public void testUntil() {
         LocalDateTime start = LocalDateTime.now();

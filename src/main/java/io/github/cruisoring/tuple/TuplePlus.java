@@ -28,17 +28,4 @@ public class TuplePlus<T, U, V, W, X, Y, Z, A, B, C> extends Tuple
                         final Z z, final A a, final B b, final C c, final Object... more) {
         super(elementType, ArrayHelper.mergeVarargsFirst(more, t, u, v, w, x, y, z, a, b, c));
     }
-
-    /**
-     * Tuple with more than 10 elements of identical type.
-     *
-     * @param <T> type of the elements.
-     */
-    public static class SetPlus<T> extends TuplePlus<T, T, T, T, T, T, T, T, T, T> {
-
-        protected SetPlus(final Class<? extends T> elementType, final T t1, final T t2, final T t3, final T t4, final T t5,
-                          final T t6, final T t7, final T t8, final T t9, final T t10, final T... more) {
-            super(elementType, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, more);
-        }
-    }
 }

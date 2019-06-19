@@ -96,7 +96,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         WithValues row = rows.get(rowIndex);
         Object[] viewElements = (Object[]) ArrayHelper.create(Object.class, mappedIndex.getLength(),
                 i -> row.getValue(mappedIndex.getValue(i)));
-        Tuple tuple = Tuple.of(viewElements);
+        Tuple tuple = Tuple.setOf(viewElements);
         return new TupleRow(viewColumns, tuple);
     }
 

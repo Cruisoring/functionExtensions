@@ -123,12 +123,12 @@ public class ColumnsTest {
                 new String[]{"email"}
         }, Columns.ESCAPED_CASE_INSENSITIVE);
 
-        assertEquals(Tuple.of(0, 0), shared.mapIndexes("ID", other));
-        assertEquals(Tuple.of(1, 1), shared.mapIndexes("User Name", other));
-        assertEquals(Tuple.of(3, 2), shared.mapIndexes("Phone", other));
-        assertEquals(Tuple.of(5, 3), shared.mapIndexes("Address", other));
-        assertEquals(Tuple.of(2, 4), shared.mapIndexes("Birthday", other));
-        assertEquals(Tuple.of(4, 5), shared.mapIndexes("Email", other));
+        assertEquals(Tuple.create(0, 0), shared.mapIndexes("ID", other));
+        assertEquals(Tuple.create(1, 1), shared.mapIndexes("User Name", other));
+        assertEquals(Tuple.create(3, 2), shared.mapIndexes("Phone", other));
+        assertEquals(Tuple.create(5, 3), shared.mapIndexes("Address", other));
+        assertEquals(Tuple.create(2, 4), shared.mapIndexes("Birthday", other));
+        assertEquals(Tuple.create(4, 5), shared.mapIndexes("Email", other));
 
         assertAllNull(shared.mapIndexes("identity", other)); //"identity" is not defined in shared
         assertAllNull(shared.mapIndexes("first name", other)); //"first name" is unknown for other

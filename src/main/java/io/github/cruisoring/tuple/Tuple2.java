@@ -16,16 +16,4 @@ public class Tuple2<T, U> extends Tuple
     protected Tuple2(final Class elementType, final T t, final U u) {
         super(elementType, t, u);
     }
-
-    /**
-     * Tuple with 2 elements of identical type.
-     *
-     * @param <T> type of the elements.
-     */
-    public static class Set2<T> extends Tuple2<T, T> {
-
-        protected Set2(final Class<? extends T> elementType, final T t1, final T t2) {
-            super(elementType, t1, t2);
-        }
-    }
 }

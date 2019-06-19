@@ -1722,7 +1722,7 @@ public class TypeHelperTest {
         assertAllTrue(
                 canValueEquals(null, null, EqualityStategy.SameTypeOnly),
                 canValueEquals(1, Integer.valueOf(1), EqualityStategy.SameTypeOnly),
-                canValueEquals(Tuple.TRUE, Tuple.of(true), EqualityStategy.SameTypeOnly)
+                canValueEquals(Tuple.TRUE, Tuple.create(true), EqualityStategy.SameTypeOnly)
         );
 
         assertAllFalse(
@@ -1768,7 +1768,7 @@ public class TypeHelperTest {
         assertAllTrue(
                 canValueEquals(null, null, EqualityStategy.TypeIgnored),
                 canValueEquals(1, Integer.valueOf(1), EqualityStategy.TypeIgnored),
-                canValueEquals(Tuple.TRUE, Tuple.of(true), EqualityStategy.TypeIgnored),
+                canValueEquals(Tuple.TRUE, Tuple.create(true), EqualityStategy.TypeIgnored),
                 canValueEquals(new int[0], Arrays.asList(), EqualityStategy.TypeIgnored),
                 canValueEquals(new int[0], new Boolean[0], EqualityStategy.TypeIgnored),
                 canValueEquals(new HashSet(), new ArrayList(), EqualityStategy.TypeIgnored),

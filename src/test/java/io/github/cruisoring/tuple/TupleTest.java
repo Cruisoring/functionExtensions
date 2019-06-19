@@ -122,17 +122,17 @@ public class TupleTest {
     public void testSetOf_withElementTypeSpecified() {
         Date date = null;
         Tuple<Date> nullSet = Tuple.setOf(date);
-        assertEquals(Date.class, nullSet._elementType);
+        assertEquals(Date.class, nullSet.getElementType());
         assertEquals(1, nullSet.getLength());
         assertEquals(null, nullSet.getValue(0));
 
         Integer aInteger = null;
         Tuple<Integer> iSet = Tuple.setOfType(Integer.class, aInteger);
-        assertEquals(Integer.class, iSet._elementType);
+        assertEquals(Integer.class, iSet.getElementType());
         assertEquals(1, iSet.getLength());
         assertEquals(null, iSet.getValue(0));
         Tuple<Number> numSet = Tuple.setOfType(Number.class, aInteger);
-        assertEquals(Number.class, numSet._elementType);
+        assertEquals(Number.class, numSet.getElementType());
 
         Tuple<Integer> integerSet = Tuple.setOf(1, 2, 3);
         assertAllTrue(Arrays.deepEquals(new Integer[]{1, 2, 3}, integerSet.asArray()));
@@ -141,7 +141,7 @@ public class TupleTest {
         assertAllTrue(Arrays.deepEquals(new Comparable[]{1.0, 'a', "abc"}, comparableSet.asArray()));
 
         Tuple intTuple = Tuple.setOf(1, 23);
-        assertEquals(Integer.class, intTuple._elementType);
+        assertEquals(Integer.class, intTuple.getElementType());
     }
 
     @Test
@@ -251,8 +251,7 @@ public class TupleTest {
 
     @Test
     public void isMatched() {
-        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
-                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple = Tuple.create(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
         assertAllTrue(tuple.isMatched(new HashMap<Integer, Object>(){{
             put(0, 1);
@@ -267,8 +266,7 @@ public class TupleTest {
 
     @Test
     public void meetConditions() {
-        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
-                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple = Tuple.create(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
         assertAllTrue(tuple.meetConditions(new HashMap<Integer, PredicateThrowable>(){{
             put(0, o -> (Integer)o > 0);
@@ -282,8 +280,7 @@ public class TupleTest {
 
     @Test
     public void anyMatch() {
-        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
-                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple = Tuple.create(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
         assertAllTrue(tuple.anyMatch(o -> o == DayOfWeek.MONDAY));
 
@@ -292,8 +289,7 @@ public class TupleTest {
 
     @Test
     public void allMatch() {
-        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
-                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple = Tuple.create(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
         assertAllTrue(tuple.allMatch(o -> o != null));
 
@@ -302,8 +298,7 @@ public class TupleTest {
 
     @Test
     public void noneMatch() {
-        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
-                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple = Tuple.create(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
 
         assertAllTrue(tuple.noneMatch(o -> o instanceof LocalDate));
 
@@ -314,7 +309,7 @@ public class TupleTest {
     public void setOf() {
 
         assertEquals(4, stringSet.getLength());
-        assertEquals(Tuple4.Set4.class, stringSet.getClass());
+        assertEquals(Tuple.class, stringSet.getClass());
         assertEquals(stringSet.getValue(0), "");
         assertEquals(stringSet.getValue(1), null);
         assertEquals(new Integer[]{111, 222, 3333, 4444}, intSet.asArray());
@@ -326,14 +321,8 @@ public class TupleTest {
     public void testArrayToSet() {
         Integer[] ints = new Integer[]{1, 2, 3};
         Tuple integerSet = Tuple.setOf(ints);
-        assertEquals(Integer.class, integerSet._elementType);
+        assertEquals(Integer.class, integerSet.getElementType());
         assertEquals(3, integerSet.getLength());
-    }
-
-    @Test
-    public void testArrayToSetWithNull() {
-        Integer[] ints = null;
-        Tuple<Integer> intSet = assertException(() -> Tuple.setOf(ints), IllegalStateException.class);
     }
 
     @Test
@@ -342,9 +331,9 @@ public class TupleTest {
         aList.add(new A(true));
         aList.add(new A(3.33d));
         aList.add(new B(77));
-        Tuple aSet = Tuple.setFromCollection(A.class, aList);
+        Tuple aSet = Tuple.setOfType(A.class, aList);
         assertEquals(3, aSet.getLength());
-        assertEquals(A.class, aSet._elementType);
+        assertEquals(A.class, aSet.getElementType());
     }
 
     @Test
@@ -378,7 +367,7 @@ public class TupleTest {
 
     @Test
     public void getSetOf2() {
-        Tuple tuple = Tuple.of(-2, null, -1, new int[]{1, 2}, new Integer[]{3, 4, 5}, -5, new Object[]{6, 7});
+        Tuple tuple = Tuple.create(-2, null, -1, new int[]{1, 2}, new Integer[]{3, 4, 5}, -5, new Object[]{6, 7});
         Tuple<Integer> integers = tuple.getSetOf(int.class);
 
         Tuple<Integer[]> integerArrays = tuple.getSetOf(Integer[].class);
@@ -393,39 +382,38 @@ public class TupleTest {
 
     @Test
     public void getSetOfWithPredicate() {
-        Tuple<String> manyValues = Tuple.of("abc", null, 33, true, "a", "", 'a', Tuple.TRUE, 47);
+        Tuple<String> manyValues = Tuple.create("abc", null, 33, true, "a", "", 'a', Tuple.TRUE, 47);
         assertEquals(Tuple.setOf("abc", null, "a", ""), manyValues.getSetOf(String.class));
         assertEquals(Tuple.setOf("abc"), manyValues.getSetOf(String.class, s -> s.length() > 2));
     }
 
     @Test
     public void asTuple() {
-        Tuple tuple = Tuple.of(null);
+        Tuple tuple = Tuple.create(null);
         assertEquals(1, tuple.getLength());
 
         int[] ints = new int[]{1, 2};
-        tuple = Tuple.of(ints);
+        tuple = Tuple.create(ints);
         assertEquals(1, tuple.getLength());
         assertEquals(Tuple.create(new int[]{1, 2}), tuple);
 
         Object[] elements = new Object[]{1, "ok", true};
-        tuple = Tuple.of(elements);
+        tuple = Tuple.setOf(elements);
         assertEquals(3, tuple.getLength());
         assertEquals(tuple.values, elements);
 
         elements = new Object[]{1, 2, 3, "abc", 'a', true, Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3), 'b'};
-        tuple = Tuple.of(elements);
+        tuple = Tuple.setOf(elements);
         assertEquals(10, tuple.getLength());
         Tuple<Tuple> tupleSet = tuple.getSetOf(Tuple.class);
         assertEquals(3, tupleSet.getLength());
-        assertEquals(tupleSet, Tuple.of(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)));
+        assertEquals(tupleSet, Tuple.create(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)));
         assertEquals(Tuple.setOf(Tuple.TRUE, Tuple.FALSE, Tuple.setOf(1, 2, 3)), tupleSet);
     }
 
     @Test
     public void testOf() {
-        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple =
-                (Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean>) Tuple.of(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
+        Tuple6<Comparable, Object, Number, String, DayOfWeek, Boolean> tuple = Tuple.create(1, 'a', 3.0, "abc", DayOfWeek.MONDAY, true);
         Comparable first = tuple.getFirst();
         assertEquals(Integer.valueOf(1), first);
         assertEquals(Character.valueOf('a'), tuple.getSecond());
@@ -488,7 +476,7 @@ public class TupleTest {
         assertEquals(nullDual3, Tuple.setOf(null, null));
 
         Tuple<String> null4 = Tuple.setOf(null, null);
-        assertEquals(String.class, null4._elementType);
+        assertEquals(String.class, null4.getElementType());
         assertAllFalse(nullDual3.equals(null4), null4.equals(nullDual3));
 
         Tuple<String> null5 = Tuple.setOf(null, null);
@@ -517,7 +505,7 @@ public class TupleTest {
 
     private void testCloseInOrder(String[] expection, Object... values) {
         closeMessages.clear();
-        try (Tuple tuple = Tuple.of(values)) {
+        try (Tuple tuple = Tuple.setOf(values)) {
         } catch (Exception ex) {
             Logger.D(ex.getMessage());
         }

@@ -17,16 +17,4 @@ public class Tuple3<T, U, V> extends Tuple
     protected Tuple3(final Class elementType, final T t, final U u, final V v) {
         super(elementType, t, u, v);
     }
-
-    /**
-     * Tuple with 3 elements of identical type.
-     *
-     * @param <T> type of the elements.
-     */
-    public static class Set3<T> extends Tuple3<T, T, T> {
-
-        protected Set3(final Class<? extends T> elementType, final T t1, final T t2, final T t3) {
-            super(elementType, t1, t2, t3);
-        }
-    }
 }

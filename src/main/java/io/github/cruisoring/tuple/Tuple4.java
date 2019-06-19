@@ -18,17 +18,4 @@ public class Tuple4<T, U, V, W> extends Tuple
     protected Tuple4(final Class elementType, final T t, final U u, final V v, final W w) {
         super(elementType, t, u, v, w);
     }
-
-    /**
-     * Tuple with 4 elements of identical type.
-     *
-     * @param <T> type of the elements.
-     */
-    public static class Set4<T> extends Tuple4<T, T, T, T> {
-
-        protected Set4(final Class<? extends T> elementType, final T t1, final T t2, final T t3, final T t4) {
-            super(elementType, t1, t2, t3, t4);
-        }
-    }
-
 }

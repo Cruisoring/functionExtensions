@@ -23,7 +23,7 @@ public class TupleRepositoryTest {
         Arrays.sort(tuplesExpected);
         Arrays.sort(tuples);
         if (!TypeHelper.valueEquals(tuplesExpected, tuples)) {
-            Logger.D("Expected: %s    !=   %s", Tuple.of(tuplesExpected), Tuple.of(tuples));
+            Logger.D("Expected: %s    !=   %s", Tuple.create(tuplesExpected), Tuple.create(tuples));
             fail("Failed with Arrays.deepEquals after sorting");
         }
     }
