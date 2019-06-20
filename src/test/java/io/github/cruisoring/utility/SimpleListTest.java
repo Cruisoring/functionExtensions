@@ -1,8 +1,10 @@
 package io.github.cruisoring.utility;
 
+import io.github.cruisoring.logger.Logger;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -33,10 +35,36 @@ public class SimpleListTest {
 
     @Test
     public void iterator() {
+        SimpleList<String> strings = new SimpleList<>(String.class);
+        strings.appendAll("First", "b", "c", "d", "e", "f");
+
+        Iterator<String> iterator = strings.iterator();
+        if(iterator.hasNext()){
+            assertLogging(() -> Logger.D(iterator.next()), "First");
+        }
+        StringBuilder sb = new StringBuilder();
+        iterator.forEachRemaining(s ->
+                sb.append(s.toUpperCase()));
+        assertEquals("BCDEF",sb.toString());
     }
 
     @Test
     public void testToArray() {
+        SimpleList<Number> numbers = new SimpleList<>(Number.class);
+        numbers.addAll(Arrays.asList(1, null, 3.2f, 4.3, Short.valueOf("5"), 6L));
+
+        Object[] array = numbers.toArray();
+        assertEquals(new Number[]{1, null, 3.2f, 4.3, Short.valueOf("5"), 6L}, array);
+
+        Number[] numberArray = numbers.toArray(null);
+        assertEquals(new Number[]{1, null, 3.2f, 4.3, Short.valueOf("5"), 6L}, numberArray);
+
+        Number[] bigger = numbers.toArray(new Number[10]);
+        assertEquals(new Number[]{1, null, 3.2f, 4.3, Short.valueOf("5"), 6L, null, null, null, null}, bigger);
+
+        numbers.remove(null);
+        Comparable[] comparables = numbers.toArray(new Comparable[0]);
+        assertEquals(new Comparable[]{1, 3.2f, 4.3, Short.valueOf("5"), 6L}, comparables);
     }
 
     @Test

@@ -23,6 +23,15 @@ public interface PredicateThrowable<T> extends ofThrowable<Boolean> {
     boolean test(T t) throws Exception;
 
     /**
+     * Get the {@code PredicateThrowable<T>} instance that would return exactly opposite result than this {@code PredicateThrowable<T>}
+     * @return a new {@code PredicateThrowable<T>} instance accepting 1 argument to return opposite boolean result.
+     */
+    default PredicateThrowable<T> reversed() {
+        PredicateThrowable<T> opposite = t -> !test(t);
+        return opposite;
+    }
+
+    /**
      * Execute the given business logic to evaluate the given statement, return the result or
      * handle thrown Exception with the default handler of {@code ofThrowable}..
      *

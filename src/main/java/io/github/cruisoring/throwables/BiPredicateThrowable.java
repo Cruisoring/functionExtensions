@@ -24,6 +24,17 @@ public interface BiPredicateThrowable<T, U> extends ofThrowable<Boolean> {
      */
     boolean test(T t, U u) throws Exception;
 
+
+    /**
+     * Get the {@code BiPredicateThrowable<T, U>} instance that would return exactly opposite result than this
+     * {@code BiPredicateThrowable<T, U>} when evaluating two arguments.
+     * @return a new {@code BiPredicateThrowable<T, U>} instance accepting 2 arguments to return opposite boolean result.
+     */
+    default BiPredicateThrowable<T, U> reversed() {
+        BiPredicateThrowable<T, U> opposite = (t, u) -> !test(t, u);
+        return opposite;
+    }
+
     /**
      * Execute the given business logic to test the given 2 arguments, return the result or
      * handle thrown Exception with the default handler of {@code ofThrowable}.

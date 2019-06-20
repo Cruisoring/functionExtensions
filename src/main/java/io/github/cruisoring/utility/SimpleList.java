@@ -5,7 +5,6 @@ import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.throwables.PredicateThrowable;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.*;
@@ -34,7 +33,7 @@ public class SimpleList<E> implements List<E> {
 
     public SimpleList(Class<? extends E> elementType, int initialCapacity, Iterator<E> iterator) {
         this.elementType = Asserts.checkNotNull(elementType, "ElementType must be specified");
-        reset(initialCapacity);
+        resize(initialCapacity);
         current = 0;
         if(iterator != null) {
             iterator.forEachRemaining(e -> elements[current++] = e);
@@ -53,12 +52,32 @@ public class SimpleList<E> implements List<E> {
         this(null);
     }
 
-    public E[] reset(int capacity){
+    /**
+     * Allocate spaces to keep the elements and updating the capacity accordingly.
+     * @param capacity  the expected capacity reserved for elements keeping.
+     * @return  the old Array of elements that can be used to copy data to the newly allocated spaces.
+     */
+    public E[] resize(int capacity){
         assertTrue(capacity > 0, "The capacity must be greater than 0");
         E[] old = elements;
         this.capacity = capacity;
         elements = (E[]) ArrayHelper.getNewArray(elementType, capacity);
         return old;
+    }
+
+    protected void ensureCapacity(int extraSize, int index) {
+        E[] old = elements;
+        if(extraSize + current > capacity){
+            capacity = getDefaultCapacity(extraSize+ current);
+            resize(capacity);
+        }
+
+        if(index < current) {
+            System.arraycopy(old, index, elements, index+extraSize, current -index);
+        }
+        if(index > 0 && old != elements){
+            System.arraycopy(old, 0, elements, 0, index);
+        }
     }
 
     @Override
@@ -122,11 +141,11 @@ public class SimpleList<E> implements List<E> {
         return true;
     }
 
-    public boolean[] getFlags(Predicate predicate){
-        assertNotNull(predicate, "The predicate cannot be null!");
-        return  (boolean[]) ArrayHelper.create(boolean.class, current, i -> predicate.test(elements[i]));
-    }
-
+    /**
+     * Get the indexes where the elements matched with the given predicate.
+     * @param elementPredicate  the predicate to filter elements so as to get their indexes.
+     * @return  the indexes of all matched elements.
+     */
     public Integer[] matchedIndexes(PredicateThrowable<E> elementPredicate){
         Integer[] indexes = IntStream.range(0, current).boxed()
             .filter(i -> elementPredicate.orElse(false).test(elements[i]))
@@ -134,30 +153,11 @@ public class SimpleList<E> implements List<E> {
         return indexes;
     }
 
-    public boolean removeByFlags(boolean[] flags){
-        int newSize = 0, last = -1;
-        int length = Math.min(flags.length, current);
-        for (int i = 0; i < length; i++) {
-            if(!flags[i]) {
-                if(last != -1){
-                    elements[last++] = elements[i];
-                }
-                newSize++;
-            } else if (last == -1) {
-                last = i;
-            }
-        }
-        if(newSize == current) {
-            return false;
-        } else {
-            for (int i = newSize; i < current; i++) {
-                elements[i] = null;
-            }
-            current = newSize;
-            return true;
-        }
-    }
-
+    /**
+     * Batch execution of remove(int) with zero or multiple indexes.
+     * @param indexes   the indexes of all matched elements.
+     * @return          the number of elements removed.
+     */
     public int removeByIndexes(Integer... indexes){
         Set set = SetHelper.asSet(indexes);
         int newSize = 0, last = -1, removed = 0;
@@ -190,21 +190,6 @@ public class SimpleList<E> implements List<E> {
         return cSet.isEmpty();
     }
 
-    protected void ensureCapacity(int extraSize, int index) {
-        E[] old = elements;
-        if(extraSize + current > capacity){
-            capacity = getDefaultCapacity(extraSize+ current);
-            reset(capacity);
-        }
-
-        if(index < current) {
-            System.arraycopy(old, index, elements, index+extraSize, current -index);
-        }
-        if(index > 0 && old != elements){
-            System.arraycopy(old, 0, elements, 0, index);
-        }
-    }
-
     @Override
     public boolean addAll(Collection<? extends E> c) {
         return addAll(current, c);
@@ -224,6 +209,34 @@ public class SimpleList<E> implements List<E> {
         }
         current += extraSize;
         return true;
+    }
+
+    /**
+     * Insert all elements of the given array to the specific position.
+     * @param index  index at which to insert the first element from the specified collection
+     * @param array  the Array containing elements to be added to this list
+     * @return      true if this list changed as a result of the call
+     */
+    public boolean insertAll(int index, E... array) {
+        assertAllFalse(index<0, index> current, array == null);
+        int extraSize = array.length;
+        if(extraSize == 0){
+            return false;
+        }
+        ensureCapacity(extraSize, index);
+        System.arraycopy(array, 0, elements, index, extraSize);
+        current += extraSize;
+        return true;
+    }
+
+    /**
+     * Append all elements of the given array to the end of the list.
+     * @param array  the Array containing elements to be added to this list
+     * @return      true if this list changed as a result of the call
+     */
+    public boolean appendAll(E... array) {
+        assertAllFalse(array == null);
+        return insertAll(current, array);
     }
 
     public boolean removeAll(PredicateThrowable<E> predicate){
@@ -252,7 +265,7 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public void clear() {
-        reset(DEFAULT_CAPACITY);
+        resize(DEFAULT_CAPACITY);
         current = 0;
     }
 
