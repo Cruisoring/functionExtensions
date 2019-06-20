@@ -56,13 +56,13 @@ public class Asserts {
      */
     public static void assertAllTrue(boolean first, boolean... expressions) {
         if(!first) {
-            throw new IllegalStateException(log("The first expresion is false."));
+            throw new IllegalStateException(log("The first expresion is false when true is expected."));
         }
 
         int length = expressions.length;
         for (int i = 0; i < length; i++) {
             if (!expressions[i]) {
-                throw new IllegalStateException(log("The %dth expresion is false.", i));
+                throw new IllegalStateException(log("The %dth expresion is false when true is expected.", i));
             }
         }
     }
@@ -76,13 +76,13 @@ public class Asserts {
      */
     public static void assertAllFalse(boolean first, boolean... expressions) {
         if(first) {
-            throw new IllegalStateException(log("The first expression is true"));
+            throw new IllegalStateException(log("The first expression is true when false is expected"));
         }
 
         int length = expressions.length;
         for (int i = 0; i < length; i++) {
             if (expressions[i]) {
-                throw new IllegalStateException(log("The %dth expression is true", 1+i));
+                throw new IllegalStateException(log("The %dth expression is true when false is expected", 1+i));
             }
         }
     }
@@ -96,13 +96,13 @@ public class Asserts {
      */
     public static <T> void assertAllNull(T first, T... others) {
         if (first != null) {
-            throw new IllegalStateException(log("The first object is not null: %s", TypeHelper.deepToString(first)));
+            throw new IllegalStateException(log("The first object should be null: %s", TypeHelper.deepToString(first)));
         }
 
         int length = others.length;
         for (int i = 0; i < length; i++) {
             if (others[i] != null) {
-                throw new NullPointerException(log("The %dth object is not null: %s", i+1, TypeHelper.deepToString(others[i])));
+                throw new NullPointerException(log("The %dth object should be null: %s", i+1, TypeHelper.deepToString(others[i])));
             }
         }
     }
@@ -116,7 +116,7 @@ public class Asserts {
      */
     public static <T> void assertAllNotNull(T reference, T... others) {
         if (reference == null) {
-            throw new NullPointerException(log("The first object is null"));
+            throw new NullPointerException(log("The first object should not be null"));
         }
 
         int length = others.length;
@@ -124,13 +124,13 @@ public class Asserts {
             length = Array.getLength(reference);
             for (int i = 0; i < length; i++) {
                 if (Array.get(reference, i) == null) {
-                    throw new NullPointerException(log("The %dth object is null!", i+1));
+                    throw new NullPointerException(log("The %dth object should not be null!", i+1));
                 }
             }
         } else {
             for (int i = 0; i < length; i++) {
                 if (others[i] == null) {
-                    throw new NullPointerException(log("The %dth object is null!", i+1));
+                    throw new NullPointerException(log("The %dth object should not be null!", i+1));
                 }
             }
         }

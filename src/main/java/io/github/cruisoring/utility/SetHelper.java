@@ -2,13 +2,11 @@ package io.github.cruisoring.utility;
 
 import io.github.cruisoring.throwables.SupplierThrowable;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Supplier;
 
-import static io.github.cruisoring.Asserts.*;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
  * Helper class with Set related methods implemented.
@@ -28,25 +26,38 @@ public class SetHelper {
      */
     public static <T> Set<T> asSet(SupplierThrowable<Set<T>> setSupplier, T... elements) {
         Set<T> set = setSupplier == null ? defaultSetSupplier.get() : setSupplier.orElse(null).get();
-        checkNotNull(set, "Failed to get the instance of Set<T>");
+        assertAllNotNull(set, elements);
 
-        return fillSet(set, elements);
+        for (int i = 0; i < elements.length; i++) {
+            set.add(elements[i]);
+        }
+        return set;
+    }
+
+    /**
+     * Convert a given array to a Set created by the given factory method.
+     * @param elements      the Collection of elements to be converted, the null would be treated as an Array containing only one single element of null.
+     * @param setSupplier   the factory method to create the Set&lt;T&gt;
+     * @param <T>           the type of the elements.
+     * @return the Set containing same elements.
+     */
+    public static <T> Set<T> asSet(Collection<T> elements, SupplierThrowable<Set<T>> setSupplier) {
+        Set<T> set = setSupplier == null ? defaultSetSupplier.get() : setSupplier.orElse(null).get();
+        assertAllNotNull(set, elements);
+        set.addAll(elements);
+
+        return set;
     }
 
     public static <T> Set<T> asSet(T... elements) {
         return asSet(null, elements);
     }
 
-
-    static <T> Set<T> fillSet(Set<T> set, T... elements){
-        if (elements == null) {
-            set.add(null);
-        } else {
-            for (int i = 0; i < elements.length; i++) {
-                set.add(elements[i]);
-            }
+    public static <T> Set<T> asSet(Collection<T> elements) {
+        if(elements instanceof Set){
+            return (Set<T>) elements;
         }
-        return set;
+        return asSet(elements, null);
     }
 
     /**
@@ -57,7 +68,7 @@ public class SetHelper {
      * @return the HashSet containing same elements with no order guaranteed.
      */
     public static <T> Set<T> asHashSet(T... elements) {
-        return fillSet(new HashSet<>(), elements);
+        return asSet(HashSet::new, elements);
     }
 
     /**
@@ -69,7 +80,7 @@ public class SetHelper {
      */
     public static <T> Set<T> asTreeSet(T... elements) {
         assertAllNotNull(elements);
-        return fillSet(new TreeSet<>(), elements);
+        return asSet(TreeSet::new, elements);
     }
 
     /**
@@ -80,7 +91,7 @@ public class SetHelper {
      * @return the LinkedHashSet containing same set of elements with orders.
      */
     public static <T> Set<T> asLinkedHashSet(T... elements) {
-        return fillSet(new LinkedHashSet<>(), elements);
+        return asSet(LinkedHashSet::new, elements);
     }
 
     /**

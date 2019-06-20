@@ -2,8 +2,11 @@ package io.github.cruisoring.utility;
 
 import io.github.cruisoring.Asserts;
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.throwables.PredicateThrowable;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.*;
 
@@ -24,25 +27,25 @@ public class SimpleList<E> implements List<E> {
         return result;
     }
 
-    protected final Class<E> elementType;
+    protected final Class<? extends E> elementType;
     private int capacity;
     private E[] elements;
-    private int size;
+    private int current;
 
-    public SimpleList(Class<E> elementType, int capacity, Iterator<E> iterator) {
+    public SimpleList(Class<? extends E> elementType, int initialCapacity, Iterator<E> iterator) {
         this.elementType = Asserts.checkNotNull(elementType, "ElementType must be specified");
-        reset(capacity);
-        size = 0;
+        reset(initialCapacity);
+        current = 0;
         if(iterator != null) {
-            iterator.forEachRemaining(e -> elements[size++] = e);
+            iterator.forEachRemaining(e -> elements[current++] = e);
         }
     }
 
-    public SimpleList(Class<E> elementType, int capacity) {
-        this(elementType, capacity, null);
+    public SimpleList(Class<? extends E> elementType, int initialCapacity) {
+        this(elementType, initialCapacity, null);
     }
 
-    public SimpleList(Class<E> elementType) {
+    public SimpleList(Class<? extends E> elementType) {
         this(elementType==null? (Class<E>) Object.class : elementType, DEFAULT_CAPACITY);
     }
 
@@ -60,17 +63,17 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public int size() {
-        return size;
+        return current;
     }
 
     @Override
     public boolean isEmpty() {
-        return size == 0;
+        return current == 0;
     }
 
     @Override
     public boolean contains(Object o) {
-        return indexOf(o) > 0;
+        return indexOf(o) >= 0;
     }
 
     @Override
@@ -80,27 +83,28 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public Object[] toArray() {
-        return (Object[]) ArrayHelper.create(Object.class, size, i -> elements[i]);
+        return (Object[]) ArrayHelper.create(Object.class, current, i -> elements[i]);
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
         if(a == null) {
-            return (T[]) TypeHelper.copyOfRange(elements, 0, size);
-        } else if (a.length < size) {
-            return (T[]) ArrayHelper.create(a.getClass().getComponentType(), size, i -> elements[i]);
+            return (T[]) TypeHelper.copyOfRange(elements, 0, current);
+        } else if (a.length < current) {
+            return (T[]) ArrayHelper.create(a.getClass().getComponentType(), current, i -> elements[i]);
          } else {
-            ArrayHelper.setAll(a, i -> i < size ? elements[i] : null);
+            ArrayHelper.setAll(a, i -> i < current ? elements[i] : null);
             return a;
         }
     }
 
     @Override
     public boolean add(E e) {
-        if(size >= capacity) {
-            ensureCapacity(1, size);
+        if(current >= capacity) {
+            ensureCapacity(1, current);
         }
-        elements[size++] = e;
+        elements[current] = e;
+        current++;
         return true;
     }
 
@@ -111,67 +115,104 @@ public class SimpleList<E> implements List<E> {
             return false;
         }
 
-        for (int i = index+1; i < size; i++) {
+        for (int i = index+1; i < current; i++) {
             elements[i-1] = elements[i];
         }
-        elements[--size] = null;
+        elements[--current] = null;
         return true;
     }
 
-    public int remove(boolean[] flags, boolean complement){
-        int newSize = 0;
-        int length = Math.min(flags.length, size);
-        for (int i = 0; i < length; i++) {
-            if(flags[i]==complement && newSize != i){
-                elements[newSize++] = elements[i];
-            }
-        }
-        for (int i = newSize; i < size; i++) {
-            elements[i] = null;
-        }
-        return newSize;
+    public boolean[] getFlags(Predicate predicate){
+        assertNotNull(predicate, "The predicate cannot be null!");
+        return  (boolean[]) ArrayHelper.create(boolean.class, current, i -> predicate.test(elements[i]));
     }
 
-    public boolean[] containOrNots(Collection<?> c) {
-        checkNotNull(c, "The Collection cannot be null");
-        Set uniqueSet = (c instanceof Set) ? (Set) c : new HashSet(c);
-        return  (boolean[]) ArrayHelper.create(boolean.class, size, i -> uniqueSet.contains(elements[i]));
+    public Integer[] matchedIndexes(PredicateThrowable<E> elementPredicate){
+        Integer[] indexes = IntStream.range(0, current).boxed()
+            .filter(i -> elementPredicate.orElse(false).test(elements[i]))
+            .toArray(size ->new Integer[size]);
+        return indexes;
+    }
+
+    public boolean removeByFlags(boolean[] flags){
+        int newSize = 0, last = -1;
+        int length = Math.min(flags.length, current);
+        for (int i = 0; i < length; i++) {
+            if(!flags[i]) {
+                if(last != -1){
+                    elements[last++] = elements[i];
+                }
+                newSize++;
+            } else if (last == -1) {
+                last = i;
+            }
+        }
+        if(newSize == current) {
+            return false;
+        } else {
+            for (int i = newSize; i < current; i++) {
+                elements[i] = null;
+            }
+            current = newSize;
+            return true;
+        }
+    }
+
+    public int removeByIndexes(Integer... indexes){
+        Set set = SetHelper.asSet(indexes);
+        int newSize = 0, last = -1, removed = 0;
+        int length = current;
+        for (int i = 0; i < length; i++) {
+            if(!set.contains(i)) {
+                if(last != -1){
+                    elements[last++] = elements[i];
+                }
+                newSize++;
+            } else {
+                removed++;
+                if (last == -1) {
+                    last = i;
+                }
+            }
+        }
+        for (int i = newSize; i < length; i++) {
+            elements[i] = null;
+        }
+        current = newSize;
+        return removed;
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        int newSize = remove(containOrNots(c), true);
-        if(newSize != size) {
-            size = newSize;
-            return true;
-        } else {
-            return false;
-        }
+        Set elementSet = SetHelper.asSet(c);
+        Set cSet = SetHelper.asSet(c);
+        cSet.removeAll(elementSet);
+        return cSet.isEmpty();
     }
 
     protected void ensureCapacity(int extraSize, int index) {
-        if(extraSize + size < capacity){
-            return;
+        E[] old = elements;
+        if(extraSize + current > capacity){
+            capacity = getDefaultCapacity(extraSize+ current);
+            reset(capacity);
         }
 
-        capacity = getDefaultCapacity(extraSize+size);
-        E[] old = reset(capacity);
-        if(index < size){
-            System.arraycopy(old, 0, elements, 0, index);
+        if(index < current) {
+            System.arraycopy(old, index, elements, index+extraSize, current -index);
         }
-        if(index > 0) {
-            System.arraycopy(old, index, elements, index+extraSize, size-index);
+        if(index > 0 && old != elements){
+            System.arraycopy(old, 0, elements, 0, index);
         }
     }
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
-        return addAll(size, c);
+        return addAll(current, c);
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
-        assertAllFalse(index<0, index>=size, c == null);
+        assertAllFalse(index<0, index> current, c == null);
         if(c.isEmpty()){
             return false;
         }
@@ -181,38 +222,43 @@ public class SimpleList<E> implements List<E> {
         for (int i = 0; i < extraSize; i++) {
             elements[i + index] = iterator.next();
         }
-        size += extraSize;
+        current += extraSize;
         return true;
+    }
+
+    public boolean removeAll(PredicateThrowable<E> predicate){
+        Integer[] indexes = matchedIndexes(predicate);
+        return removeByIndexes(indexes) > 0;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        int newSize = remove(containOrNots(c), true);
-        if(newSize != size) {
-            size = newSize;
-            return true;
+        if(c == null) {
+            return removeAll(e -> e == null);
         } else {
-            return false;
+            Set set = SetHelper.asSet(c);
+            return removeAll(set::contains);
         }
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        int newSize = remove(containOrNots(c), false);
-        boolean anyChanges = newSize != size;
-        size = newSize;
-        return anyChanges;
+        if(c == null) {
+            return removeAll(e -> e != null);
+        }
+        Set set = SetHelper.asSet(c);
+        return removeAll(e -> !set.contains(e));
     }
 
     @Override
     public void clear() {
         reset(DEFAULT_CAPACITY);
-        size = 0;
+        current = 0;
     }
 
     @Override
     public E get(int index) {
-        assertAllFalse(index<0, index>=size);
+        assertAllFalse(index<0, index> current);
         return elements[index];
     }
 
@@ -225,28 +271,30 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public void add(int index, E element) {
+        assertAllFalse(index<0, index> current);
         ensureCapacity(1, index);
         elements[index] = element;
+        current += 1;
     }
 
     @Override
     public E remove(int index) {
         E old = get(index);
-        if(index < size-1) {
-            System.arraycopy(elements, index+1, elements, index, size-1-index);
+        if(index < current -1) {
+            System.arraycopy(elements, index+1, elements, index, current -1-index);
         }
-        elements[--size] = null;
+        elements[--current] = null;
         return old;
     }
 
     @Override
     public int indexOf(Object o) {
         if (o == null) {
-            for (int i = 0; i < size; i++)
+            for (int i = 0; i < current; i++)
                 if (elements[i]==null)
                     return i;
         } else {
-            for (int i = 0; i < size; i++)
+            for (int i = 0; i < current; i++)
                 if (o.equals(elements[i]))
                     return i;
         }
@@ -256,11 +304,11 @@ public class SimpleList<E> implements List<E> {
     @Override
     public int lastIndexOf(Object o) {
         if (o == null) {
-            for (int i = size-1; i >= 0; i--)
+            for (int i = current -1; i >= 0; i--)
                 if (elements[i]==null)
                     return i;
         } else {
-            for (int i = size-1; i >= 0; i--)
+            for (int i = current -1; i >= 0; i--)
                 if (o.equals(elements[i]))
                     return i;
         }
@@ -274,13 +322,13 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public ListIterator<E> listIterator(int index) {
-        assertAllFalse(index<0, index>=size);
+        assertAllFalse(index<0, index> current);
         return new SimpleIterator(index);
     }
 
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private class SimpleIterator implements ListIterator<E> {
@@ -293,12 +341,12 @@ public class SimpleList<E> implements List<E> {
 
         @Override
         public boolean hasNext() {
-            return cursor < size;
+            return cursor < current;
         }
 
         @Override
         public E next() {
-            assertTrue(cursor < size, "There is no next element when cursor = %d and size = %d", cursor, size);
+            assertTrue(cursor < current, "There is no next element when cursor = %d and current = %d", cursor, current);
             return elements[last = cursor++];
         }
 
