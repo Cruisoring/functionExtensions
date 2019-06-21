@@ -62,7 +62,7 @@ public class Asserts {
         int length = expressions.length;
         for (int i = 0; i < length; i++) {
             if (!expressions[i]) {
-                throw new IllegalStateException(log("The %dth expresion is false when true is expected.", i));
+                throw new IllegalStateException(log("The %dth expresion is false when true is expected.", i+1));
             }
         }
     }

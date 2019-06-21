@@ -5,8 +5,7 @@ import io.github.cruisoring.throwables.SupplierThrowable;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static io.github.cruisoring.Asserts.assertAllNotNull;
-import static io.github.cruisoring.Asserts.checkNoneNulls;
+import static io.github.cruisoring.Asserts.*;
 
 /**
  * Helper class with Set related methods implemented.
@@ -26,7 +25,10 @@ public class SetHelper {
      */
     public static <T> Set<T> asSet(SupplierThrowable<Set<T>> setSupplier, T... elements) {
         Set<T> set = setSupplier == null ? defaultSetSupplier.get() : setSupplier.orElse(null).get();
-        assertAllNotNull(set, elements);
+        if(elements == null){
+            elements = (T[])ArrayHelper.create(Object.class, 1, i -> null);
+        }
+        assertAllFalse(set==null, null==elements);
 
         for (int i = 0; i < elements.length; i++) {
             set.add(elements[i]);
@@ -43,7 +45,7 @@ public class SetHelper {
      */
     public static <T> Set<T> asSet(Collection<T> elements, SupplierThrowable<Set<T>> setSupplier) {
         Set<T> set = setSupplier == null ? defaultSetSupplier.get() : setSupplier.orElse(null).get();
-        assertAllNotNull(set, elements);
+        assertAllFalse(set==null, null==elements);
         set.addAll(elements);
 
         return set;
@@ -79,7 +81,6 @@ public class SetHelper {
      * @return the TreeSet containing same elements sorted.
      */
     public static <T> Set<T> asTreeSet(T... elements) {
-        assertAllNotNull(elements);
         return asSet(TreeSet::new, elements);
     }
 

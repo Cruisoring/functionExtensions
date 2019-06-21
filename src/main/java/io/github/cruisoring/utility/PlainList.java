@@ -9,11 +9,16 @@ import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.*;
 
-public class SimpleList<E> implements List<E> {
+public class PlainList<E> implements List<E> {
 
     public static int DEFAULT_CAPACITY = 16;
     public static int MAX_CAPACITY = 0x2000000;
 
+    /**
+     * Get the least reasonable figure that is multiple {@code DEFAULT_CAPACITY} to cater the demanded capacity
+     * @param capacity  the demanded capacity
+     * @return          the least exponential number of {@code DEFAULT_CAPACITY}
+     */
     public static int getDefaultCapacity(int capacity){
         if(capacity <= DEFAULT_CAPACITY) {
             return DEFAULT_CAPACITY;
@@ -27,29 +32,44 @@ public class SimpleList<E> implements List<E> {
     }
 
     protected final Class<? extends E> elementType;
-    private int capacity;
-    private E[] elements;
-    private int current;
+    int capacity;
+    E[] elements;
+    int upperIndex;
 
-    public SimpleList(Class<? extends E> elementType, int initialCapacity, Iterator<E> iterator) {
-        this.elementType = Asserts.checkNotNull(elementType, "ElementType must be specified");
+    /**
+     * Create a {@code PlainList} by specifying its element type, and Collection of data to be copied.
+     * @param elementType       the component type of the Array to keep the elements
+     * @param initialCapacity   the desirable capacity to create the initial array, so as to differ the signature with constructor using array
+     * @param collection        the Collection of elements to be copied to this {@code PlainList}
+     */
+    public PlainList(Class<? extends E> elementType, int initialCapacity, Collection<E> collection) {
+        this.elementType = checkNotNull(elementType, "ElementType must be specified");
+        initialCapacity = Math.max(initialCapacity, checkNotNull(collection, "No Collection spedified!").size());
         resize(initialCapacity);
-        current = 0;
-        if(iterator != null) {
-            iterator.forEachRemaining(e -> elements[current++] = e);
-        }
+        upperIndex = 0;
+        Iterator<E> iterator = collection.iterator();
+        iterator.forEachRemaining(e -> elements[upperIndex++] = e);
     }
 
-    public SimpleList(Class<? extends E> elementType, int initialCapacity) {
-        this(elementType, initialCapacity, null);
+    /**
+     * Create a {@code PlainList} by specifying its element type, and the Array of data to be copied.
+     * @param elementType       the component type of the Array to keep the elements
+     * @param values            the Array of elements to be copied to this {@code PlainList}
+     */
+    public PlainList(Class<? extends E> elementType, E... values){
+        this.elementType = Asserts.checkNotNull(elementType, "ElementType must be specified");
+        values = values != null ? values : (E[])ArrayHelper.create(elementType, 1, i -> null);
+
+        elements = Arrays.copyOf(values, values.length);
+        upperIndex = elements.length;
     }
 
-    public SimpleList(Class<? extends E> elementType) {
-        this(elementType==null? (Class<E>) Object.class : elementType, DEFAULT_CAPACITY);
-    }
-
-    public SimpleList() {
-        this(null);
+    /**
+     * Create a {@code PlainList} by default element type, and the Array of data to be copied.
+     * @param values            the Array of elements to be copied to this {@code PlainList}
+     */
+    public PlainList(E... values){
+        this((Class<? extends E>)(values == null ? Object.class : values.getClass().getComponentType()), values);
     }
 
     /**
@@ -58,7 +78,7 @@ public class SimpleList<E> implements List<E> {
      * @return  the old Array of elements that can be used to copy data to the newly allocated spaces.
      */
     public E[] resize(int capacity){
-        assertTrue(capacity > 0, "The capacity must be greater than 0");
+        assertTrue(capacity >= 0, "The capacity must be greater or equal to 0");
         E[] old = elements;
         this.capacity = capacity;
         elements = (E[]) ArrayHelper.getNewArray(elementType, capacity);
@@ -67,13 +87,13 @@ public class SimpleList<E> implements List<E> {
 
     protected void ensureCapacity(int extraSize, int index) {
         E[] old = elements;
-        if(extraSize + current > capacity){
-            capacity = getDefaultCapacity(extraSize+ current);
+        if(extraSize + upperIndex > capacity){
+            capacity = getDefaultCapacity(extraSize+ upperIndex);
             resize(capacity);
         }
 
-        if(index < current) {
-            System.arraycopy(old, index, elements, index+extraSize, current -index);
+        if(index < upperIndex) {
+            System.arraycopy(old, index, elements, index+extraSize, upperIndex -index);
         }
         if(index > 0 && old != elements){
             System.arraycopy(old, 0, elements, 0, index);
@@ -82,12 +102,12 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public int size() {
-        return current;
+        return upperIndex;
     }
 
     @Override
     public boolean isEmpty() {
-        return current == 0;
+        return upperIndex == 0;
     }
 
     @Override
@@ -97,33 +117,33 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new SimpleIterator(0);
+        return new PlainListIterator(this);
     }
 
     @Override
     public Object[] toArray() {
-        return (Object[]) ArrayHelper.create(Object.class, current, i -> elements[i]);
+        return (Object[]) ArrayHelper.create(Object.class, upperIndex, i -> elements[i]);
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
         if(a == null) {
-            return (T[]) TypeHelper.copyOfRange(elements, 0, current);
-        } else if (a.length < current) {
-            return (T[]) ArrayHelper.create(a.getClass().getComponentType(), current, i -> elements[i]);
+            return (T[]) TypeHelper.copyOfRange(elements, 0, upperIndex);
+        } else if (a.length < upperIndex) {
+            return (T[]) ArrayHelper.create(a.getClass().getComponentType(), upperIndex, i -> elements[i]);
          } else {
-            ArrayHelper.setAll(a, i -> i < current ? elements[i] : null);
+            ArrayHelper.setAll(a, i -> i < upperIndex ? elements[i] : null);
             return a;
         }
     }
 
     @Override
     public boolean add(E e) {
-        if(current >= capacity) {
-            ensureCapacity(1, current);
+        if(upperIndex >= capacity) {
+            ensureCapacity(1, upperIndex);
         }
-        elements[current] = e;
-        current++;
+        elements[upperIndex] = e;
+        upperIndex++;
         return true;
     }
 
@@ -134,10 +154,10 @@ public class SimpleList<E> implements List<E> {
             return false;
         }
 
-        for (int i = index+1; i < current; i++) {
+        for (int i = index+1; i < upperIndex; i++) {
             elements[i-1] = elements[i];
         }
-        elements[--current] = null;
+        elements[--upperIndex] = null;
         return true;
     }
 
@@ -147,7 +167,7 @@ public class SimpleList<E> implements List<E> {
      * @return  the indexes of all matched elements.
      */
     public Integer[] matchedIndexes(PredicateThrowable<E> elementPredicate){
-        Integer[] indexes = IntStream.range(0, current).boxed()
+        Integer[] indexes = IntStream.range(0, upperIndex).boxed()
             .filter(i -> elementPredicate.orElse(false).test(elements[i]))
             .toArray(size ->new Integer[size]);
         return indexes;
@@ -161,7 +181,7 @@ public class SimpleList<E> implements List<E> {
     public int removeByIndexes(Integer... indexes){
         Set set = SetHelper.asSet(indexes);
         int newSize = 0, last = -1, removed = 0;
-        int length = current;
+        int length = upperIndex;
         for (int i = 0; i < length; i++) {
             if(!set.contains(i)) {
                 if(last != -1){
@@ -178,13 +198,13 @@ public class SimpleList<E> implements List<E> {
         for (int i = newSize; i < length; i++) {
             elements[i] = null;
         }
-        current = newSize;
+        upperIndex = newSize;
         return removed;
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        Set elementSet = SetHelper.asSet(c);
+        Set elementSet = SetHelper.asSet(elements);
         Set cSet = SetHelper.asSet(c);
         cSet.removeAll(elementSet);
         return cSet.isEmpty();
@@ -192,12 +212,15 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
-        return addAll(current, c);
+        return addAll(upperIndex, c);
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
-        assertAllFalse(index<0, index> current, c == null);
+        if(c == null){
+            return false;
+        }
+        assertAllFalse(index<0, index> upperIndex);
         if(c.isEmpty()){
             return false;
         }
@@ -207,7 +230,7 @@ public class SimpleList<E> implements List<E> {
         for (int i = 0; i < extraSize; i++) {
             elements[i + index] = iterator.next();
         }
-        current += extraSize;
+        upperIndex += extraSize;
         return true;
     }
 
@@ -218,14 +241,15 @@ public class SimpleList<E> implements List<E> {
      * @return      true if this list changed as a result of the call
      */
     public boolean insertAll(int index, E... array) {
-        assertAllFalse(index<0, index> current, array == null);
+        array = array == null ? (E[]) ArrayHelper.create(elementType, 1, i -> null) : array;
+        assertAllFalse(index<0, index> upperIndex);
         int extraSize = array.length;
         if(extraSize == 0){
             return false;
         }
         ensureCapacity(extraSize, index);
         System.arraycopy(array, 0, elements, index, extraSize);
-        current += extraSize;
+        upperIndex += extraSize;
         return true;
     }
 
@@ -235,43 +259,48 @@ public class SimpleList<E> implements List<E> {
      * @return      true if this list changed as a result of the call
      */
     public boolean appendAll(E... array) {
-        assertAllFalse(array == null);
-        return insertAll(current, array);
+        array = array == null ? (E[]) ArrayHelper.create(elementType, 1, i -> null) : array;
+        return insertAll(upperIndex, array);
     }
 
-    public boolean removeAll(PredicateThrowable<E> predicate){
+    public boolean removeAllMatched(PredicateThrowable<E> predicate){
         Integer[] indexes = matchedIndexes(predicate);
+        return removeByIndexes(indexes) > 0;
+    }
+
+    public boolean retainAllMatched(PredicateThrowable<E> predicate){
+        Integer[] indexes = matchedIndexes(predicate.reversed());
         return removeByIndexes(indexes) > 0;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
         if(c == null) {
-            return removeAll(e -> e == null);
+            return false;
         } else {
             Set set = SetHelper.asSet(c);
-            return removeAll(set::contains);
+            return removeAllMatched(set::contains);
         }
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
         if(c == null) {
-            return removeAll(e -> e != null);
+            return false;
         }
         Set set = SetHelper.asSet(c);
-        return removeAll(e -> !set.contains(e));
+        return removeAllMatched(e -> !set.contains(e));
     }
 
     @Override
     public void clear() {
         resize(DEFAULT_CAPACITY);
-        current = 0;
+        upperIndex = 0;
     }
 
     @Override
     public E get(int index) {
-        assertAllFalse(index<0, index> current);
+        assertAllFalse(index<0, index> upperIndex);
         return elements[index];
     }
 
@@ -284,30 +313,30 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public void add(int index, E element) {
-        assertAllFalse(index<0, index> current);
+        assertAllFalse(index<0, index> upperIndex);
         ensureCapacity(1, index);
         elements[index] = element;
-        current += 1;
+        upperIndex += 1;
     }
 
     @Override
     public E remove(int index) {
         E old = get(index);
-        if(index < current -1) {
-            System.arraycopy(elements, index+1, elements, index, current -1-index);
+        if(index < upperIndex -1) {
+            System.arraycopy(elements, index+1, elements, index, upperIndex -1-index);
         }
-        elements[--current] = null;
+        elements[--upperIndex] = null;
         return old;
     }
 
     @Override
     public int indexOf(Object o) {
         if (o == null) {
-            for (int i = 0; i < current; i++)
+            for (int i = 0; i < upperIndex; i++)
                 if (elements[i]==null)
                     return i;
         } else {
-            for (int i = 0; i < current; i++)
+            for (int i = 0; i < upperIndex; i++)
                 if (o.equals(elements[i]))
                     return i;
         }
@@ -317,11 +346,11 @@ public class SimpleList<E> implements List<E> {
     @Override
     public int lastIndexOf(Object o) {
         if (o == null) {
-            for (int i = current -1; i >= 0; i--)
+            for (int i = upperIndex -1; i >= 0; i--)
                 if (elements[i]==null)
                     return i;
         } else {
-            for (int i = current -1; i >= 0; i--)
+            for (int i = upperIndex -1; i >= 0; i--)
                 if (o.equals(elements[i]))
                     return i;
         }
@@ -330,79 +359,19 @@ public class SimpleList<E> implements List<E> {
 
     @Override
     public ListIterator<E> listIterator() {
-        return new SimpleIterator(0);
+        return new PlainListIterator(this);
     }
 
     @Override
     public ListIterator<E> listIterator(int index) {
-        assertAllFalse(index<0, index> current);
-        return new SimpleIterator(index);
+        assertAllFalse(index<0, index> upperIndex);
+        return new PlainListIterator(this, index);
     }
 
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
-        throw new UnsupportedOperationException();
-    }
-
-    private class SimpleIterator implements ListIterator<E> {
-        int cursor;
-        int last=-1;
-
-        public SimpleIterator(int index) {
-            cursor = index;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return cursor < current;
-        }
-
-        @Override
-        public E next() {
-            assertTrue(cursor < current, "There is no next element when cursor = %d and current = %d", cursor, current);
-            return elements[last = cursor++];
-        }
-
-        @Override
-        public boolean hasPrevious() {
-            return cursor > 0;
-        }
-
-        @Override
-        public E previous() {
-            assertTrue(cursor > 0, "There is no previous element when curor = %d", cursor);
-            return elements[last = --cursor];
-        }
-
-        @Override
-        public int nextIndex() {
-            return cursor;
-        }
-
-        @Override
-        public int previousIndex() {
-            return cursor-1;
-        }
-
-        @Override
-        public void remove() {
-            assertFalse(last < 0, "The next() has not been called when last=%d and cursor=%d.", last, cursor);
-            SimpleList.this.remove(last);
-            cursor = last;
-            last = -1;
-        }
-
-        @Override
-        public void set(E e) {
-            assertFalse(last < 0, "The next() has not been called when last=%d and cursor=%d.", last, cursor);
-            SimpleList.this.set(last, e);
-        }
-
-        @Override
-        public void add(E e) {
-            SimpleList.this.add(cursor++, e);
-            last = -1;
-        }
+        assertAllFalse(fromIndex < 0, toIndex > upperIndex, fromIndex > toIndex);
+        return new PlainList<E>(elementType, Arrays.copyOfRange(elements, fromIndex, toIndex));
     }
 
 }
