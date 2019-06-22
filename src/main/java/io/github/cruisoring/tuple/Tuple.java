@@ -3,6 +3,7 @@ package io.github.cruisoring.tuple;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.PlainList;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -444,7 +445,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
             Class<?> componentType = isArray ? clazz.getComponentType() : null;
 
             int length = getLength();
-            List<U> list = new ArrayList<U>();
+            PlainList<U> list = new PlainList<>();
             for (int i = 0; i < length; i++) {
                 Object v = values[i];
                 if (v != null) {
@@ -459,8 +460,8 @@ public class Tuple<T extends Object> implements ITuple<T> {
                     list.add(null);
                 }
             }
-            Object[] array = list.toArray((U[]) ArrayHelper.getNewArray(equivalent, list.size()));
-            return setOfType(equivalent, (U[]) array);
+            U[] array = list.toArray(null);
+            return setOfType(equivalent, array);
         } catch (Exception ex) {
             return null;
         }
@@ -469,7 +470,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
     @Override
     public <S> Tuple<S> getSetOf(Class<S> clazz, Predicate<S> valuePredicate) {
         assertAllNotNull(clazz, valuePredicate);
-        List<S> matched = new ArrayList<>();
+        List<S> matched = new PlainList<>();
 
         Predicate<Class> classPredicate = TypeHelper.getClassEqualitor(clazz);
 

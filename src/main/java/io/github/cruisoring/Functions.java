@@ -3,8 +3,8 @@ package io.github.cruisoring;
 import io.github.cruisoring.logger.LogLevel;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.throwables.*;
+import io.github.cruisoring.utility.PlainList;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -140,7 +140,7 @@ public class Functions {
      * @return A list of converted results from <code>inputs</code> by <code>function</code> or null when Exception caught.
      */
     public static <T, R> List<R> applyParallel(FunctionThrowable<T, R> function, List<T> inputs, long timeoutMills) {
-        List<Callable<R>> callables = new ArrayList<>();
+        List<Callable<R>> callables = new PlainList<>();
         inputs.stream().forEach(input -> {
             callables.add(() -> function.apply(input));
         });
@@ -174,7 +174,7 @@ public class Functions {
      * @param <T>               Type of the value consumed by the concerned business logic
      */
     public static <T> void runParallel(ConsumerThrowable<T> consumerThrowable, Stream<T> paramStream, long timeoutMills) {
-        List<Callable<Void>> callables = new ArrayList<>();
+        List<Callable<Void>> callables = new PlainList<>();
         paramStream.forEach(param -> {
             callables.add(() -> {
                 consumerThrowable.accept(param);
@@ -204,7 +204,7 @@ public class Functions {
         ExecutorService EXEC = Executors.newFixedThreadPool(threadNumer);
 
         int step = length / threadNumer;
-        List<Callable<Void>> callables = new ArrayList<>();
+        List<Callable<Void>> callables = new PlainList<>();
         try {
             for (int i = 0; i < threadNumer; i++) {
                 final int start = i * step;
@@ -231,7 +231,7 @@ public class Functions {
      * @param timeoutMills Timeout value in Milliseconds
      */
     public static void runParallel(List<RunnableThrowable> tasks, long timeoutMills) {
-        List<Callable<Void>> callables = new ArrayList<>();
+        List<Callable<Void>> callables = new PlainList<>();
         tasks.stream().forEach(runnable -> {
             callables.add(() -> {
                 runnable.run();

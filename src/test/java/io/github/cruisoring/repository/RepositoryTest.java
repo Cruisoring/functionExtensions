@@ -1,8 +1,8 @@
 package io.github.cruisoring.repository;
 
+import io.github.cruisoring.utility.PlainList;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,7 +11,7 @@ import static io.github.cruisoring.Asserts.assertEquals;
 
 public class RepositoryTest {
 
-    List<String> logs = new ArrayList();
+    List<String> logs = new PlainList();
 
     @Test
     public void apply() throws Exception {

@@ -11,6 +11,7 @@ import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.tuple.Tuple3;
 import io.github.cruisoring.tuple.Tuple6;
 import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.PlainList;
 import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Array;
@@ -554,11 +555,11 @@ public class TypeHelper {
             if (length == 0)
                 return new int[][]{mergeOfInts(indexes, EMPTY_ARRAY_NODE)};
 
-            List<int[]> list = new ArrayList<>();
+            PlainList<int[]> list = new PlainList<>();
             for (int i = 0; i < length; i++) {
                 Object element = Array.get(object, i);
                 int[][] positions = getDeepIndexes0(element, mergeOfInts(indexes, i));
-                list.addAll(Arrays.asList(positions));
+                list.appendAll(positions);
             }
             return list.toArray(new int[0][]);
         } else if (object instanceof Collection) {
@@ -568,13 +569,13 @@ public class TypeHelper {
                 return new int[][]{mergeOfInts(indexes, EMPTY_COLLECTION_NODE)};
             }
 
-            List<int[]> list = new ArrayList<>();
+            PlainList<int[]> list = new PlainList<>();
             Iterator iterator = collection.iterator();
             int i = 0;
             while (iterator.hasNext()) {
                 Object element = iterator.next();
                 int[][] positions = getDeepIndexes0(element, mergeOfInts(indexes, i++));
-                list.addAll(Arrays.asList(positions));
+                list.appendAll(positions);
             }
             return list.toArray(new int[0][]);
 

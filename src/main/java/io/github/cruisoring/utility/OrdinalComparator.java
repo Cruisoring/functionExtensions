@@ -13,7 +13,7 @@ import static io.github.cruisoring.Asserts.checkNoneNulls;
 public class OrdinalComparator<T> implements Comparator<T> {
 
     final Map<T, Integer> orders = new HashMap<>();
-    final List<T> orderedKeys = new ArrayList<>();
+    final List<T> orderedKeys = new PlainList<>();
 
     /**
      * Construct an {@code OrdinalComparator} with known options in order, which would used to maintain the orders when sorting an Array.

@@ -35,21 +35,28 @@ public class ArrayHelper {
     public static int ParalellEvaluationThreashold = 100;
 
     /**
-     * Convert a given array to an ArrayList with same order.
+     * Convert a given array to an ReadOnlyList with same order.
      *
      * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
      * @param <T>      the type of the elements.
      * @return the List containing same set of elements with same orders.
      */
     public static <T> List<T> asList(T... elements) {
-        List<T> list = new ArrayList<T>();
-        if (elements == null) {
-            list.add(null);
-        } else {
-            for (int i = 0; i < elements.length; i++) {
-                list.add(elements[i]);
-            }
-        }
+        List<T> list = new ReadOnlyList<T>(elements);
+        return list;
+    }
+
+    /**
+     * Convert a portion of the given array to an ReadOnlyList with same order.
+     *
+     * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
+     * @param from      the inclusive lower index boundary to be copied
+     * @param to        the exclusive upper index boundary to be copied
+     * @param <T>      the type of the elements.
+     * @return the List containing same set of elements with same orders.
+     */
+    public static <T> List<T> asList(T[] elements, int from, int to) {
+        List<T> list = new ReadOnlyList<T>(elements, from, to);
         return list;
     }
 

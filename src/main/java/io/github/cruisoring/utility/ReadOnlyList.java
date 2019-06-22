@@ -3,6 +3,7 @@ package io.github.cruisoring.utility;
 import io.github.cruisoring.throwables.PredicateThrowable;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static io.github.cruisoring.Asserts.*;
 
@@ -16,8 +17,16 @@ public class ReadOnlyList<E> extends PlainList<E> {
         super(elementType, values);
     }
 
-    public ReadOnlyList(E... elements) {
-        super(elements);
+    public ReadOnlyList(E... values) {
+        super(values);
+    }
+
+    public ReadOnlyList(E[] values, int from, int to){
+        super(values, from, to);
+    }
+
+    public ReadOnlyList(Supplier<E[]> initValueSupplier){
+        super(initValueSupplier);
     }
 
     @Override

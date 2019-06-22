@@ -2,6 +2,8 @@ package io.github.cruisoring;
 
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
+import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.ReadOnlyList;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -175,7 +177,7 @@ public class Range implements Comparable<Range> {
         int size = indexes.size();
 
         Iterator<Integer> iterator = indexes.iterator();
-        List<Range> ranges = new ArrayList<>();
+        List<Range> ranges = new PlainList<>();
         while (iterator.hasNext()) {
             Integer startIndex = iterator.next();
             Integer endIndex = iterator.next();
@@ -197,7 +199,7 @@ public class Range implements Comparable<Range> {
         assertAllNotNull(allIndexes, range);
 
         if (allIndexes.isEmpty()) {
-            return new ArrayList<Integer>();
+            return new PlainList<Integer>();
         }
 
         //Sort the indexes with nature order
@@ -207,7 +209,7 @@ public class Range implements Comparable<Range> {
     }
 
     private static List<Integer> _getIndexesInRange(List<Integer> allIndexes, Range range) {
-        List<Integer> result = new ArrayList<>();
+        List<Integer> result = new PlainList<>();
 
         int count = allIndexes.size();
         Integer lower = range.getStartInclusive();
@@ -241,7 +243,7 @@ public class Range implements Comparable<Range> {
     }
 
     private static List<Range> getPairsWithValueRanges(java.util.Set<Range> nameRangeSet, Collection<Range> valueRanges, java.util.Set<Integer> indicatorIndexes) {
-        List<Range> nvpRanges = new ArrayList<>();
+        List<Range> nvpRanges = new PlainList<>();
         for (Range valueRange : valueRanges) {
             Range nameRange = nameRangeSet.stream()
                     .filter(scope -> scope.getEndInclusive() < valueRange.getStartInclusive())
@@ -263,7 +265,7 @@ public class Range implements Comparable<Range> {
 
     private static List<Range> _getNamedValueRanges(java.util.Set<Range> nameRangeSet, java.util.Set<Integer> indicatorIndexes, List<Integer> sortedEnderIndexes) {
 
-        List<Range> nvpRanges = new ArrayList<>();
+        List<Range> nvpRanges = new PlainList<>();
         for (Integer joinerIndex : indicatorIndexes) {
             Range nameRange = nameRangeSet.stream()
                     .filter(r -> r.getEndInclusive() < joinerIndex)
@@ -304,7 +306,7 @@ public class Range implements Comparable<Range> {
         TreeSet<Integer> sortedSet = new TreeSet<>(startIndexes);
         sortedSet.addAll(endIndexes);
 
-        List<Range> ranges = new ArrayList<>();
+        List<Range> ranges = new PlainList<>();
 
         for (int i = startIndexes.size() - 1; i >= 0; i--) {
             Integer start = null;
@@ -340,7 +342,7 @@ public class Range implements Comparable<Range> {
         int size2 = ranges2.size();
         int combinations = size1 * size2;
         if (combinations == 0)
-            return new ArrayList<>();
+            return new PlainList<>();
 
         Stream<Tuple2<Range, Range>> options = ranges1.stream()
                 .flatMap(x -> ranges2.stream().map(y -> Tuple.create(x, y)));
@@ -626,7 +628,7 @@ public class Range implements Comparable<Range> {
      * @return All Range instances contained by this Range only.
      */
     public List<Range> getChildRanges(TreeSet<Range> ranges) {
-        List<Range> children = new ArrayList<>();
+        List<Range> children = new PlainList<>();
         Range lastChild = null;
         for (Range range : ranges) {
             if (_end < range._start) {
@@ -651,7 +653,7 @@ public class Range implements Comparable<Range> {
      */
     public List<Integer> getWithinIndexes(TreeSet<Integer> indexes) {
         SortedSet<Integer> withinSet = indexes.subSet(_start + 1, _end - 1);
-        List<Integer> children = new ArrayList<>(withinSet);
+        List<Integer> children = new PlainList(Integer.class, withinSet);
         return children;
     }
 
@@ -679,7 +681,7 @@ public class Range implements Comparable<Range> {
 
         //Let it throw ArithmeticException if overflow happens
         int size = Math.toIntExact(_size);
-        List<Integer> list = new ArrayList();
+        List<Integer> list = new PlainList();
         Random random = new Random();
         for (int count = 0, current = _start; current < _end; current++, count++) {
             list.add(count == 0 ? 0 : random.nextInt(count + 1), current);

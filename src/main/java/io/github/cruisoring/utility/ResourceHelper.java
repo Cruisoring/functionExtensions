@@ -37,7 +37,7 @@ public class ResourceHelper {
      * @return String array identifying the absolute paths of related resource folders
      */
     private static String[] getResourcePaths(String... ignoreables) {
-        List<String> classPaths = new ArrayList<>();
+        List<String> classPaths = new PlainList<>();
         List<String> classNames = StackTraceHelper.getFilteredCallers(ignoreables);
         for (int i = 0; i < classNames.size(); i++) {
             try {
@@ -78,12 +78,12 @@ public class ResourceHelper {
         assert classLoader != null;
         String path = packageName.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(path);
-        List<File> dirs = new ArrayList<File>();
+        List<File> dirs = new PlainList<File>();
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();
             dirs.add(new File(resource.getFile()));
         }
-        ArrayList<Class> classes = new ArrayList<Class>();
+        PlainList<Class> classes = new PlainList<Class>();
         for (File directory : dirs) {
             classes.addAll(findClasses(directory, packageName));
         }
@@ -99,7 +99,7 @@ public class ResourceHelper {
      * @throws ClassNotFoundException
      */
     private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
-        List<Class> classes = new ArrayList<Class>();
+        List<Class> classes = new PlainList<Class>();
         if (!directory.exists()) {
             return classes;
         }

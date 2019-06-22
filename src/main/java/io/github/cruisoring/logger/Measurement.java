@@ -9,6 +9,7 @@ import io.github.cruisoring.throwables.SupplierThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple7;
 import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.PlainList;
 import io.github.cruisoring.utility.StackTraceHelper;
 import io.github.cruisoring.utility.StringHelper;
 
@@ -141,7 +142,7 @@ public class Measurement {
         Long[] durations = (Long[]) table.getColumnValues(DURATION);
 
         AtomicLong sum = new AtomicLong(0);
-        List<Long> durationList = new ArrayList<>();
+        List<Long> durationList = new PlainList<>();
         Arrays.stream(durations).forEach(d -> {
             durationList.add(d);
             sum.getAndAdd(d);

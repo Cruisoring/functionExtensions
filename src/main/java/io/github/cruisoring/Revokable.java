@@ -4,6 +4,7 @@ import io.github.cruisoring.logger.LogLevel;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.throwables.ConsumerThrowable;
 import io.github.cruisoring.throwables.RunnableThrowable;
+import io.github.cruisoring.utility.PlainList;
 import io.github.cruisoring.utility.StackTraceHelper;
 
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ public class Revokable<T> implements AutoCloseable {
     //Indicates if the newSettings shall be closed if it is AutoCloseable when closing() is called so as to release its rescources
     public static boolean DefaultCloseNewSetting = true;
 
-    static final List<Revokable> All = new ArrayList<>();
+    static final List<Revokable> All = new PlainList<>();
 
     /**
      * Perform updating a value and register the revoking operation for later calling.

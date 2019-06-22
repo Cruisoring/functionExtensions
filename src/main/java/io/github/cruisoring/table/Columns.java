@@ -4,6 +4,7 @@ import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.tuple.WithValues2;
 import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.PlainList;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -47,7 +48,7 @@ public class Columns implements IColumns {
         nameComparator = String::compareTo;
         Map<Integer, List<String>> indexes = new HashMap<>();
         Map<String, Integer> map = new LinkedHashMap<>();
-        List<String> names = new ArrayList<>();
+        List<String> names = new PlainList<>();
         int len = columnNames.length;
         indexedColumns = new String[len][];
         for (int i = 0; i < columnNames.length; i++) {
@@ -58,7 +59,7 @@ public class Columns implements IColumns {
             }
             map.put(columnName, i);
             names.add(columnName);
-            indexes.put(i, Arrays.asList(columnName));
+            indexes.put(i, ArrayHelper.asList(columnName));
             indexedColumns[i] = new String[]{columnName};
         }
         columnIndexes = Collections.unmodifiableMap(map);
@@ -110,7 +111,7 @@ public class Columns implements IColumns {
 
         indexedColumns = columnDefintions;
         Map<String, Integer> map = new LinkedHashMap<>();
-        List<String> names = new ArrayList<>();
+        List<String> names = new PlainList<>();
         for (int i = 0; i < width; i++) {
             String[] columnDefinition = columnDefintions[i];
             int aliasLength = columnDefinition.length;
@@ -177,7 +178,7 @@ public class Columns implements IColumns {
         WithValues2<IColumns, IColumns> key = Tuple.create(this, other);
         WithValues<Integer> mappings=null;
         if(!cachedMappings.containsKey(key)){
-            List<Integer> indexes = new ArrayList<>();
+            List<Integer> indexes = new PlainList<>();
             String[][] thisIndexedColumns = getIndexedColumns();
             int width = thisIndexedColumns.length;
             WithValues2<Integer, Integer> indexPair;

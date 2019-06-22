@@ -3,6 +3,8 @@ package io.github.cruisoring.tuple;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.throwables.PredicateThrowable;
+import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.PlainList;
 import org.junit.Test;
 
 import java.time.DayOfWeek;
@@ -12,7 +14,7 @@ import java.util.*;
 import static io.github.cruisoring.Asserts.*;
 
 public class TupleTest {
-    public static List<String> closeMessages = new ArrayList<>();
+    public static List<String> closeMessages = new PlainList<>();
     Tuple tuple0 = Tuple.create();
     Tuple tuple1 = Tuple.create("First");
     Tuple set1 = Tuple.setOf(true);
@@ -327,7 +329,7 @@ public class TupleTest {
 
     @Test
     public void setOfArray() {
-        List<A> aList = new ArrayList<>();
+        List<A> aList = new PlainList<>();
         aList.add(new A(true));
         aList.add(new A(3.33d));
         aList.add(new B(77));
@@ -607,7 +609,7 @@ public class TupleTest {
 
         assertEquals(TypeHelper.deepHashCode(tuplePlus.values), tuplePlus.hashCode());
 
-        List<Integer> expectedSignatures = Arrays.asList(
+        List<Integer> expectedSignatures = ArrayHelper.asList(
                 DayOfWeek.FRIDAY.hashCode(),
                 raw[1].hashCode(),
                 raw[2].hashCode(),

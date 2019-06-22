@@ -7,6 +7,7 @@ import io.github.cruisoring.throwables.PredicateThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.PlainList;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -31,7 +32,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     //region Constructors
     protected TupleTable(Supplier<List<WithValues>> rowsSupplier, IColumns columns, Class... elementTypes){
         this.columns = checkNoneNulls(columns, elementTypes);
-        this.rows = rowsSupplier == null ? new ArrayList<>() : rowsSupplier.get();
+        this.rows = rowsSupplier == null ? new PlainList<>() : rowsSupplier.get();
         this.elementTypes = elementTypes;
     }
 

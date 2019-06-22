@@ -14,9 +14,9 @@ public class PlainListTest {
 
     @Test
     public void testTypedList_withBaiscOperations() {
-        PlainList<Integer> list = new PlainList<Integer>(Integer.class, 24, Arrays.asList(1, 2, 3, 4, 5));
+        PlainList<Integer> list = new PlainList<Integer>(Integer.class, 24, ArrayHelper.asList(1, 2, 3, 4, 5));
         assertEquals(5, list.size());
-        assertEquals(Arrays.asList(1, 2, 3, 4, 5), list);
+        assertEquals(ArrayHelper.asList(1, 2, 3, 4, 5), list);
 
         PlainList list2 = list;
         assertException(() -> list2.add(22.0), ArrayStoreException.class);
@@ -51,7 +51,7 @@ public class PlainListTest {
         PlainList<Comparable> comparables2 = new PlainList<Comparable>(Comparable.class, "abc", 'c', 123, null);
         assertEquals(new Object[]{"abc", 'c', 123, null}, comparables2);
 
-        PlainList<String> strings = new PlainList<String>(String.class, 20, Arrays.asList("abc", null, "def"));
+        PlainList<String> strings = new PlainList<String>(String.class, 20, ArrayHelper.asList("abc", null, "def"));
         assertEquals(new Object[]{"abc", null, "def"}, strings);
         assertException(() -> ((PlainList)strings).add(1, 123), ArrayStoreException.class);
 
@@ -78,7 +78,7 @@ public class PlainListTest {
     @Test
     public void testToArray() {
         PlainList<Number> numbers = new PlainList<>(Number.class);
-        numbers.addAll(Arrays.asList(1, null, 3.2f, 4.3, Short.valueOf("5"), 6L));
+        numbers.addAll(ArrayHelper.asList(1, null, 3.2f, 4.3, Short.valueOf("5"), 6L));
 
         Object[] array = numbers.toArray();
         assertEquals(new Number[]{1, null, 3.2f, 4.3, Short.valueOf("5"), 6L}, array);
@@ -98,11 +98,11 @@ public class PlainListTest {
     public void testAddRemove() {
         PlainList<Number> numbers = new PlainList<>(Number.class);
         assertException(() -> numbers.add(1, 1), IllegalStateException.class);
-        numbers.addAll(Arrays.asList(1, null, 3.2f, 4.3, Short.valueOf("5"), 6L));
+        numbers.addAll(ArrayHelper.asList(1, null, 3.2f, 4.3, Short.valueOf("5"), 6L));
         assertEquals(6, numbers.size());
 
         numbers.add(7);
-        assertException(() -> ((PlainList)numbers).addAll(Arrays.asList("abc")), ArrayStoreException.class);
+        assertException(() -> ((PlainList)numbers).addAll(ArrayHelper.asList("abc")), ArrayStoreException.class);
         numbers.add(1, 1L);
         assertEquals(new Number[]{1, 1L, null, 3.2f, 4.3, Short.valueOf("5"), 6L, 7}, numbers);
 
@@ -143,16 +143,16 @@ public class PlainListTest {
                 numbers.contains(6L),
                 numbers.contains(4.3),
                 numbers.containsAll(SetHelper.asSet(null, 1)),
-                numbers.containsAll(Arrays.asList(3.2f, 4.3, 1)),
-                numbers.containsAll(Arrays.asList(1, null, 3.2f, 4.3, Short.valueOf("5"), 6L, null, 1))
+                numbers.containsAll(ArrayHelper.asList(3.2f, 4.3, 1)),
+                numbers.containsAll(ArrayHelper.asList(1, null, 3.2f, 4.3, Short.valueOf("5"), 6L, null, 1))
         );
         assertAllFalse(
                 numbers.contains(true),
                 numbers.contains(5L),
                 numbers.contains(4.3f),
                 numbers.containsAll(SetHelper.asSet(2, null, 1)),
-                numbers.containsAll(Arrays.asList(3.2f, 4.3, 1L)),
-                numbers.containsAll(Arrays.asList(1, null, 3.2f, 4.3, Short.valueOf("4"), 6L, null, 1))
+                numbers.containsAll(ArrayHelper.asList(3.2f, 4.3, 1L)),
+                numbers.containsAll(ArrayHelper.asList(1, null, 3.2f, 4.3, Short.valueOf("4"), 6L, null, 1))
         );
     }
 
@@ -160,8 +160,8 @@ public class PlainListTest {
     public void testOperatorsOfAll() {
         PlainList<Integer> integers = new PlainList<Integer>(Integer.class);
         assertAllTrue(
-            integers.addAll(Arrays.asList(1, 2)),
-            integers.addAll(0, Arrays.asList(-1, 0)),
+            integers.addAll(ArrayHelper.asList(1, 2)),
+            integers.addAll(0, ArrayHelper.asList(-1, 0)),
             integers.appendAll(3, 4, 5),
             integers.insertAll(4, null),
             integers.appendAll(null)
@@ -179,7 +179,7 @@ public class PlainListTest {
 
         assertAllTrue(
             integers.removeAllMatched(i -> i == null),
-            integers.removeAll(Arrays.asList(3, 7, 9, 0))
+            integers.removeAll(ArrayHelper.asList(3, 7, 9, 0))
         );
         assertEquals(new Integer[]{-1, 1, 2, 4, 5}, integers);
 
@@ -190,13 +190,13 @@ public class PlainListTest {
 
         assertAllFalse(
             integers.retainAllMatched(i -> i < 10),
-            integers.removeAll(Arrays.asList(-2, 4, 6))
+            integers.removeAll(ArrayHelper.asList(-2, 4, 6))
         );
 
         assertAllTrue(
-            integers.removeAll(Arrays.asList(1, 3, 9, 10, null)),
+            integers.removeAll(ArrayHelper.asList(1, 3, 9, 10, null)),
             integers.appendAll(7, 10, 15, 13, 5),
-            integers.retainAll(Arrays.asList(-1, -2, 15, 5, null))
+            integers.retainAll(ArrayHelper.asList(-1, -2, 15, 5, null))
         );
         assertEquals(new Integer[]{-1, 5, 15, 5}, integers);
     }

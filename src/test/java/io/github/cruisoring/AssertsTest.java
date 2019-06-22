@@ -1,6 +1,7 @@
 package io.github.cruisoring;
 
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.utility.ArrayHelper;
 import io.github.cruisoring.utility.SetHelper;
 import io.github.cruisoring.utility.StringHelper;
 import org.junit.Test;
@@ -66,9 +67,9 @@ public class AssertsTest {
     @Test
     public void testIsAllMatched() {
         assertAllTrue(
-            isAllMatched(o -> o != null, Arrays.asList(null, 3), 456),
-            isAllMatched(o -> o != null, Arrays.asList()),
-            isAllMatched(o -> o != null, Arrays.asList(1, 'a')),
+            isAllMatched(o -> o != null, ArrayHelper.asList(null, 3), 456),
+            isAllMatched(o -> o != null, ArrayHelper.asList()),
+            isAllMatched(o -> o != null, ArrayHelper.asList(1, 'a')),
             isAllMatched(o -> o != null, SetHelper.asSet(1, 'a')),
             isAllMatched(o -> o != null, new Object[]{}),
             isAllMatched(o -> o != null, new Number[]{1}),
@@ -81,8 +82,8 @@ public class AssertsTest {
         );
 
         assertAllFalse(
-            isAllMatched(o -> o != null, Arrays.asList(null, null)),
-            isAllMatched(o -> o != null, Arrays.asList(1, 'a', null)),
+            isAllMatched(o -> o != null, ArrayHelper.asList(null, null)),
+            isAllMatched(o -> o != null, ArrayHelper.asList(1, 'a', null)),
             isAllMatched(o -> o != null, SetHelper.asSet(1, 'a', null)),
             isAllMatched(o -> o != null, new Object[]{null}),
             isAllMatched(o -> o != null, new Number[]{1, null}),
@@ -98,8 +99,8 @@ public class AssertsTest {
     @Test
     public void testIsAnyMatched() {
         assertAllTrue(
-            isAnyMatched(o -> o == null, Arrays.asList(null, null)),
-            isAnyMatched(o -> o == null, Arrays.asList(1, 'a', null)),
+            isAnyMatched(o -> o == null, ArrayHelper.asList(null, null)),
+            isAnyMatched(o -> o == null, ArrayHelper.asList(1, 'a', null)),
             isAnyMatched(o -> o == null, SetHelper.asSet(1, 'a', null)),
             isAnyMatched(o -> o == null, new Object[]{null}),
             isAnyMatched(o -> o == null, new Number[]{1, null}),
@@ -112,9 +113,9 @@ public class AssertsTest {
         );
 
         assertAllFalse(
-            isAnyMatched(o -> o == null, Arrays.asList(null, 3), 456),
-            isAnyMatched(o -> o == null, Arrays.asList()),
-            isAnyMatched(o -> o == null, Arrays.asList(1, 'a')),
+            isAnyMatched(o -> o == null, ArrayHelper.asList(null, 3), 456),
+            isAnyMatched(o -> o == null, ArrayHelper.asList()),
+            isAnyMatched(o -> o == null, ArrayHelper.asList(1, 'a')),
             isAnyMatched(o -> o == null, SetHelper.asSet(1, 'a')),
             isAnyMatched(o -> o == null, new Object[]{}),
             isAnyMatched(o -> o == null, new Number[]{1}),
@@ -134,21 +135,21 @@ public class AssertsTest {
             isAllMatched(predicate, new int[]{}),
             isAllMatched(predicate, new int[]{1}),
             isAllMatched(predicate, new int[]{1, 2, 3}),
-            isAllMatched(predicate, Arrays.asList()),
+            isAllMatched(predicate, ArrayHelper.asList()),
             isAllMatched(predicate, SetHelper.asHashSet(1, 3, 5)),
-            isAllMatched(predicate, Arrays.asList(1, 5, 7))
+            isAllMatched(predicate, ArrayHelper.asList(1, 5, 7))
         );
 
         assertAllFalse(
             isAllMatched(predicate, new int[]{0}),
             isAllMatched(predicate, new int[]{1, 0}),
             isAllMatched(predicate, new int[]{0, 1, 2, 3}),
-            isAllMatched(predicate, Arrays.asList(0)),
+            isAllMatched(predicate, ArrayHelper.asList(0)),
             isAllMatched(predicate, SetHelper.asHashSet(1, 3, 0)),
-            isAllMatched(predicate, Arrays.asList(1, 5, 7, -1))
+            isAllMatched(predicate, ArrayHelper.asList(1, 5, 7, -1))
         );
 
-        assertException(() -> isAllMatched(predicate, Arrays.asList("1", 2, 3)), ClassCastException.class);
+        assertException(() -> isAllMatched(predicate, ArrayHelper.asList("1", 2, 3)), ClassCastException.class);
     }
 
     @Test
@@ -158,21 +159,21 @@ public class AssertsTest {
             isAnyMatched(predicate, new int[]{1}),
             isAnyMatched(predicate, new int[]{1, 2}),
             isAnyMatched(predicate, new int[]{1, 2, 3}),
-            isAnyMatched(predicate, Arrays.asList(777, 99)),
+            isAnyMatched(predicate, ArrayHelper.asList(777, 99)),
             isAnyMatched(predicate, SetHelper.asHashSet(1, 3, 5)),
-            isAnyMatched(predicate, Arrays.asList(1, 5, 7))
+            isAnyMatched(predicate, ArrayHelper.asList(1, 5, 7))
         );
 
         assertAllFalse(
             isAnyMatched(predicate, new int[]{0}),
             isAnyMatched(predicate, new int[]{-1, 0}),
             isAnyMatched(predicate, new int[]{0, -1}),
-            isAnyMatched(predicate, Arrays.asList(0)),
+            isAnyMatched(predicate, ArrayHelper.asList(0)),
             isAnyMatched(predicate, SetHelper.asHashSet(-11, -3, 0)),
-            isAnyMatched(predicate, Arrays.asList(-1))
+            isAnyMatched(predicate, ArrayHelper.asList(-1))
         );
 
-        assertException(() -> isAnyMatched(predicate, Arrays.asList(1.0, 3.3)), ClassCastException.class);
+        assertException(() -> isAnyMatched(predicate, ArrayHelper.asList(1.0, 3.3)), ClassCastException.class);
         assertException(() -> isAnyMatched(predicate, SetHelper.asHashSet(null, 3)), NullPointerException.class);
     }
 

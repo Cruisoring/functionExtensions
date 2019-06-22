@@ -1,6 +1,8 @@
 package io.github.cruisoring;
 
 import io.github.cruisoring.logger.Logger;
+import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.PlainList;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class RangeTest {
         assertEquals(-1, range.getStartExclusive());
         assertEquals(0, range.getEndInclusive());
         assertEquals(1, range.getEndExclusive());
-        assertEquals(Arrays.asList(0), range.getStream().collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(0), range.getStream().collect(Collectors.toList()));
 
         range = Range.ofLength(3);
         assertEquals("[0, 3)", range.toString());
@@ -51,7 +53,7 @@ public class RangeTest {
         assertEquals(-1, range.getStartExclusive());
         assertEquals(2, range.getEndInclusive());
         assertEquals(3, range.getEndExclusive());
-        assertEquals(Arrays.asList(0, 1, 2), range.getStream().collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(0, 1, 2), range.getStream().collect(Collectors.toList()));
 
         //java.lang.IllegalStateException: Length shall not be negative value: -1
         //range = Range.ofLength(-1);
@@ -62,7 +64,7 @@ public class RangeTest {
         Range range;
         range = Range.open(3, 8);
         assertEquals("[4, 8)", range.toString());
-        assertEquals(Arrays.asList(4, 5, 6, 7), range.getStream().collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(4, 5, 6, 7), range.getStream().collect(Collectors.toList()));
         assertEquals(4L, range.size());
         assertEquals(4, range.getStartInclusive());
         assertEquals(3, range.getStartExclusive());
@@ -71,7 +73,7 @@ public class RangeTest {
 
         range = Range.open(3, Range.POSITIVE_INFINITY - 2);
         assertEquals("[4, 2147483645)", range.toString());
-        assertEquals(Arrays.asList(4, 5, 6, 7), range.getStream().limit(4).collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(4, 5, 6, 7), range.getStream().limit(4).collect(Collectors.toList()));
         assertEquals(Range.POSITIVE_INFINITY - 6, (int) range.size());
         assertEquals(4, range.getStartInclusive());
         assertEquals(3, range.getStartExclusive());
@@ -84,7 +86,7 @@ public class RangeTest {
         Range range;
         range = Range.closed(3, 8);
         assertEquals("[3, 9)", range.toString());
-        assertEquals(Arrays.asList(3, 4, 5, 6, 7, 8), range.getStream().collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(3, 4, 5, 6, 7, 8), range.getStream().collect(Collectors.toList()));
         assertEquals(6L, range.size());
         assertEquals(3, range.getStartInclusive());
         assertEquals(2, range.getStartExclusive());
@@ -105,7 +107,7 @@ public class RangeTest {
         Range range;
         range = Range.openClosed(3, 8);
         assertEquals("[4, 9)", range.toString());
-        assertEquals(Arrays.asList(4, 5, 6, 7, 8), range.getStream().collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(4, 5, 6, 7, 8), range.getStream().collect(Collectors.toList()));
         assertEquals(5L, range.size());
         assertEquals(4, range.getStartInclusive());
         assertEquals(3, range.getStartExclusive());
@@ -126,7 +128,7 @@ public class RangeTest {
         Range range;
         range = Range.closedOpen(3, 8);
         assertEquals("[3, 8)", range.toString());
-        assertEquals(Arrays.asList(3, 4, 5, 6, 7), range.getStream().collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(3, 4, 5, 6, 7), range.getStream().collect(Collectors.toList()));
         assertEquals(5L, range.size());
         assertEquals(3, range.getStartInclusive());
         assertEquals(2, range.getStartExclusive());
@@ -147,7 +149,7 @@ public class RangeTest {
         Range range;
         range = Range.aboveClosed(-1);
         assertEquals("[-1, +∞)", range.toString());
-        assertEquals(Arrays.asList(-1, 0, 1, 2, 3), range.getStream().limit(5).collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(-1, 0, 1, 2, 3), range.getStream().limit(5).collect(Collectors.toList()));
         assertEquals(Range.INFINITE_LENGTH, range.size());
         assertEquals(-1, range.getStartInclusive());
         assertEquals(-2, range.getStartExclusive());
@@ -156,7 +158,7 @@ public class RangeTest {
 
         range = Range.aboveClosed(3);
         assertEquals("[3, +∞)", range.toString());
-        assertEquals(Arrays.asList(3, 4, 5, 6, 7), range.getStream().limit(5).collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(3, 4, 5, 6, 7), range.getStream().limit(5).collect(Collectors.toList()));
         assertEquals(Range.INFINITE_LENGTH, range.size());
         assertEquals(3, range.getStartInclusive());
         assertEquals(2, range.getStartExclusive());
@@ -189,7 +191,7 @@ public class RangeTest {
         Range range;
         range = Range.belowClosed(-1);
         assertEquals("(−∞, 0)", range.toString());
-        assertEquals(Arrays.asList(-1, -2, -3, -4, -5), range.getStream().limit(5).collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(-1, -2, -3, -4, -5), range.getStream().limit(5).collect(Collectors.toList()));
         assertEquals(Range.INFINITE_LENGTH, range.size());
         assertEquals(Range.NEGATIVE_INFINITY.intValue(), range.getStartInclusive());
         assertEquals(Range.NEGATIVE_INFINITY.intValue(), range.getStartExclusive());
@@ -198,7 +200,7 @@ public class RangeTest {
 
         range = Range.belowClosed(3);
         assertEquals("(−∞, 4)", range.toString());
-        assertEquals(Arrays.asList(3, 2, 1, 0, -1, -2), range.getStream().limit(6).collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(3, 2, 1, 0, -1, -2), range.getStream().limit(6).collect(Collectors.toList()));
         assertEquals(Range.INFINITE_LENGTH, range.size());
         assertEquals(Range.NEGATIVE_INFINITY.intValue(), range.getStartInclusive());
         assertEquals(Range.NEGATIVE_INFINITY.intValue(), range.getStartExclusive());
@@ -211,7 +213,7 @@ public class RangeTest {
         Range range;
         range = Range.belowOpen(-1);
         assertEquals("(−∞, -1)", range.toString());
-        assertEquals(Arrays.asList(-2, -3, -4, -5), range.getStream().limit(4).collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(-2, -3, -4, -5), range.getStream().limit(4).collect(Collectors.toList()));
         assertEquals(Range.INFINITE_LENGTH, range.size());
         assertEquals(Range.NEGATIVE_INFINITY.intValue(), range.getStartInclusive());
         assertEquals(Range.NEGATIVE_INFINITY.intValue(), range.getStartExclusive());
@@ -220,7 +222,7 @@ public class RangeTest {
 
         range = Range.belowOpen(3);
         assertEquals("(−∞, 3)", range.toString());
-        assertEquals(Arrays.asList(2, 1, 0, -1, -2, -3, -4, -5), range.getStream().limit(8).collect(Collectors.toList()));
+        assertEquals(ArrayHelper.asList(2, 1, 0, -1, -2, -3, -4, -5), range.getStream().limit(8).collect(Collectors.toList()));
         assertEquals(Range.INFINITE_LENGTH, range.size());
         assertEquals(Range.NEGATIVE_INFINITY.intValue(), range.getStartInclusive());
         assertEquals(Range.NEGATIVE_INFINITY.intValue(), range.getStartExclusive());
@@ -416,9 +418,9 @@ public class RangeTest {
         Range range2_4 = new Range(2, 4);
         Range range1_9 = new Range(1, 9);
 
-        List<Range> rangeList = Arrays.asList(range3_4, range3_5, range7_8, range0_1, range0_10, range1_2, range0_3, range1_1, range2_4, range1_9);
+        List<Range> rangeList = new PlainList<>(range3_4, range3_5, range7_8, range0_1, range0_10, range1_2, range0_3, range1_1, range2_4, range1_9);
         Collections.sort(rangeList);
-        assertEquals(Arrays.asList(range0_10, range0_3, range0_1, range1_9, range1_2, range1_1, range2_4, range3_5, range3_4, range7_8), rangeList);
+        assertEquals(ArrayHelper.asList(range0_10, range0_3, range0_1, range1_9, range1_2, range1_1, range2_4, range3_5, range3_4, range7_8), rangeList);
     }
 
     @Test
@@ -455,24 +457,24 @@ public class RangeTest {
     public void testIndexesToRanges_WithPairedIndexes_getAllRanges() {
         List<Range> ranges;
 
-        ranges = Range.indexesToRanges(new ArrayList<Integer>(), new ArrayList<Integer>());
+        ranges = Range.indexesToRanges(new PlainList<>(), new PlainList<>());
         assertAllTrue(ranges.size() == 0);
 
-        ranges = Range.indexesToRanges(Arrays.asList(1), Arrays.asList(5));
+        ranges = Range.indexesToRanges(ArrayHelper.asList(1), ArrayHelper.asList(5));
         assertEquals(Range.closed(1, 5), ranges.get(0));
 
-        ranges = Range.indexesToRanges(Arrays.asList(1, 3, 5), Arrays.asList(7, 9, 11));
-        assertEquals(Arrays.asList(Range.closed(5, 7), Range.closed(3, 9), Range.closed(1, 11)), ranges);
+        ranges = Range.indexesToRanges(ArrayHelper.asList(1, 3, 5), ArrayHelper.asList(7, 9, 11));
+        assertEquals(ArrayHelper.asList(Range.closed(5, 7), Range.closed(3, 9), Range.closed(1, 11)), ranges);
 
-        ranges = Range.indexesToRanges(Arrays.asList(1, 3, 5, 10), Arrays.asList(7, 9, 11, 13));
-        assertEquals(Arrays.asList(Range.closed(5, 7), Range.closed(3, 9), Range.closed(10, 11), Range.closed(1, 13)), ranges);
+        ranges = Range.indexesToRanges(ArrayHelper.asList(1, 3, 5, 10), ArrayHelper.asList(7, 9, 11, 13));
+        assertEquals(ArrayHelper.asList(Range.closed(5, 7), Range.closed(3, 9), Range.closed(10, 11), Range.closed(1, 13)), ranges);
     }
 
 
     @Test
     public void testGetIndexesInRange() {
         List<Integer> subList;
-        List<Integer> list = Arrays.asList(1, 3, 4, 5, 9, 10, 12, 15, 21, 23, 25);
+        PlainList<Integer> list = new PlainList<>(1, 3, 4, 5, 9, 10, 12, 15, 21, 23, 25);
 
         //No overlapped:
         subList = Range.getIndexesInRange(list, Range.open(3, 4));

@@ -7,6 +7,7 @@ import io.github.cruisoring.throwables.PredicateThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.tuple.WithValues;
+import io.github.cruisoring.utility.ArrayHelper;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -35,7 +36,7 @@ public class TupleTableTest {
         TupleTable2<String, Integer> table2 =  new TupleTable2<String, Integer>(null,
             new Columns("Id", "age"), String.class, Integer.class);
         Collection<String> names = table2.getDisplayedNames();
-        assertAllTrue(names.containsAll(Arrays.asList("Id", "age")));
+        assertAllTrue(names.containsAll(ArrayHelper.asList("Id", "age")));
     }
 
     @Test
@@ -461,7 +462,7 @@ public class TupleTableTest {
         table5.remove(row2);
         assertEquals(2, table5.size());
 
-        List<WithValuesByName> collection = Arrays.asList(
+        List<WithValuesByName> collection = ArrayHelper.asList(
                 table5.getRow(1),           //Row from this table
                 columns.createRow(11, "Grey", "Thompson", 6.33, false),  //Row with not matched value types
                 row2,                                //Row deleted
@@ -489,7 +490,7 @@ public class TupleTableTest {
         WithValues row0 = table5.getRow(0);
         WithValues row3 = table5.getRow(3).getValues();
         Tuple tuple = Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11));
-        assertAllTrue(table5.removeAll(Arrays.asList(row0, row3, tuple)));
+        assertAllTrue(table5.removeAll(ArrayHelper.asList(row0, row3, tuple)));
 
         assertEquals(new Object[]{1, 2, 5}, table5.getColumnValues("ID"));
     }
@@ -509,7 +510,7 @@ public class TupleTableTest {
         WithValues row0 = table5.getRow(0);
         WithValues row3 = table5.getRow(3).getValues();
         Tuple tuple = Tuple.create(4, "Eddy", "Claks", 'M', true, null, "Unknown", LocalDate.of(2019, 4, 11));
-        assertAllTrue(table5.retainAll(Arrays.asList(row0, row3, tuple)));
+        assertAllTrue(table5.retainAll(ArrayHelper.asList(row0, row3, tuple)));
 
         table5.forEach(r -> Logger.D(r.toString()));
         assertEquals(new Object[]{0, 3, 4}, table5.getColumnValues("ID"));

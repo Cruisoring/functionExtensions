@@ -1,10 +1,13 @@
 package io.github.cruisoring.utility;
 
 import io.github.cruisoring.Asserts;
+import io.github.cruisoring.Range;
 import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.throwables.PredicateThrowable;
+import io.github.cruisoring.throwables.SupplierThrowable;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.*;
@@ -40,24 +43,49 @@ public class PlainList<E> implements List<E> {
      * Create a {@code PlainList} by specifying its element type, and Collection of data to be copied.
      * @param elementType       the component type of the Array to keep the elements
      * @param initialCapacity   the desirable capacity to create the initial array, so as to differ the signature with constructor using array
-     * @param collection        the Collection of elements to be copied to this {@code PlainList}
+     * @param initValueCollection        the Collection of elements to be copied to this {@code PlainList}
      */
-    public PlainList(Class<? extends E> elementType, int initialCapacity, Collection<E> collection) {
+    public PlainList(Class<? extends E> elementType, int initialCapacity, Collection<E> initValueCollection) {
         this.elementType = checkNotNull(elementType, "ElementType must be specified");
-        initialCapacity = Math.max(initialCapacity, checkNotNull(collection, "No Collection spedified!").size());
+        initialCapacity = Math.max(initialCapacity, checkNotNull(initValueCollection, "No Collection spedified!").size());
         resize(initialCapacity);
         upperIndex = 0;
-        Iterator<E> iterator = collection.iterator();
+        Iterator<E> iterator = initValueCollection.iterator();
         iterator.forEachRemaining(e -> elements[upperIndex++] = e);
     }
 
     /**
-     * Create a {@code PlainList} by specifying its element type, and the Array of data to be copied.
+     * Create a {@code PlainList} with a subset of the given values saved directly.
+     * @param initValues    the Array of elements to be copied to this {@code PlainList}
+     * @param from      the inclusive lower index boundary to be copied
+     * @param to        the exclusive upper index boundary to be copied
+     */
+    public PlainList(E[] initValues, int from, int to){
+        assertAllFalse(initValues == null, from < 0, to > initValues.length, from > to);
+
+        this.elementType = (Class<? extends E>) initValues.getClass().getComponentType();
+        elements = Arrays.copyOfRange(initValues, from, to);
+        upperIndex = elements.length;
+    }
+
+    /**
+     * Create a {@code PlainList} with the Array of values to initialize.
+     * @param initValueSupplier the supplier of the value array that is used to initialize the data storage.
+     */
+    public PlainList(Supplier<E[]> initValueSupplier){
+        assertNotNull(initValueSupplier, "The supplier of init values must be specified");
+        elements = initValueSupplier.get();
+        this.elementType = (Class<? extends E>) elements.getClass().getComponentType();
+        upperIndex = elements.length;
+    }
+
+    /**
+     * Create a {@code PlainList} by specifying its element type, and the Array of data to initialize.
      * @param elementType       the component type of the Array to keep the elements
      * @param values            the Array of elements to be copied to this {@code PlainList}
      */
     public PlainList(Class<? extends E> elementType, E... values){
-        this.elementType = Asserts.checkNotNull(elementType, "ElementType must be specified");
+        this.elementType = checkNotNull(elementType, "ElementType must be specified");
         values = values != null ? values : (E[])ArrayHelper.create(elementType, 1, i -> null);
 
         elements = Arrays.copyOf(values, values.length);
@@ -70,6 +98,10 @@ public class PlainList<E> implements List<E> {
      */
     public PlainList(E... values){
         this((Class<? extends E>)(values == null ? Object.class : values.getClass().getComponentType()), values);
+    }
+
+    public Class getElementType(){
+        return elementType;
     }
 
     /**
@@ -205,9 +237,7 @@ public class PlainList<E> implements List<E> {
     @Override
     public boolean containsAll(Collection<?> c) {
         Set elementSet = SetHelper.asSet(elements);
-        Set cSet = SetHelper.asSet(c);
-        cSet.removeAll(elementSet);
-        return cSet.isEmpty();
+        return elementSet.containsAll(c);
     }
 
     @Override
@@ -374,4 +404,12 @@ public class PlainList<E> implements List<E> {
         return new PlainList<E>(elementType, Arrays.copyOfRange(elements, fromIndex, toIndex));
     }
 
+    public List<E> subList(Range range) {
+        assertNotNull(range, "Range must be used to specify the fromIndex and toIndex to get subList");
+        return subList(range.getStartInclusive(), range.getEndExclusive());
+    }
+
+    public ReadOnlyList<E> asReadOnly(){
+        return new ReadOnlyList<E>(elements, 0, upperIndex);
+    }
 }

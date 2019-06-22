@@ -4,8 +4,8 @@ import io.github.cruisoring.throwables.BiConsumerThrowable;
 import io.github.cruisoring.throwables.FunctionThrowable;
 import io.github.cruisoring.throwables.RunnableThrowable;
 import io.github.cruisoring.throwables.SupplierThrowable;
+import io.github.cruisoring.utility.PlainList;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static io.github.cruisoring.Asserts.checkNotNull;
@@ -60,7 +60,7 @@ public class Lazy<T> implements AutoCloseable {
     public <U> Lazy<U> create(FunctionThrowable<T, U> function) {
         Lazy<U> dependency = new Lazy(() -> function.apply(getValue()));
         if (dependencies == null) {
-            dependencies = new ArrayList<>();
+            dependencies = new PlainList<>();
         }
         dependencies.add(dependency);
         return dependency;
@@ -77,7 +77,7 @@ public class Lazy<T> implements AutoCloseable {
     public <U> Lazy<U> create(FunctionThrowable<T, U> function, BiConsumerThrowable<U, U> actionOnChanges) {
         Lazy<U> dependency = new Lazy(() -> function.apply(getValue()), actionOnChanges);
         if (dependencies == null) {
-            dependencies = new ArrayList<>();
+            dependencies = new PlainList<>();
         }
         dependencies.add(dependency);
         return dependency;

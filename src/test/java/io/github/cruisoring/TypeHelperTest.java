@@ -5,6 +5,7 @@ import io.github.cruisoring.throwables.*;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple3;
 import io.github.cruisoring.utility.ArrayHelper;
+import io.github.cruisoring.utility.PlainList;
 import io.github.cruisoring.utility.SetHelper;
 import io.github.cruisoring.utility.StringHelper;
 import org.junit.Test;
@@ -32,9 +33,9 @@ public class TypeHelperTest {
             new Object[]{null, 4},
             new int[][]{null, new int[]{5, 6}},
             null,
-            Arrays.asList(1, null, true),
-            Arrays.asList(1, null, true),
-            new HashSet<Number>(Arrays.asList(2.0f, 1, 3.0))
+            ArrayHelper.asList(1, null, true),
+            ArrayHelper.asList(1, null, true),
+            new HashSet<Number>(ArrayHelper.asList(2.0f, 1, 3.0))
     };
     static Object object2 = new Object[]{
             new Number[]{1, 1.2f, 4},
@@ -45,7 +46,7 @@ public class TypeHelperTest {
             new Integer[]{null, 4},
             new Object[]{null, new int[]{5, 6}},
             null,
-            Arrays.asList(1, null, true),
+            ArrayHelper.asList(1, null, true),
             new Comparable[]{1, null, true},
             new Number[]{2.0f, 1, 3.0}
     };
@@ -199,11 +200,11 @@ public class TypeHelperTest {
 
         //Empty Array or Collection, or index out of range shall throw IllegalArgumentException
         assertException(() -> getElement(new int[0], 0), IllegalArgumentException.class);
-        assertException(() -> getElement(Arrays.asList(), 0), IllegalArgumentException.class);
+        assertException(() -> getElement(ArrayHelper.asList(), 0), IllegalArgumentException.class);
         assertException(() -> getElement(new Number[]{1, 2, 3}, 3), IllegalArgumentException.class);
         assertException(() -> getElement(new Number[]{1, 2, 3}, -1), IllegalStateException.class);
-        assertException(() -> getElement(new HashSet<>(Arrays.asList(1, 2)), -1), IllegalStateException.class);
-        assertException(() -> getElement(new HashSet<>(Arrays.asList(1, 2)), 2), IllegalArgumentException.class);
+        assertException(() -> getElement(new HashSet<>(ArrayHelper.asList(1, 2)), -1), IllegalStateException.class);
+        assertException(() -> getElement(new HashSet<>(ArrayHelper.asList(1, 2)), 2), IllegalArgumentException.class);
 
         //get element of an Array
         assertEquals(1, getElement(new Number[]{1, 2, 3}, 0));
@@ -213,12 +214,12 @@ public class TypeHelperTest {
         assertEquals(new Number[]{2, 3, null}, getElement(new Number[][]{null, new Number[]{1}, new Number[]{2, 3, null}}, 2));
 
         //get element of a list
-        assertEquals(1, getElement(Arrays.asList(1, 2, 3), 0));
-        assertEquals(null, getElement(Arrays.asList(1, 2, null), 2));
+        assertEquals(1, getElement(ArrayHelper.asList(1, 2, 3), 0));
+        assertEquals(null, getElement(ArrayHelper.asList(1, 2, null), 2));
 
         //get element of a set
         assertEquals(1, getElement(asSet(1, 2, 3), 0));
-        assertEquals(null, getElement(new LinkedHashSet(Arrays.asList(1, 2, null)), 2));
+        assertEquals(null, getElement(new LinkedHashSet(ArrayHelper.asList(1, 2, null)), 2));
 
         //get element of a multi-dimensional array
         assertEquals(null, getElement(new Number[][]{null, new Number[]{1}, new Number[]{2, 3, null}}, 0));
@@ -226,9 +227,9 @@ public class TypeHelperTest {
         assertEquals(new Number[]{2, 3, null}, getElement(new Number[][]{null, new Number[]{1}, new Number[]{2, 3, null}}, 2));
 
         //get element of a Collection of collection
-        assertEquals(null, getElement(Arrays.asList(null, Arrays.asList(1, 2), asSet(3)), 0));
-        assertEquals(Arrays.asList(1, 2), getElement(Arrays.asList(null, Arrays.asList(1, 2), asSet(3)), 1));
-        assertEquals(asSet(3), getElement(Arrays.asList(null, Arrays.asList(1, 2), asSet(3)), 2));
+        assertEquals(null, getElement(ArrayHelper.asList(null, ArrayHelper.asList(1, 2), asSet(3)), 0));
+        assertEquals(ArrayHelper.asList(1, 2), getElement(ArrayHelper.asList(null, ArrayHelper.asList(1, 2), asSet(3)), 1));
+        assertEquals(asSet(3), getElement(ArrayHelper.asList(null, ArrayHelper.asList(1, 2), asSet(3)), 2));
     }
 
     @Test
@@ -261,7 +262,7 @@ public class TypeHelperTest {
 
     @Test
     public void getDeepElement_withEmptyCollection() {
-        assertEquals(new ArrayList(), getDeepElement(new ArrayList(), new int[0]));
+        assertEquals(new PlainList(), getDeepElement(new PlainList(), new int[0]));
         assertException(() -> getDeepElement(new int[0], new int[]{0}), IllegalArgumentException.class);
 
         assertEquals(new String[]{}, getDeepElement(new String[]{}, new int[0]));
@@ -285,7 +286,7 @@ public class TypeHelperTest {
 
     @Test
     public void getDeepElement_withSimpleCollection() {
-        List list = Arrays.asList(1, 2.2, null, "abc", true);
+        List list = ArrayHelper.asList(1, 2.2, null, "abc", true);
         assertEquals(list, getDeepElement(list, new int[0]));
         assertEquals(1, getDeepElement(list, new int[]{0}));
         assertEquals(2.2, getDeepElement(list, new int[]{1}));
@@ -308,7 +309,7 @@ public class TypeHelperTest {
 
     @Test
     public void getDeepElement_withCollectionOfCollection() {
-        List list = Arrays.asList(new int[]{1}, null, new int[]{2, 3}, Arrays.asList(4, null, 6));
+        List list = ArrayHelper.asList(new int[]{1}, null, new int[]{2, 3}, ArrayHelper.asList(4, null, 6));
         assertEquals(1, getDeepElement(list, new int[]{0, 0}));
         assertEquals(null, getDeepElement(list, new int[]{1}));
         assertEquals(new int[]{2, 3}, getDeepElement(list, new int[]{2}));
@@ -350,7 +351,7 @@ public class TypeHelperTest {
                 null,
                 11.0,
                 new char[0],
-                new ArrayList(),
+                new PlainList(),
                 new char[0][],
                 new int[][]{new int[0], null}};
         deepIndexes = getDeepIndexes(target);
@@ -387,7 +388,7 @@ public class TypeHelperTest {
                 null,
                 11.0,
                 new char[0],
-                new ArrayList(),
+                new PlainList(),
                 new char[0][],
                 new int[][]{new int[0], null});
         deepIndexes = getDeepIndexes(target);
@@ -405,7 +406,7 @@ public class TypeHelperTest {
         assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, 0, 0}, new int[]{1, 1, 0}, new int[]{2, 0, -1}, new int[]{2, 1, 0},
                 new int[]{2, 2, 0}, new int[]{2, 3, -1}, new int[]{3, -2}, new int[]{4, 0}}, deepIndexes);
 
-        List list = Arrays.asList(0, null, true, new int[]{1, 2}, new char[0], null, Arrays.asList(5, null), new boolean[][]{null, new boolean[]{true, false}});
+        List list = ArrayHelper.asList(0, null, true, new int[]{1, 2}, new char[0], null, ArrayHelper.asList(5, null), new boolean[][]{null, new boolean[]{true, false}});
         deepIndexes = getDeepIndexes(list);
         Logger.D(deepToString(deepIndexes));
         assertEquals(new int[][]{new int[]{0, 0}, new int[]{1, -1}, new int[]{2, 0}, new int[]{3, 0, 0}, new int[]{3, 1, 0},
@@ -420,11 +421,11 @@ public class TypeHelperTest {
         assertEquals("a String", deepToString("a String"));
 
         assertEquals("[null, 1, true, abc, x]", deepToString(new Object[]{null, 1, true, "abc", 'x'}));
-        assertEquals("[null, 1, true, abc, x]", deepToString(Arrays.asList(null, 1, true, "abc", 'x')));
+        assertEquals("[null, 1, true, abc, x]", deepToString(ArrayHelper.asList(null, 1, true, "abc", 'x')));
 
         assertEquals("[null, [1, null], [true, abc, x]]", deepToString(new Object[]{null, new Object[]{1, null}, new Object[]{true, "abc", 'x'}}));
-        assertEquals("[null, [1, null], [true, abc, x]]", deepToString(Arrays.asList(null, Arrays.asList(1, null), Arrays.asList(true, "abc", 'x'))));
-        assertEquals("[null, [1, null], [true, abc, x]]", deepToString(Arrays.asList(null, Arrays.asList(1, null), new Object[]{true, "abc", 'x'})));
+        assertEquals("[null, [1, null], [true, abc, x]]", deepToString(ArrayHelper.asList(null, ArrayHelper.asList(1, null), ArrayHelper.asList(true, "abc", 'x'))));
+        assertEquals("[null, [1, null], [true, abc, x]]", deepToString(ArrayHelper.asList(null, ArrayHelper.asList(1, null), new Object[]{true, "abc", 'x'})));
     }
 
     @Test
@@ -475,7 +476,7 @@ public class TypeHelperTest {
 
     @Test
     public void getGenericInfo() {
-        FunctionThrowable<Integer, List<Integer>> listFactory = i -> new ArrayList<Integer>();
+        FunctionThrowable<Integer, List<Integer>> listFactory = i -> new PlainList<Integer>();
         Tuple3<Boolean, Class[], Class> genericInfo = lambdaGenericInfoRepository.retrieve(listFactory);
         assertEquals(Tuple.create(true, new Class[]{Integer.class}, List.class), genericInfo);
 
@@ -776,7 +777,7 @@ public class TypeHelperTest {
         assertAllTrue((-72.3d) == (double) getToEquivalentParallelConverter(Double.class).apply(Double.valueOf(-72.3d)));
         assertAllTrue((-0.03f) == (float) getToEquivalentParallelConverter(Float.class).apply(Float.valueOf(-0.03f)));
 
-        Object obj = new ArrayList();
+        Object obj = new PlainList();
         assertAllTrue(obj == getToEquivalentParallelConverter(Object.class).apply(obj));
         assertAllTrue("abc" == getToEquivalentParallelConverter(Object.class).apply("abc"));
         Comparable comparable = 33;
@@ -1608,15 +1609,15 @@ public class TypeHelperTest {
     public void testDeepHashCode() {
         assertEquals(0, deepHashCode(null));
         assertEquals(37, deepHashCode(new int[0]));
-        assertEquals(37, deepHashCode(new ArrayList()));
+        assertEquals(37, deepHashCode(new PlainList()));
 
-        List listOfNull = new ArrayList();
+        List listOfNull = new PlainList();
         listOfNull.add(null);
         assertEquals(deepHashCode(listOfNull), deepHashCode(new Integer[]{null}));
         assertEquals(deepHashCode(new Integer[]{1, 2, 3}), deepHashCode(new int[]{1, 2, 3}));
-        assertEquals(deepHashCode(new int[]{1, 2, 3}), deepHashCode(Arrays.asList(1, 2, 3)));
+        assertEquals(deepHashCode(new int[]{1, 2, 3}), deepHashCode(ArrayHelper.asList(1, 2, 3)));
         assertEquals(deepHashCode(new Object[]{null, new int[]{1, 5}, new int[][]{null, new int[]{3}, new int[]{7}}}),
-                deepHashCode(Arrays.asList(null, Arrays.asList(1, 5), Arrays.asList(null, Arrays.asList(3), new int[]{7}))));
+                deepHashCode(ArrayHelper.asList(null, ArrayHelper.asList(1, 5), ArrayHelper.asList(null, ArrayHelper.asList(3), new int[]{7}))));
     }
 
     @Test
@@ -1706,17 +1707,17 @@ public class TypeHelperTest {
                 canValueEquals(null, null, EqualityStategy.EmptyAsNull),
                 canValueEquals(null, new int[0], EqualityStategy.EmptyAsNull),
                 canValueEquals(new HashSet(), null, EqualityStategy.EmptyAsNull),
-                canValueEquals(new ArrayList(), new char[0], EqualityStategy.EmptyAsNull),
+                canValueEquals(new PlainList(), new char[0], EqualityStategy.EmptyAsNull),
                 canValueEquals(new char[0], new LinkedHashSet(), EqualityStategy.EmptyAsNull),
-                canValueEquals(new int[0], Arrays.asList(), EqualityStategy.EmptyAsNull)
+                canValueEquals(new int[0], ArrayHelper.asList(), EqualityStategy.EmptyAsNull)
         );
 
         assertAllFalse(
                 canValueEquals(null, new int[]{1}, EqualityStategy.EmptyAsNull),
                 canValueEquals(new Integer[]{null}, null, EqualityStategy.EmptyAsNull),
-                canValueEquals(Arrays.asList(1), new char[0], EqualityStategy.EmptyAsNull),
+                canValueEquals(ArrayHelper.asList(1), new char[0], EqualityStategy.EmptyAsNull),
                 canValueEquals(new char[0], new char[]{'a'}, EqualityStategy.EmptyAsNull),
-                canValueEquals(new int[0], Arrays.asList(0), EqualityStategy.EmptyAsNull)
+                canValueEquals(new int[0], ArrayHelper.asList(0), EqualityStategy.EmptyAsNull)
         );
 
         assertAllTrue(
@@ -1728,9 +1729,9 @@ public class TypeHelperTest {
         assertAllFalse(
                 canValueEquals(null, new int[0], EqualityStategy.SameTypeOnly),
                 canValueEquals(new Integer[0], new int[0], EqualityStategy.SameTypeOnly),
-                canValueEquals(Arrays.asList(1), new char[0], EqualityStategy.SameTypeOnly),
+                canValueEquals(ArrayHelper.asList(1), new char[0], EqualityStategy.SameTypeOnly),
                 canValueEquals(new char[0], new Character[]{'a'}, EqualityStategy.SameTypeOnly),
-                canValueEquals(new int[0], Arrays.asList(0), EqualityStategy.SameTypeOnly)
+                canValueEquals(new int[0], ArrayHelper.asList(0), EqualityStategy.SameTypeOnly)
         );
 
         assertAllNull(
@@ -1742,13 +1743,13 @@ public class TypeHelperTest {
         assertAllFalse(
                 canValueEquals(null, new int[0], EqualityStategy.BetweenAssignableTypes),
                 canValueEquals(new Integer[0], null, EqualityStategy.BetweenAssignableTypes),
-                canValueEquals(Arrays.asList(1), new char[0], EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(ArrayHelper.asList(1), new char[0], EqualityStategy.BetweenAssignableTypes),
                 canValueEquals(new char[0][], new char[0], EqualityStategy.BetweenAssignableTypes),
                 canValueEquals(new byte[0], new char[0], EqualityStategy.BetweenAssignableTypes),
-                canValueEquals(Arrays.asList(1), new HashSet(), EqualityStategy.BetweenAssignableTypes),
-                canValueEquals(new Object[0], new ArrayList(), EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(ArrayHelper.asList(1), new HashSet(), EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0], new PlainList(), EqualityStategy.BetweenAssignableTypes),
                 canValueEquals(new Number[0], new Comparable[0], EqualityStategy.BetweenAssignableTypes),
-                canValueEquals(new int[0], Arrays.asList(0), EqualityStategy.BetweenAssignableTypes)
+                canValueEquals(new int[0], ArrayHelper.asList(0), EqualityStategy.BetweenAssignableTypes)
         );
 
         assertAllNull(
@@ -1769,31 +1770,31 @@ public class TypeHelperTest {
                 canValueEquals(null, null, EqualityStategy.TypeIgnored),
                 canValueEquals(1, Integer.valueOf(1), EqualityStategy.TypeIgnored),
                 canValueEquals(Tuple.TRUE, Tuple.create(true), EqualityStategy.TypeIgnored),
-                canValueEquals(new int[0], Arrays.asList(), EqualityStategy.TypeIgnored),
+                canValueEquals(new int[0], ArrayHelper.asList(), EqualityStategy.TypeIgnored),
                 canValueEquals(new int[0], new Boolean[0], EqualityStategy.TypeIgnored),
-                canValueEquals(new HashSet(), new ArrayList(), EqualityStategy.TypeIgnored),
+                canValueEquals(new HashSet(), new PlainList(), EqualityStategy.TypeIgnored),
                 canValueEquals(new Number[0], new Comparable[0], EqualityStategy.TypeIgnored),
-                canValueEquals(new int[0], Arrays.asList(), EqualityStategy.TypeIgnored)
+                canValueEquals(new int[0], ArrayHelper.asList(), EqualityStategy.TypeIgnored)
         );
 
         assertAllFalse(
                 canValueEquals(null, new int[0], EqualityStategy.TypeIgnored),
                 canValueEquals(new Integer[0], null, EqualityStategy.TypeIgnored),
                 canValueEquals(new Integer[0], 1, EqualityStategy.TypeIgnored),
-                canValueEquals(Arrays.asList(1), new char[0], EqualityStategy.TypeIgnored),
+                canValueEquals(ArrayHelper.asList(1), new char[0], EqualityStategy.TypeIgnored),
                 canValueEquals(new char[0], new Character[]{'a'}, EqualityStategy.TypeIgnored),
 
                 canValueEquals(new Object[0], 1, EqualityStategy.TypeIgnored),
                 canValueEquals(new Object[0], new int[]{1, 2}, EqualityStategy.TypeIgnored),
                 canValueEquals(new Number[]{2.2f}, new char[0], EqualityStategy.TypeIgnored),
                 canValueEquals(new Number[]{2.2f}, new Comparable[0], EqualityStategy.TypeIgnored),
-                canValueEquals(new char[0], Arrays.asList('a'), EqualityStategy.TypeIgnored)
+                canValueEquals(new char[0], ArrayHelper.asList('a'), EqualityStategy.TypeIgnored)
         );
 
         assertAllNull(
                 canValueEquals(new int[]{1, 2}, new Object[]{1}, EqualityStategy.TypeIgnored),
                 canValueEquals(new int[]{1}, new char[]{'a'}, EqualityStategy.TypeIgnored),
-                canValueEquals(new int[]{1}, Arrays.asList(2, true), EqualityStategy.TypeIgnored),
+                canValueEquals(new int[]{1}, ArrayHelper.asList(2, true), EqualityStategy.TypeIgnored),
                 canValueEquals(new Number[]{2.2f}, new Comparable[]{'a'}, EqualityStategy.TypeIgnored),
                 canValueEquals(new Comparable[]{null}, new Object[]{null}, EqualityStategy.TypeIgnored)
         );
