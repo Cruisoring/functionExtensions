@@ -1,6 +1,6 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.Revokable;
+import io.github.cruisoring.Lazy;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,13 +15,14 @@ public class FileLogger extends Logger implements AutoCloseable {
     public static String NEW_LINE = "\r\n";
     final File file;
     boolean isValid = true;
-    BufferedWriter bufferedWriter = null;
-    Revokable revokable = null;
-
+    final Lazy<FileWriter> fileWriterLazy;
+    final Lazy<BufferedWriter> bufferedWriterLazy;
 
     public FileLogger(String filePath, LogLevel minLevel) {
         super(_do_nothing, minLevel);
         this.file = getFile(filePath);
+        this.fileWriterLazy = new Lazy<>(() -> new FileWriter(file, true));
+        this.bufferedWriterLazy = fileWriterLazy.create(fw -> new BufferedWriter(fw));
     }
 
     public FileLogger(String filePath) {
@@ -45,19 +46,8 @@ public class FileLogger extends Logger implements AutoCloseable {
         if (!isValid || !super.canLog(level)) {
             return false;
         }
-        try {
-            if (bufferedWriter == null) {
-                FileWriter fileWritter = new FileWriter(file, true);
-                bufferedWriter = new BufferedWriter(fileWritter);
-                revokable = Revokable.register(() -> {
-                    bufferedWriter.close();
-                    fileWritter.close();
-                });
-            }
-        } catch (IOException e) {
-            isValid = false;
-        }
-        return isValid;
+
+        return bufferedWriterLazy.getValue() != null;
     }
 
     @Override
@@ -67,10 +57,7 @@ public class FileLogger extends Logger implements AutoCloseable {
         }
 
         try {
-            if (bufferedWriter == null) {
-                FileWriter fileWritter = new FileWriter(file, true);
-                bufferedWriter = new BufferedWriter(fileWritter);
-            }
+            BufferedWriter bufferedWriter = bufferedWriterLazy.getValue();
             bufferedWriter.write(message + NEW_LINE);
             bufferedWriter.flush();
         } catch (IOException e) {
@@ -80,8 +67,6 @@ public class FileLogger extends Logger implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        if(revokable != null){
-            revokable.close();
-        }
+        fileWriterLazy.close();
     }
 }
