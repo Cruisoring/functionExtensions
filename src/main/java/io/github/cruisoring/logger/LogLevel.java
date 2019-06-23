@@ -12,7 +12,7 @@ public enum LogLevel {
 
     none("N");      //Log nothing to turn off logging as a whole or of Logger instances
 
-    public String label;
+    String label;
 
     LogLevel(String label) {
         this.label = label;

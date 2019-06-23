@@ -23,8 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.github.cruisoring.Asserts.assertAllNotNull;
-import static io.github.cruisoring.Asserts.checkNoneNulls;
+import static io.github.cruisoring.Asserts.*;
 
 /**
  * Container class of type related utilities.
@@ -76,7 +75,8 @@ public class TypeHelper {
                     TriConsumerThrowable<Object, Integer, Object>,
                     TriFunctionThrowable<Object, Integer, Integer, Object>,
                     Function<Object, String>
-                    >>() {{
+                    >>() {
+            {
                 Predicate<Class> classPredicate = clazz -> int.class.equals(clazz) || Integer.class.equals(clazz);
                 put(int.class, Tuple.create(
                         classPredicate
@@ -197,9 +197,10 @@ public class TypeHelper {
                         , arraySet
                         , (array, from, to) -> Arrays.copyOfRange((Float[]) array, from, to)
                         , array -> Arrays.toString((Float[]) array)));
-            }},
-            null,
-            TypeHelper::makeClassOperators
+            }
+            },
+        null,
+        TypeHelper::makeClassOperators
     );
     private static final Function<Object, Object> returnsSelf = obj -> obj;
     private static final Function<Object, Object> mapsToNull = obj -> null;
@@ -595,6 +596,8 @@ public class TypeHelper {
      * @return <code>true</code> if the two nodes are identical, otherwise <code>false</code>
      */
     public static boolean nodeEquals(Object obj1, Object obj2, int[] indexes, EqualityStategy equalityStategy) {
+        assertAllFalse(obj1 == null, obj2 == null, indexes == null);
+
         int depth = indexes.length;
         int nodeType = indexes[depth - 1];
 
@@ -969,6 +972,10 @@ public class TypeHelper {
     private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(ofThrowable lambda) {
         Class lambdaClass = checkNoneNulls(lambda).getClass();
         ConstantPool constantPool = TypeHelper.getConstantPoolOfClass(lambdaClass);
+        if(constantPool == null) {
+            return null;
+        }
+
         Method functionInterfaceMethod = null;
         int index = constantPool.getSize();
         while (--index >= 0) {
@@ -978,7 +985,7 @@ public class TypeHelper {
             } catch (Exception ex) {
             }
         }
-        Class[] parameterClasses = functionInterfaceMethod.getParameterTypes();
+        Class[] parameterClasses = checkNotNull(functionInterfaceMethod, "Failed to get the Method instance.").getParameterTypes();
         int parameterCount = functionInterfaceMethod.getParameterCount();
         Class returnClass = functionInterfaceMethod.getReturnType();
 
@@ -1123,7 +1130,9 @@ public class TypeHelper {
     public static Object copyOfRange(Object array, int from, int to) {
         try {
             if (array == null) return null;
-            TriFunctionThrowable<Object, Integer, Integer, Object> copier = getArrayRangeCopier(array.getClass().getComponentType());
+            Class compoentType = checkNotNull(array.getClass().getComponentType(), "failed to get the componentType of %s", array);
+            TriFunctionThrowable<Object, Integer, Integer, Object> copier = checkNotNull(
+                    getArrayRangeCopier(compoentType), "Failed to get ArrayRangeCopier of %s", compoentType);
             return copier.apply(array, from, to);
         } catch (Exception ex) {
             return null;
@@ -1570,7 +1579,8 @@ public class TypeHelper {
         int[][] deepIndexes = getDeepIndexes(obj);
         for (int i = 0; i < deepIndexes.length; i++) {
             int[] deepIndex = deepIndexes[i];
-            Object element = getDeepElement(obj, (int[]) copyOfRange(deepIndex, 0, deepIndex.length - 1));
+            int[] childDeepIndex = checkNotNull( (int[]) copyOfRange(deepIndex, 0, deepIndex.length - 1), "Failed to copy range");
+            Object element = getDeepElement(obj, childDeepIndex);
             int elementHash = deepHashCode(element);
 
             result = 31 * result + elementHash;
@@ -1606,7 +1616,7 @@ public class TypeHelper {
                     .collect(Collectors.toList());
             return "[" + String.join(", ", elementStrings) + "]";
         } else if (obj.getClass().isArray()) {
-            Function<Object, String> arrayToString = getArrayToString(obj.getClass().getComponentType());
+            Function<Object, String> arrayToString = checkNotNull(getArrayToString(obj.getClass().getComponentType()), "failed to get arrayToString");
             return arrayToString.apply(obj);
         } else {
             return obj.toString();

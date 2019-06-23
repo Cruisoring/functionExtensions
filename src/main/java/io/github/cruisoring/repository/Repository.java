@@ -59,7 +59,7 @@ public class Repository<TKey, TValue>
         Object value = oldValue == null ? newValue : oldValue;
         Class valueClass = value == null ? null : value.getClass();
         Logger.V("%s<%s,%s>.put(%s: %s -> %s)",
-                this.getClass().getSimpleName(), keyClass.getSimpleName(), valueClass.getSimpleName(),
+                this.getClass().getSimpleName(), keyClass.getSimpleName(), valueClass==null ? "null" : valueClass.getSimpleName(),
                 key, oldValue, newValue);
     }
 

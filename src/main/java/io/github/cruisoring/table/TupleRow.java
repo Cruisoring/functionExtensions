@@ -28,7 +28,7 @@ public class TupleRow<R extends WithValues> implements WithValuesByName {
         return values;
     }
 
-    public int compareTo(WithValues o) {
+    public int compareTo(Object o) {
         return values.compareTo(o);
     }
 

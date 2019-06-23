@@ -56,7 +56,7 @@ public class StackTraceHelper {
             first = last + maxCount < 0 ? 0 : last + maxCount;
         }
         List<StackTraceElement> concerned = Arrays.stream(stacks)
-                .skip(first).limit(last - first).collect(Collectors.toList());
+                .skip(first).limit((long)last - first).collect(Collectors.toList());
         return concerned;
     }
 

@@ -159,7 +159,7 @@ public class Functions {
                     })
                     .collect(Collectors.toList());
             return results;
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
             return null;
         } finally {
             EXEC.shutdown();
@@ -185,7 +185,7 @@ public class Functions {
         ExecutorService EXEC = Executors.newCachedThreadPool();
         try {
             EXEC.invokeAll(callables, timeoutMills, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
         } finally {
             EXEC.shutdown();
         }
@@ -218,7 +218,7 @@ public class Functions {
             }
 
             EXEC.invokeAll(callables);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
         } finally {
             EXEC.shutdownNow();
         }
@@ -242,7 +242,7 @@ public class Functions {
         ExecutorService EXEC = Executors.newCachedThreadPool();
         try {
             EXEC.invokeAll(callables, timeoutMills, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
         } finally {
             EXEC.shutdown();
         }
@@ -290,7 +290,7 @@ public class Functions {
                     action.run();
                 }
             }catch (Exception e){
-                if(lastException == null || lastException.getMessage() != e.getMessage()){
+                if(lastException == null || !TypeHelper.valueEquals(lastException.getMessage(), e.getMessage())){
                     lastException = e;
                     Logger.getDefault().log(defaultExceptionLogLevel, e);
                 }
@@ -350,7 +350,7 @@ public class Functions {
                     return result;
                 }
             }catch (Exception e){
-                if(lastException == null || lastException.getMessage() != e.getMessage()){
+                if(lastException == null || !TypeHelper.valueEquals(lastException.getMessage(), e.getMessage())){
                     lastException = e;
                     Logger.getDefault().log(defaultExceptionLogLevel, e);
                 }
@@ -375,5 +375,7 @@ public class Functions {
     public static <T> T tryGet(SupplierThrowable<T> valueGetter, long timeoutMillis) {
         return tryGet(valueGetter, timeoutMillis, t -> t != null, defaultDelayMills);
     }
+
+    private Functions(){}
 
 }

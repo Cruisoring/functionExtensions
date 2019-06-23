@@ -33,6 +33,7 @@ public class Range implements Comparable<Range> {
     //Empty integer range
     public static final Range NONE = new Range(0, 0);
     private static final int _RUN_PARALLEL = 100;
+    static Random random = new Random();
     private final static Predicate<Tuple2<Range, Range>> overlapPredicate = tuple -> tuple.getFirst().overlaps(tuple.getSecond());
     //endregion
 
@@ -263,29 +264,6 @@ public class Range implements Comparable<Range> {
         return nvpRanges;
     }
 
-    private static List<Range> _getNamedValueRanges(java.util.Set<Range> nameRangeSet, java.util.Set<Integer> indicatorIndexes, List<Integer> sortedEnderIndexes) {
-
-        List<Range> nvpRanges = new PlainList<>();
-        for (Integer joinerIndex : indicatorIndexes) {
-            Range nameRange = nameRangeSet.stream()
-                    .filter(r -> r.getEndInclusive() < joinerIndex)
-                    .sorted(comparing(Range::getEndInclusive).reversed())
-                    .findFirst().orElse(null);
-
-            if (nameRange == null)
-                checkNotNull(nameRange, "Failed to locate the name range right before COLON at " + joinerIndex);
-            Integer endIndex = sortedEnderIndexes.stream()
-                    .filter(i -> i > joinerIndex)
-                    .sorted()
-                    .findFirst().orElse(null);
-            checkNotNull(endIndex, "Failed to find the end of value after COLON at " + joinerIndex);
-
-            Range range = Range.closedOpen(nameRange.getStartInclusive(), endIndex);
-            nvpRanges.add(range);
-        }
-        return nvpRanges;
-    }
-
     /**
      * Converting the indexes of starts and indexes of ends in pairs as unmodifiable Range list.
      *
@@ -376,7 +354,7 @@ public class Range implements Comparable<Range> {
      * @return SubString specified by the given Range.
      */
     public static String subString(CharSequence charSequence, Range range) {
-        assertAllNotNull(charSequence);
+        assertAllNotNull(charSequence, range);
         Asserts.assertAllTrue(Range.withinLength(range, charSequence.length()));
 
         return charSequence.subSequence(range.getStartInclusive(), range.getEndExclusive()).toString();
@@ -682,7 +660,6 @@ public class Range implements Comparable<Range> {
         //Let it throw ArithmeticException if overflow happens
         int size = Math.toIntExact(_size);
         List<Integer> list = new PlainList();
-        Random random = new Random();
         for (int count = 0, current = _start; current < _end; current++, count++) {
             list.add(count == 0 ? 0 : random.nextInt(count + 1), current);
         }
@@ -733,6 +710,11 @@ public class Range implements Comparable<Range> {
             return true;
         Range other = (Range) obj;
         return _size == other._size && _start == other._start;
+    }
+
+    @Override
+    public int hashCode(){
+        return Long.hashCode(_size) * 31 + _start;
     }
 
     @Override

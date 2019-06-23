@@ -1,5 +1,7 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.Revokable;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -14,6 +16,8 @@ public class FileLogger extends Logger implements AutoCloseable {
     final File file;
     boolean isValid = true;
     BufferedWriter bufferedWriter = null;
+    Revokable revokable = null;
+
 
     public FileLogger(String filePath, LogLevel minLevel) {
         super(_do_nothing, minLevel);
@@ -45,6 +49,10 @@ public class FileLogger extends Logger implements AutoCloseable {
             if (bufferedWriter == null) {
                 FileWriter fileWritter = new FileWriter(file, true);
                 bufferedWriter = new BufferedWriter(fileWritter);
+                revokable = Revokable.register(() -> {
+                    bufferedWriter.close();
+                    fileWritter.close();
+                });
             }
         } catch (IOException e) {
             isValid = false;
@@ -72,9 +80,8 @@ public class FileLogger extends Logger implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        if (bufferedWriter != null) {
-            bufferedWriter.flush();
-            bufferedWriter.close();
+        if(revokable != null){
+            revokable.close();
         }
     }
 }

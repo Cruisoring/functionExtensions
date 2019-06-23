@@ -18,7 +18,7 @@ import static io.github.cruisoring.Asserts.assertAllNotNull;
  */
 public class Columns implements IColumns {
     //region Static members and methods
-    public static final Map<WithValues2<IColumns, IColumns>, WithValues<Integer>> cachedMappings = new HashMap<>();
+    static final Map<WithValues2<IColumns, IColumns>, WithValues<Integer>> cachedMappings = new HashMap<>();
 
     public final static Comparator<String> NATURAL = String::compareTo;
 

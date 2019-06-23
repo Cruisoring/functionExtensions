@@ -27,7 +27,7 @@ public class Measurement {
     public static final String START = "start";
     public static final String DURATION = "duration";
 
-    public static final IColumns DefaultColumns = new Columns(START, DURATION);
+    static final IColumns DefaultColumns = new Columns(START, DURATION);
 
     //Identifier to locate the caller stack trace quickly
     static final String getCallerStackTraceKey = Measurement.class.getSimpleName() + ".java";
@@ -177,7 +177,10 @@ public class Measurement {
         Map<String, String> summary = new LinkedHashMap<>();
 
         for (String measurementName : namedMeasurements.keySet()) {
-            summary.put(measurementName, defaultSummaryOf(measurementName).getFirst());
+            Tuple7<String, Long, Long, Long, Long, Long, Double> tuple = defaultSummaryOf(measurementName);
+            if(tuple != null) {
+                summary.put(measurementName, tuple.getFirst());
+            }
         }
         return summary;
     }
@@ -209,8 +212,10 @@ public class Measurement {
         }
 
         Tuple7<String, Long, Long, Long, Long, Long, Double> summary = defaultSummaryOf(name);
-        LogLevel level = (levels==null || levels.length==0) ? Logger.DefaultMeasureLogLevel : levels[0];
-        Logger.getDefault().log(level, summary.getFirst());
+        if(summary != null) {
+            LogLevel level = (levels == null || levels.length == 0) ? Logger.DefaultMeasureLogLevel : levels[0];
+            Logger.getDefault().log(level, summary.getFirst());
+        }
         return result;
     }
 
@@ -238,8 +243,10 @@ public class Measurement {
         }
 
         Tuple7<String, Long, Long, Long, Long, Long, Double> summary = defaultSummaryOf(name);
-        LogLevel level = (levels==null || levels.length==0) ? Logger.DefaultMeasureLogLevel : levels[0];
-        Logger.getDefault().log(level, summary.getFirst());
+        if(summary != null) {
+            LogLevel level = (levels == null || levels.length == 0) ? Logger.DefaultMeasureLogLevel : levels[0];
+            Logger.getDefault().log(level, summary.getFirst());
+        }
     }
 
     //region Definition of Moment class.

@@ -130,8 +130,8 @@ public interface ILogger {
         } finally {
             log(level, "%s costs %s%s.", startMoment.label, Duration.ofMillis(elapsedMills),
                     e==null ? "" : " with " + e.getClass().getSimpleName());
-            return this;
         }
+        return this;
     }
 
     /**
