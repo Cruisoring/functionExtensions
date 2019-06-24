@@ -12,6 +12,8 @@ import static io.github.cruisoring.Asserts.assertAllNotNull;
 
 public class ConsoleLogger extends Logger implements IWithColor {
     //region Console color controls
+    static final String ARGUMENT_REGEX = "%(\\d*$)?(\\d*)?\\S";
+
     // Reset
     public static final String RESET = "\033[0m";  // Text Reset
 
@@ -56,11 +58,11 @@ public class ConsoleLogger extends Logger implements IWithColor {
     public static final String CYAN_BACKGROUND = "\033[106m";   // CYAN
     public static final String WHITE_BACKGROUND = "\033[107m";  // WHITE
 
-    public static final String DefaultFailPlaceholder = RED_BOLD + "$0" + RESET;
-    public static final String DefaultSuccessPlaceholder = GREEN_BOLD + "$0" + RESET;
-    public static final String DefaultNormalPlaceholder = BLUE_BOLD + "$0" + RESET;
+    public static final String DEFAULT_FAIL_PLACEHOLDER = RED_BOLD + "$0" + RESET;
+    public static final String DEFAULT_SUCCESS_PLACEHOLDER = GREEN_BOLD + "$0" + RESET;
+    public static final String DEFAULT_NORMAL_PLACEHOLDER = BLUE_BOLD + "$0" + RESET;
 
-    public static final Map<LogLevel, String> levelColors = new HashMap<LogLevel, String>() {{
+    static final Map<LogLevel, String> levelColors = new HashMap<LogLevel, String>() {{
         put(LogLevel.verbose, WHITE_BACKGROUND + BLACK);
         put(LogLevel.debug, PURPLE_UNDERLINED);
         put(LogLevel.info, CYAN_BACKGROUND + BLACK);
@@ -80,28 +82,28 @@ public class ConsoleLogger extends Logger implements IWithColor {
 
     @Override
     public String failPlaceholder() {
-        return DefaultFailPlaceholder;
+        return DEFAULT_FAIL_PLACEHOLDER;
     }
 
     @Override
     public String successPlaceholder() {
-        return DefaultSuccessPlaceholder;
+        return DEFAULT_SUCCESS_PLACEHOLDER;
     }
 
     @Override
     public String normalPlaceholder() {
-        return DefaultNormalPlaceholder;
+        return DEFAULT_NORMAL_PLACEHOLDER;
     }
 
     @Override
     public String highlightArgs(String format) {
         String highlighted;
         if (isSuccess(format)) {
-            highlighted = format.replaceAll("%(\\d*$)?(\\d*)?\\S", GREEN_BOLD + "$0" + RESET);
+            highlighted = format.replaceAll(ARGUMENT_REGEX, GREEN_BOLD + "$0" + RESET);
         } else if (isFailed(format)) {
-            highlighted = format.replaceAll("%(\\d*$)?(\\d*)?\\S", RED_BOLD + "$0" + RESET);
+            highlighted = format.replaceAll(ARGUMENT_REGEX, RED_BOLD + "$0" + RESET);
         } else {
-            highlighted = format.replaceAll("%(\\d*$)?(\\d*)?\\S", BLUE_BOLD + "$0" + RESET);
+            highlighted = format.replaceAll(ARGUMENT_REGEX, BLUE_BOLD + "$0" + RESET);
         }
         return highlighted;
     }

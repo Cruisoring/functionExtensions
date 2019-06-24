@@ -5,8 +5,8 @@ import io.github.cruisoring.throwables.*;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple3;
 import io.github.cruisoring.utility.ArrayHelper;
-import io.github.cruisoring.utility.PlainList;
 import io.github.cruisoring.utility.SetHelper;
+import io.github.cruisoring.utility.SimpleTypedList;
 import io.github.cruisoring.utility.StringHelper;
 import org.junit.Test;
 
@@ -262,7 +262,7 @@ public class TypeHelperTest {
 
     @Test
     public void getDeepElement_withEmptyCollection() {
-        assertEquals(new PlainList(), getDeepElement(new PlainList(), new int[0]));
+        assertEquals(new SimpleTypedList(), getDeepElement(new SimpleTypedList(), new int[0]));
         assertException(() -> getDeepElement(new int[0], new int[]{0}), IllegalArgumentException.class);
 
         assertEquals(new String[]{}, getDeepElement(new String[]{}, new int[0]));
@@ -351,7 +351,7 @@ public class TypeHelperTest {
                 null,
                 11.0,
                 new char[0],
-                new PlainList(),
+                new SimpleTypedList(),
                 new char[0][],
                 new int[][]{new int[0], null}};
         deepIndexes = getDeepIndexes(target);
@@ -388,7 +388,7 @@ public class TypeHelperTest {
                 null,
                 11.0,
                 new char[0],
-                new PlainList(),
+                new SimpleTypedList(),
                 new char[0][],
                 new int[][]{new int[0], null});
         deepIndexes = getDeepIndexes(target);
@@ -476,7 +476,7 @@ public class TypeHelperTest {
 
     @Test
     public void getGenericInfo() {
-        FunctionThrowable<Integer, List<Integer>> listFactory = i -> new PlainList<Integer>();
+        FunctionThrowable<Integer, List<Integer>> listFactory = i -> new SimpleTypedList<Integer>();
         Tuple3<Boolean, Class[], Class> genericInfo = lambdaGenericInfoRepository.retrieve(listFactory);
         assertEquals(Tuple.create(true, new Class[]{Integer.class}, List.class), genericInfo);
 
@@ -777,7 +777,7 @@ public class TypeHelperTest {
         assertAllTrue((-72.3d) == (double) getToEquivalentParallelConverter(Double.class).apply(Double.valueOf(-72.3d)));
         assertAllTrue((-0.03f) == (float) getToEquivalentParallelConverter(Float.class).apply(Float.valueOf(-0.03f)));
 
-        Object obj = new PlainList();
+        Object obj = new SimpleTypedList();
         assertAllTrue(obj == getToEquivalentParallelConverter(Object.class).apply(obj));
         assertAllTrue("abc" == getToEquivalentParallelConverter(Object.class).apply("abc"));
         Comparable comparable = 33;
@@ -1609,9 +1609,9 @@ public class TypeHelperTest {
     public void testDeepHashCode() {
         assertEquals(0, deepHashCode(null));
         assertEquals(37, deepHashCode(new int[0]));
-        assertEquals(37, deepHashCode(new PlainList()));
+        assertEquals(37, deepHashCode(new SimpleTypedList()));
 
-        List listOfNull = new PlainList();
+        List listOfNull = new SimpleTypedList();
         listOfNull.add(null);
         assertEquals(deepHashCode(listOfNull), deepHashCode(new Integer[]{null}));
         assertEquals(deepHashCode(new Integer[]{1, 2, 3}), deepHashCode(new int[]{1, 2, 3}));
@@ -1707,7 +1707,7 @@ public class TypeHelperTest {
                 canValueEquals(null, null, EqualityStategy.EmptyAsNull),
                 canValueEquals(null, new int[0], EqualityStategy.EmptyAsNull),
                 canValueEquals(new HashSet(), null, EqualityStategy.EmptyAsNull),
-                canValueEquals(new PlainList(), new char[0], EqualityStategy.EmptyAsNull),
+                canValueEquals(new SimpleTypedList(), new char[0], EqualityStategy.EmptyAsNull),
                 canValueEquals(new char[0], new LinkedHashSet(), EqualityStategy.EmptyAsNull),
                 canValueEquals(new int[0], ArrayHelper.asList(), EqualityStategy.EmptyAsNull)
         );
@@ -1747,7 +1747,7 @@ public class TypeHelperTest {
                 canValueEquals(new char[0][], new char[0], EqualityStategy.BetweenAssignableTypes),
                 canValueEquals(new byte[0], new char[0], EqualityStategy.BetweenAssignableTypes),
                 canValueEquals(ArrayHelper.asList(1), new HashSet(), EqualityStategy.BetweenAssignableTypes),
-                canValueEquals(new Object[0], new PlainList(), EqualityStategy.BetweenAssignableTypes),
+                canValueEquals(new Object[0], new SimpleTypedList(), EqualityStategy.BetweenAssignableTypes),
                 canValueEquals(new Number[0], new Comparable[0], EqualityStategy.BetweenAssignableTypes),
                 canValueEquals(new int[0], ArrayHelper.asList(0), EqualityStategy.BetweenAssignableTypes)
         );
@@ -1772,7 +1772,7 @@ public class TypeHelperTest {
                 canValueEquals(Tuple.TRUE, Tuple.create(true), EqualityStategy.TypeIgnored),
                 canValueEquals(new int[0], ArrayHelper.asList(), EqualityStategy.TypeIgnored),
                 canValueEquals(new int[0], new Boolean[0], EqualityStategy.TypeIgnored),
-                canValueEquals(new HashSet(), new PlainList(), EqualityStategy.TypeIgnored),
+                canValueEquals(new HashSet(), new SimpleTypedList(), EqualityStategy.TypeIgnored),
                 canValueEquals(new Number[0], new Comparable[0], EqualityStategy.TypeIgnored),
                 canValueEquals(new int[0], ArrayHelper.asList(), EqualityStategy.TypeIgnored)
         );

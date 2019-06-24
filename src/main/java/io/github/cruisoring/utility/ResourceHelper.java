@@ -1,5 +1,6 @@
 package io.github.cruisoring.utility;
 
+import io.github.cruisoring.TypedList;
 import io.github.cruisoring.logger.Logger;
 
 import java.io.*;
@@ -19,7 +20,7 @@ import static io.github.cruisoring.Asserts.checkNotNull;
  * Helper class for resource locating and retrieval.
  */
 public class ResourceHelper {
-    public final static String[] resourcePaths;
+    public static final String[] resourcePaths;
     public static String MAVEN_TARGET = "target";
     public static String MAVEN_TARGET_CLASSES = "target/classes/";
     public static String MAVEN_TARGET_TEST_CLASSES = "target/test-classes/";
@@ -30,6 +31,9 @@ public class ResourceHelper {
         resourcePaths = getResourcePaths("sun.reflect", "java.lang");
     }
 
+    private ResourceHelper() {
+    }
+
     /**
      * Retrive the ORIGINAL resources folders of all modules involved with the call
      *
@@ -37,7 +41,7 @@ public class ResourceHelper {
      * @return String array identifying the absolute paths of related resource folders
      */
     private static String[] getResourcePaths(String... ignoreables) {
-        List<String> classPaths = new PlainList<>();
+        List<String> classPaths = new SimpleTypedList<>();
         List<String> classNames = StackTraceHelper.getFilteredCallers(ignoreables);
         for (int i = 0; i < classNames.size(); i++) {
             try {
@@ -56,8 +60,7 @@ public class ResourceHelper {
                 if (!classPaths.contains(classPath)) {
                     classPaths.add(classPath);
                 }
-            } catch (Exception ex) {
-                continue;
+            } catch (Exception ignored) {
             }
         }
         Collections.reverse(classPaths);
@@ -78,41 +81,16 @@ public class ResourceHelper {
         assert classLoader != null;
         String path = packageName.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(path);
-        List<File> dirs = new PlainList<File>();
+        List<File> dirs = new SimpleTypedList<>();
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();
             dirs.add(new File(resource.getFile()));
         }
-        PlainList<Class> classes = new PlainList<Class>();
+        TypedList<Class> classes = new SimpleTypedList<>();
         for (File directory : dirs) {
             classes.addAll(findClasses(directory, packageName));
         }
         return classes.toArray(new Class[classes.size()]);
-    }
-
-    /**
-     * Recursive method used to find all classes in a given directory and subdirs.
-     *
-     * @param directory   The base directory
-     * @param packageName The package name for classes found inside the base directory
-     * @return The classes
-     * @throws ClassNotFoundException
-     */
-    private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
-        List<Class> classes = new PlainList<Class>();
-        if (!directory.exists()) {
-            return classes;
-        }
-        File[] files = directory.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                assert !file.getName().contains(".");
-                classes.addAll(findClasses(file, packageName + "." + file.getName()));
-            } else if (file.getName().endsWith(".class")) {
-                classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
-            }
-        }
-        return classes;
     }
 
     /**
@@ -205,24 +183,28 @@ public class ResourceHelper {
     }
 
     /**
-     * Add a single file as properties to the given result dictionary.
+     * Recursive method used to find all classes in a given directory and subdirs.
      *
-     * @param file   The instance of a single properties file.
-     * @param result Named dictionary to keep the retrieved properties.
+     * @param directory   The base directory
+     * @param packageName The package name for classes found inside the base directory
+     * @return The classes
+     * @throws ClassNotFoundException
      */
-    protected static void addFile(File file, Map<String, Properties> result) {
-
-        String propertiesName = file.getName();
-        propertiesName = propertiesName.substring(0, propertiesName.indexOf("."));
-
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileReader(file));
-        } catch (IOException e) {
-            Logger.W(e.getMessage());
-            return;
+    private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
+        List<Class> classes = new SimpleTypedList<>();
+        if (!directory.exists()) {
+            return classes;
         }
-        result.put(propertiesName, properties); //Let it throw Exception if there is duplicated keys.
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                assert !file.getName().contains(".");
+                classes.addAll(findClasses(file, packageName + "." + file.getName()));
+            } else if (file.getName().endsWith(".class")) {
+                classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+            }
+        }
+        return classes;
     }
 
     /**
@@ -253,31 +235,24 @@ public class ResourceHelper {
     }
 
     /**
-     * Locate the resource identified with filename and its folder names from any possible module.
+     * Add a single file as properties to the given result dictionary.
      *
-     * @param filename    Name of the file to be handled.
-     * @param folderNames Directory names of the file.
-     * @return the absolute file path if it is found, or null when there is no such resource.
+     * @param file   The instance of a single properties file.
+     * @param result Named dictionary to keep the retrieved properties.
      */
-    public static Path getResourcePath(String filename, String... folderNames) {
-        assertAllNotNull(filename);
+    protected static void addFile(File file, Map<String, Properties> result) {
 
-        String folderPath = folderNames == null ? "" : String.join("/", folderNames);
+        String propertiesName = file.getName();
+        propertiesName = propertiesName.substring(0, propertiesName.indexOf('.'));
 
-        //Try to load properties if it is not loaded by previous resourcePaths.
-        for (String path : resourcePaths) {
-            File resourceFolder = new File(path, folderPath);
-            File file = new File(resourceFolder, filename);
-            //No such resources defined, continue
-            if (!file.exists()) {
-                continue;
-            }
-
-            return file.toPath();
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileReader(file));
+        } catch (IOException e) {
+            Logger.W(e.getMessage());
+            return;
         }
-
-        String error = String.format("Failed to locate %s in folder of %s from %s", filename, folderPath, String.join(",", resourcePaths));
-        throw new RuntimeException(error);
+        result.put(propertiesName, properties); //Let it throw Exception if there is duplicated keys.
     }
 
     /**
@@ -418,4 +393,31 @@ public class ResourceHelper {
         }
     }
 
+    /**
+     * Locate the resource identified with filename and its folder names from any possible module.
+     *
+     * @param filename    Name of the file to be handled.
+     * @param folderNames Directory names of the file.
+     * @return the absolute file path if it is found, or null when there is no such resource.
+     */
+    public static Path getResourcePath(String filename, String... folderNames) {
+        assertAllNotNull(filename);
+
+        String folderPath = folderNames == null ? "" : String.join("/", folderNames);
+
+        //Try to load properties if it is not loaded by previous resourcePaths.
+        for (String path : resourcePaths) {
+            File resourceFolder = new File(path, folderPath);
+            File file = new File(resourceFolder, filename);
+            //No such resources defined, continue
+            if (!file.exists()) {
+                continue;
+            }
+
+            return file.toPath();
+        }
+
+        String error = String.format("Failed to locate %s in folder of %s from %s", filename, folderPath, String.join(",", resourcePaths));
+        throw new IllegalStateException(error);
+    }
 }

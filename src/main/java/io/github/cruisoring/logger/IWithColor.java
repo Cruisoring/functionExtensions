@@ -7,11 +7,6 @@ import io.github.cruisoring.utility.StringHelper;
  */
 public interface IWithColor {
 
-    //Default keywords to be matched with the template to see if message means success
-    String[] DefaultSuccessKeywords = new String[]{"success", "passed", "pass"};
-    //Default keywords to be matched with the template to see if message means failure
-    String[] DefaultFailedKeywords = new String[]{"fail", "error", "exception", "wrong", "mistake", "problem"};
-
     /**
      * Provide replacement for Regex matchings to indicate fail result.
      *
@@ -40,7 +35,7 @@ public interface IWithColor {
      * @return <code>true</code> if the format containing any fail keyword in the <code>DefaultFailedKeywords</code> case-insensitive
      */
     default boolean isFailed(String format) {
-        return StringHelper.containsAnyIgnoreCase(format, DefaultFailedKeywords);
+        return StringHelper.containsAnyIgnoreCase(format, Logger.DefaultFailedKeywords);
     }
 
     /**
@@ -50,7 +45,7 @@ public interface IWithColor {
      * @return <code>true</code> if the format containing any success keyword in the <code>DefaultSuccessKeywords</code> case-insensitive
      */
     default boolean isSuccess(String format) {
-        return StringHelper.containsAnyIgnoreCase(format, DefaultSuccessKeywords);
+        return StringHelper.containsAnyIgnoreCase(format, Logger.DefaultSuccessKeywords);
     }
 
     /**

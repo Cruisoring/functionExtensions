@@ -7,7 +7,7 @@ import io.github.cruisoring.throwables.PredicateThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.utility.ArrayHelper;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -32,7 +32,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     //region Constructors
     protected TupleTable(Supplier<List<WithValues>> rowsSupplier, IColumns columns, Class... elementTypes){
         this.columns = checkNoneNulls(columns, elementTypes);
-        this.rows = rowsSupplier == null ? new PlainList<>() : rowsSupplier.get();
+        this.rows = rowsSupplier == null ? new SimpleTypedList<>() : rowsSupplier.get();
         this.elementTypes = elementTypes;
     }
 
@@ -90,7 +90,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
         //More efficient since the mapping is cached for later use
         WithValues<Integer> mappedIndex = checkNoneNulls(viewColumns).mapIndexes(getColumns());
-        if(mappedIndex.anyMatch(v -> v == null)){
+        if (mappedIndex.anyMatch(Objects::isNull)) {
             return null;        //Cannot find all columns
         }
 
@@ -142,7 +142,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
 
         //More efficient since the mapping is cached for later use
         WithValues<Integer> mappedIndex = viewColumns.mapIndexes(getColumns());
-        if(mappedIndex.anyMatch(v -> v == null)){
+        if (mappedIndex.anyMatch(Objects::isNull)) {
             return null;        //Cannot find all columns
         }
 
@@ -243,7 +243,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         }
 
         WithValues<Integer> mappedIndexes = columns.mapIndexes(row.getColumnIndexes());
-        if(mappedIndexes.anyMatch(i -> i==null)){
+        if (mappedIndexes.anyMatch(Objects::isNull)) {
             return false;
         }
 
@@ -317,7 +317,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
             }
 
             WithValues<Integer> mappedIndexes = columns.mapIndexes(other.getColumnIndexes());
-            if(mappedIndexes.anyMatch(i -> i==null)){
+            if (mappedIndexes.anyMatch(Objects::isNull)) {
                 return false;
             }
 
@@ -342,7 +342,7 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
         }
 
         WithValues<Integer> mappedIndexes = columns.mapIndexes(rowColumns);
-        if(mappedIndexes.anyMatch(i -> i==null)){
+        if (mappedIndexes.anyMatch(Objects::isNull)) {
             return -1;
         }
 
@@ -407,11 +407,12 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
             }
 
             WithValues<Integer> mappedIndexes = columns.mapIndexes(other.getColumnIndexes());
-            if(mappedIndexes.anyMatch(i -> i==null)){
+            if (mappedIndexes.anyMatch(Objects::isNull)) {
                 return false;
             }
 
-            Object[] elements = IntStream.range(0, width()).boxed().map(i -> mappedIndexes.getValue(i))
+            Object[] elements = IntStream.range(0, width()).boxed()
+                    .map(mappedIndexes::getValue)
                     .map(i -> other.getValue(i)).toArray();
             Tuple row = Tuple.of(elements);
             return rows.contains(row) && rows.remove(row);

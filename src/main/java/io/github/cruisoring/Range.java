@@ -2,8 +2,7 @@ package io.github.cruisoring;
 
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple2;
-import io.github.cruisoring.utility.PlainList;
-import io.github.cruisoring.utility.ReadOnlyList;
+import io.github.cruisoring.utility.SimpleTypedList;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -27,14 +26,13 @@ public class Range implements Comparable<Range> {
     //Integer number reserved to represent positive infinity: +∞, shall not be used explicitly as argument to specify the below or upper bound
     public static final Integer POSITIVE_INFINITY = Integer.MAX_VALUE;
 
-    public static final long POSITIVE_INFINITE_LONG = new Long(POSITIVE_INFINITY).longValue();
     //All integer numbers except the resevered Integer.MIN_VALUE and Integer.MAX_VALUE that represent −∞ and +∞ respectively
     public static final Range ALL_INT = new Range(NEGATIVE_INFINITY, POSITIVE_INFINITY);
     //Empty integer range
     public static final Range NONE = new Range(0, 0);
     private static final int _RUN_PARALLEL = 100;
     static Random random = new Random();
-    private final static Predicate<Tuple2<Range, Range>> overlapPredicate = tuple -> tuple.getFirst().overlaps(tuple.getSecond());
+    private static final Predicate<Tuple2<Range, Range>> overlapPredicate = tuple -> tuple.getFirst().overlaps(tuple.getSecond());
     //endregion
 
     //region Static methods
@@ -173,12 +171,32 @@ public class Range implements Comparable<Range> {
 
         return _indexesToRanges(indexes);
     }
+    //region Instance variables
+    //Represent the size of the range in long, -1 when size is infinite
+    private final long size;
+
+    /**
+     * Constructor of Range support limited scope specified by the start and end index.
+     *
+     * @param startInclusive StartIndex of the concerned scope which might be included in the scope, shall be greater than NEGATIVE_INFINITY + 1.
+     * @param endExclusive   EndIndex of the concerned scope that is above the last index of the scope, shall be lesser than POSITIVE_INFINITY.
+     */
+    protected Range(int startInclusive, int endExclusive) {
+        assertTrue(startInclusive <= endExclusive,
+                "Range startInclusive %d shall not be greater or equal to endExclusive %d.", startInclusive, endExclusive);
+
+        //Notice: the largest 2 and smallest 2 integers are reserved to represent infinity and shall not be used
+        _start = startInclusive <= NEGATIVE_INFINITY + 1 ? NEGATIVE_INFINITY : startInclusive;
+        _end = endExclusive > POSITIVE_INFINITY - 1 ? POSITIVE_INFINITY : endExclusive;
+        if (_start == NEGATIVE_INFINITY || _end == POSITIVE_INFINITY)
+            size = INFINITE_LENGTH;
+        else
+            size = (long) _end - _start;
+    }
 
     static List<Range> _indexesToRanges(Collection<Integer> indexes) {
-        int size = indexes.size();
-
         Iterator<Integer> iterator = indexes.iterator();
-        List<Range> ranges = new PlainList<>();
+        List<Range> ranges = new SimpleTypedList<>();
         while (iterator.hasNext()) {
             Integer startIndex = iterator.next();
             Integer endIndex = iterator.next();
@@ -200,7 +218,7 @@ public class Range implements Comparable<Range> {
         assertAllNotNull(allIndexes, range);
 
         if (allIndexes.isEmpty()) {
-            return new PlainList<Integer>();
+            return new SimpleTypedList<>();
         }
 
         //Sort the indexes with nature order
@@ -209,8 +227,24 @@ public class Range implements Comparable<Range> {
         return _getIndexesInRange(allIndexes, range);
     }
 
+    /**
+     * Converting the indexes of starts and indexes of ends in pairs as unmodifiable Range list.
+     *
+     * @param startIndexes Index list of the starting characters.
+     * @param endIndexes   Index list of the ending characters.
+     * @return Unmodifiable list of the ranges with one of the index of starting character, and one of the index of the ending character.
+     */
+    public static List<Range> indexesToRanges(Collection<Integer> startIndexes, Collection<Integer> endIndexes) {
+        assertAllNotNull(startIndexes, endIndexes);
+
+        int size = startIndexes.size();
+        Asserts.assertAllTrue(size == endIndexes.size());
+
+        return _indexesToRanges(startIndexes, endIndexes);
+    }
+
     private static List<Integer> _getIndexesInRange(List<Integer> allIndexes, Range range) {
-        List<Integer> result = new PlainList<>();
+        List<Integer> result = new SimpleTypedList<>();
 
         int count = allIndexes.size();
         Integer lower = range.getStartInclusive();
@@ -244,7 +278,7 @@ public class Range implements Comparable<Range> {
     }
 
     private static List<Range> getPairsWithValueRanges(java.util.Set<Range> nameRangeSet, Collection<Range> valueRanges, java.util.Set<Integer> indicatorIndexes) {
-        List<Range> nvpRanges = new PlainList<>();
+        List<Range> nvpRanges = new SimpleTypedList<>();
         for (Range valueRange : valueRanges) {
             Range nameRange = nameRangeSet.stream()
                     .filter(scope -> scope.getEndInclusive() < valueRange.getStartInclusive())
@@ -252,7 +286,7 @@ public class Range implements Comparable<Range> {
                     .findFirst().orElse(null);
             if (nameRange != null) {
                 Range gapRange = valueRange.gapWith(nameRange);
-                List<Integer> colonsWithin = indicatorIndexes.stream().filter(i -> gapRange.contains(i)).collect(Collectors.toList());
+                List<Integer> colonsWithin = indicatorIndexes.stream().filter(gapRange::contains).collect(Collectors.toList());
                 Asserts.assertTrue(colonsWithin.size() == 1,
                         String.format("Failed to get one single indictor between '%s' and '%s'", nameRange, valueRange));
                 Range nameValueRange = nameRange.intersectionWith(valueRange);
@@ -262,76 +296,6 @@ public class Range implements Comparable<Range> {
             }
         }
         return nvpRanges;
-    }
-
-    /**
-     * Converting the indexes of starts and indexes of ends in pairs as unmodifiable Range list.
-     *
-     * @param startIndexes Index list of the starting characters.
-     * @param endIndexes   Index list of the ending characters.
-     * @return Unmodifiable list of the ranges with one of the index of starting character, and one of the index of the ending character.
-     */
-    public static List<Range> indexesToRanges(Collection<Integer> startIndexes, Collection<Integer> endIndexes) {
-        assertAllNotNull(startIndexes, endIndexes);
-
-        int size = startIndexes.size();
-        Asserts.assertAllTrue(size == endIndexes.size());
-
-        return _indexesToRanges(startIndexes, endIndexes);
-    }
-
-    static List<Range> _indexesToRanges(Collection<Integer> startIndexes, Collection<Integer> endIndexes) {
-        TreeSet<Integer> sortedSet = new TreeSet<>(startIndexes);
-        sortedSet.addAll(endIndexes);
-
-        List<Range> ranges = new PlainList<>();
-
-        for (int i = startIndexes.size() - 1; i >= 0; i--) {
-            Integer start = null;
-            Integer end = null;
-            for (Integer index : sortedSet) {
-                if (start == null || startIndexes.contains(index)) {
-                    start = index;
-                } else {
-                    end = index;
-                    break;
-                }
-            }
-            ranges.add(Range.closed(start, end));
-            sortedSet.remove(start);
-            sortedSet.remove(end);
-        }
-
-        return ranges;
-    }
-
-    /**
-     * Get the pairs of {@code Range} from two collections meeting condition specified by {@code predicate}
-     *
-     * @param ranges1   the first Collection of {@code Range}
-     * @param ranges2   the second Collection of {@code Range}
-     * @param predicate specify condition of two {@code Range} shall meet.
-     * @return pairs of {@code Range} from two collections meeting specific condition as a list
-     */
-    public static List<Tuple2<Range, Range>> getRangePairs(Collection<Range> ranges1, Collection<Range> ranges2, Predicate<Tuple2<Range, Range>> predicate) {
-        assertAllNotNull(ranges1, ranges2, predicate);
-
-        int size1 = ranges1.size();
-        int size2 = ranges2.size();
-        int combinations = size1 * size2;
-        if (combinations == 0)
-            return new PlainList<>();
-
-        Stream<Tuple2<Range, Range>> options = ranges1.stream()
-                .flatMap(x -> ranges2.stream().map(y -> Tuple.create(x, y)));
-
-        List<Tuple2<Range, Range>> result;
-        if (combinations < _RUN_PARALLEL) {
-            result = options.filter(predicate).collect(Collectors.toList());
-        } else {
-            result = options.parallel().filter(predicate).collect(Collectors.toList());
-        }
-        return result;
     }
 
     /**
@@ -360,42 +324,75 @@ public class Range implements Comparable<Range> {
         return charSequence.subSequence(range.getStartInclusive(), range.getEndExclusive()).toString();
     }
 
-    //region Instance variables
-    //Represent the size of the range in long, -1 when size is infinite
-    private final long _size;
+    static List<Range> _indexesToRanges(Collection<Integer> startIndexes, Collection<Integer> endIndexes) {
+        TreeSet<Integer> sortedSet = new TreeSet<>(startIndexes);
+        sortedSet.addAll(endIndexes);
+
+        List<Range> ranges = new SimpleTypedList<>();
+
+        for (int i = startIndexes.size() - 1; i >= 0; i--) {
+            Integer start = null;
+            Integer end = null;
+            for (Integer index : sortedSet) {
+                if (start == null || startIndexes.contains(index)) {
+                    start = index;
+                } else {
+                    end = index;
+                    break;
+                }
+            }
+            ranges.add(Range.closed(start, end));
+            sortedSet.remove(start);
+            sortedSet.remove(end);
+        }
+
+        return ranges;
+    }
 
     private final int _start, _end;
     //endregion
 
     //region Constructors
-    /**
-     * Constructor of Range support limited scope specified by the start and end index.
-     *
-     * @param startInclusive StartIndex of the concerned scope which might be included in the scope, shall be greater than NEGATIVE_INFINITY + 1.
-     * @param endExclusive   EndIndex of the concerned scope that is above the last index of the scope, shall be lesser than POSITIVE_INFINITY.
-     */
-    protected Range(int startInclusive, int endExclusive) {
-        assertTrue(startInclusive <= endExclusive,
-                "Range startInclusive %d shall not be greater or equal to endExclusive %d.", startInclusive, endExclusive);
 
-        //Notice: the largest 2 and smallest 2 integers are reserved to represent infinity and shall not be used
-        _start = startInclusive <= NEGATIVE_INFINITY + 1 ? NEGATIVE_INFINITY : startInclusive;
-        _end = endExclusive > POSITIVE_INFINITY - 1 ? POSITIVE_INFINITY : endExclusive;
-        if (_start == NEGATIVE_INFINITY || _end == POSITIVE_INFINITY)
-            _size = INFINITE_LENGTH;
-        else
-            _size = new Long(_end) - new Long(_start);
+    /**
+     * Get the pairs of {@code Range} from two collections meeting condition specified by {@code predicate}
+     *
+     * @param ranges1   the first Collection of {@code Range}
+     * @param ranges2   the second Collection of {@code Range}
+     * @param predicate specify condition of two {@code Range} shall meet.
+     * @return pairs of {@code Range} from two collections meeting specific condition as a list
+     */
+    public static List<Tuple2<Range, Range>> getRangePairs(Collection<Range> ranges1, Collection<Range> ranges2, Predicate<Tuple2<Range, Range>> predicate) {
+        assertAllNotNull(ranges1, ranges2, predicate);
+
+        int size1 = ranges1.size();
+        int size2 = ranges2.size();
+        int combinations = size1 * size2;
+        if (combinations == 0)
+            return new SimpleTypedList<>();
+
+        Stream<Tuple2<Range, Range>> options = ranges1.stream()
+                .flatMap(x -> ranges2.stream().map(y -> Tuple.create(x, y)));
+
+        List<Tuple2<Range, Range>> result;
+        if (combinations < _RUN_PARALLEL) {
+            result = options.filter(predicate).collect(Collectors.toList());
+        } else {
+            result = options.parallel().filter(predicate).collect(Collectors.toList());
+        }
+        return result;
     }
     //endregion
 
     //region Instance methods
+
     /**
      * Get the size of the range as a long value, -1 when it is infinitive.
      *
      * @return Count of values between _start (inclusive) and _end (exclusive), -1L when it is infinitive.
      */
     public long size() {
-        return _size;
+        return size;
     }
 
     /**
@@ -403,7 +400,7 @@ public class Range implements Comparable<Range> {
      * @return  <tt>true</tt> if its size is 0, otherwise <tt>false</tt>
      */
     public boolean isEmpty() {
-        return _size == 0;
+        return size == 0;
     }
 
     /**
@@ -411,11 +408,11 @@ public class Range implements Comparable<Range> {
      * @return a {@code Stream} of integer indexes of this {@code Range}.
      */
     public Stream<Integer> getStream() {
-        if (_size == 0) {
+        if (size == 0) {
             return Stream.empty();
         } else if (_start == NEGATIVE_INFINITY && _end == POSITIVE_INFINITY) {
             throw new IllegalStateException("Cannot get stream for all integers");
-        } else if (_size != INFINITE_LENGTH) {
+        } else if (size != INFINITE_LENGTH) {
             return IntStream.range(_start, _end).boxed();
         } else if (_start == NEGATIVE_INFINITY) {
             return IntStream.iterate(_end - 1, i -> i - 1).boxed();
@@ -445,14 +442,14 @@ public class Range implements Comparable<Range> {
     public boolean containsAll(List<Integer> indexes) {
         assertAllNotNull(indexes);
 
-        if (_size == 0) {
+        if (size == 0) {
             return false;
         } else if (indexes.isEmpty()) {
             return true;
         }
 
         Collections.sort(indexes);
-        return contains(indexes.get(0)) && (indexes.size() == 0 || contains(indexes.get(indexes.size() - 1)));
+        return contains(indexes.get(0)) && (indexes.isEmpty() || contains(indexes.get(indexes.size() - 1)));
     }
 
     /**
@@ -462,7 +459,7 @@ public class Range implements Comparable<Range> {
      * @return <tt>true</tt> if the {@code Range} does contain all the values, otherwise <tt>false</tt>.
      */
     public boolean containsAll(int... indexes) {
-        if (_size == 0) {
+        if (size == 0) {
             return false;
         } else if (indexes.length == 0) {
             return true;
@@ -606,7 +603,7 @@ public class Range implements Comparable<Range> {
      * @return All Range instances contained by this Range only.
      */
     public List<Range> getChildRanges(TreeSet<Range> ranges) {
-        List<Range> children = new PlainList<>();
+        List<Range> children = new SimpleTypedList<>();
         Range lastChild = null;
         for (Range range : ranges) {
             if (_end < range._start) {
@@ -631,7 +628,7 @@ public class Range implements Comparable<Range> {
      */
     public List<Integer> getWithinIndexes(TreeSet<Integer> indexes) {
         SortedSet<Integer> withinSet = indexes.subSet(_start + 1, _end - 1);
-        List<Integer> children = new PlainList(Integer.class, withinSet);
+        List<Integer> children = new SimpleTypedList(Integer.class, withinSet);
         return children;
     }
 
@@ -640,7 +637,7 @@ public class Range implements Comparable<Range> {
      * @return a new {@code Range} that contains all insider elements of this {@code Range}.
      */
     public Range getInside() {
-        if (_size <= 2) {
+        if (size <= 2) {
             return NONE;
         } else {
             return new Range(_start + 1, _end - 1);
@@ -658,8 +655,8 @@ public class Range implements Comparable<Range> {
         assertAllFalse(_start == NEGATIVE_INFINITY, _end == POSITIVE_INFINITY);
 
         //Let it throw ArithmeticException if overflow happens
-        int size = Math.toIntExact(_size);
-        List<Integer> list = new PlainList();
+        int size = Math.toIntExact(this.size);
+        List<Integer> list = new SimpleTypedList();
         for (int count = 0, current = _start; current < _end; current++, count++) {
             list.add(count == 0 ? 0 : random.nextInt(count + 1), current);
         }
@@ -704,17 +701,17 @@ public class Range implements Comparable<Range> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof Range))
+        if (!(obj instanceof Range))
             return false;
         if (obj == this)
             return true;
         Range other = (Range) obj;
-        return _size == other._size && _start == other._start;
+        return size == other.size && _start == other._start;
     }
 
     @Override
     public int hashCode(){
-        return Long.hashCode(_size) * 31 + _start;
+        return Long.hashCode(size) * 31 + _start;
     }
 
     @Override

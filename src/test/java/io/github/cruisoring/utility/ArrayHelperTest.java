@@ -62,8 +62,8 @@ public class ArrayHelperTest {
         int length = Array.getLength(characters);
 
         List[] lists = (List[]) getNewArray(List.class, 3);
-        lists[0] = new PlainList();
-        lists[2] = new PlainList();
+        lists[0] = new SimpleTypedList();
+        lists[2] = new SimpleTypedList();
 
         Comparable[][] comparablesArray = (Comparable[][]) getNewArray(Comparable[].class, 2);
         comparablesArray[0] = new Integer[]{1, 2};
@@ -142,7 +142,7 @@ public class ArrayHelperTest {
         assertEquals(new Object[]{1, 2, 3, null, "OK"}, array);
         assertEquals(Object[].class, array.getClass());
 
-        Object list = new PlainList();
+        Object list = new SimpleTypedList();
         array = arrayOf(list, new Number[]{1, 2.2f, 3.3});
         assertEquals(Object[].class, array.getClass());
         assertEquals(new Object[]{list, 1, 2.2f, 3.3}, array);
@@ -304,8 +304,8 @@ public class ArrayHelperTest {
 
     @Test
     public void testAsList() {
-        assertEquals(new PlainList(), asList());
-        PlainList expected = new PlainList();
+        assertEquals(new SimpleTypedList(), asList());
+        SimpleTypedList expected = new SimpleTypedList();
         expected.add(null);
         assertEquals(expected, asList(null));
         expected.add(null);

@@ -4,7 +4,7 @@ import io.github.cruisoring.throwables.BiConsumerThrowable;
 import io.github.cruisoring.throwables.FunctionThrowable;
 import io.github.cruisoring.throwables.RunnableThrowable;
 import io.github.cruisoring.throwables.SupplierThrowable;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 
 import java.util.List;
 
@@ -46,7 +46,6 @@ public class Lazy<T> implements AutoCloseable {
     public Lazy(SupplierThrowable<T> supplier, BiConsumerThrowable<T, T> actionOnChanges) {
         this.supplier = checkNotNull(supplier, "The supplier is mandatory");
         this.actionOnChanges = actionOnChanges;
-//        this.closing = actionOnChanges == null ? this::closing : () -> this.resetAfterAction(actionOnChanges);
     }
     //endregion
 
@@ -60,7 +59,7 @@ public class Lazy<T> implements AutoCloseable {
     public <U> Lazy<U> create(FunctionThrowable<T, U> function) {
         Lazy<U> dependency = new Lazy(() -> function.apply(getValue()));
         if (dependencies == null) {
-            dependencies = new PlainList<>();
+            dependencies = new SimpleTypedList<>();
         }
         dependencies.add(dependency);
         return dependency;
@@ -77,7 +76,7 @@ public class Lazy<T> implements AutoCloseable {
     public <U> Lazy<U> create(FunctionThrowable<T, U> function, BiConsumerThrowable<U, U> actionOnChanges) {
         Lazy<U> dependency = new Lazy(() -> function.apply(getValue()), actionOnChanges);
         if (dependencies == null) {
-            dependencies = new PlainList<>();
+            dependencies = new SimpleTypedList<>();
         }
         dependencies.add(dependency);
         return dependency;
@@ -118,7 +117,7 @@ public class Lazy<T> implements AutoCloseable {
     public void closing() {
         if (!isClosed) {
             isClosed = true;
-            if (dependencies != null && dependencies.size() > 0) {
+            if (dependencies != null && !dependencies.isEmpty()) {
                 for (int i = dependencies.size() - 1; i >= 0; i--) {
                     AutoCloseable child = dependencies.get(i);
                     if(child != null) {
@@ -130,7 +129,7 @@ public class Lazy<T> implements AutoCloseable {
             }
             if (isInitialized) {
                 isInitialized = false;
-                if (value != null && value instanceof AutoCloseable) {
+                if (value instanceof AutoCloseable) {
                     Functions.tryRun(((AutoCloseable) value)::close);
                 }
                 T currentValue = value;

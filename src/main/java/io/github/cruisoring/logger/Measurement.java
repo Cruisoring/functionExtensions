@@ -9,7 +9,7 @@ import io.github.cruisoring.throwables.SupplierThrowable;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple7;
 import io.github.cruisoring.utility.ArrayHelper;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 import io.github.cruisoring.utility.StackTraceHelper;
 import io.github.cruisoring.utility.StringHelper;
 
@@ -24,10 +24,10 @@ import static io.github.cruisoring.Asserts.checkNoneNulls;
  */
 public class Measurement {
     //Common columns used to log info
-    public static final String START = "start";
+    public static final String START_COLUMN = "start";
     public static final String DURATION = "duration";
 
-    static final IColumns DefaultColumns = new Columns(START, DURATION);
+    static final IColumns DefaultColumns = new Columns(START_COLUMN, DURATION);
 
     //Identifier to locate the caller stack trace quickly
     static final String getCallerStackTraceKey = Measurement.class.getSimpleName() + ".java";
@@ -37,16 +37,7 @@ public class Measurement {
      */
     static final Map<String, TupleTable> namedMeasurements = new LinkedHashMap<>();
 
-    /**
-     * Print out the existing performance summaries by name with given LogLevel.
-     * @param level the {@code LogLevel} to show the summaries.
-     */
-    public static void printMeasurementSummaries(LogLevel level){
-        Map<String, String> performanceSummary = Measurement.getAllSummary();
-
-        for (String name :performanceSummary.keySet()) {
-            Logger.Default.log(level, "%s: %s", name, performanceSummary.get(name));
-        }
+    private Measurement() {
     }
 
     /**
@@ -128,44 +119,15 @@ public class Measurement {
     }
 
     /**
-     * With given name of the concerned set of measurements, get the size, mean, median, total, min, max and stdDeviation of their performances.
-     *
-     * @param name the unique name to identify performance of concerned business logic.
-     * @return a Tuple of 7 values to summarize the performance of concerned business logic
+     * Print out the existing performance summaries by name with given LogLevel.
+     * @param level the {@code LogLevel} to show the summaries.
      */
-    public static Tuple7<String, Long, Long, Long, Long, Long, Double> defaultSummaryOf(String name) {
-        TupleTable table = getMeasurements(checkNoneNulls(name));
-        if (table == null || !Long.class.equals(table.getColumnElementType(DURATION))) {
-            return null;
+    public static void printMeasurementSummaries(LogLevel level){
+        Map<String, String> performanceSummary = Measurement.getAllSummary();
+
+        for (Map.Entry<String, String> entry : performanceSummary.entrySet()) {
+            Logger.Default.log(level, "%s: %s", entry.getKey(), entry.getValue());
         }
-
-        Long[] durations = (Long[]) table.getColumnValues(DURATION);
-
-        AtomicLong sum = new AtomicLong(0);
-        List<Long> durationList = new PlainList<>();
-        Arrays.stream(durations).forEach(d -> {
-            durationList.add(d);
-            sum.getAndAdd(d);
-        });
-
-        Collections.sort(durationList);
-        long total = sum.get();
-        int size = durationList.size();
-        long mean = total / size;
-        long min = durationList.get(0);
-        long max = durationList.get(size - 1);
-        long median = durationList.get(size / 2);
-
-        double summation = 0;
-        long dif;
-        for (int i = 0; i < size; i++) {
-            dif = durationList.get(i) - mean;
-            summation += dif * dif;
-        }
-        Double standardDeviation = Math.sqrt(summation / size);
-        String summary = String.format("%s: <size=%d, mean=%d, median=%d, total=%d, min=%d, max=%d, std=%.2f%%>",
-                name, size, mean, median, total, min, max, standardDeviation);
-        return Tuple.create(summary, mean, median, total, min, max, standardDeviation);
     }
 
     /**
@@ -282,4 +244,45 @@ public class Measurement {
         }
     }
     //endregion
+
+    /**
+     * With given name of the concerned set of measurements, get the size, mean, median, total, min, max and stdDeviation of their performances.
+     *
+     * @param name the unique name to identify performance of concerned business logic.
+     * @return a Tuple of 7 values to summarize the performance of concerned business logic
+     */
+    public static Tuple7<String, Long, Long, Long, Long, Long, Double> defaultSummaryOf(String name) {
+        TupleTable table = getMeasurements(checkNoneNulls(name));
+        if (table == null || !Long.class.equals(table.getColumnElementType(DURATION))) {
+            return null;
+        }
+
+        Long[] durations = (Long[]) table.getColumnValues(DURATION);
+
+        AtomicLong sum = new AtomicLong(0);
+        List<Long> durationList = new SimpleTypedList<>();
+        Arrays.stream(durations).forEach(d -> {
+            durationList.add(d);
+            sum.getAndAdd(d);
+        });
+
+        Collections.sort(durationList);
+        long total = sum.get();
+        int size = durationList.size();
+        long mean = total / size;
+        long min = durationList.get(0);
+        long max = durationList.get(size - 1);
+        long median = durationList.get(size / 2);
+
+        double summation = 0;
+        long dif;
+        for (int i = 0; i < size; i++) {
+            dif = durationList.get(i) - mean;
+            summation += dif * dif;
+        }
+        Double standardDeviation = Math.sqrt(summation / size);
+        String summary = String.format("%s: <size=%d, mean=%d, median=%d, total=%d, min=%d, max=%d, std=%.2f%%>",
+                name, size, mean, median, total, min, max, standardDeviation);
+        return Tuple.create(summary, mean, median, total, min, max, standardDeviation);
+    }
 }

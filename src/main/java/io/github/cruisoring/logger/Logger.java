@@ -94,7 +94,7 @@ public class Logger implements ILogger {
      */
     public static Revokable<ILogger> useInScope(ILogger newLogger) {
         synchronized (lock) {
-            Revokable<ILogger> revokable = new Revokable<ILogger>(() -> Default, level -> Default = level, newLogger);
+            Revokable<ILogger> revokable = new Revokable<>(() -> Default, level -> Default = level, newLogger);
             return revokable;
         }
     }
@@ -134,7 +134,7 @@ public class Logger implements ILogger {
      */
     public static Revokable<LogLevel> setLevelInScope(LogLevel newLogLevel) {
         synchronized (lock) {
-            Revokable<LogLevel> revokable = new Revokable<LogLevel>(() -> GlobalLogLevel, level -> GlobalLogLevel = level, newLogLevel);
+            Revokable<LogLevel> revokable = new Revokable<>(() -> GlobalLogLevel, level -> GlobalLogLevel = level, newLogLevel);
             return revokable;
         }
     }

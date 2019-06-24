@@ -1,7 +1,7 @@
 package io.github.cruisoring;
 
 import io.github.cruisoring.logger.Logger;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,7 +11,7 @@ import static io.github.cruisoring.Asserts.*;
 
 
 public class LazyTest {
-    public static List<String> logs = new PlainList<>();
+    public static List<String> logs = new SimpleTypedList<>();
 
     @Before
     public void clear() {
@@ -31,7 +31,7 @@ public class LazyTest {
 
     @Test
     public void createWithExtraClosingAction() throws Exception {
-        List<String> logs = new PlainList<>();
+        List<String> logs = new SimpleTypedList<>();
         Lazy<Boolean> booleanLazy;
         try (Lazy<String> stringLazy = new Lazy<String>(() -> "1234567",
                 (s0, s1) -> logs.add(String.format("stringLazy changed: %s -> %s", s0, s1)));

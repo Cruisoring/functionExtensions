@@ -10,9 +10,9 @@ import java.nio.file.Paths;
 import java.util.function.Consumer;
 
 public class FileLogger extends Logger implements AutoCloseable {
-    final static Consumer<String> _do_nothing = s -> { };
-
-    public static String NEW_LINE = "\r\n";
+    public static final String NEW_LINE = "\r\n";
+    static final Consumer<String> _do_nothing = s -> {
+    };
     final File file;
     boolean isValid = true;
     final Lazy<FileWriter> fileWriterLazy;
@@ -22,7 +22,7 @@ public class FileLogger extends Logger implements AutoCloseable {
         super(_do_nothing, minLevel);
         this.file = getFile(filePath);
         this.fileWriterLazy = new Lazy<>(() -> new FileWriter(file, true));
-        this.bufferedWriterLazy = fileWriterLazy.create(fw -> new BufferedWriter(fw));
+        this.bufferedWriterLazy = fileWriterLazy.create(BufferedWriter::new);
     }
 
     public FileLogger(String filePath) {

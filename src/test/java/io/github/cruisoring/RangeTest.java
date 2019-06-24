@@ -2,10 +2,9 @@ package io.github.cruisoring;
 
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.utility.ArrayHelper;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -418,7 +417,7 @@ public class RangeTest {
         Range range2_4 = new Range(2, 4);
         Range range1_9 = new Range(1, 9);
 
-        List<Range> rangeList = new PlainList<>(range3_4, range3_5, range7_8, range0_1, range0_10, range1_2, range0_3, range1_1, range2_4, range1_9);
+        List<Range> rangeList = new SimpleTypedList<>(range3_4, range3_5, range7_8, range0_1, range0_10, range1_2, range0_3, range1_1, range2_4, range1_9);
         Collections.sort(rangeList);
         assertEquals(ArrayHelper.asList(range0_10, range0_3, range0_1, range1_9, range1_2, range1_1, range2_4, range3_5, range3_4, range7_8), rangeList);
     }
@@ -457,7 +456,7 @@ public class RangeTest {
     public void testIndexesToRanges_WithPairedIndexes_getAllRanges() {
         List<Range> ranges;
 
-        ranges = Range.indexesToRanges(new PlainList<>(), new PlainList<>());
+        ranges = Range.indexesToRanges(new SimpleTypedList<>(), new SimpleTypedList<>());
         assertAllTrue(ranges.size() == 0);
 
         ranges = Range.indexesToRanges(ArrayHelper.asList(1), ArrayHelper.asList(5));
@@ -474,7 +473,7 @@ public class RangeTest {
     @Test
     public void testGetIndexesInRange() {
         List<Integer> subList;
-        PlainList<Integer> list = new PlainList<>(1, 3, 4, 5, 9, 10, 12, 15, 21, 23, 25);
+        SimpleTypedList<Integer> list = new SimpleTypedList<>(1, 3, 4, 5, 9, 10, 12, 15, 21, 23, 25);
 
         //No overlapped:
         subList = Range.getIndexesInRange(list, Range.open(3, 4));

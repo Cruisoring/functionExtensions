@@ -11,7 +11,7 @@ import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.tuple.Tuple3;
 import io.github.cruisoring.tuple.Tuple6;
 import io.github.cruisoring.utility.ArrayHelper;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 import sun.reflect.ConstantPool;
 
 import java.lang.reflect.Array;
@@ -29,9 +29,9 @@ import static io.github.cruisoring.Asserts.*;
  * Container class of type related utilities.
  */
 public class TypeHelper {
-    private final static Class OBJECT_CLASS = Object.class;
-    private final static int NORMAL_VALUE_NODE = 0;
-    final static int NULL_NODE = -1;
+    static final int NULL_NODE = -1;
+    private static final Class OBJECT_CLASS = Object.class;
+    private static final int NORMAL_VALUE_NODE = 0;
     public static int EMPTY_ARRAY_NODE = -2;
     public static int EMPTY_COLLECTION_NODE = -3;
     static int _defaultParallelEvaluationThread = 100000;
@@ -210,7 +210,7 @@ public class TypeHelper {
             Arrays.deepEquals((Object[]) a, (Object[]) b);
 
     //region Method and repository to get return type of Lambda Expression
-    private static final Method _getConstantPool() throws Exception{
+    private static final Method _getConstantPool() throws NoSuchMethodException {
         Method method = Class.class.getDeclaredMethod("getConstantPool");
         method.setAccessible(true);
         return method;
@@ -410,7 +410,7 @@ public class TypeHelper {
     private static <T> Function<Object, String> getDeepToString(Class<T> componentClass) {
         assertAllNotNull(componentClass);
 
-        Function<Object, String> toString = (obj) -> {
+        Function<Object, String> toString = obj -> {
             T[] objects = (T[]) obj;
             int length = objects.length;
             String[] strings = new String[length];
@@ -556,7 +556,7 @@ public class TypeHelper {
             if (length == 0)
                 return new int[][]{mergeOfInts(indexes, EMPTY_ARRAY_NODE)};
 
-            PlainList<int[]> list = new PlainList<>();
+            TypedList<int[]> list = new SimpleTypedList<>();
             for (int i = 0; i < length; i++) {
                 Object element = Array.get(object, i);
                 int[][] positions = getDeepIndexes0(element, mergeOfInts(indexes, i));
@@ -570,7 +570,7 @@ public class TypeHelper {
                 return new int[][]{mergeOfInts(indexes, EMPTY_COLLECTION_NODE)};
             }
 
-            PlainList<int[]> list = new PlainList<>();
+            TypedList<int[]> list = new SimpleTypedList<>();
             Iterator iterator = collection.iterator();
             int i = 0;
             while (iterator.hasNext()) {

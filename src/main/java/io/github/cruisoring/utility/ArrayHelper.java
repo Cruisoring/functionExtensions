@@ -3,6 +3,7 @@ package io.github.cruisoring.utility;
 import io.github.cruisoring.Asserts;
 import io.github.cruisoring.Range;
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.TypedList;
 import io.github.cruisoring.repository.TupleRepository3;
 import io.github.cruisoring.throwables.BiConsumerThrowable;
 import io.github.cruisoring.throwables.FunctionThrowable;
@@ -12,7 +13,9 @@ import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.Tuple3;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -34,29 +37,18 @@ public class ArrayHelper {
             arraySetters = TupleRepository3.fromKey(ArrayHelper::getAssetSetter);
     public static int ParalellEvaluationThreashold = 100;
 
+    private ArrayHelper() {
+    }
+
     /**
      * Convert a given array to an ReadOnlyList with same order.
      *
      * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
      * @param <T>      the type of the elements.
-     * @return the List containing same set of elements with same orders.
+     * @return the {@code TypedList} containing same set of elements with same orders.
      */
-    public static <T> List<T> asList(T... elements) {
-        List<T> list = new ReadOnlyList<T>(elements);
-        return list;
-    }
-
-    /**
-     * Convert a portion of the given array to an ReadOnlyList with same order.
-     *
-     * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
-     * @param from      the inclusive lower index boundary to be copied
-     * @param to        the exclusive upper index boundary to be copied
-     * @param <T>      the type of the elements.
-     * @return the List containing same set of elements with same orders.
-     */
-    public static <T> List<T> asList(T[] elements, int from, int to) {
-        List<T> list = new ReadOnlyList<T>(elements, from, to);
+    public static <T> TypedList<T> asList(T... elements) {
+        TypedList<T> list = new ReadOnlyList<T>(elements);
         return list;
     }
 
@@ -660,5 +652,19 @@ public class ArrayHelper {
         Integer[] indexes = Range.closedOpen(0, len).getRandomIndexes();
         Object shuffled = create(original.getClass().getComponentType(), len, i -> Array.get(original, indexes[i]));
         return shuffled;
+    }
+
+    /**
+     * Convert a portion of the given array to an ReadOnlyList with same order.
+     *
+     * @param elements the Array of elements to be converted, the null would be treated as an Array containing only one single element of null.
+     * @param from      the inclusive lower index boundary to be copied
+     * @param to        the exclusive upper index boundary to be copied
+     * @param <T>      the type of the elements.
+     * @return the {@code TypedList} containing same set of elements with same orders.
+     */
+    public static <T> TypedList<T> asList(T[] elements, int from, int to) {
+        TypedList<T> list = new ReadOnlyList<T>(elements, from, to);
+        return list;
     }
 }

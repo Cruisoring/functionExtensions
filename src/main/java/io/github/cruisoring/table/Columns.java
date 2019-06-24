@@ -4,7 +4,7 @@ import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.tuple.WithValues2;
 import io.github.cruisoring.utility.ArrayHelper;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -20,18 +20,18 @@ public class Columns implements IColumns {
     //region Static members and methods
     static final Map<WithValues2<IColumns, IColumns>, WithValues<Integer>> cachedMappings = new HashMap<>();
 
-    public final static Comparator<String> NATURAL = String::compareTo;
+    public static final Comparator<String> NATURAL = String::compareTo;
 
     public static Comparator<String> DefaultNameComparator = String.CASE_INSENSITIVE_ORDER;
 
-    private final static String _defaultEscapedPattern = "\\s|-|_";
-    public final static Comparator<String> ESCAPED = (s1, s2) -> {
+    private static final String _defaultEscapedPattern = "\\s|-|_";
+    public static final Comparator<String> ESCAPED = (s1, s2) -> {
         String escaped1 = s1.replaceAll(_defaultEscapedPattern, "");
         String escaped2 = s2.replaceAll(_defaultEscapedPattern, "");
         return escaped1.compareTo(escaped2);
     };
 
-    public final static Comparator<String> ESCAPED_CASE_INSENSITIVE = (s1, s2) -> {
+    public static final Comparator<String> ESCAPED_CASE_INSENSITIVE = (s1, s2) -> {
         String escaped1 = s1.replaceAll(_defaultEscapedPattern, "");
         String escaped2 = s2.replaceAll(_defaultEscapedPattern, "");
         return escaped1.compareToIgnoreCase(escaped2);
@@ -48,7 +48,7 @@ public class Columns implements IColumns {
         nameComparator = String::compareTo;
         Map<Integer, List<String>> indexes = new HashMap<>();
         Map<String, Integer> map = new LinkedHashMap<>();
-        List<String> names = new PlainList<>();
+        List<String> names = new SimpleTypedList<>();
         int len = columnNames.length;
         indexedColumns = new String[len][];
         for (int i = 0; i < columnNames.length; i++) {
@@ -111,11 +111,11 @@ public class Columns implements IColumns {
 
         indexedColumns = columnDefintions;
         Map<String, Integer> map = new LinkedHashMap<>();
-        List<String> names = new PlainList<>();
+        List<String> names = new SimpleTypedList<>();
         for (int i = 0; i < width; i++) {
             String[] columnDefinition = columnDefintions[i];
             int aliasLength = columnDefinition.length;
-            if(aliasLength==0 || Arrays.stream(columnDefinition).anyMatch(name -> name == null)){
+            if (aliasLength == 0 || Arrays.stream(columnDefinition).anyMatch(Objects::isNull)) {
                 throw new UnsupportedOperationException("Unsupported definitons of column " + i);
             }
             for (int j = 0; j < aliasLength; j++) {
@@ -178,7 +178,7 @@ public class Columns implements IColumns {
         WithValues2<IColumns, IColumns> key = Tuple.create(this, other);
         WithValues<Integer> mappings=null;
         if(!cachedMappings.containsKey(key)){
-            List<Integer> indexes = new PlainList<>();
+            List<Integer> indexes = new SimpleTypedList<>();
             String[][] thisIndexedColumns = getIndexedColumns();
             int width = thisIndexedColumns.length;
             WithValues2<Integer, Integer> indexPair;
@@ -238,10 +238,12 @@ public class Columns implements IColumns {
 
     @Override
     public void putAll(Map<? extends String, ? extends Integer> m) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void clear() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -1,110 +1,209 @@
 package io.github.cruisoring.utility;
 
-import io.github.cruisoring.throwables.PredicateThrowable;
+import io.github.cruisoring.TypedList;
 
 import java.util.*;
 import java.util.function.Supplier;
 
 import static io.github.cruisoring.Asserts.*;
 
-public class ReadOnlyList<E> extends PlainList<E> {
+public class ReadOnlyList<E> implements TypedList<E> {
+
+    static final String UNSUPPORTED = "Writing operation is not supported by ReadOnlyList<E>";
+
+    protected final Class<? extends E> elementType;
+    protected final E[] elements;
+    protected final int upperIndex;
+
 
     public ReadOnlyList(Class<? extends E> elementType, Collection<E> collection) {
-        super(elementType, collection.size(), collection);
+        this.elementType = checkNotNull(elementType, "ElementType must be specified");
+        upperIndex = checkNotNull(collection, "No Collection spedified!").size();
+        final Iterator<E> iterator = collection.iterator();
+        elements = (E[]) ArrayHelper.create(elementType, upperIndex, i -> iterator.next());
     }
 
     public ReadOnlyList(Class<? extends E> elementType, E... values) {
-        super(elementType, values);
+        this.elementType = checkNotNull(elementType, "ElementType must be specified");
+        if (values == null) {
+            upperIndex = 1;
+            elements = (E[]) ArrayHelper.getNewArray(elementType, 1);
+        } else {
+            upperIndex = values.length;
+            elements = Arrays.copyOf(values, values.length);
+        }
     }
 
     public ReadOnlyList(E... values) {
-        super(values);
+        this((Class<? extends E>) (values == null ? Object.class : values.getClass().getComponentType()), values);
     }
 
     public ReadOnlyList(E[] values, int from, int to){
-        super(values, from, to);
+        assertAllFalse(values == null, from < 0, to > values.length, from > to);
+
+        this.elementType = (Class<? extends E>) values.getClass().getComponentType();
+        elements = Arrays.copyOfRange(values, from, to);
+        upperIndex = elements.length;
     }
 
     public ReadOnlyList(Supplier<E[]> initValueSupplier){
-        super(initValueSupplier);
+        assertNotNull(initValueSupplier, "The supplier of init values must be specified");
+        elements = initValueSupplier.get();
+        this.elementType = (Class<? extends E>) elements.getClass().getComponentType();
+        upperIndex = elements.length;
     }
 
     @Override
-    public E[] resize(int capacity) {
-        return null;
-    }
-
-    @Override
-    public boolean add(E e) {
-        return false;
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        return false;
+    public Class<? extends E> getElementType() {
+        return elementType;
     }
 
     @Override
     public int removeByIndexes(Integer... indexes) {
-        return 0;
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends E> c) {
-        return false;
-    }
-
-    @Override
-    public boolean addAll(int index, Collection<? extends E> c) {
-        return false;
+        throw new UnsupportedOperationException(UNSUPPORTED);
     }
 
     @Override
     public boolean insertAll(int index, E... array) {
-        return false;
+        throw new UnsupportedOperationException(UNSUPPORTED);
     }
 
     @Override
     public boolean appendAll(E... array) {
-        return false;
+        throw new UnsupportedOperationException(UNSUPPORTED);
     }
 
     @Override
-    public boolean removeAllMatched(PredicateThrowable<E> predicate) {
-        return false;
+    public ReadOnlyList<E> asReadOnly() {
+        return this;
+    }
+
+    //region Implementation of List interface
+    @Override
+    public int size() {
+        return upperIndex;
     }
 
     @Override
-    public boolean retainAllMatched(PredicateThrowable<E> predicate) {
-        return false;
+    public boolean isEmpty() {
+        return upperIndex == 0;
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
-        return false;
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        return false;
-    }
-
-    @Override
-    public void clear() {
-    }
-
-    @Override
-    public void add(int index, E element) {
-    }
-
-    @Override
-    public E remove(int index) {
-        return null;
+    public boolean contains(Object o) {
+        return indexOf(o) >= 0;
     }
 
     @Override
     public Iterator<E> iterator() {
         return new ReadOnlyListIterator();
+    }
+
+    @Override
+    public Object[] toArray() {
+        return (Object[]) ArrayHelper.create(Object.class, upperIndex, i -> elements[i]);
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+        if (a == null) {
+            return (T[]) ArrayHelper.create(elementType, upperIndex, i -> elements[i]);
+        } else if (a.length < upperIndex) {
+            return (T[]) ArrayHelper.create(a.getClass().getComponentType(), upperIndex, i -> elements[i]);
+        } else {
+            ArrayHelper.setAll(a, i -> i < upperIndex ? elements[i] : null);
+            return a;
+        }
+    }
+
+    @Override
+    public boolean add(E e) {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        Set elementSet = SetHelper.asSet(elements);
+        return elementSet.containsAll(c);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends E> c) {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public boolean addAll(int index, Collection<? extends E> c) {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public E get(int index) {
+        assertAllFalse(index < 0, index > upperIndex);
+        return elements[index];
+    }
+
+    @Override
+    public E set(int index, E element) {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public void add(int index, E element) {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public E remove(int index) {
+        throw new UnsupportedOperationException(UNSUPPORTED);
+    }
+
+    @Override
+    public int indexOf(Object o) {
+        if (o == null) {
+            for (int i = 0; i < upperIndex; i++)
+                if (elements[i] == null)
+                    return i;
+        } else {
+            for (int i = 0; i < upperIndex; i++)
+                if (o.equals(elements[i]))
+                    return i;
+        }
+        return -1;
+    }
+
+    @Override
+    public int lastIndexOf(Object o) {
+        if (o == null) {
+            for (int i = upperIndex - 1; i >= 0; i--)
+                if (elements[i] == null)
+                    return i;
+        } else {
+            for (int i = upperIndex - 1; i >= 0; i--)
+                if (o.equals(elements[i]))
+                    return i;
+        }
+        return -1;
     }
 
     @Override
@@ -114,14 +213,17 @@ public class ReadOnlyList<E> extends PlainList<E> {
 
     @Override
     public ListIterator<E> listIterator(int index) {
+        assertAllFalse(index < 0, index > upperIndex);
         return new ReadOnlyListIterator(index);
     }
 
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
         assertAllFalse(fromIndex < 0, toIndex > upperIndex, fromIndex > toIndex);
-        return new ReadOnlyList<E>(elementType, Arrays.copyOfRange(elements, fromIndex, toIndex));
+        return new ReadOnlyList<>(elementType, Arrays.copyOfRange(elements, fromIndex, toIndex));
     }
+    //endregion
+
 
     public class ReadOnlyListIterator implements ListIterator<E> {
         //Specify the fromIndexInclusive and toIndexExclusive of this ReadOnlyListIterator
@@ -168,7 +270,8 @@ public class ReadOnlyList<E> extends PlainList<E> {
                 throw new NoSuchElementException(StringHelper.tryFormatString(
                         "No next element when cursor(%d) >= toExclusive(%d)", cursor, toExclusive));
             }
-            return elements[lastReturned = cursor++];
+            lastReturned = cursor++;
+            return elements[lastReturned];
         }
 
         @Override
@@ -187,7 +290,8 @@ public class ReadOnlyList<E> extends PlainList<E> {
                 throw new NoSuchElementException(StringHelper.tryFormatString(
                         "No previous element when cursor(%d) <= fromInclusive(%d)", cursor, fromInclusive));
             }
-            return elements[lastReturned = --cursor];
+            lastReturned = --cursor;
+            return elements[lastReturned];
         }
 
         @Override

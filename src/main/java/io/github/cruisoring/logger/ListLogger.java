@@ -1,24 +1,25 @@
 package io.github.cruisoring.logger;
 
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.TypedList;
+import io.github.cruisoring.utility.SimpleTypedList;
 
 import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
- * Logger using {@code PlainList<String>} as InMemory logger.
+ * Logger using {@code SimpleTypedList<String>} as InMemory logger.
  */
 public class ListLogger extends Logger {
-    private final PlainList<String> logList;
+    private final TypedList<String> logList;
 
     public ListLogger() {
         this(LogLevel.verbose);
     }
 
     public ListLogger(LogLevel minLevel) {
-        this(new PlainList<String>(), minLevel);
+        this(new SimpleTypedList<String>(), minLevel);
     }
 
-    public ListLogger(final PlainList<String> list, LogLevel minLevel) {
+    public ListLogger(final TypedList<String> list, LogLevel minLevel) {
         super(log -> checkNoneNulls(list).add(log), minLevel);
         logList = list;
     }
@@ -32,10 +33,10 @@ public class ListLogger extends Logger {
     }
 
     /**
-     * Returns the {@code PlainList<String>} instance backing this {@code ListLogger}
-     * @return the {@code PlainList<String>} instance keeping logged messages that shall not be used to perform write operations.
+     * Returns the {@code SimpleTypedList<String>} instance backing this {@code ListLogger}
+     * @return the {@code SimpleTypedList<String>} instance keeping logged messages that shall not be used to perform write operations.
      */
-    public PlainList<String> getLogList() {
+    public TypedList<String> getLogList() {
         return logList;
     }
 }

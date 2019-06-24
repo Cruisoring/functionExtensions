@@ -13,6 +13,8 @@ import static io.github.cruisoring.Asserts.checkNoneNulls;
  */
 public class CompositeLogger implements ILogger {
 
+    static final String NOT_SUPPORTED = "The CompositeLogger doesn't support this operation";
+
     final ILogger[] loggers;
     final LogLevel minLevel;
 
@@ -65,27 +67,27 @@ public class CompositeLogger implements ILogger {
 
     @Override
     public void save(String message) {
-        throw new NotImplementedException("Not supported");
+        throw new NotImplementedException(NOT_SUPPORTED);
     }
 
     @Override
     public String getMessage(LogLevel level, String format, Object... args) {
-        throw new NotImplementedException("Not supported");
+        throw new NotImplementedException(NOT_SUPPORTED);
     }
 
     @Override
     public <R> R measure(Measurement.Moment startMoment, R value, LogLevel... level) {
-        throw new NotImplementedException("Not supported");
+        throw new NotImplementedException(NOT_SUPPORTED);
     }
 
     @Override
     public <R> R measure(Measurement.Moment startMoment, SupplierThrowable<R> supplier, LogLevel... levels) {
-        throw new NotImplementedException("Not supported");
+        throw new NotImplementedException(NOT_SUPPORTED);
     }
 
     @Override
     public ILogger measure(Measurement.Moment startMoment, RunnableThrowable runnable, LogLevel... levels) {
-        throw new NotImplementedException("Not supported");
+        throw new NotImplementedException(NOT_SUPPORTED);
     }
 
     @Override

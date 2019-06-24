@@ -1,6 +1,6 @@
 package io.github.cruisoring.repository;
 
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import static io.github.cruisoring.Asserts.assertEquals;
 
 public class RepositoryTest {
 
-    List<String> logs = new PlainList();
+    List<String> logs = new SimpleTypedList();
 
     @Test
     public void apply() throws Exception {

@@ -4,11 +4,10 @@ import io.github.cruisoring.logger.LogLevel;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.throwables.ConsumerThrowable;
 import io.github.cruisoring.throwables.RunnableThrowable;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 import io.github.cruisoring.utility.StackTraceHelper;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -32,7 +31,7 @@ public class Revokable<T> implements AutoCloseable {
     //Indicates if the newSettings shall be closed if it is AutoCloseable when closing() is called so as to release its rescources
     public static boolean DefaultCloseNewSetting = true;
 
-    static final List<Revokable> All = new PlainList<>();
+    static final List<Revokable> All = new SimpleTypedList<>();
 
     /**
      * Perform updating a value and register the revoking operation for later calling.
@@ -170,7 +169,7 @@ public class Revokable<T> implements AutoCloseable {
                 Logger.getDefault().log(DefaultLogLevel, "%s is reverted from %s back to %s.",
                     label, newSetting, originalSetting);
             }
-            if (newSetting != null && newSetting instanceof AutoCloseable) {
+            if (newSetting instanceof AutoCloseable) {
                 if(closeNew) {
                     //Close the newSetting to release any resources associated
                     RunnableThrowable runnableThrowable = ((AutoCloseable) newSetting)::close;

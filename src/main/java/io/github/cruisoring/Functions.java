@@ -3,9 +3,10 @@ package io.github.cruisoring;
 import io.github.cruisoring.logger.LogLevel;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.throwables.*;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,7 +23,7 @@ public class Functions {
     //Default LogLevel to log the exception when needed
     public static LogLevel defaultExceptionLogLevel = LogLevel.debug;
 
-    private final static Integer processorNumber = Runtime.getRuntime().availableProcessors();
+    private static final Integer processorNumber = Runtime.getRuntime().availableProcessors();
 
     //The default interval used to perform repetitive operations
     public static long defaultDelayMills = 100;
@@ -56,28 +57,28 @@ public class Functions {
 
     /**
      * Pre-defined handler to return null for any Exception caught.
-     * @param exception the Exception to be handled that might keep the original Exception as its cause.
+     * @param ignored the Exception to be handled that might keep the original Exception as its cause.
      * @return  null no matter what the Exception is.
      */
-    public static Object returnsNull(Exception exception) {
+    public static Object returnsNull(Exception ignored) {
         return null;
     }
 
     /**
      * Pre-defined handler to return <tt>false</tt> for any Exception caught.
-     * @param exception the Exception to be handled that might keep the original Exception as its cause.
+     * @param ignored the Exception to be handled that might keep the original Exception as its cause.
      * @return  <tt>false</tt> no matter what the Exception is.
      */
-    public static Object returnsFalse(Exception exception) {
+    public static Object returnsFalse(Exception ignored) {
         return false;
     }
 
     /**
      * Pre-defined handler to return <tt>true</tt> for any Exception caught.
-     * @param exception the Exception to be handled that might keep the original Exception as its cause.
+     * @param ignored the Exception to be handled that might keep the original Exception as its cause.
      * @return  <tt>true</tt> no matter what the Exception is.
      */
-    public static Object returnsTrue(Exception exception) {
+    public static Object returnsTrue(Exception ignored) {
         return true;
     }
 
@@ -140,10 +141,8 @@ public class Functions {
      * @return A list of converted results from <code>inputs</code> by <code>function</code> or null when Exception caught.
      */
     public static <T, R> List<R> applyParallel(FunctionThrowable<T, R> function, List<T> inputs, long timeoutMills) {
-        List<Callable<R>> callables = new PlainList<>();
-        inputs.stream().forEach(input -> {
-            callables.add(() -> function.apply(input));
-        });
+        List<Callable<R>> callables = new SimpleTypedList<>();
+        inputs.stream().forEach(input -> callables.add(() -> function.apply(input)));
 
         ExecutorService EXEC = Executors.newCachedThreadPool();
         try {
@@ -174,13 +173,11 @@ public class Functions {
      * @param <T>               Type of the value consumed by the concerned business logic
      */
     public static <T> void runParallel(ConsumerThrowable<T> consumerThrowable, Stream<T> paramStream, long timeoutMills) {
-        List<Callable<Void>> callables = new PlainList<>();
-        paramStream.forEach(param -> {
-            callables.add(() -> {
-                consumerThrowable.accept(param);
-                return null;
-            });
-        });
+        List<Callable<Void>> callables = new SimpleTypedList<>();
+        paramStream.forEach(param -> callables.add(() -> {
+            consumerThrowable.accept(param);
+            return null;
+        }));
 
         ExecutorService EXEC = Executors.newCachedThreadPool();
         try {
@@ -204,7 +201,7 @@ public class Functions {
         ExecutorService EXEC = Executors.newFixedThreadPool(threadNumer);
 
         int step = length / threadNumer;
-        List<Callable<Void>> callables = new PlainList<>();
+        List<Callable<Void>> callables = new SimpleTypedList<>();
         try {
             for (int i = 0; i < threadNumer; i++) {
                 final int start = i * step;
@@ -231,13 +228,11 @@ public class Functions {
      * @param timeoutMills Timeout value in Milliseconds
      */
     public static void runParallel(List<RunnableThrowable> tasks, long timeoutMills) {
-        List<Callable<Void>> callables = new PlainList<>();
-        tasks.stream().forEach(runnable -> {
-            callables.add(() -> {
-                runnable.run();
-                return null;
-            });
-        });
+        List<Callable<Void>> callables = new SimpleTypedList<>();
+        tasks.stream().forEach(runnable -> callables.add(() -> {
+            runnable.run();
+            return null;
+        }));
 
         ExecutorService EXEC = Executors.newCachedThreadPool();
         try {
@@ -373,7 +368,7 @@ public class Functions {
      * @return              Value returned by the supplier, otherwise <tt>null</tt>.
      */
     public static <T> T tryGet(SupplierThrowable<T> valueGetter, long timeoutMillis) {
-        return tryGet(valueGetter, timeoutMillis, t -> t != null, defaultDelayMills);
+        return tryGet(valueGetter, timeoutMillis, Objects::nonNull, defaultDelayMills);
     }
 
     private Functions(){}

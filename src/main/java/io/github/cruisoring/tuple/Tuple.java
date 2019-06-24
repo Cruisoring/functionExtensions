@@ -1,9 +1,10 @@
 package io.github.cruisoring.tuple;
 
 import io.github.cruisoring.TypeHelper;
+import io.github.cruisoring.TypedList;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.utility.ArrayHelper;
-import io.github.cruisoring.utility.PlainList;
+import io.github.cruisoring.utility.SimpleTypedList;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -35,7 +36,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @return A strong-typed Tuple containing instances of the same type <tt>T</tt>
      */
     public static <V> Tuple<V> setOf(final V... elements) {
-        return new Tuple<V>(elements);
+        return new Tuple<>(elements);
     }
 
     /**
@@ -48,7 +49,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
      */
     public static <V> Tuple<V> setOfType(final Class<? extends V> elementType, final V... elements) {
         assertAllNotNull(elements, elementType);
-        return new Tuple<V>(elementType, elements);
+        return new Tuple<>(elementType, elements);
     }
 
     /**
@@ -427,8 +428,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
      * @return Element at that index
      * @throws IndexOutOfBoundsException When invalid index is provided
      */
-    public T getValue(int index)
-            throws IndexOutOfBoundsException {
+    public T getValue(int index) {
         if (index < 0 || index >= getLength())
             throw new IndexOutOfBoundsException();
         return values[index];
@@ -441,11 +441,9 @@ public class Tuple<T extends Object> implements ITuple<T> {
         try {
             Predicate<Class> predicate = TypeHelper.getClassEqualitor(clazz);
             Class equivalent = (TypeHelper.isPrimitive(clazz) && !clazz.isArray()) ? TypeHelper.getEquivalentClass(clazz) : clazz;
-            Boolean isArray = clazz.isArray();
-            Class<?> componentType = isArray ? clazz.getComponentType() : null;
 
             int length = getLength();
-            PlainList<U> list = new PlainList<>();
+            TypedList<U> list = new SimpleTypedList<>();
             for (int i = 0; i < length; i++) {
                 Object v = values[i];
                 if (v != null) {
@@ -470,7 +468,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
     @Override
     public <S> Tuple<S> getSetOf(Class<S> clazz, Predicate<S> valuePredicate) {
         assertAllNotNull(clazz, valuePredicate);
-        List<S> matched = new PlainList<>();
+        List<S> matched = new SimpleTypedList<>();
 
         Predicate<Class> classPredicate = TypeHelper.getClassEqualitor(clazz);
 
@@ -481,7 +479,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
                 try {
                     if (classPredicate.test(v.getClass()) && valuePredicate.test((S) v))
                         matched.add((S) v);
-                } catch (Exception ex) {
+                } catch (Exception ignored) {
                 }
             }
         }
@@ -528,7 +526,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof Tuple)) {
+        if (!(obj instanceof Tuple)) {
             return false;
         } else if (obj == this) {
             return true;
@@ -593,7 +591,7 @@ public class Tuple<T extends Object> implements ITuple<T> {
             //Close AutoCloseable object in reverse order
             for (int i = values.length - 1; i >= 0; i--) {
                 Object value = values[i];
-                if (value != null && value instanceof AutoCloseable) {
+                if (value instanceof AutoCloseable) {
                     ((AutoCloseable) value).close();
                     Logger.V("%s closed()", value);
                 }
