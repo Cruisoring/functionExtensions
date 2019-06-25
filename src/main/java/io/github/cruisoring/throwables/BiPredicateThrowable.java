@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -13,7 +13,7 @@ import java.util.function.Function;
  * @param <U> Type of the second argument.
  */
 @FunctionalInterface
-public interface BiPredicateThrowable<T, U> extends ofThrowable<Boolean> {
+public interface BiPredicateThrowable<T, U> extends OfThrowable<Boolean> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 2 arguments and returning result of boolean type
      *
@@ -37,12 +37,12 @@ public interface BiPredicateThrowable<T, U> extends ofThrowable<Boolean> {
 
     /**
      * Execute the given business logic to test the given 2 arguments, return the result or
-     * handle thrown Exception with the default handler of {@code ofThrowable}.
+     * handle thrown Exception with the default handler of {@code OfThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @return The result by testing the given arguments,
-     *      or result returned by the default Exception handler of {@code ofThrowable}.
+     *      or result returned by the default Exception handler of {@code OfThrowable}.
      */
     default boolean tryTest(T t, U u) {
         try {

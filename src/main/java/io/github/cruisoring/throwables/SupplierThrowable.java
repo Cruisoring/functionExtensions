@@ -1,7 +1,7 @@
 package io.github.cruisoring.throwables;
 
+import io.github.cruisoring.OfThrowable;
 import io.github.cruisoring.logger.Logger;
-import io.github.cruisoring.ofThrowable;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface SupplierThrowable<R> extends ofThrowable<R> {
+public interface SupplierThrowable<R> extends OfThrowable<R> {
 
     /**
      * Get a result
@@ -24,9 +24,9 @@ public interface SupplierThrowable<R> extends ofThrowable<R> {
     R get() throws Exception;
 
     /**
-     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code ofThrowable}.
+     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code OfThrowable}.
      *
-     * @return the result of type <tt>T</tt> or let the default handler of {@code ofThrowable} to process
+     * @return the result of type <tt>T</tt> or let the default handler of {@code OfThrowable} to process
      */
     default R tryGet() {
         try {

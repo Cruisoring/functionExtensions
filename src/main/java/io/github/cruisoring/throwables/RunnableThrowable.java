@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -8,7 +8,7 @@ import java.util.function.Function;
  * Functional Interface defined to identify methods returning nothing while their service logic could throw Exceptions.
  */
 @FunctionalInterface
-public interface RunnableThrowable extends ofThrowable {
+public interface RunnableThrowable extends OfThrowable {
 
     /**
      * The abstract method to be mapped to Lambda Expresion accepting no argument and returning nothing.

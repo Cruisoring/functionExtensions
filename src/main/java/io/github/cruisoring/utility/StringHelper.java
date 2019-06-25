@@ -20,7 +20,9 @@ import static io.github.cruisoring.Asserts.assertAllNotNull;
  * Helper class to keep String related utilities.
  */
 public class StringHelper {
-    public final static String PercentageAscii = "&#37";
+    private StringHelper() {}
+    
+    public static final String PercentageAscii = "&#37";
     public static final Function<Object, String[]> defaultToStringForms = StringHelper::commonToStrings;
 
     private static final String[] commonToStrings(Object obj) {
@@ -36,23 +38,23 @@ public class StringHelper {
         return new String[]{obj.toString()};
     }
 
-    public static final BiPredicate<String, String> contains = (s, k) -> StringUtils.contains(s, k);
-    public static final BiPredicate<String, String> containsIgnoreCase = (s, k) -> StringUtils.containsIgnoreCase(s, k);
-    private static final Repository<Class, FunctionThrowable<String, Object>> stringParsers = new Repository<Class, FunctionThrowable<String, Object>>(
+    public static final BiPredicate<String, String> contains = StringUtils::contains;
+    public static final BiPredicate<String, String> containsIgnoreCase = StringUtils::containsIgnoreCase;
+    private static final Repository<Class, FunctionThrowable<String, Object>> stringParsers = new Repository<>(
             new HashMap<Class, FunctionThrowable<String, Object>>() {{
-                put(Integer.class, s -> Integer.decode(s));
+                put(Integer.class, Integer::decode);
                 put(int.class, s -> Integer.decode(s).intValue());
-                put(Double.class, s -> Double.valueOf(s));
+                put(Double.class, Double::valueOf);
                 put(double.class, s -> Double.valueOf(s).doubleValue());
-                put(Short.class, s -> Short.valueOf(s));
+                put(Short.class, Short::valueOf);
                 put(short.class, s -> Short.valueOf(s).shortValue());
-                put(Long.class, s -> Long.valueOf(s));
+                put(Long.class, Long::valueOf);
                 put(long.class, s -> Long.valueOf(s).longValue());
-                put(Boolean.class, s -> Boolean.valueOf(s));
+                put(Boolean.class, Boolean::valueOf);
                 put(boolean.class, s -> Boolean.valueOf(s).booleanValue());
-                put(Float.class, s -> Float.valueOf(s));
+                put(Float.class, Float::valueOf);
                 put(float.class, s -> Float.valueOf(s).floatValue());
-                put(Byte.class, s -> Byte.valueOf(s));
+                put(Byte.class, Byte::valueOf);
                 put(byte.class, s -> Byte.valueOf(s).byteValue());
                 put(Character.class, s -> Character.valueOf(s.charAt(0)));
                 put(char.class, s -> s.charAt(0));

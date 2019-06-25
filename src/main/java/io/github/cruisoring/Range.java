@@ -258,44 +258,21 @@ public class Range implements Comparable<Range> {
             Integer index = allIndexes.get(i);
 
             if (belowRange) {
-                if (index < lower)
-                    continue;
-                if (range.contains(index)) {
-                    result.add(index);
-                } else if (index > upper) {
-                    return result;
+                if(index >= lower) {
+                    if (range.contains(index)) {
+                        result.add(index);
+                    } else if (index > upper) {
+                        return result;
+                    }
+                    belowRange = false;
                 }
-                belowRange = false;
-            } else {
-                if (range.contains(index)) {
-                    result.add(index);
-                } else if (index > upper) {
-                    return result;
-                }
+            } else if (range.contains(index)) {
+                result.add(index);
+            } else if (index > upper) {
+                return result;
             }
         }
         return result;
-    }
-
-    private static List<Range> getPairsWithValueRanges(java.util.Set<Range> nameRangeSet, Collection<Range> valueRanges, java.util.Set<Integer> indicatorIndexes) {
-        List<Range> nvpRanges = new SimpleTypedList<>();
-        for (Range valueRange : valueRanges) {
-            Range nameRange = nameRangeSet.stream()
-                    .filter(scope -> scope.getEndInclusive() < valueRange.getStartInclusive())
-                    .sorted(comparing(Range::getEndInclusive).reversed())
-                    .findFirst().orElse(null);
-            if (nameRange != null) {
-                Range gapRange = valueRange.gapWith(nameRange);
-                List<Integer> colonsWithin = indicatorIndexes.stream().filter(gapRange::contains).collect(Collectors.toList());
-                Asserts.assertTrue(colonsWithin.size() == 1,
-                        String.format("Failed to get one single indictor between '%s' and '%s'", nameRange, valueRange));
-                Range nameValueRange = nameRange.intersectionWith(valueRange);
-                nameRangeSet.remove(nameRange);
-                indicatorIndexes.remove(colonsWithin.get(0));
-                nvpRanges.add(nameValueRange);
-            }
-        }
-        return nvpRanges;
     }
 
     /**
@@ -602,19 +579,16 @@ public class Range implements Comparable<Range> {
      * @param ranges Sorted Ranges instances with no one overlaps with another to be evaluated.
      * @return All Range instances contained by this Range only.
      */
-    public List<Range> getChildRanges(TreeSet<Range> ranges) {
+    public List<Range> getChildRanges(SortedSet<Range> ranges) {
         List<Range> children = new SimpleTypedList<>();
         Range lastChild = null;
         for (Range range : ranges) {
             if (_end < range._start) {
                 return children;
             } else if (equals(range)) {
-                continue;
-            } else if (contains(range)) {
-                if (lastChild == null || !lastChild.contains(range)) {
-                    children.add(range);
-                    lastChild = range;
-                }
+            } else if (contains(range) && (lastChild == null || !lastChild.contains(range))) {
+                children.add(range);
+                lastChild = range;
             }
         }
         return children;
@@ -626,7 +600,7 @@ public class Range implements Comparable<Range> {
      * @param indexes Sorted indexes to be evaluated.
      * @return All indexes fall into this Range but not on the boundries as a list.
      */
-    public List<Integer> getWithinIndexes(TreeSet<Integer> indexes) {
+    public List<Integer> getWithinIndexes(SortedSet<Integer> indexes) {
         SortedSet<Integer> withinSet = indexes.subSet(_start + 1, _end - 1);
         List<Integer> children = new SimpleTypedList(Integer.class, withinSet);
         return children;
@@ -655,12 +629,12 @@ public class Range implements Comparable<Range> {
         assertAllFalse(_start == NEGATIVE_INFINITY, _end == POSITIVE_INFINITY);
 
         //Let it throw ArithmeticException if overflow happens
-        int size = Math.toIntExact(this.size);
+        int len = Math.toIntExact(this.size);
         List<Integer> list = new SimpleTypedList();
         for (int count = 0, current = _start; current < _end; current++, count++) {
             list.add(count == 0 ? 0 : random.nextInt(count + 1), current);
         }
-        return list.toArray(new Integer[size]);
+        return list.toArray(new Integer[len]);
     }
 
     /**

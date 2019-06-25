@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -17,7 +17,7 @@ import java.util.function.Function;
  * @param <Z> Type of the seventh argument.
  */
 @FunctionalInterface
-public interface HeptaConsumerThrowable<T, U, V, W, X, Y, Z> extends ofThrowable {
+public interface HeptaConsumerThrowable<T, U, V, W, X, Y, Z> extends OfThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 7 arguments and returning nothing.
      *

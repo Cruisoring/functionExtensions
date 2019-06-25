@@ -1,18 +1,27 @@
 package io.github.cruisoring;
 
+import io.github.cruisoring.logger.LogLevel;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.utility.ArrayHelper;
 import io.github.cruisoring.utility.SetHelper;
 import io.github.cruisoring.utility.StringHelper;
+import org.junit.AfterClass;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.function.Predicate;
 
 import static io.github.cruisoring.Asserts.*;
 
 public class AssertsTest {
 
+    static Revokable<LogLevel> revokable = Revokable.register(() -> defaultLogLevel, l -> defaultLogLevel=l, LogLevel.info);
+
+    @AfterClass
+    public static void afterAssertsTests(){
+        if(revokable != null) {
+            revokable.close();
+        }
+    }
 
     void methodNeedNotNullArguments(Integer num, Number... others){
         assertAllNotNull(num, others);

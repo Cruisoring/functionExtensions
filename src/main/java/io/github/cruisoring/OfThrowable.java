@@ -6,7 +6,7 @@ package io.github.cruisoring;
  *
  * @param <R> optional type of the returned value
  */
-public interface ofThrowable<R> {
+public interface OfThrowable<R> {
 
     /**
      * The default handler of an Exception, just throw a {@code RuntimeException} with the original Exception as the cause.

@@ -678,7 +678,7 @@ public class TypeHelperTest {
 
             assertEquals(new Function[0], getDefaultValue(Function[].class));
             assertAllFalse(valueEquals(new Function[0], getDefaultValue(FunctionThrowable[].class)));
-            assertEquals(new ofThrowable[0], getDefaultValue(ofThrowable[].class));
+            assertEquals(new OfThrowable[0], getDefaultValue(OfThrowable[].class));
             assertEquals(new Predicate[0][], getDefaultValue(Predicate[][].class));
         } else {
             assertAllNull(getDefaultValue(int[].class), getDefaultValue(short[][].class), getDefaultValue(Byte[].class));

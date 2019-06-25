@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -12,7 +12,7 @@ import java.util.function.Predicate;
  * @param <T> Type of the first argument.
  */
 @FunctionalInterface
-public interface PredicateThrowable<T> extends ofThrowable<Boolean> {
+public interface PredicateThrowable<T> extends OfThrowable<Boolean> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 7 arguments and returning result of boolean type
      *
@@ -33,7 +33,7 @@ public interface PredicateThrowable<T> extends ofThrowable<Boolean> {
 
     /**
      * Execute the given business logic to evaluate the given statement, return the result or
-     * handle thrown Exception with the default handler of {@code ofThrowable}..
+     * handle thrown Exception with the default handler of {@code OfThrowable}..
      *
      * @param t The first argument of type <code>T</code>.
      * @return The result of applying the given arguments.
@@ -68,7 +68,7 @@ public interface PredicateThrowable<T> extends ofThrowable<Boolean> {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryTest;
         } else {
-            Predicate<T> predicate = (t) -> {
+            Predicate<T> predicate = t -> {
                 try {
                     return test(t);
                 } catch (Exception e) {
@@ -87,7 +87,7 @@ public interface PredicateThrowable<T> extends ofThrowable<Boolean> {
      * @return Converted {@code Predicate<T>} that would return evaluated result
      */
     default Predicate<T> orElse(boolean defaultValue) {
-        Predicate<T> predicate = (t) -> {
+        Predicate<T> predicate = t -> {
             try {
                 return test(t);
             } catch (Exception e) {

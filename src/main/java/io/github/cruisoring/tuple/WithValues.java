@@ -20,7 +20,7 @@ public interface WithValues<T> extends Comparable {
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
-    T getValue(int index) throws IndexOutOfBoundsException;
+    T getValue(int index);
 
     /**
      * Returns the number of elements in this list.
@@ -58,8 +58,8 @@ public interface WithValues<T> extends Comparable {
      * @return      <code>true</code> if element values at the concerned positions are matched, otherwise <code>false</code>
      */
     default boolean isMatched(Map<Integer, Object> expectedValues){
-        for (Integer index : expectedValues.keySet()) {
-            if(!TypeHelper.valueEquals(expectedValues.get(index), getValue(index))){
+        for (Map.Entry<Integer, Object> entry : expectedValues.entrySet()) {
+            if(!TypeHelper.valueEquals(entry.getValue(), getValue(entry.getKey()))){
                 return false;
             }
         }
@@ -73,8 +73,8 @@ public interface WithValues<T> extends Comparable {
      * @return      <code>true</code> if element values at the concerned positions meet all conditions, otherwise <code>false</code>
      */
     default boolean meetConditions(Map<Integer, PredicateThrowable> expectedConditions){
-        for (Integer index : expectedConditions.keySet()) {
-            if(!expectedConditions.get(index).withHandler().test(getValue(index))){
+        for (Map.Entry<Integer, PredicateThrowable> entry : expectedConditions.entrySet()) {
+            if(!entry.getValue().withHandler().test(getValue(entry.getKey()))){
                 return false;
             }
         }

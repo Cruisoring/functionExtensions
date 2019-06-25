@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -14,7 +14,7 @@ import java.util.function.Function;
  * @param <W> Type of the fourth argument.
  */
 @FunctionalInterface
-public interface QuadConsumerThrowable<T, U, V, W> extends ofThrowable {
+public interface QuadConsumerThrowable<T, U, V, W> extends OfThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 4 arguments and returning nothing.
      *

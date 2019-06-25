@@ -13,26 +13,29 @@ import java.util.Iterator;
 import java.util.function.Predicate;
 
 import static io.github.cruisoring.TypeHelper.valueEquals;
+import static io.github.cruisoring.utility.StringHelper.tryFormatString;
 
 /**
  * Helper to evaluate test outcomes with handy static classes to throw {@code Exception} when a test failed to meet expectation.
  */
 public class Asserts {
 
-    public static LogLevel defaultLogLevel = LogLevel.info;
+    public static LogLevel defaultLogLevel = LogLevel.debug;
+
+    private Asserts(){}
 
     /**
-     * Use the {@code Logger.Default} to compose and log message with level specified by <tt>defaultLogLevel</tt>.
+     * Use the {@code Logger.Default} to log the concerned Exception with level specified by <tt>defaultLogLevel</tt>.
      *
-     * @param format Format to compose the message body.
-     * @param args   Optional argument to compose the message.
+     * @param exception   the Exception to be logged.
      * @return the composed message with given format and args.
      */
-    protected static String log(String format, Object... args) {
-        if (Logger.Default != null) {
-            Logger.Default.log(defaultLogLevel, format, args);
+    protected static RuntimeException logRuntimeException(Exception exception) {
+        if (Logger.Default != null && exception != null) {
+            Logger.Default.log(defaultLogLevel, exception);
         }
-        return StringHelper.tryFormatString(format, args);
+        return (exception instanceof RuntimeException) ? 
+                (RuntimeException) exception : new IllegalStateException(exception);
     }
 
     /**
@@ -43,7 +46,7 @@ public class Asserts {
      * @return Not used, <tt>true</tt> to indicate all good.
      */
     public static boolean fail(String format, Object... args) {
-        throw new IllegalStateException(log(format, args));
+        throw logRuntimeException(new IllegalStateException(tryFormatString(format, args)));
     }
 
     //region Evaluate multiple conditions only by throw IllegalStateException with the index of problematic statement
@@ -56,13 +59,14 @@ public class Asserts {
      */
     public static void assertAllTrue(boolean first, boolean... expressions) {
         if(!first) {
-            throw new IllegalStateException(log("The first expresion is false when true is expected."));
+            throw logRuntimeException(new IllegalStateException("The first expresion is false when true is expected."));
         }
 
         int length = expressions.length;
         for (int i = 0; i < length; i++) {
             if (!expressions[i]) {
-                throw new IllegalStateException(log("The %dth expresion is false when true is expected.", i+1));
+                throw logRuntimeException(new IllegalStateException(
+                        tryFormatString("The %dth expresion is false when true is expected.", i+1)));
             }
         }
     }
@@ -76,13 +80,14 @@ public class Asserts {
      */
     public static void assertAllFalse(boolean first, boolean... expressions) {
         if(first) {
-            throw new IllegalStateException(log("The first expression is true when false is expected"));
+            throw logRuntimeException(new IllegalStateException("The first expression is true when false is expected"));
         }
 
         int length = expressions.length;
         for (int i = 0; i < length; i++) {
             if (expressions[i]) {
-                throw new IllegalStateException(log("The %dth expression is true when false is expected", 1+i));
+                throw logRuntimeException(new IllegalStateException(
+                        tryFormatString("The %dth expression is true when false is expected", 1+i)));
             }
         }
     }
@@ -96,13 +101,16 @@ public class Asserts {
      */
     public static <T> void assertAllNull(T first, T... others) {
         if (first != null) {
-            throw new IllegalStateException(log("The first object should be null: %s", TypeHelper.deepToString(first)));
+            throw logRuntimeException(new IllegalStateException(tryFormatString("The first object should be null: %s", TypeHelper.deepToString(first))));
+        } else if (others == null) {
+            return;
         }
 
         int length = others.length;
         for (int i = 0; i < length; i++) {
             if (others[i] != null) {
-                throw new NullPointerException(log("The %dth object should be null: %s", i+1, TypeHelper.deepToString(others[i])));
+                throw logRuntimeException(new NullPointerException(
+                        tryFormatString("The %dth object should be null: %s", i+1, TypeHelper.deepToString(others[i]))));
             }
         }
     }
@@ -116,7 +124,9 @@ public class Asserts {
      */
     public static <T> void assertAllNotNull(T reference, T... others) {
         if (reference == null) {
-            throw new NullPointerException(log("The first object should not be null"));
+            throw logRuntimeException(new NullPointerException("The first object should not be null"));
+        } else if (others == null) {
+            throw logRuntimeException(new NullPointerException("The second object should not be null"));
         }
 
         int length = others.length;
@@ -124,13 +134,13 @@ public class Asserts {
             length = Array.getLength(reference);
             for (int i = 0; i < length; i++) {
                 if (Array.get(reference, i) == null) {
-                    throw new NullPointerException(log("The %dth object should not be null!", i+1));
+                    throw logRuntimeException(new NullPointerException(tryFormatString("The %dth object should not be null!", i+1)));
                 }
             }
         } else {
             for (int i = 0; i < length; i++) {
                 if (others[i] == null) {
-                    throw new NullPointerException(log("The %dth object should not be null!", i+1));
+                    throw logRuntimeException(new NullPointerException(tryFormatString("The %dth object should not be null!", i+1)));
                 }
             }
         }
@@ -148,7 +158,7 @@ public class Asserts {
      */
     public static void assertTrue(boolean expression, String format, Object... args) {
         if (!expression) {
-            throw new IllegalStateException(log(format, args));
+            throw logRuntimeException(new IllegalStateException(tryFormatString(format, args)));
         }
     }
 
@@ -162,7 +172,7 @@ public class Asserts {
      */
     public static void assertFalse(boolean expression, String format, Object... args) {
         if (expression) {
-            throw new IllegalStateException(log(format, args));
+            throw logRuntimeException(new IllegalStateException(tryFormatString(format, args)));
         }
     }
 
@@ -176,7 +186,7 @@ public class Asserts {
      */
     public static void assertNull(Object object, String format, Object... args) {
         if (object != null) {
-            throw new IllegalStateException(log(format, args));
+            throw logRuntimeException(new IllegalStateException(tryFormatString(format, args)));
         }
     }
 
@@ -190,7 +200,7 @@ public class Asserts {
      */
     public static void assertNotNull(Object object, String format, Object... args) {
         if (object == null) {
-            throw new NullPointerException(log(format, args));
+            throw logRuntimeException(new NullPointerException(tryFormatString(format, args)));
         }
     }
 
@@ -205,21 +215,26 @@ public class Asserts {
      * @throws IllegalStateException if {@code expected} is not equal with {@code actual}
      */
     public static void assertEquals(Object expected, Object actual, boolean matchTypeExactly) {
+        final String template = "%s !== %s";
         if (expected == null && actual == null) {
             return;
         } else if (expected == null) {
-            throw new IllegalStateException(log("%s !== %s", "null",  TypeHelper.deepToString(actual)));
+            throw logRuntimeException(new IllegalStateException(
+                    tryFormatString(template, "null",  TypeHelper.deepToString(actual))));
         } else if (actual == null) {
-            throw new IllegalStateException(log("%s !== %s",  TypeHelper.deepToString(expected), "null"));
+            throw logRuntimeException(new IllegalStateException(
+                    tryFormatString(template,  TypeHelper.deepToString(expected), "null")));
         }
 
         if (matchTypeExactly && expected.getClass() != actual.getClass()) {
-            throw new IllegalStateException(log("Expect value of type %s, but actual value is of type %s",
-                expected.getClass().getSimpleName(), actual.getClass().getSimpleName()));
+            throw logRuntimeException(new IllegalStateException(
+                    tryFormatString("Expect value of type %s, but actual value is of type %s",
+                expected.getClass().getSimpleName(), actual.getClass().getSimpleName())));
         }
 
         if (!valueEquals(expected, actual)) {
-            throw new IllegalStateException(log("%s !== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual)));
+            throw logRuntimeException(new IllegalStateException(
+                    tryFormatString(template, TypeHelper.deepToString(expected), TypeHelper.deepToString(actual))));
         }
     }
 
@@ -235,7 +250,7 @@ public class Asserts {
      */
     public static void assertNotEquals(Object expected, Object actual, boolean matchTypeExactly) {
         if (expected == null && actual == null) {
-            throw new IllegalStateException(log("Both values are nulls."));
+            throw logRuntimeException(new IllegalStateException("Both values are nulls."));
         } else if (expected == null || actual == null) {
             return;
         }
@@ -245,8 +260,8 @@ public class Asserts {
         }
 
         if (valueEquals(expected, actual)) {
-            throw new IllegalStateException(
-                log("%s !=== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual)));
+            throw logRuntimeException(new IllegalStateException(
+                    tryFormatString("%s !=== %s", TypeHelper.deepToString(expected), TypeHelper.deepToString(actual))));
         }
     }
 
@@ -422,7 +437,7 @@ public class Asserts {
      */
     public static <R> R checkNotNull(R reference, String format, Object... args) {
         if (reference == null) {
-            throw new NullPointerException(log(format, args));
+            throw logRuntimeException(new NullPointerException(tryFormatString(format, args)));
         }
         return reference;
     }
@@ -438,26 +453,22 @@ public class Asserts {
      */
     public static <T> T checkNoneNulls(T reference, Object... others) {
         if (reference == null) {
-            throw new NullPointerException(log("the first argument is null"));
+            throw logRuntimeException(new NullPointerException(tryFormatString("the first argument is null")));
         }
 
         int length = others.length;
         if (length == 0 && reference.getClass().isArray()) {
             length = Array.getLength(reference);
-            if (length == 0) {
-                throw new UnsupportedOperationException(log("the optional arguments shall not be included"));
-            }
-
             for (int i = 0; i < length; i++) {
                 if (Array.get(reference, i) == null) {
-                    throw new NullPointerException(log("The %dth reference is null!", i+1));
+                    throw logRuntimeException(new NullPointerException(tryFormatString("The %dth reference is null!", i+1)));
                 }
             }
             return (T) Array.get(reference, 0);
         } else {
             for (int i = 0; i < length; i++) {
                 if (others[i] == null) {
-                    throw new NullPointerException(log("The %dth reference is null!", i+1));
+                    throw logRuntimeException(new NullPointerException(tryFormatString("The %dth reference is null!", i+1)));
                 }
             }
             return reference;
@@ -480,22 +491,22 @@ public class Asserts {
             supplier.get();
         } catch (Exception e) {
             if (e.getClass() != exceptionClass) {
-                throw new IllegalStateException(
-                    log("Unexpected type of Exception: expected is %s, actual is %s.", exceptionClass.getSimpleName(), e.getClass().getSimpleName()));
+                throw logRuntimeException(new IllegalStateException(tryFormatString(
+                    "Unexpected type of Exception: expected is %s, actual is %s.", exceptionClass.getSimpleName(), e.getClass().getSimpleName())));
             } else if (keywords != null && keywords.length > 0) {
                 if (StringHelper.containsAll(e.getMessage(), keywords)) {
                     return null;
                 } else {
                     String[] keyStrings = Arrays.stream(keywords).map(o -> o == null ? "null" : o.toString()).toArray(String[]::new);
-                    throw new IllegalStateException(
-                        log("Some keys (%s) are missing: %s", String.join(", ", keyStrings), e.getMessage()));
+                    throw logRuntimeException(new IllegalStateException(tryFormatString(
+                            "Some keys (%s) are missing: %s", String.join(", ", keyStrings), e.getMessage())));
                 }
             } else {
                 return null;
             }
         }
 
-        throw new IllegalStateException(log("No exception of %s thrown", exceptionClass.getSimpleName()));
+        throw logRuntimeException(new IllegalStateException(tryFormatString("No exception of %s thrown", exceptionClass.getSimpleName())));
     }
 
     /**
@@ -510,18 +521,16 @@ public class Asserts {
             runnableThrowable.run();
         } catch (Exception e) {
             if (e.getClass() != exceptionClass) {
-                throw new IllegalStateException(
-                    log("Unexpected type of Exception: expected is %s, actual is %s.", exceptionClass.getSimpleName(), e.getClass().getSimpleName()));
-            } else if (keywords != null && keywords.length > 0) {
-                if (!StringHelper.containsAll(e.getMessage(), keywords)) {
-                    String[] keyStrings = Arrays.stream(keywords).map(o -> o == null ? "null" : o.toString()).toArray(String[]::new);
-                    throw new IllegalStateException(log("Some keys (%s) are missing: %s", String.join(", ", keyStrings), e.getMessage()));
-                }
+                throw logRuntimeException(new IllegalStateException(tryFormatString(
+                    "Unexpected type of Exception: expected is %s, actual is %s.", exceptionClass.getSimpleName(), e.getClass().getSimpleName())));
+            } else if (keywords != null && keywords.length > 0 && !StringHelper.containsAll(e.getMessage(), keywords)) {
+                String[] keyStrings = Arrays.stream(keywords).map(o -> o == null ? "null" : o.toString()).toArray(String[]::new);
+                throw logRuntimeException(new IllegalStateException(tryFormatString("Some keys (%s) are missing: %s", String.join(", ", keyStrings), e.getMessage())));
             }
             return;
         }
 
-        throw new IllegalStateException(log("No exception of %s thrown", exceptionClass.getSimpleName()));
+        throw logRuntimeException(new IllegalStateException(tryFormatString("No exception of %s thrown", exceptionClass.getSimpleName())));
     }
 
     /**

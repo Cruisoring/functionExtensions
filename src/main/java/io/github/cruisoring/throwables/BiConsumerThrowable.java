@@ -1,7 +1,7 @@
 package io.github.cruisoring.throwables;
 
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -14,7 +14,7 @@ import java.util.function.Function;
  * @param <U> Type of the second argument.
  */
 @FunctionalInterface
-public interface BiConsumerThrowable<T, U> extends ofThrowable {
+public interface BiConsumerThrowable<T, U> extends OfThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 2 arguments and returning nothing.
      *

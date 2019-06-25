@@ -115,28 +115,31 @@ public class Lazy<T> implements AutoCloseable {
      * When value created, closing it and release any resource bounded if the instance is AutoCloseable.
      */
     public void closing() {
-        if (!isClosed) {
-            isClosed = true;
-            if (dependencies != null && !dependencies.isEmpty()) {
-                for (int i = dependencies.size() - 1; i >= 0; i--) {
-                    AutoCloseable child = dependencies.get(i);
-                    if(child != null) {
-                        RunnableThrowable runnableThrowable = child::close;
-                        runnableThrowable.withHandler(Functions::logAndReturnsNull).run();
-                    }
+        if (isClosed) {
+            return;
+        }
+
+        isClosed = true;
+        //Close dependencies one by one in reversed order
+        if (dependencies != null) {
+            for (int i = dependencies.size() - 1; i >= 0; i--) {
+                AutoCloseable child = dependencies.get(i);
+                if(child != null) {
+                    RunnableThrowable runnableThrowable = child::close;
+                    runnableThrowable.withHandler(Functions::logAndReturnsNull).run();
                 }
-                dependencies.clear();
             }
-            if (isInitialized) {
-                isInitialized = false;
-                if (value instanceof AutoCloseable) {
-                    Functions.tryRun(((AutoCloseable) value)::close);
-                }
-                T currentValue = value;
-                value = null;
-                if (actionOnChanges != null) {
-                    actionOnChanges.withHandler(Functions::logAndReturnsNull).accept(currentValue, null);
-                }
+            dependencies.clear();
+        }
+        if (isInitialized) {
+            isInitialized = false;
+            if (value instanceof AutoCloseable) {
+                Functions.tryRun(((AutoCloseable) value)::close);
+            }
+            T currentValue = value;
+            value = null;
+            if (actionOnChanges != null) {
+                actionOnChanges.withHandler(Functions::logAndReturnsNull).accept(currentValue, null);
             }
         }
     }

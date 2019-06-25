@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
  */
 public class StackTraceHelper {
 
+    private StackTraceHelper(){}
+
     /**
      * Java JDK or Logger class names that shall be neglected and used as indicators to locate the customer class methods
      */
@@ -38,14 +40,14 @@ public class StackTraceHelper {
         for (int i = 0; i < stacks.length; i++) {
             String className = stacks[i].getClassName();
             if (first == -1) {
-                if (!tuple.anyMatch(s -> className.equals(s))) {
+                if (!tuple.anyMatch(className::equals)) {
                     first = i;
                 } else {
                     continue;
                 }
             }
             last = i;
-            if (tuple.anyMatch(s -> className.equals(s))) {
+            if (tuple.anyMatch(className::equals)) {
                 break;
             }
         }
@@ -68,7 +70,7 @@ public class StackTraceHelper {
      */
     public static List<String> getFilteredCallers(String... filters) {
         List<StackTraceElement> stacks = getFilteredStacks(500, null, filters);
-        List<String> classNames = stacks.stream().map(stack -> stack.getClassName()).collect(Collectors.toList());
+        List<String> classNames = stacks.stream().map(StackTraceElement::getClassName).collect(Collectors.toList());
 
         return classNames;
     }

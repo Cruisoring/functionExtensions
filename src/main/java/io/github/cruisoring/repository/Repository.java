@@ -42,7 +42,8 @@ public class Repository<TKey, TValue>
                       FunctionThrowable<TKey, TValue> valueFunction) {
         storage = checkNoneNulls(map, valueFunction);
         this.valueFunctionThrowable = valueFunction;
-        this.changesConsumer = changesConsumer != null ? changesConsumer : (USE_DEFAULT_CHNAGES_LOG ? this::defaultChangesLog : null);
+        TriConsumerThrowable<TKey, TValue, TValue> changeLog = USE_DEFAULT_CHNAGES_LOG ? this::defaultChangesLog : null;
+        this.changesConsumer = changesConsumer != null ? changesConsumer : changeLog;
     }
 
     /**

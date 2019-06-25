@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -12,7 +12,7 @@ import java.util.function.Function;
  * @param <T> Type of the first argument.
  */
 @FunctionalInterface
-public interface ConsumerThrowable<T> extends ofThrowable {
+public interface ConsumerThrowable<T> extends OfThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 1 argument and returning nothing.
      *

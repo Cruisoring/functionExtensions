@@ -14,6 +14,8 @@ public class DateTimeHelper {
     static Repository<String, DateTimeFormatter> dateFormatRepository = new Repository<>(
         DateTimeFormatter::ofPattern);
 
+    private DateTimeHelper(){}
+
     /**
      * Convert the given LocalDate instance to selected format.
      *

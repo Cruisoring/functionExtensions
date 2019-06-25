@@ -49,7 +49,7 @@ public interface IColumns extends Map<String, Integer> {
       or {@code -1} if this map contains no mapping for the key.
      */
     default Integer get(Object key) {
-        if(key == null || !(key instanceof String)){
+        if(!(key instanceof String)){
             return -1;
         }
 

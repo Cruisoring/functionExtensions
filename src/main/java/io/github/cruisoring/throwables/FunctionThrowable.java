@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -12,7 +12,7 @@ import java.util.function.Function;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface FunctionThrowable<T, R> extends ofThrowable<R> {
+public interface FunctionThrowable<T, R> extends OfThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 1 argument and returning result of type <code>R</code>
      *
@@ -24,11 +24,11 @@ public interface FunctionThrowable<T, R> extends ofThrowable<R> {
 
     /**
      * Execute the given business logic to return the generated value or
-     * handle thrown Exception with the default handler of {@code ofThrowable}.
+     * handle thrown Exception with the default handler of {@code OfThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @return the result of type <tt>R</tt> if evaluating the given argments successfully,
-     * or let the default handler of {@code ofThrowable} to process
+     * or let the default handler of {@code OfThrowable} to process
      */
     default R tryApply(T t) {
         try {
@@ -59,7 +59,7 @@ public interface FunctionThrowable<T, R> extends ofThrowable<R> {
         if(exceptionHandlers == null || exceptionHandlers.length == 0) {
             return this::tryApply;
         } else {
-            Function<T, R> function = (t) -> {
+            Function<T, R> function = t -> {
                 try {
                     return apply(t);
                 } catch (Exception e) {
@@ -78,7 +78,7 @@ public interface FunctionThrowable<T, R> extends ofThrowable<R> {
      * @return Converted Function&lt;T,R&gt; that get Exceptions handled with the first of exceptionHandlers if given, otherwise {@code this::tryAccept} if no exceptionHandler specified
      */
     default Function<T, R> orElse(R defaultValue) {
-        Function<T, R> function = (t) -> {
+        Function<T, R> function = t -> {
             try {
                 return apply(t);
             } catch (Exception e) {

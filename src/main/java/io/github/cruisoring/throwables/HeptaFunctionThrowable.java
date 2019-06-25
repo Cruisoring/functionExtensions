@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -18,7 +18,7 @@ import java.util.function.Function;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R> extends ofThrowable<R> {
+public interface HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R> extends OfThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 7 arguments and returning result of type <code>R</code>
      *
@@ -36,7 +36,7 @@ public interface HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R> extends ofThrowa
 
     /**
      * Execute the given business logic to return the generated value or
-     * handle thrown Exception with the default handler of {@code ofThrowable}.
+     * handle thrown Exception with the default handler of {@code OfThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
@@ -45,7 +45,7 @@ public interface HeptaFunctionThrowable<T, U, V, W, X, Y, Z, R> extends ofThrowa
      * @param x The fifth argument of type <code>X</code>.
      * @param y The sixth argument of type <code>Y</code>.
      * @param z The seventh argument of type <code>Z</code>.
-     * @return the result of type <tt>R</tt> if evaluating the given argments successfully, or let the default handler of {@code ofThrowable} to process
+     * @return the result of type <tt>R</tt> if evaluating the given argments successfully, or let the default handler of {@code OfThrowable} to process
      */
     default R tryApply(T t, U u, V v, W w, X x, Y y, Z z) {
         try {

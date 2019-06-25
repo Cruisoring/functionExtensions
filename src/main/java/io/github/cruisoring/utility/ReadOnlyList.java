@@ -100,15 +100,22 @@ public class ReadOnlyList<E> implements TypedList<E> {
     }
 
     @Override
+    /**
+     * Returns a new array, of the identical componentType as retained by this List,
+     * containing all of the elements in this list in proper sequence (from first to last element).
+     */
     public Object[] toArray() {
-        return (Object[]) ArrayHelper.create(Object.class, upperIndex, i -> elements[i]);
+        return Arrays.copyOf(elements, upperIndex);
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
         if (a == null) {
-            return (T[]) ArrayHelper.create(elementType, upperIndex, i -> elements[i]);
-        } else if (a.length < upperIndex) {
+            return (T[]) toArray();
+        }
+
+        if (a.length < upperIndex) {
+            //Notice ArrayHelper.create() could throw ArrayStoreException if the type T is not compatible with elementType
             return (T[]) ArrayHelper.create(a.getClass().getComponentType(), upperIndex, i -> elements[i]);
         } else {
             ArrayHelper.setAll(a, i -> i < upperIndex ? elements[i] : null);

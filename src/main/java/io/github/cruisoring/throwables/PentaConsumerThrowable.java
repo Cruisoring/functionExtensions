@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -15,7 +15,7 @@ import java.util.function.Function;
  * @param <X> Type of the fifth argument.
  */
 @FunctionalInterface
-public interface PentaConsumerThrowable<T, U, V, W, X> extends ofThrowable {
+public interface PentaConsumerThrowable<T, U, V, W, X> extends OfThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 5 arguments and returning nothing.
      *

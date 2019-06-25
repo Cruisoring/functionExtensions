@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -13,7 +13,7 @@ import java.util.function.Function;
  * @param <V> Type of the third argument.
  */
 @FunctionalInterface
-public interface TriConsumerThrowable<T, U, V> extends ofThrowable {
+public interface TriConsumerThrowable<T, U, V> extends OfThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 3 arguments and returning nothing.
      *

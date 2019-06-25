@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -16,7 +16,7 @@ import java.util.function.Function;
  * @param <Y> Type of the sixth argument.
  */
 @FunctionalInterface
-public interface HexaConsumerThrowable<T, U, V, W, X, Y> extends ofThrowable {
+public interface HexaConsumerThrowable<T, U, V, W, X, Y> extends OfThrowable {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 6 arguments and returning nothing.
      *

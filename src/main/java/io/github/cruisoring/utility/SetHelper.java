@@ -5,7 +5,8 @@ import io.github.cruisoring.throwables.SupplierThrowable;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static io.github.cruisoring.Asserts.*;
+import static io.github.cruisoring.Asserts.assertAllFalse;
+import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
  * Helper class with Set related methods implemented.
@@ -15,6 +16,8 @@ public class SetHelper {
 
     //Default Set factory to be used to create new Set.
     public static Supplier<Set> defaultSetSupplier = HashSet::new;
+
+    private SetHelper(){}
 
     /**
      * Convert a given array to a Set created by the given factory method.

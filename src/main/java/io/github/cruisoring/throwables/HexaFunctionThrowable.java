@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -17,7 +17,7 @@ import java.util.function.Function;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface HexaFunctionThrowable<T, U, V, W, X, Y, R> extends ofThrowable<R> {
+public interface HexaFunctionThrowable<T, U, V, W, X, Y, R> extends OfThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 6 arguments and returning result of type <code>R</code>
      *
@@ -34,7 +34,7 @@ public interface HexaFunctionThrowable<T, U, V, W, X, Y, R> extends ofThrowable<
 
     /**
      * Execute the given business logic to return the generated value or handle thrown Exception
-     * with the default handler of {@code ofThrowable}.
+     * with the default handler of {@code OfThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
@@ -43,7 +43,7 @@ public interface HexaFunctionThrowable<T, U, V, W, X, Y, R> extends ofThrowable<
      * @param x The fifth argument of type <code>X</code>.
      * @param y The sixth argument of type <code>Y</code>.
      * @return the result of type <tt>R</tt> if evaluating the given argments successfully,
-     * or let the default handler of {@code ofThrowable} to process
+     * or let the default handler of {@code OfThrowable} to process
      */
     default R tryApply(T t, U u, V v, W w, X x, Y y) {
         try {

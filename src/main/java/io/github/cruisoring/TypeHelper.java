@@ -17,7 +17,6 @@ import sun.reflect.ConstantPool;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -204,10 +203,6 @@ public class TypeHelper {
     );
     private static final Function<Object, Object> returnsSelf = obj -> obj;
     private static final Function<Object, Object> mapsToNull = obj -> null;
-    private static final BiPredicate<Object, Object> alwaysFalse = (a, b) -> false;
-    private static final BiPredicate<Object, Object> objectsEquals = Objects::equals;
-    private static final BiPredicate<Object, Object> arraysDeepEquals = (a, b) ->
-            Arrays.deepEquals((Object[]) a, (Object[]) b);
 
     //region Method and repository to get return type of Lambda Expression
     private static final Method _getConstantPool() throws NoSuchMethodException {
@@ -222,7 +217,7 @@ public class TypeHelper {
      * <p>
      * <tt>FunctionThrowable&lt;TKey, Tuple3&lt;T,U,V&gt;&gt; valueFunction</tt>
      */
-    static final TupleRepository3<ofThrowable,
+    static final TupleRepository3<OfThrowable,
             Boolean, Class[], Class> lambdaGenericInfoRepository = TupleRepository3.fromKey(
             TypeHelper::getLambdaGenericInfo
     );
@@ -969,7 +964,7 @@ public class TypeHelper {
 
     //region Repository with Class as the key, to keep 7 common used attributes or operators
 
-    private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(ofThrowable lambda) {
+    private static Tuple3<Boolean, Class[], Class> getLambdaGenericInfo(OfThrowable lambda) {
         Class lambdaClass = checkNoneNulls(lambda).getClass();
         ConstantPool constantPool = TypeHelper.getConstantPoolOfClass(lambdaClass);
         if(constantPool == null) {
@@ -999,7 +994,7 @@ public class TypeHelper {
      * @param aThrowable solid Lambda expression
      * @return The type of the return value defined by the Lambda Expression.
      */
-    public static Class getReturnType(ofThrowable aThrowable) {
+    public static Class getReturnType(OfThrowable aThrowable) {
         return lambdaGenericInfoRepository.getThirdValue(aThrowable);
     }
     //endregion

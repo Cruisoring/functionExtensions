@@ -60,7 +60,7 @@ public class OrdinalComparator<T> implements Comparator<T> {
     @Override
     public String toString() {
         String string = orderedKeys.stream()
-                .map(k -> k.toString())
+                .map(Object::toString)
                 .collect(Collectors.joining(","));
         return string;
     }

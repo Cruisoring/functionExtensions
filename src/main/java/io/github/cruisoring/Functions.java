@@ -32,18 +32,18 @@ public class Functions {
     static Function<Exception, Object> defaultExceptionHandler = Functions::returnsNull;
 
     /**
-     * Get the current defaultExceptionHandler that would change default behaviours of all {@code ofThrowable}s,
+     * Get the current defaultExceptionHandler that would change default behaviours of all {@code OfThrowable}s,
      * including tryApply()/tryTest()/tryAccept()/tryRun() of them.
-     * @return the current {@code Function<Exception, Object>} instance used as default handler to handle Exception of all {@code ofThrowable}s.
+     * @return the current {@code Function<Exception, Object>} instance used as default handler to handle Exception of all {@code OfThrowable}s.
      */
     public static Function<Exception, Object> getDefaultExceptionHandler() {
         return defaultExceptionHandler;
     }
 
     /**
-     * Set the Functions.defaultExceptionHandler to a new handler that would change the default behaviours of all {@code ofThrowable}s,
+     * Set the Functions.defaultExceptionHandler to a new handler that would change the default behaviours of all {@code OfThrowable}s,
      * including tryApply()/tryTest()/tryAccept()/tryRun() of them.
-     * @param handler   the new {@code Function<Exception, Object>} instance used as default handler to handle Exception of all {@code ofThrowable}s.
+     * @param handler   the new {@code Function<Exception, Object>} instance used as default handler to handle Exception of all {@code OfThrowable}s.
      * @return  <tt>true</tt> if the Functions.defaultExceptionHandler is changed successfully, otherwise <tt>false</tt>
      */
     public static boolean setDefaultExceptionHandler(Function<Exception, Object> handler){

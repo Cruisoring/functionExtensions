@@ -1,6 +1,6 @@
 package io.github.cruisoring.throwables;
 
-import io.github.cruisoring.ofThrowable;
+import io.github.cruisoring.OfThrowable;
 
 import java.util.function.Function;
 
@@ -14,7 +14,7 @@ import java.util.function.Function;
  * @param <R> Type of the returned result.
  */
 @FunctionalInterface
-public interface TriFunctionThrowable<T, U, V, R> extends ofThrowable<R> {
+public interface TriFunctionThrowable<T, U, V, R> extends OfThrowable<R> {
     /**
      * The abstract method to be mapped to Lambda Expresion accepting 3 arguments and returning result of type <code>R</code>
      *
@@ -27,13 +27,13 @@ public interface TriFunctionThrowable<T, U, V, R> extends ofThrowable<R> {
     R apply(T t, U u, V v) throws Exception;
 
     /**
-     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code ofThrowable}.
+     * Execute the given business logic to return the generated value or handle thrown Exception with the default handler of {@code OfThrowable}.
      *
      * @param t The first argument of type <code>T</code>.
      * @param u The second argument of type <code>U</code>.
      * @param v The third argument of type <code>V</code>.
      * @return the result of type <tt>R</tt> if evaluating the given argments successfully, 
-     * or let the default handler of {@code ofThrowable} to process
+     * or let the default handler of {@code OfThrowable} to process
      */
     default R tryApply(T t, U u, V v) {
         try {

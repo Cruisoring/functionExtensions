@@ -21,11 +21,11 @@ import static io.github.cruisoring.Asserts.checkNotNull;
  */
 public class ResourceHelper {
     public static final String[] resourcePaths;
-    public static String MAVEN_TARGET = "target";
-    public static String MAVEN_TARGET_CLASSES = "target/classes/";
-    public static String MAVEN_TARGET_TEST_CLASSES = "target/test-classes/";
-    public static String MAVEN_MAIN_RESOURCES = "src/main/resources/";
-    public static String MAVEN_TEST_RESOURCES = "src/test/resources/";
+    public static final String MAVEN_TARGET = "target";
+    public static final String MAVEN_TARGET_CLASSES = "target/classes/";
+    public static final String MAVEN_TARGET_TEST_CLASSES = "target/test-classes/";
+    public static final String MAVEN_MAIN_RESOURCES = "src/main/resources/";
+    public static final String MAVEN_TEST_RESOURCES = "src/test/resources/";
 
     static {
         resourcePaths = getResourcePaths("sun.reflect", "java.lang");
@@ -311,7 +311,7 @@ public class ResourceHelper {
             if(Paths.get(filepath).isAbsolute()) {
                 savedFile = new File(filepath);
             } else {
-                filepath = filepath.startsWith("target") ? filepath : "target\\" + filepath;
+                filepath = filepath.startsWith(MAVEN_TARGET) ? filepath : "target\\" + filepath;
                 savedFile = new File(filepath).getAbsoluteFile();
                 File directory = savedFile.getParentFile();
                 if (!directory.exists()) {
@@ -378,17 +378,15 @@ public class ResourceHelper {
         FileOutputStream fr = null;
         try {
             fr = new FileOutputStream(file);
-            try {
-                properties.store(fr, null);
-                fr.close();
-                Logger.D("Properties with %d values is saved as %s", properties.size(), file);
-                return file.getAbsolutePath();
-            } catch (IOException e) {
-                Logger.W("failed to save to %s: %s", file, e.getMessage());
-                return null;
-            }
+            properties.store(fr, null);
+            fr.close();
+            Logger.D("Properties with %d values is saved as %s", properties.size(), file);
+            return file.getAbsolutePath();
         } catch (FileNotFoundException e) {
             Logger.W("failed to locate the file: %s", file);
+            return null;
+        } catch (IOException e) {
+            Logger.W("failed to save to %s: %s", file, e.getMessage());
             return null;
         }
     }
