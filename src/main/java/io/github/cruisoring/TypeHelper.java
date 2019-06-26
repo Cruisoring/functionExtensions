@@ -1125,9 +1125,9 @@ public class TypeHelper {
     public static Object copyOfRange(Object array, int from, int to) {
         try {
             if (array == null) return null;
-            Class compoentType = checkNotNull(array.getClass().getComponentType(), "failed to get the componentType of %s", array);
+            Class compoentType = checkNotNull(array.getClass().getComponentType(), "failed to get the componentType of given array.");
             TriFunctionThrowable<Object, Integer, Integer, Object> copier = checkNotNull(
-                    getArrayRangeCopier(compoentType), "Failed to get ArrayRangeCopier of %s", compoentType);
+                    getArrayRangeCopier(compoentType), "Failed to get ArrayRangeCopier of given array.");
             return copier.apply(array, from, to);
         } catch (Exception ex) {
             return null;

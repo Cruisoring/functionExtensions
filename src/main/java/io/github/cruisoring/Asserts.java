@@ -152,13 +152,12 @@ public class Asserts {
      * Ensure the single <tt>expression</tt> is <tt>true</tt>, otherwise throw IllegalStateException to fail the test.
      *
      * @param expression the boolean expression that is expected to be <tt>true</tt>
-     * @param format    template to compose the error message when {@code expression} is not <tt>true</tt>
-     * @param args      arguments to compose the error message when {@code expression} is not <tt>true</tt>
+     * @param message   message of the Exception
      * @throws IllegalStateException if the {@code expression} is false
      */
-    public static void assertTrue(boolean expression, String format, Object... args) {
+    public static void assertTrue(boolean expression, String message) {
         if (!expression) {
-            throw logRuntimeException(new IllegalStateException(tryFormatString(format, args)));
+            throw logRuntimeException(new IllegalStateException(message));
         }
     }
 
@@ -166,13 +165,12 @@ public class Asserts {
      * Ensure the single <tt>expression</tt> is <tt>false</tt>, otherwise throw IllegalStateException to fail the test.
      *
      * @param expression the boolean expression that is expected to be <tt>false</tt>
-     * @param format    template to compose the error message when {@code expression} is not <tt>false</tt>
-     * @param args      arguments to compose the error message when {@code expression} is not <tt>false</tt>
+     * @param message   message of the Exception
      * @throws IllegalStateException if the {@code expression} is true
      */
-    public static void assertFalse(boolean expression, String format, Object... args) {
+    public static void assertFalse(boolean expression, String message) {
         if (expression) {
-            throw logRuntimeException(new IllegalStateException(tryFormatString(format, args)));
+            throw logRuntimeException(new IllegalStateException(message));
         }
     }
 
@@ -180,13 +178,12 @@ public class Asserts {
      * Ensure the single object is <tt>null</tt>, otherwise throw IllegalStateException to fail the test.
      *
      * @param object    the object that is expected to be <tt>null</tt>
-     * @param format    template to compose the error message when {@code expression} is not <tt>null</tt>
-     * @param args      arguments to compose the error message when {@code expression} is not <tt>null</tt>
+     * @param message   message of the Exception
      * @throws IllegalStateException if the {@code expression} is not null
      */
-    public static void assertNull(Object object, String format, Object... args) {
+    public static void assertNull(Object object, String message) {
         if (object != null) {
-            throw logRuntimeException(new IllegalStateException(tryFormatString(format, args)));
+            throw logRuntimeException(new IllegalStateException(message));
         }
     }
 
@@ -194,13 +191,12 @@ public class Asserts {
      * Ensure the single object is not <tt>null</tt>, otherwise throw IllegalStateException to fail the test.
      *
      * @param object    the object that is expected to be not <tt>null</tt>
-     * @param format    template to compose the error message when {@code expression} is <tt>null</tt>
-     * @param args      arguments to compose the error message when {@code expression} is <tt>null</tt>
+     * @param message   message of the Exception
      * @throws NullPointerException if the {@code expression} is null
      */
-    public static void assertNotNull(Object object, String format, Object... args) {
+    public static void assertNotNull(Object object, String message) {
         if (object == null) {
-            throw logRuntimeException(new NullPointerException(tryFormatString(format, args)));
+            throw logRuntimeException(new NullPointerException(message));
         }
     }
 
@@ -429,15 +425,14 @@ public class Asserts {
      * Ensures that an object reference passed as a parameter to the calling method is not null.
      *
      * @param reference an object reference
-     * @param format    template to compose the error message when {@code reference is null}
-     * @param args      arguments to compose the error message when {@code reference is null}
+     * @param message   message of the Exception
      * @param <R>       type of the argument to be returned.
      * @return the non-null reference that was validated
      * @throws NullPointerException if {@code reference} is null
      */
-    public static <R> R checkNotNull(R reference, String format, Object... args) {
+    public static <R> R checkNotNull(R reference, String message) {
         if (reference == null) {
-            throw logRuntimeException(new NullPointerException(tryFormatString(format, args)));
+            throw logRuntimeException(new NullPointerException(message));
         }
         return reference;
     }

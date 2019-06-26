@@ -89,7 +89,8 @@ public class SimpleTypedList<E> implements TypedList<E> {
         if (capacity <= SimpleTypedList.DEFAULT_CAPACITY) {
             return SimpleTypedList.DEFAULT_CAPACITY;
         }
-        assertTrue(capacity < SimpleTypedList.MAX_CAPACITY, "The desirable capacity %d is greater than MAX_CAPCITY %d", capacity, SimpleTypedList.MAX_CAPACITY);
+        assertTrue(capacity < SimpleTypedList.MAX_CAPACITY,
+                "The desirable capacity is greater than MAX_CAPCITY");
         int result = SimpleTypedList.DEFAULT_CAPACITY;
         do {
             result *= 2;

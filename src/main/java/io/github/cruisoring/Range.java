@@ -45,7 +45,7 @@ public class Range implements Comparable<Range> {
      * @return Range of the indexes.
      */
     public static Range ofLength(int length) {
-        Asserts.assertTrue(length >= 0, "Length shall not be negative value: " + length);
+        Asserts.assertTrue(length >= 0, "Length shall not be negative value");
         return length == 0 ? NONE : new Range(0, length);
     }
 
@@ -183,7 +183,7 @@ public class Range implements Comparable<Range> {
      */
     protected Range(int startInclusive, int endExclusive) {
         assertTrue(startInclusive <= endExclusive,
-                "Range startInclusive %d shall not be greater or equal to endExclusive %d.", startInclusive, endExclusive);
+                "Range startInclusive" + startInclusive + " shall not be greater or equal to endExclusive " + endExclusive);
 
         //Notice: the largest 2 and smallest 2 integers are reserved to represent infinity and shall not be used
         _start = startInclusive <= NEGATIVE_INFINITY + 1 ? NEGATIVE_INFINITY : startInclusive;
