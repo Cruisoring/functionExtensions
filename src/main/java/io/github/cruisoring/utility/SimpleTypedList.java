@@ -193,11 +193,22 @@ public class SimpleTypedList<E> implements TypedList<E> {
         return new ReadOnlyList<>(elements, 0, upperIndex);
     }
 
+    /**
+     * Adds an element to the end of this List, this has the same effect as add(E e) except returning the added element.
+     *
+     * @param   e   the item to be added.
+     * @return  the newly added <code>e</code> argument.
+     */
     public E push(E e){
         add(e);
         return e;
     }
 
+    /**
+     * Removes the element at the end of this List and returns it back.
+     *
+     * @return  the element at the end of this List.
+     */
     public E pop(){
         if(upperIndex == 0) {
             throw new EmptyStackException();
