@@ -193,6 +193,20 @@ public class SimpleTypedList<E> implements TypedList<E> {
         return new ReadOnlyList<>(elements, 0, upperIndex);
     }
 
+    public E push(E e){
+        add(e);
+        return e;
+    }
+
+    public E pop(){
+        if(upperIndex == 0) {
+            throw new EmptyStackException();
+        }
+        E last = elements[upperIndex-1];
+        elements[upperIndex--] = null;
+        return last;
+    }
+
     //region Implementation of List interface
     @Override
     public int size() {
