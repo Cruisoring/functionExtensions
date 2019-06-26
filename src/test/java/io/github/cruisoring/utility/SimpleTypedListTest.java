@@ -316,6 +316,6 @@ public class SimpleTypedListTest {
             Logger.M(Measurement.start("SimpleTypedList"), () -> testListPerformance(plainList));
         }
 
-        Measurement.printMeasurementSummaries(LogLevel.info);
+        Measurement.purge(LogLevel.warning);
     }
 }

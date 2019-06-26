@@ -23,6 +23,10 @@ import static io.github.cruisoring.Asserts.checkNoneNulls;
  * Utility class for performance measurement.
  */
 public class Measurement {
+
+    private Measurement() {
+    }
+
     //Common columns used to log info
     public static final String START_COLUMN = "start";
     public static final String DURATION = "duration";
@@ -36,16 +40,6 @@ public class Measurement {
      * Keep all measurements as {@code TupleTable}s by names.
      */
     static final Map<String, TupleTable> namedMeasurements = new LinkedHashMap<>();
-
-    private Measurement() {
-    }
-
-    /**
-     * Clear all the measurements.
-     */
-    public static void clear(){
-        namedMeasurements.clear();
-    }
 
     /**
      * Helper class to compose an unique name and initial a single measurement
@@ -119,14 +113,18 @@ public class Measurement {
     }
 
     /**
-     * Print out the existing performance summaries by name with given LogLevel.
+     * Print out the existing performance summaries by name with given LogLevel, then clear.
      * @param level the {@code LogLevel} to show the summaries.
      */
-    public static void printMeasurementSummaries(LogLevel level){
+    public static void purge(LogLevel level){
         Map<String, String> performanceSummary = Measurement.getAllSummary();
 
-        for (Map.Entry<String, String> entry : performanceSummary.entrySet()) {
-            Logger.Default.log(level, "%s: %s", entry.getKey(), entry.getValue());
+        try {
+            for (Map.Entry<String, String> entry : performanceSummary.entrySet()) {
+                Logger.Default.log(level, "%s: %s", entry.getKey(), entry.getValue());
+            }
+        } finally {
+            namedMeasurements.clear();
         }
     }
 
