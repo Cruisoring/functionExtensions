@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static io.github.cruisoring.Asserts.assertAllFalse;
+import static io.github.cruisoring.Asserts.assertAllNotNull;
 import static io.github.cruisoring.Asserts.checkNoneNulls;
 
 /**
@@ -173,5 +174,21 @@ public class SetHelper {
             }
         }
         return set;
+    }
+
+    /**
+     * Check if two Sets contains same number and same set of elements.
+     * @param setA      the first Set to get the Symmetric Difference
+     * @param setB      the second Set to get the Symmetric Difference
+     * @return      <tt>true</tt> if there is no difference found, otherwise <tt>false</tt>
+     */
+    public static boolean isSameAs(Set setA, Set setB) {
+        assertAllNotNull(setA, setB);
+
+        if(setA.size() != setB.size()) {
+            return false;
+        }
+        Set difference = difference(setA, setB);
+        return difference.isEmpty();
     }
 }

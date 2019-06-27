@@ -7,6 +7,11 @@ import java.util.function.Supplier;
 
 import static io.github.cruisoring.Asserts.*;
 
+/**
+ * A strong-typed class implements {@code TypeList<E>} that extends {@code List<T>} with elementType info.
+ *
+ * @param <E> the generic type of the elements kept by this {@code SimpleTypedList<E>}
+ */
 public class ReadOnlyList<E> implements TypedList<E> {
 
     static final String UNSUPPORTED = "Writing operation is not supported by ReadOnlyList<E>";
@@ -15,7 +20,11 @@ public class ReadOnlyList<E> implements TypedList<E> {
     protected final E[] elements;
     protected final int upperIndex;
 
-
+    /**
+     * Construct a {@code ReadOnlyList<E>} instance with its componentType specified and Collection of data to be copied.
+     * @param elementType         the component type of the Array to keep the elements
+     * @param collection        the data contained would be encapsulated as read-only by this {@code ReadOnlyList<E>}
+     */
     public ReadOnlyList(Class<? extends E> elementType, Collection<E> collection) {
         this.elementType = checkNotNull(elementType, "ElementType must be specified");
         upperIndex = checkNotNull(collection, "No Collection spedified!").size();
@@ -23,6 +32,12 @@ public class ReadOnlyList<E> implements TypedList<E> {
         elements = (E[]) ArrayHelper.create(elementType, upperIndex, i -> iterator.next());
     }
 
+    /**
+     * Create a {@code ReadOnlyList<E>} by specifying its element type, and the Array of data to be encapsulated.
+     *
+     * @param elementType the component type of the Array to keep the elements
+     * @param values      the Array of elements to be encapsulated as read-only by this {@code ReadOnlyList<E>}
+     */
     public ReadOnlyList(Class<? extends E> elementType, E... values) {
         this.elementType = checkNotNull(elementType, "ElementType must be specified");
         if (values == null) {
@@ -34,10 +49,22 @@ public class ReadOnlyList<E> implements TypedList<E> {
         }
     }
 
+    /**
+     * Create a {@code ReadOnlyList<E>} with the default type of the elements, along with the data to be encapsulated.
+     *
+     * @param values      the Array of elements to be encapsulated as read-only by this {@code ReadOnlyList<E>}
+     */
     public ReadOnlyList(E... values) {
         this((Class<? extends E>) (values == null ? Object.class : values.getClass().getComponentType()), values);
     }
 
+    /**
+     * Create a {@code ReadOnlyList<E>} with the default type of the elements, along with a portion of the data to be encapsulated.
+     *
+     * @param values      the Array of elements to be encapsulated as read-only by this {@code ReadOnlyList<E>}
+     * @param from      the Inclusive start index of the data to be extracted from the given {@code values}
+     * @param to        the Exclusive end index of the data to be extracted from the given {@code values}
+     */
     public ReadOnlyList(E[] values, int from, int to){
         assertAllFalse(values == null, from < 0, to > values.length, from > to);
 
@@ -46,6 +73,11 @@ public class ReadOnlyList<E> implements TypedList<E> {
         upperIndex = elements.length;
     }
 
+    /**
+     * Create a {@code ReadOnlyList<E>} with a Supplier that would provide the data in form of Array.
+     *
+     * @param initValueSupplier the values supplier which will fill the {@code ReadOnlyList} with an array of data.
+     */
     public ReadOnlyList(Supplier<E[]> initValueSupplier){
         assertNotNull(initValueSupplier, "The supplier of init values must be specified");
         elements = initValueSupplier.get();
