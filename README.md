@@ -2,6 +2,10 @@
 
 
 ## Updates
+### 01/07/2019: 2.1.0
+ *  TypedList interface introduced to make List interface strong-typed.
+ *  SimpleTypedList and ReadOnlyList implemented as simple but unsafe List.
+
 ### 18/06/2019: 2.0.0
  *  Loggers added to enable logging message/exception of different level with different color/format.
  *  Meansurement added to enable simple performance measurements.
@@ -23,7 +27,7 @@ functionExtentions is a Java library with a rich set of utilities and tools to e
 
 In the 1.x versions, there are mainly 3 components: Functional Interfaces throwing exceptions declared to make Lambdas since JDK8 can be used to refer most methods without boiler plate codes, the generic Tuple classes are data structures to keep strong-typed immutable data that is also critical for FP to avoid a lot of issues caused by mutable data. The Repositories and Lazy implemented to expedite Functional Programming with JAVA 8 to provide a brand new kind of business logic with Map.
 
-The 2.0.0 version was evoluted along with [JsonTuples](https://github.com/Cruisoring/JsonTuples/) (it is not only a highly efficient JSON parser, but also a generic media to compare huge data sets by exploiting the potential of Tuple) by enhance the above utilities and include some more practical tools that have practical meaning to tackle real JAVA coding problems that I might document gradually.
+The 2.1.0 version evolved along with [JsonTuples](https://github.com/Cruisoring/JsonTuples/) (it is not only a highly efficient JSON parser, but also a generic media to compare huge data sets by exploiting the potential of Tuple) by enhance the above utilities and include some more practical tools that have practical meaning to tackle real JAVA coding problems that I might document gradually.
 
 ### functionExtentions Goals
  *	Declares a rich set of funcitonal interfaces throwing Exceptions, that can be converted to conventional ones with Checked Exceptions handled with shared exceptionHandlers, thus allow developers to define the concerned business logic only within the lambda expressions.
@@ -43,11 +47,11 @@ For maven users for example:
 <dependency>
     <groupId>io.github.cruisoring</groupId>
     <artifactId>functionExtensions</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
-Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/2.0.0/)
+Or get the packages directly from [Maven Central](http://repo1.maven.org/maven2/io/github/cruisoring/functionExtensions/2.1.0/)
 
 ## Implementation Techniques
 
