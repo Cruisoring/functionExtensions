@@ -1,4 +1,50 @@
-# Lazy<T>
+# functionExtensions.Logger
+
+The [io.github.curuisoring.logger](https://github.com/Cruisoring/functionExtensions/tree/master/src/main/java/io/github/cruisoring/logger) package, build with FP paradigms, was added into [functionExtensions](https://github.com/Cruisoring/functionExtensions) with quite some unique features to empower software development with JAVA:
+ *  Zero-config in most cases.
+ *  Self-configurable means of logging to support any outputs and multiple outputs, simply by providing a String consumer.
+ *  Error-prove, leveled logging of messages/exceptions with default colourful console outputs.
+ *  Concise stack trace screening to show only meaningful call stacks.
+ *  Logging messages highlight optional arguments in error/pass/normal states in different color by default.
+ *  Logging ON/OFF by setting single static variables without changing source codes, or control minimum level to be logged in either logger or global level. 
+ *  Build-in performance measurement support.
+ 
+## Background
+
+When working with a language like JAVA, the window that I watched most could be the the source code editor window, then spend the second to most of time to check the print-outs from the output window. Checking the logs could make my eyes sore quickly when the messages are too long, or containing too much details that shall be discarded at the first place and especially when I have to scrutinize the lengthy mono-coloured text to search some keywords, that shall be the initial key reason for me to develop this logging utility.
+
+Unlike most other loggers, I have used static methods extensively to save time to initialize instances, turning logging on/off or redirecting to different media. When implementing some performance measurement utilities accepting Lambda expressions, I found it could be fitted well and that shall be a cheap means to tune your functions. 
+ 
+
+## Class Architecture
+
+The classes/interfaces diagram is shown below:
+
+![Class diagram](images/Logger_diagram.png "Logger Classes and Interfaces")
+
+The only Enum type [LogLevel](https://github.com/Cruisoring/functionExtensions/blob/master/src/main/java/io/github/cruisoring/logger/LogLevel.java) defines 6 levels:
+ *  ```verbose, debug, info, warning, error``` by referring [Android.log](https://developer.android.com/reference/android/util/Log) to tag the logged messages/exceptions.
+ *  ```none``` is used mainly to turn off logging globally.
+
+The [ILogger interface](https://github.com/Cruisoring/functionExtensions/blob/master/src/main/java/io/github/cruisoring/logger/ILogger.java) defines 4 methods to be implemented:
+ *  ```void save(String message)```: it is actually the only mandatory method to create a new Logger instance, as a Lambda to specify how to log a message.
+ *  ```LogLevel getMinLevel()```: specify the Minimum LogLevel, messages under it would be ignored by next method canLog().
+ *  ```boolean canLog(LogLevel level)```: determine if the given *LogLevel* shall be logged or not by check the Logger instance itself and global static settings.
+ *  ```String getMessage(LogLevel level, String format, Object... args)```: placeholder to specify how a message shall be created.
+ 
+The ILogger interface has defined multiple default methods of following types:
+ *  ```ILogger log(LogLevel level, String format, Object... arguments)```: default method to log messages with optional arguments by: 
+    * check and short-cut if logging is OFF or the message with given *LogLevel* shall not be logged by calling ```boolean canLog(LogLevel level)```;
+    * compose message by calling the ```String getMessage(LogLevel level, String format, Object... args)``` that can be personised.
+    * log the composed message by calling ```void save(String message)```.
+ *  ```ILogger log(LogLevel level, Exception ex)```: default method to log exception by:
+    * get stack trace of either the captured *Exception ex* itself, or its **cause** when available with assistance of [StackTraceHelper](https://github.com/Cruisoring/functionExtensions/blob/master/src/main/java/io/github/cruisoring/utility/StackTraceHelper.java) that shall effectively reduce hundreds lines of call stacks to dozens highlighting only the source codes of yours.
+    * calling ```ILogger log(LogLevel level, String format, Object... arguments)``` to get the exception logged with stack trace highlighted.
+ *  ```verbose(Exception), verbose(String, Object...), debug(Exception), ... error(Exception), error(String, Object...)```: just syntactic sugar to feed above 2 log() methods with corresponding **LogLevel**s.
+ *  Performance measurement methods to log single execution with explicit/implicit name that would be concluded by names. See later section.
+ 
+The [Logger.java](https://github.com/Cruisoring/functionExtensions/blob/master/src/main/java/io/github/cruisoring/logger/Logger.java)
+    
 
 ## Extra Action to be invoked by AutoCloseable.close() 
 
