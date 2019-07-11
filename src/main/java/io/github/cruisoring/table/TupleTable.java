@@ -378,6 +378,11 @@ public class TupleTable<R extends WithValues> implements ITable<R> {
     }
 
     @Override
+    public String toString() {
+        return isEmpty() ? columns.toString() : TypeHelper.deepToString(rows);
+    }
+
+    @Override
     public Object[] toArray() {
         return rows.stream().map(v -> new TupleRow<R>(columns, v))
                 .toArray();

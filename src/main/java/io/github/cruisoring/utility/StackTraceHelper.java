@@ -1,8 +1,10 @@
 package io.github.cruisoring.utility;
 
+import io.github.cruisoring.Range;
 import io.github.cruisoring.logger.ILogger;
 import io.github.cruisoring.logger.Logger;
 import io.github.cruisoring.tuple.Tuple;
+import io.github.cruisoring.tuple.Tuple2;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +62,35 @@ public class StackTraceHelper {
         List<StackTraceElement> concerned = Arrays.stream(stacks)
                 .skip(first).limit((long)last - first).collect(Collectors.toList());
         return concerned;
+    }
+
+    /**
+     * Specify relevant stack trace elements as a {@code Range} plus the full {@code StackTraceElement[]}.
+     *
+     * @param ex       Exception if available to get the captured stack trace.
+     * @param filters   keywords that shall be neglected.
+     * @return List of stack trace elements
+     */
+    public static Tuple2<StackTraceElement[], Range> getFilteredStacks(Throwable ex, String... filters) {
+        Tuple<String> tuple = Tuple.setOf(filters.length == 0 ? defaultFilters : filters);
+        StackTraceElement[] stacks = ex == null ? Thread.currentThread().getStackTrace() : ex.getStackTrace();
+        int first = -1, last = -1;
+        for (int i = 0; i < stacks.length; i++) {
+            String className = stacks[i].getClassName();
+            if (first == -1) {
+                if (!tuple.anyMatch(className::equals)) {
+                    first = i;
+                } else {
+                    continue;
+                }
+            }
+            last = i;
+            if (tuple.anyMatch(className::equals)) {
+                break;
+            }
+        }
+
+        return Tuple.create(stacks, Range.closedOpen(first, last));
     }
 
     /**

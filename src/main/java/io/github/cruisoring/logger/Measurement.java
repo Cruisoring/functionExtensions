@@ -27,6 +27,9 @@ public class Measurement {
     private Measurement() {
     }
 
+    //Set DisableMeasurement to 'true' would turn off Measurements by shortcut relevant methods
+    public static boolean DisableMeasurement = false;
+
     //Common columns used to log info
     public static final String START_COLUMN = "start";
     public static final String DURATION = "duration";
@@ -49,7 +52,7 @@ public class Measurement {
      * @return the {@code Moment} instance
      */
     public static Moment start(String format, Object... args) {
-        return new Moment(format, args);
+        return DisableMeasurement ? null : new Moment(format, args);
     }
 
     /**
@@ -58,7 +61,7 @@ public class Measurement {
      * @return the {@code Moment} instance
      */
     public static Moment start() {
-        return new Moment();
+        return DisableMeasurement ? null : new Moment();
     }
 
     private static Class getClass(Object obj) {
@@ -157,6 +160,10 @@ public class Measurement {
      * @return the last returned value by executing the concerned {@code SupplierThrowable}
      */
     public static <R> R measure(String name, int times, SupplierThrowable<R> supplierThrowable, LogLevel... levels) {
+        if(DisableMeasurement){
+            return supplierThrowable.orElse(null).get();
+        }
+
         assertAllNotNull(name, supplierThrowable);
 
         if (namedMeasurements.containsKey(name)) {
@@ -189,6 +196,11 @@ public class Measurement {
      * @param levels            optional {@code LogLevel} to be used to log the measurement outcome.
      */
     public static void measure(String name, int times, RunnableThrowable runnableThrowable, LogLevel... levels) {
+        if(DisableMeasurement){
+            runnableThrowable.tryRun();
+            return;
+        }
+
         assertAllNotNull(name, runnableThrowable);
 
         if (namedMeasurements.containsKey(name)) {

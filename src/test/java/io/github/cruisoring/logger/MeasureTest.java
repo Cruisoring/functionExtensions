@@ -1,9 +1,11 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.Revokable;
 import io.github.cruisoring.utility.ArrayHelper;
 import org.junit.Test;
 
 import static io.github.cruisoring.Asserts.assertEquals;
+import static io.github.cruisoring.Asserts.assertTrue;
 
 
 public class MeasureTest {
@@ -48,5 +50,19 @@ public class MeasureTest {
         Object array2 = Measurement.measure("create", times, () -> ArrayHelper.create(Integer.class, length, i -> (31+i)*i + 31), LogLevel.debug);
 
         assertEquals(array1, array2);
+    }
+
+    @Test
+    public void measureSuppliers_withDisableMeasurement() {
+        try (
+                Revokable<Boolean> revokable = Revokable.register(()->Measurement.DisableMeasurement, v->Measurement.DisableMeasurement=v, true);
+                ) {
+            Measurement.purge(LogLevel.info);
+            Integer[] array1 = Measurement.measure("conventional", times, this::getArray, LogLevel.info);
+            Object array2 = Measurement.measure("create", times, () -> ArrayHelper.create(Integer.class, length, i -> (31 + i) * i + 31), LogLevel.debug);
+
+            assertEquals(array1, array2);
+            assertTrue(Measurement.getMeasuredNames().isEmpty(), "There shall be no measurements record created.");
+        }
     }
 }

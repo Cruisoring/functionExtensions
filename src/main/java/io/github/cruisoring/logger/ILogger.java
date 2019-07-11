@@ -1,7 +1,9 @@
 package io.github.cruisoring.logger;
 
+import io.github.cruisoring.Range;
 import io.github.cruisoring.throwables.RunnableThrowable;
 import io.github.cruisoring.throwables.SupplierThrowable;
+import io.github.cruisoring.tuple.Tuple2;
 import io.github.cruisoring.utility.StackTraceHelper;
 import io.github.cruisoring.utility.StringHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +12,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static io.github.cruisoring.Asserts.assertAllNotNull;
 
@@ -141,7 +144,20 @@ public interface ILogger {
      * @return Max number of LogLevel to be captured by the Logger, 0 means no StackTraceElement info would be saved.
      */
     default int getStackTraceCount(LogLevel level) {
-        return 0;
+        switch (level) {
+            case verbose:
+                return 11;
+            case debug:
+                return 9;
+            case info:
+                return 7;
+            case warning:
+                return 5;
+            case error:
+                return 3;
+            default:
+                return 0;
+        }
     }
 
     /**
@@ -152,21 +168,34 @@ public interface ILogger {
      * @return Stack trace of the call stack with specific number of stack frames.
      */
     default String getCallStack(LogLevel level, Throwable ex) {
-        int maxCount = getStackTraceCount(level);
-        if (maxCount == 0) {
-            return "";
-        }
-        List<StackTraceElement> stacks = StackTraceHelper.getFilteredStacks(maxCount, ex);
-        if (stacks == null) {
+        int maxCount = Math.max(2, getStackTraceCount(level));
+
+        Tuple2<StackTraceElement[], Range> stackAndRange = StackTraceHelper.getFilteredStacks(ex);
+        StackTraceElement[] stacks = stackAndRange.getFirst();
+        Range range =  stackAndRange.getSecond();
+        if(stacks == null || range.isEmpty()){
             return "";
         }
 
         AtomicInteger counter = new AtomicInteger();
-        String stackTrace = stacks.stream()
-                .map(s -> String.format("%s%s", StringUtils.repeat(" ", 2 * counter.getAndIncrement()), s))
-                .collect(Collectors.joining("\n..."));
+        String stackTraces;
+        if(maxCount >= range.size()){
+            stackTraces = range.getStream()
+                    .map(i -> String.format("[%d]%s%s", i, StringUtils.repeat(" ", 2 * counter.getAndIncrement()), stacks[i]))
+                    .collect(Collectors.joining("\n"));
+        } else {
+            int start = range.getStartInclusive();
+            int end = range.getEndExclusive();
+            String stack1 = IntStream.range(start, start + maxCount/2)
+                    .mapToObj(i -> String.format("[%d]%s%s", i, StringUtils.repeat(" ", 2 * counter.getAndIncrement()), stacks[i]))
+                    .collect(Collectors.joining("\n"));
+            String stack2 = IntStream.range(end - (1+maxCount)/2, end)
+                    .mapToObj(i -> String.format("[%d]%s%s", i, StringUtils.repeat(" ", 2 * counter.getAndIncrement()), stacks[i]))
+                    .collect(Collectors.joining("\n"));
+            stackTraces = stack1 + "\n..........\n" + stack2;
+        }
 
-        return stackTrace;
+        return stackTraces;
     }
 
     /**
@@ -197,15 +226,13 @@ public interface ILogger {
             Throwable cause = ex.getCause();
             if(cause != null) {
                 String stackTrace = getCallStack(level, cause);
-                String message = ex.getMessage();
-                if(message != null) {
-                    log(level, "%s: %s%s", message, cause.getMessage(), stackTrace);
-                } else {
-                    log(level, "%s: %s", cause.getMessage(), stackTrace);
-                }
+                String causeMessage = cause.getMessage();
+                log(level, ex.getClass().getSimpleName() + " caused by %s: %s\n%s",
+                        cause.getClass().getSimpleName(), causeMessage==null?"":causeMessage, stackTrace);
             } else {
+                String message = ex.getMessage();
                 String stackTrace = getCallStack(level, ex);
-                log(level, "%s: %s%s", ex.getClass().getSimpleName(), ex.getMessage(),
+                log(level, "%s: %s\n%s", ex.getClass().getSimpleName(), message==null?"":message,
                         StringUtils.isBlank(stackTrace) ? "" : "\n" + stackTrace);
             }
         }

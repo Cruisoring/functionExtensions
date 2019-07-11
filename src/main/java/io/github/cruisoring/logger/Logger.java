@@ -33,7 +33,7 @@ public class Logger implements ILogger {
     /**
      * Global LogLevel to be used as both default LogLevel when new a Logger instance, and also a global switch to turn off any logging when set to <code>LogLevel.none</code>
      */
-    static LogLevel GlobalLogLevel = LogLevel.debug;
+    public static LogLevel GlobalLogLevel = LogLevel.debug;
 
     static Object lock = new Object();
     //endregion
@@ -134,7 +134,7 @@ public class Logger implements ILogger {
      */
     public static Revokable<LogLevel> setLevelInScope(LogLevel newLogLevel) {
         synchronized (lock) {
-            Revokable<LogLevel> revokable = new Revokable<>(() -> GlobalLogLevel, level -> GlobalLogLevel = level, newLogLevel);
+            Revokable<LogLevel> revokable = new Revokable<>(() -> getGlobalLogLevel(), level -> setGlobalLevel(level), newLogLevel);
             return revokable;
         }
     }
@@ -173,7 +173,7 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Use Logger.Default to measure time used to get value from the given RunnableThrowable, save into Measurement and log the
+     * Use Logger.Default to measure time used to execute the given RunnableThrowable, save into Measurement and log the
      * elapse with proper <code>LogLevel</code>
      *
      * @param startMoment the token object to keep the moment to start triggering the concerned time-consuming process
@@ -384,30 +384,6 @@ public class Logger implements ILogger {
     @Override
     public boolean canLog(LogLevel level) {
         return level.compareTo(GlobalLogLevel) >= 0 && level.compareTo(minLevel) >= 0;
-    }
-
-    /**
-     * Get the max lines of stacks to be logged for concerned {@code LogLevel} so as to keep relevant StackTrace only.
-     *
-     * @param level <code>LogLevel</code> to be evaluated.
-     * @return the number of stackTraces to be logged. Positive values wold
-     */
-    @Override
-    public int getStackTraceCount(LogLevel level) {
-        switch (level) {
-            case verbose:
-                return 30;
-            case debug:
-                return 15;
-            case info:
-                return 10;
-            case warning:
-                return -5;
-            case error:
-                return -8;
-            default:
-                return 0;
-        }
     }
 
     @Override

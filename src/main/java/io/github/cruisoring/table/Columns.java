@@ -1,5 +1,6 @@
 package io.github.cruisoring.table;
 
+import io.github.cruisoring.TypeHelper;
 import io.github.cruisoring.tuple.Tuple;
 import io.github.cruisoring.tuple.WithValues;
 import io.github.cruisoring.tuple.WithValues2;
@@ -141,6 +142,11 @@ public class Columns implements IColumns {
     //endregion
 
     //region Instance methods
+    @Override
+    public String toString(){
+        return TypeHelper.deepToString(columnNames);
+    }
+
     @Override
     public Comparator<String> getNameComparator() {
         return nameComparator;
